@@ -1,0 +1,37 @@
+/*ESTILOS PARA LA BARRA LATERAL*/
+
+/*DISEÑO PARA PC*/
+@media (min-width: 1025px) {
+    .sidebar {
+        width: 280px;
+        background-color: #333;
+        color: #8323b3;
+        padding: 20px;
+    }
+}
+
+
+
+
+/*ESTILOS TABLET*/
+@media (min-width: 768px) and (max-width: 1024px) {
+    .sidebar {
+        width: 280px;
+        background-color: #333;
+        color: #8323b3;
+        padding: 20px;
+    }
+}
+
+
+
+
+
+/*DISEÑO PARA CELULAR*/
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+    }
+
+}
