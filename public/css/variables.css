@@ -74,6 +74,7 @@
 /*DISEÑO PARA PC*/
 body {
     background-color: var(--color-estado-dañado);
+    height: auto;
 }
 .layout-principal {
     display: flex;
