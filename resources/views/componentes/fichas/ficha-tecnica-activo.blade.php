@@ -1,20 +1,8 @@
 <button id="openModal">Ver Ficha</button>
 
     <dialog id="techModal">
-
-            <h2>Ficha Técnica del Producto</h2>
-            <hr>
-            <table>
-                <tr>
-                <td><strong>Modelo:</strong></td>
-                <td>Pro-2026 X</td>
-                </tr>
-                <tr>
-                <td><strong>Material:</strong></td>
-                <td>Aluminio Reforzado</td>
-                </tr>
-            </table>
-            <br>
+         <label >Nombre</label>
+            
         <button id="closeModal">Cerrar</button>
     </dialog>
 
