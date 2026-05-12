@@ -2,13 +2,18 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Ruta para ver la lista de personal del colegio
-Route::get('/usuarios', [UserController::class, 'index'])->name('users.index');
+// Solo los que hayan iniciado sesión pueden gestionar usuarios
+Route::middleware(['auth'])->group(function () {
+    Route::resource('usuarios', UserController::class);
+});
 
-// Ruta para procesar el registro de un nuevo docente/administrativo
-Route::post('/usuarios', [UserController::class, 'store'])->name('users.store');
+// Rutas de Autenticación
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

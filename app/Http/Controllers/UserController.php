@@ -22,7 +22,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validamos los datos
         $request->validate([
             'name'        => 'required|string|max:255',
             'email'       => 'required|string|email|max:255|unique:users',
@@ -31,7 +30,6 @@ class UserController extends Controller
             'role_id'     => 'required|exists:roles,id',
         ]);
 
-        // 2. Creamos al usuario
         User::create([
             'name'        => $request->name,
             'email'       => $request->email,
@@ -41,7 +39,42 @@ class UserController extends Controller
             'role_id'     => $request->role_id,
         ]);
 
-        // 3. Respuesta
-        return redirect()->back()->with('success', 'Personal registrado correctamente en SIGER.');
+        return redirect()->back()->with('success', 'Personal registrado correctamente.');
     }
-}
+
+    /**
+     * Actualiza la información de un docente o administrativo
+     */
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'email'       => 'required|email|unique:users,email,'.$id,
+            'document_id' => 'required|unique:users,document_id,'.$id,
+            'role_id'     => 'required|exists:roles,id',
+        ]);
+
+        $user->update([
+            'name'        => $request->name,
+            'email'       => $request->email,
+            'document_id' => $request->document_id,
+            'phone'       => $request->phone,
+            'role_id'     => $request->role_id,
+        ]);
+
+        return redirect()->back()->with('success', 'Personal actualizado correctamente.');
+    }
+
+    /**
+     * Elimina a un usuario del sistema
+     */
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Usuario eliminado con éxito.');
+    }
+} // <--- Esta es la llave que cierra la CLASE y debe ir al final de todo
