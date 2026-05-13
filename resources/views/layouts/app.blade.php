@@ -15,11 +15,11 @@
  </head>
  <body>
         <header>
-            @include('componentes.navbar')
+            @include('componentess.navbar')
         </header class=navbar>
 
                 <main class="content" style="flex: 1; padding: 20px;">
-                     @yield('content')
+                        @include('componentess.fichass.ficha-tecnica-activos')
                 </main>
             
  
