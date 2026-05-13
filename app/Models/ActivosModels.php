@@ -26,7 +26,14 @@ class ActivosModels extends Model
     // Relación para ver el nombre del aula en la Ficha Técnica
     public function aula()
     {
-        // Conecta el aula_id del activo con el AULA_ID de la tabla AULAS
-        return $this->belongsTo(AulasModels::class, 'aula_id', 'AULA_ID');
+    
+        return $this->belongsTo(AulasModels::class, 'aula_id', 'aula_id');
+    }
+    public function categoria()
+    {
+    // Relación: Un activo pertenece a una categoría
+    // El segundo parámetro es la llave foránea en tu tabla activos
+    // El tercer parámetro es la llave primaria en tu tabla categorías
+        return $this->belongsTo(CategoriasModels::class, 'cate_id', 'cate_id');
     }
 }
