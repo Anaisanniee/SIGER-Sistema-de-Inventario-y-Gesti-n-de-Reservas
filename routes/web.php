@@ -13,6 +13,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('usuarios', UserController::class);
 });
 
+// Solo la secretaria (ID 2) puede entrar aquí
+Route::middleware(['auth', 'role:2'])->group(function () {
+    Route::resource('usuarios', UserController::class);
+});
+
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
