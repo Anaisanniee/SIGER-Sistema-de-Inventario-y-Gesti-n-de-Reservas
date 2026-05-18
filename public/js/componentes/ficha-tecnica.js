@@ -1,15 +1,19 @@
-    (function() {
-        const modalaula = document.querySelector('#techModal-aula');
-        const openaula = document.querySelector('.btn-abrir-ficha-aula');
-        const closeaula = document.querySelector('.btn-cerrar-ficha-aula');
+document.addEventListener('DOMContentLoaded', () => {
 
-        if (openaula) openaula.onclick = () => modalaula.showModal();
-        if (closeaula) closeaula.onclick = () => modalaula.close();
+    const modal = document.getElementById('modalgeneral');
 
-        const modalactivo = document.querySelector('#techModal-activos');
-        const openactivo = document.querySelector('.btn-abrir-ficha-activos');
-        const closeactivo = document.querySelector('.btn-cerrar-ficha-activos');
+    if(modal){
 
-        if (openactivo) openactivo.onclick = () => modalactivo.showModal();
-        if (closeactivo) closeactivo.onclick = () => modalactivo.close();
-    })();
+        modal.addEventListener('show.bs.modal', (event) => {
+
+            const boton = event.relatedTarget;
+
+            const nombre = boton.getAttribute('data-nombre');
+
+            modal.querySelector('.modal-title').textContent = nombre;
+
+        });
+
+    }
+
+});

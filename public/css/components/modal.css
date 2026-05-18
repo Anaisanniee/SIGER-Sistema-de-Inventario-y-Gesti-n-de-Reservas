@@ -1,0 +1,25 @@
+.modal-content-siger{
+    background-color: #00000000 !important;
+    display: none !important;
+}
+
+.modal.show{
+    display: block !important;
+}
+
+
+.modal-header {
+    display: flex;
+    height: 100px;
+    gap: 15px;
+    padding: 20px;
+    background-color: var(--color-verde-pastel);
+    border-bottom: 1px solid var(--color-texto-secundario);
+}
+.modal-footer{
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px;
+
+}

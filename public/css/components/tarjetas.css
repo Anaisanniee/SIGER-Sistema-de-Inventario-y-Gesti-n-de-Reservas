@@ -1,0 +1,246 @@
+/*MEDIA QUERIES PARA RESPONSIVE DESIGN*/
+/*DISEÑO PARA MOVIL*/
+@media (max-width: 768px) {
+    .tarjeta-recurso {
+        border: 1px solid var(--color-texto-secundario);
+        width: 17rem;
+        height: 13.7rem;
+        border-radius: 15px;
+        text-align: left;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding-bottom: 10px; /* Espacio extra abajo */
+    }
+
+    .tarjeta-img {
+        background-color: var(--color-verde-pastel);
+        border-bottom: 1px solid var(--color-texto-secundario); /* Solo borde inferior */
+        width: 100%;
+        height: 100px; /* Altura fija para la imagen */
+        object-fit: cover;
+        border-radius: 15px 15px 0 0;
+        overflow: hidden;
+    }
+
+    .tarjeta-body {
+        display: flex;
+        flex-direction: column; /* Cambiamos a columna para apilar elementos */
+        padding: 10px;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: var(--fuente-principal);
+        margin-bottom: 5px; /* Espacio entre título y serial */
+    }
+
+    .estado {
+        font-family: var(--fuente-secundaria);
+        font-size: 0.8rem;
+        color: var(--color-texto-secundario);
+        margin-bottom: 10px; /* Espacio antes de los botones */
+    }
+
+    /* Contenedor para los botones */
+    .botones-container {
+        display: flex;
+        gap: 10px; /* Espacio entre botones */
+        
+    }
+
+    .btn {
+        flex: 1 ; /* Ambos botones ocupan igual espacio */
+        background-color: var(--color-principal);
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: var(--principal-secundario);
+    }
+}
+
+
+
+
+
+/*DISEÑO PARA TABLET*/
+@media (min-width: 769px) and (max-width: 1024px) {
+    .tarjeta-recurso {
+        width: 18rem;
+        height: 13.5rem;
+        border-radius: 20px;
+        text-align: left;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .tarjeta-img {
+        background-color: var(--color-verde-pastel);
+        border-bottom: 1px solid var(--color-texto-secundario); /* Solo borde inferior */
+        width: 100%;
+        height: 100px; /* Altura fija para la imagen */
+        object-fit: cover;
+        border-radius: 15px 15px 0 0;
+        overflow: hidden;
+    }
+
+    .tarjeta-body {
+        display: flex;
+        flex-direction: column; /* Cambiamos a columna para apilar elementos */
+        padding: 10px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        font-family: var(--fuente-principal);
+        margin-bottom: 5px; /* Espacio entre título y serial */
+    }
+
+    .estado {
+        font-family: var(--fuente-secundaria);
+        font-size: 0.8rem;
+        color: var(--color-texto-secundario);
+        margin-bottom: 10px; /* Espacio antes de los botones */
+    }
+
+    /* Contenedor para los botones */
+    .botones-container {
+        display: flex;
+        gap: 10px; /* Espacio entre botones */
+        margin-bottom: auto;
+    }
+
+    .btn {
+        flex: 1 ; /* Ambos botones ocupan igual espacio */
+        background-color: var(--color-principal);
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: var(--principal-secundario);
+    }
+}
+
+
+
+
+
+
+
+
+/*DISEÑO PARA ESCRITORIO*/
+@media (min-width: 1025px) {    
+    .tarjeta-recurso {
+        border: 1px solid var(--color-texto-secundario);
+        width: 14rem;
+        height: 19.7rem; /* Aumenté un poco para que quepan bien los dos botones */
+        border-radius: 15px;
+        text-align: left;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        overflow: hidden; /* Esto es vital para que el verde no se salga de las esquinas */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tarjeta-img {
+        background-color: var(--color-verde-pastel);
+        border: none !important; /* Eliminamos bordes */
+        outline: none;
+        width: 100%;
+        height: 120px; /* ALTURA FIJA para evitar errores de cálculo de % */
+        object-fit: cover;
+        display: block;
+        margin: 0;
+    }
+
+    .tarjeta-body {
+        display: flex;
+        flex-direction: column;
+        min-height: auto;
+        flex-grow: 1; /* Ocupa el resto del espacio */
+        padding-bottom: 15px;
+        background-color: #ffffff;
+    }
+
+    .card-title {
+        font-weight: bold;
+        min-height: 35px;
+        overflow: hidden;
+        font-size: 1rem;
+        font-family: var(--fuente-principal);
+        margin: 10px 15px 0 20px;
+    }
+
+    .estado {
+        font-family: var(--fuente-secundaria);
+        font-size: 0.90rem;
+        color: var(--color-texto-secundario);
+        margin: 5px 15px 10px 20px; /* Espacio entre título y estado */
+    }
+
+    .tarjeta-botones {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px; /* Espacio uniforme entre botones */
+    }
+
+    .btn {
+        flex: 1 ; /* Ambos botones ocupan igual espacio */
+        background-color: var(--color-principal);
+        color: white;
+        border: none;
+        width: 85%; /* Un poco más angosto para que respire */
+        padding: 10px;
+        border-radius: 10px;
+        margin: 0; /* Quitamos el margin-left que lo descentraba */
+        font-weight: 600;
+    }
+
+    .btn:hover {
+        background-color: var(--principal-secundario);
+        cursor: pointer;
+    }
+}
+
+.btn-azul {
+    background-color: var(--color-estado-reservado);
+}
+
+.btn-azul:hover {
+    background-color: var(--color-estado-reservado);
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+.btn-rojo {
+    background-color: var(--color-estado-dañado);
+}
+
+.btn-rojo:hover {
+    background-color: var(--color-estado-dañado);
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+
+.container-tarjetas{
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 20px;
+
+    justify-content: flex-start;
+
+    margin-top: 20px;
+}
