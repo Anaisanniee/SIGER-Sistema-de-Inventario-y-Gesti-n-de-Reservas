@@ -7,27 +7,37 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Muestra el formulario de login (que harán mis compañeros)
+    // Muestra el formulario de login (que harán los del frontend)
     public function showLogin()
     {
         return "Aquí irá el formulario de Login de SIGER";
     }
 
-    // Procesa el intento de entrada
+    // Procesa el intento de entrada con las nuevas columnas
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+        $request->validate([
+            'USU_CORREO' => ['required', 'email'],
+            'USU_CONTRASEÑA' => ['required'],
         ]);
 
+        $credentials = [
+            'USU_CORREO' => $request->USU_CORREO,
+            'password' => $request->USU_CONTRASEÑA, 
+        ];
+
+        // 3. Intentamos el inicio de sesión
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return "¡Bienvenido a SIGER! Has iniciado sesión correctamente.";
+            
+            // Traemos el usuario logueado para mostrar un saludo personalizado
+            $user = Auth::user();
+            return "¡Bienvenido a SIGER, " . $user->USU_PRIMER_NOMBRE . "! Has iniciado sesión correctamente.";
         }
 
+        // Si falla, regresamos con el error apuntando al correo corporativo
         return back()->withErrors([
-            'email' => 'Las credenciales no coinciden con nuestros registros.',
+            'USU_CORREO' => 'Las credenciales no coinciden con nuestros registros.',
         ]);
     }
 

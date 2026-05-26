@@ -9,13 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        // Añadimos role_id después del ID del usuario
-        $table->foreignId('role_id')->after('id')->nullable()->constrained('roles');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            // Como aquí ya existen todas las tablas, creamos la relación de forma segura
+            $table->foreign('ROL_ID')->references('id')->on('roles')->onDelete('cascade');
+        });
+    }
 
     /**
      * Reverse the migrations.
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropForeign(['ROL_ID']);
         });
     }
 };

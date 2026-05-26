@@ -8,17 +8,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Solo los que hayan iniciado sesión pueden gestionar usuarios
-Route::middleware(['auth'])->group(function () {
-    Route::resource('usuarios', UserController::class);
-});
-
-// Solo la secretaria (ID 2) puede entrar aquí
+// Bloque de seguridad exclusivo para la Secretaria (ID 2)
+// Aquí se valida que esté logueado (auth) y que sea Secretaria (role:2)
 Route::middleware(['auth', 'role:2'])->group(function () {
     Route::resource('usuarios', UserController::class);
 });
 
-// Rutas de Autenticación
+// 🔑 Rutas de Autenticación comunes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

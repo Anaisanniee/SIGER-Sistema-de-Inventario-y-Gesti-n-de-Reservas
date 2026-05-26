@@ -16,7 +16,7 @@ class CheckRole
      * @param  Closure(Request): (Response)  $next
      */
  public function handle(Request $request, Closure $next, ...$roles)
-{
+ {
     // Si el usuario no está logueado, al login
     if (!Auth::check()) {
         return redirect('login');
@@ -27,12 +27,12 @@ class CheckRole
     // Si el rol del usuario está en la lista permitida, pasa.
     // Recuerda: 1=Rectora, 2=Secretaria, 3=Docente
     foreach ($roles as $role) {
-        if ($user->role_id == $role) {
+        if ($user->ROL_ID == $role) {
             return $next($request);
         }
     }
 
     // Si no tiene permiso, lo mandamos afuera con un mensaje
     return redirect('/')->with('error', 'No tienes permisos para acceder a esta sección.');
-}
+ }
 }
