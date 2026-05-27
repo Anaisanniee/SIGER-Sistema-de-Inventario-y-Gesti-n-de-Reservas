@@ -11,7 +11,7 @@ Route::get('/pruebas-siger', function () {
         // 1. Un Activo con sus campos de Excel + precio simulado
         (object)[
             'act_id' => 1,
-            'act_foto' => 'proyector.jpg',
+            'act_foto' => 'proyector.jpeg',
             'act_nombre' => 'Proyector Epson X41',
             'act_serial' => 'EPS-778899',
             'act_marca' => 'Epson',
@@ -20,12 +20,13 @@ Route::get('/pruebas-siger', function () {
             'act_fecha_ingreso' => '2025-03-20',
             'cate_id' => 3,
             'aula_nombre' => 'Aula 6.01', // Nombre resuelto de la ubicación
-            'precio_actual' => '2450000'   // Traído de historial_precios
+            'act_precio_actual' => '2450000'   // Traído de historial_precios
         ],
 
         // 2. Un Aula con sus campos de Excel
         (object)[
             'aula_id' => 10,
+            'aula_foto' => '',
             'aula_nombre' => 'Laboratorio de Software 6.02',
             'aula_capacidad' => 30,
             'aula_estado' => 'Disponible',
@@ -45,12 +46,13 @@ Route::get('/pruebas-siger', function () {
             'act_fecha_ingreso' => '2024-09-12',
             'cate_id' => 1,
             'aula_nombre' => 'Sistemas Informáticos',
-            'precio_actual' => '3800000'
+            'act_precio_actual' => '3800000'
         ],
 
         // 4. Otra Aula
         (object)[
             'aula_id' => 11,
+            'aula_foto' =>'' ,
             'aula_nombre' => 'Auditorio Principal',
             'aula_capacidad' => 120,
             'aula_estado' => 'Mantenimiento',
@@ -73,5 +75,21 @@ Route::get('/activos', function () {
 
 Route::get('/reservas', function () {
     return view('reservas.index-reservas');
+});
+
+Route::get('/login', function () {
+    return view('auth.login');
+});
+
+Route::get('/dashboard/docente', function () {
+    return view('dashboard.docente');
+});
+
+Route::get('/dashboard/rector', function () {
+    return view('dashboard.rector');
+});
+
+Route::get('/dashboard/admin', function () {
+    return view('dashboard.secretario');
 });
 

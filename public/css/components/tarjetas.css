@@ -45,7 +45,7 @@
     .botones-container {
         display: flex;
         gap: 10px; /* Espacio entre botones */
-        
+        align-items: center;
     }
 
     .btn {
@@ -109,13 +109,16 @@
 
     /* Contenedor para los botones */
     .botones-container {
-        display: flex;
+        display: flex !important; /* Asegura que los botones sean flexibles */
+        width: 100% !important; /* Asegura que los botones ocupen todo el ancho del contenedor */
         gap: 10px; /* Espacio entre botones */
-        margin-bottom: auto;
+        text-align: center;
+        align-items: center;
+
     }
 
     .btn {
-        flex: 1 ; /* Ambos botones ocupan igual espacio */
+        flex: 1 !important; /* Ambos botones ocupan igual espacio */
         background-color: var(--color-principal);
         color: white;
         border: none;
@@ -186,7 +189,7 @@
         margin: 5px 15px 10px 20px; /* Espacio entre título y estado */
     }
 
-    .tarjeta-botones {
+    .botones-container {
         width: 100%;
         display: flex;
         flex-direction: column;

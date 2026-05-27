@@ -1,4 +1,4 @@
-<div class="modal fade" id="{{ $id }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalgeneral" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog">
 

@@ -30,7 +30,8 @@
             var(--color-principal)
         );
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        -webkit-text-fill-color: transparent !important;
+        display: inline-block;
     }
 
     .form-control {
@@ -72,13 +73,12 @@
     .d-flex {
         order: 2;
         display: flex;
-        gap: 10px;
         align-items: center;
     }
 
     .d-flex a {
         color: var(--color-principal) !important;
-        font-size: 26px;
+        font-size: 30px;
     }
 }
 
@@ -110,7 +110,7 @@
             var(--color-principal)
         );
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        display: inline-block;
     }
 
     .buscador-container {
@@ -144,13 +144,12 @@
 
     .d-flex {
         display: flex;
-        gap: 12px;
         align-items: center;
     }
 
     .d-flex a {
         color: var(--color-principal) !important;
-        font-size: 26px;
+        font-size: 35px;
     }
 }
 

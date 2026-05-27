@@ -1,9 +1,9 @@
 @props([
     'clase' => 'btn',
-    'target' => 'null'
+    'target' => 'null',
 ])
 
-<button
+<button 
     type="button"
 
     class="{{ $clase }}"

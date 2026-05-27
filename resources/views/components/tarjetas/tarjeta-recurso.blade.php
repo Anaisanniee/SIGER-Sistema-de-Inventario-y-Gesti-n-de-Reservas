@@ -1,17 +1,10 @@
-{{-- resources/views/components/tarjetas/tarjeta-recurso-universal.blade.php --}}
+{{-- resources/views/components/tarjetas/tarjeta-recurso.blade.php --}}
 
-@props([
-    'tipo',
-    'nombre',
-    'etiqueta',
-    'valor',
-    'recurso'
-])
 
 <div class="tarjeta-recurso">
 
     <img
-        src=""
+        src="{{ $foto }}"
         alt="Foto del recurso"
         class="tarjeta-img"
     >
@@ -26,7 +19,7 @@
             {{ $etiqueta }}: {{ $valor }}
         </div>
 
-        <div class="tarjeta-botones">
+        <div class="botones-container">
 
             {{-- BOTÓN RESERVAR --}}
             <x-botones.boton
@@ -41,6 +34,8 @@
 
                 target="modalgeneral"
 
+
+
                 {{-- CONTROL --}}
                 data-tipo="{{ $tipo }}"
 
@@ -51,8 +46,6 @@
 
                 {{-- ACTIVOS --}}
                 data-act_id="{{ $recurso->act_id ?? '' }}"
-
-                data-act_foto="{{ $recurso->act_foto ?? 'default.jpg' }}"
 
                 data-act_marca="{{ $recurso->act_marca ?? 'No registra' }}"
 
@@ -66,12 +59,14 @@
 
                 data-aula_nombre="{{ $recurso->aula_nombre ?? 'No asignada' }}"
 
-                data-precio_actual="{{ $recurso->precio_actual ?? 'No registra' }}"
+                data-act_precio_actual="{{ $recurso->act_precio_actual ?? 'No registra' }}"
 
                 {{-- AULAS --}}
+
                 data-aula_id="{{ $recurso->aula_id ?? '' }}"
 
-                data-capacidad="{{ $recurso->aula_capacidad ?? '' }}"
+
+                data-aula_capacidad="{{ $recurso->aula_capacidad ?? '' }}"
 
                 data-aula_estado="{{ $recurso->aula_estado ?? '' }}"
 
