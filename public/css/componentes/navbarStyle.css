@@ -23,12 +23,17 @@
         font-size: 20px;
         font-weight: bold;
         color: var(--color-principal);
+
         background: linear-gradient(
             90deg,
             var(--principal-secundario),
             var(--color-principal)
         );
+
+        background-clip: text;
         -webkit-background-clip: text;
+
+        color: transparent;
         -webkit-text-fill-color: transparent;
     }
 
@@ -103,12 +108,17 @@
         font-size: 24px;
         font-weight: bold;
         color: var(--color-principal);
+
         background: linear-gradient(
             90deg,
             var(--principal-secundario),
             var(--color-principal)
         );
+
+        background-clip: text;
         -webkit-background-clip: text;
+
+        color: transparent;
         -webkit-text-fill-color: transparent;
     }
 
@@ -174,12 +184,17 @@
         font-size: 28px;
         font-weight: bold;
         color: var(--color-principal);
+
         background: linear-gradient(
             90deg,
             var(--principal-secundario),
             var(--color-principal)
         );
+
+        background-clip: text;
         -webkit-background-clip: text;
+
+        color: transparent;
         -webkit-text-fill-color: transparent;
     }
 
