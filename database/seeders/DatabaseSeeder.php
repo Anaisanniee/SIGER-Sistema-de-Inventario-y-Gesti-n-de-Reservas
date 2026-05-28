@@ -13,13 +13,22 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        // User::factory(10)->create();
+public function run(): void
+{
+    // 1. Primero sembramos los roles obligatoriamente
+    $this->call(RoleSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-    }
+    // 2. Creamos el usuario Administrador base con el formato de la documentación
+    \App\Models\User::create([
+        'USU_CEDULA' => '123456789',
+        'USU_PRIMER_NOMBRE' => 'Admin',
+        'USU_SEGUNDO_NOMBRE' => null,
+        'USU_PRIMER_APELLIDO' => 'SIGER',
+        'USU_SEGUNDO_APELLIDO' => null,
+        'USU_CORREO' => 'admin@siger.edu.co',
+        'USU_CONTRASEÑA' => 'admin123', // El modelo se encarga de encriptarla automáticamente
+        'USU_ESTADO' => 'Activo',
+        'ROL_ID' => 1, // ID 1 = Rectora / Admin
+    ]);
+}
 }
