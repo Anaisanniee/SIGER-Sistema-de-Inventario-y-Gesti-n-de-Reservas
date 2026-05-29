@@ -1,0 +1,30 @@
+/* Gradiente verde para el banner principal */
+.banner-bienvenida {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.max-width-text {
+  max-width: 500px;
+}
+
+/* Efecto hover interactivo para las tarjetas */
+.tarjeta-acceso {
+  border: 1px solid transparent !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.tarjeta-acceso:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+  border-color: #10b981 !important;
+}
+
+.icono-wrapper {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0fdf4 !important; /* Fondo verde muy claro */
+}
