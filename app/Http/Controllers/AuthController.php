@@ -10,7 +10,6 @@ class AuthController extends Controller
     // Muestra el formulario de login (que harán los del frontend)
     public function showLogin()
     {
-        return "Aquí irá el formulario de Login de SIGER";
     }
 
     // Procesa el intento de entrada con las nuevas columnas

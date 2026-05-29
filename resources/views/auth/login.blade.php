@@ -26,7 +26,7 @@
         <h2>Iniciar Sesión</h2>
         <h4>Ingrese sus credenciales</h4>
 
-        <form action="/login" method="POST">
+        <form method="POST" action="route{{'login'}}">
             @csrf
             <div class="form-group">
                 <label for="rol">Rol:</label>
