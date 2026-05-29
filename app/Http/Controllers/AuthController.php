@@ -10,6 +10,7 @@ class AuthController extends Controller
     // Muestra el formulario de login (que harán los del frontend)
     public function showLogin()
     {
+        return view('auth.login');
     }
 
     // Procesa el intento de entrada con las nuevas columnas
