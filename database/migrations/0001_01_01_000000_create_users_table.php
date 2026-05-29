@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
       Schema::create('users', function (Blueprint $table) {
-    $table->id('USU_ID'); 
+    $table->id('USU_id'); 
     $table->string('USU_CEDULA')->unique();
     $table->string('USU_PRIMER_NOMBRE');
     $table->string('USU_SEGUNDO_NOMBRE')->nullable(); 
@@ -37,8 +37,8 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->unsignedBigInteger('USU_ID')->nullable()->index();
-            $table->foreign('USU_ID')->references('USU_ID')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->foreign('user_id')->references('USU_ID')->on('users')->onDelete('cascade');
             
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
