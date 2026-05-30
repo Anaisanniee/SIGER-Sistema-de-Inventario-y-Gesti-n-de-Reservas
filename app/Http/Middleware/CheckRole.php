@@ -27,7 +27,7 @@ class CheckRole
     // Si el rol del usuario está en la lista permitida, pasa.
     // Recuerda: 1=Rectora, 2=Secretaria, 3=Docente
     foreach ($roles as $role) {
-        if ($user->ROL_ID == $role) {
+       if ($user->role && $user->role->name === $role) {
             return $next($request);
         }
     }

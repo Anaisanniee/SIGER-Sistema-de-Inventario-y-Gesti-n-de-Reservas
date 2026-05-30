@@ -10,7 +10,7 @@ Route::get('/', function () {
 
 // Bloque de seguridad exclusivo para la Secretaria (ID 2)
 // Aquí se valida que esté logueado (auth) y que sea Secretaria (role:2)
-Route::middleware(['auth', 'role:2'])->group(function () {
+Route::middleware(['auth', 'role:Secretaria'])->group(function () {
     Route::resource('usuarios', UserController::class);
 });
 

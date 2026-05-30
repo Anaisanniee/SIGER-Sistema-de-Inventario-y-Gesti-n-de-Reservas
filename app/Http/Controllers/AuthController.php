@@ -14,33 +14,46 @@ class AuthController extends Controller
     }
 
     // Procesa el intento de entrada con las nuevas columnas
-    public function login(Request $request)
-    {
-        $request->validate([
-            'USU_CORREO' => ['required', 'email'],
-            'USU_CONTRASEÑA' => ['required'],
-        ]);
+   public function login(Request $request)
+{
+    // 1. Validamos que lleguen los campos correctos
+    $credentials = $request->validate([
+        'USU_CORREO' => 'required|email',
+        'USU_CONTRASEÑA' => 'required',
+        'rol_name' => 'required' // El texto que viene del formulario
+    ]);
 
-        $credentials = [
-            'USU_CORREO' => $request->USU_CORREO,
-            'password' => $request->USU_CONTRASEÑA, 
-        ];
+    // 2. Buscamos al usuario por su correo electrónico
+    $user = \App\Models\User::where('USU_CORREO', $request->USU_CORREO)->first();
 
-        // 3. Intentamos el inicio de sesión
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+    // 3. Verificamos si el usuario existe y si la contraseña coincide
+    // (Nota: si usas Hash::check para contraseñas encriptadas, úsalo aquí. Si es texto plano por ahora, déjalo directo)
+    if ($user && $user->USU_CONTRASEÑA === $request->USU_CONTRASEÑA) {
+        
+        // 4. Buscamos el nombre del rol del usuario cruzando las tablas
+        $userRolName = $user->role->name; // Asumiendo que tienes la relación 'role' en tu modelo User
+
+        // 5. Comparamos el rol de la base de datos con el que seleccionaron en el formulario
+        if ($userRolName === $request->rol_name) {
             
-            // Traemos el usuario logueado para mostrar un saludo personalizado
-            $user = Auth::user();
-            return "¡Bienvenido a SIGER, " . $user->USU_PRIMER_NOMBRE . "! Has iniciado sesión correctamente.";
-        }
+            // Si todo coincide, iniciamos la sesión
+            auth()->login($user);
+            $request->session()->regenerate();
 
-        // Si falla, regresamos con el error apuntando al correo corporativo
-        return back()->withErrors([
-            'USU_CORREO' => 'Las credenciales no coinciden con nuestros registros.',
-        ]);
+            // Redirección según el rol
+            if ($userRolName === 'Secretaria') {
+                return redirect()->intended('/usuarios');
+            }
+            
+            return redirect()->intended('/dashboard');
+        }
     }
 
+    // Si algo falla, lo regresamos con error
+    return back()->withErrors([
+        'USU_CORREO' => 'Las credenciales o el rol seleccionado no coinciden con nuestros registros.',
+    ]);
+}
     // Cerrar sesión
     public function logout(Request $request)
     {
