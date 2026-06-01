@@ -1,0 +1,72 @@
+@media (max-width: 768px) {
+.btn {
+        flex: 1 ; /* Ambos botones ocupan igual espacio */
+        background-color: var(--color-principal);
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: var(--principal-secundario);
+    }
+
+}
+
+
+@media (min-width: 769px) and (max-width: 1024px) {
+ .btn {
+        flex: 1 !important; /* Ambos botones ocupan igual espacio */
+        background-color: var(--color-principal);
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: var(--principal-secundario);
+    }}
+
+
+
+@media (min-width: 1025px) {    
+    .btn {
+        flex: 1 ; /* Ambos botones ocupan igual espacio */
+        background-color: var(--color-principal);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+        margin: 0; /* Quitamos el margin-left que lo descentraba */
+        font-weight: 600;
+    }
+
+    .btn:hover {
+        background-color: var(--principal-secundario);
+        cursor: pointer;
+    }
+}
+
+.btn-azul {
+    background-color: var(--color-estado-reservado);
+}
+
+.btn-azul:hover {
+    background-color: var(--color-estado-reservado);
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+.btn-rojo {
+    background-color: var(--color-estado-dañado);
+}
+
+.btn-rojo:hover {
+    background-color: var(--color-estado-dañado);
+    opacity: 0.9;
+    cursor: pointer;
+}

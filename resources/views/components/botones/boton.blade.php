@@ -1,19 +1,20 @@
 @props([
     'clase' => 'btn',
     'target' => 'null',
+    'type' => 'button'
 ])
 
 <button 
-    type="button"
+    type="{{$type}}"
 
     class="{{ $clase }}"
 
-     @if($target)
+     @if($target && $target != 'null')
         data-bs-toggle="modal"
         data-bs-target="#{{ $target }}"
     @endif
 
-    {{ $attributes }}
+    {{ $attributes->whereDoesntStartWith('type') }}
 >
 
     {{ $slot }}

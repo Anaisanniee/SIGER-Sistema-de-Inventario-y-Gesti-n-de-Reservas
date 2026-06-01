@@ -77,7 +77,7 @@
 
     input{
         background-color: var(--color-borde);
-        width: 91%;
+        width: 97%;
         padding: 10px 10px 10px 10px; /* Espacio para el ícono a la izquierda */
         margin-bottom: 15px;
         border: 1px solid #ccc;
@@ -107,7 +107,9 @@
         margin-top: 10px;
     }
 
-    .btn.login-btn {
+    .btn {
+        background: var(--color-principal);
+        color: var(--color-fondo);
         width: 97%;
         padding: 10px;
         margin-top: 10px;
@@ -118,6 +120,9 @@
         transition: background-color 0.3s ease;
     }
 
+   .btn:hover {
+        background-color: var(--principal-secundario);
+    }
 }
 
 
@@ -205,7 +210,7 @@
 
     input{
         background-color: var(--color-borde);
-        width: 89%;
+        width: 95%;
         padding: 10px 10px 10px 10px; /* Espacio para el ícono a la izquierda */
         margin-bottom: 15px;
         border: 1px solid #ccc;
@@ -222,6 +227,8 @@
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        transition: background-color 0.3s ease;
+
     }
 
     .login-container button:hover {
@@ -249,7 +256,7 @@
 
     }
 
-        .btn.login-btn {
+    .btn {
             width: 95%;
             padding: 10px;
             margin-top: 10px;
@@ -258,6 +265,10 @@
             font-size: 1rem;
             cursor: pointer;
         }
+
+    .btn:hover {
+        background-color: var(--principal-secundario);
+    }
 }
 
 
@@ -336,7 +347,7 @@
 
     input{
         background-color: var(--color-borde);
-        width: 89%;
+        width: 95%;
         padding: 10px 10px 10px 10px; /* Espacio para el ícono a la izquierda */
         margin-bottom: 15px;
         border: 1px solid #ccc;
@@ -357,12 +368,16 @@
     }
 
     .login-container button {
+        background: var(--color-principal);
+        color: var(--color-fondo);
         width: 95%;
         padding: 10px;
         font-size: 1rem;
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        transition: background-color 0.3s ease;
+       
     }
      
     a{
@@ -374,6 +389,8 @@
         margin-bottom: 15px;
     }
 
-
+    .btn:hover {
+        background-color: var(--principal-secundario);
+    }
 }
 
