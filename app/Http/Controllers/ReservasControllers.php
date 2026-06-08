@@ -9,7 +9,7 @@ class ReservasControllers extends Controller
 {
     public function index(Request $request)
     {
-        // Creamos una colección de aulas estáticas de prueba para que tu diseño funcione ya mismo
+        // Colección estática de prueba para las aulas
         $aulasColeccion = collect([
             (object)[
                 'id' => 1,
@@ -37,19 +37,15 @@ class ReservasControllers extends Controller
             ]
         ]);
 
-        // --- LÓGICA DE FILTRADO (Simulación de Base de Datos) ---
-        
-        // Filtrar por Bloque
+        // --- LÓGICA DE FILTRADO ---
         if ($request->filled('bloque')) {
             $aulasColeccion = $aulasColeccion->where('bloque', $request->bloque);
         }
 
-        // Filtrar por Piso
         if ($request->filled('piso')) {
             $aulasColeccion = $aulasColeccion->where('piso', $request->piso);
         }
 
-        // Filtrar por Rango de Capacidad
         if ($request->filled('capacidad')) {
             if ($request->capacidad == '1-20') {
                 $aulasColeccion = $aulasColeccion->whereBetween('capacidad', [1, 20]);
@@ -58,7 +54,6 @@ class ReservasControllers extends Controller
             }
         }
 
-        // Filtrar por Buscador de texto
         if ($request->filled('buscar')) {
             $busqueda = strtolower($request->buscar);
             $aulasColeccion = $aulasColeccion->filter(function($aula) use ($busqueda) {
@@ -66,10 +61,42 @@ class ReservasControllers extends Controller
             });
         }
 
-        // Pasamos los resultados finales a la vista
+        // --- CONFIGURACIÓN DINÁMICA DEL FILTRO PARA ESTE MÓDULO ---
+        $filtroConfig = [
+            [
+                'name' => 'bloque',
+                'label' => 'Bloque',
+                'placeholder' => 'Todos los bloques',
+                'opciones' => [
+                    'A' => 'Bloque A',
+                    'B' => 'Bloque B',
+                    'C' => 'Bloque C',
+                ]
+            ],
+            [
+                'name' => 'piso',
+                'label' => 'Piso',
+                'placeholder' => 'Todos los pisos',
+                'opciones' => [
+                    '1' => 'Piso 1',
+                    '2' => 'Piso 2',
+                    '3' => 'Piso 3',
+                ]
+            ],
+            [
+                'name' => 'capacidad',
+                'label' => 'Capacidad',
+                'placeholder' => 'Cualquier capacidad',
+                'opciones' => [
+                    '1-20'  => '1 a 20 personas',
+                    '21-40' => '21 a 40 personas',
+                ]
+            ]
+        ];
+
         $aulas = $aulasColeccion;
         $totalAulas = $aulas->count();
 
-        return view('reservas.index-reservas', compact('aulas', 'totalAulas'));
+        return view('reservas.index-reservas', compact('aulas', 'totalAulas', 'filtroConfig'));
     }
 }

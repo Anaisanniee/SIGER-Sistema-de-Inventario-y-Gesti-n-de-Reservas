@@ -6,7 +6,10 @@
 <div class="container-fluid">
     <div class="row">
         
-        @include('componentes.filtros-sidebar')
+        @include('componentes.filtros-sidebar', [
+            'action' => url('/reservas'),
+            'config' => $filtroConfig
+        ])
 
         <div id="seccionPrincipal" class="col-md-12 ps-4">
             
@@ -17,6 +20,12 @@
                 </button>
 
                 <form action="{{ url('/reservas') }}" method="GET" class="position-relative flex-grow-1 m-0">
+                    @foreach($filtroConfig as $campo)
+                        @if(request($campo['name']))
+                            <input type="hidden" name="{{ $campo['name'] }}" value="{{ request($campo['name']) }}">
+                        @endif
+                    @endforeach
+
                     <input type="text" name="buscar" value="{{ request('buscar') }}" class="form-control bg-light border-0 py-2 ps-3 pe-5 rounded-pill text-muted" placeholder="Buscar aula por nombre o codigo">
                     <button type="submit" class="position-absolute top-50 end-0 translate-middle-y me-3 bg-transparent border-0 text-secondary">
                         <i class="fas fa-search"></i>
@@ -62,7 +71,6 @@ function toggleFiltros() {
     const sidebar = document.getElementById('sidebarFiltros');
     const principal = document.getElementById('seccionPrincipal');
 
-    // Alternar la visibilidad del sidebar y redimensionar la sección principal
     if (sidebar.classList.contains('d-none')) {
         sidebar.classList.remove('d-none');
         principal.classList.replace('col-md-12', 'col-md-9');
@@ -72,10 +80,15 @@ function toggleFiltros() {
     }
 }
 
-// Mantener el menú de filtros abierto si ya hay filtros aplicados en la URL
+// Mantener abierto si hay algún parámetro de la configuración activo en la URL
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('bloque') || urlParams.has('piso') || urlParams.has('capacidad')) {
+    // Convertimos la configuración de PHP a un array de JS para leer los nombres de los campos
+    const campos = @json(array_column($filtroConfig, 'name'));
+    
+    const tieneFiltrosActivos = campos.some(campo => urlParams.has(campo));
+
+    if (tieneFiltrosActivos) {
         document.getElementById('sidebarFiltros').classList.remove('d-none');
         document.getElementById('seccionPrincipal').classList.replace('col-md-12', 'col-md-9');
     }

@@ -16,13 +16,13 @@
     <link rel="stylesheet" href="{{ asset('css/componentes/navbarStyle.css') }}">
     <link rel="stylesheet" href="{{ asset('css/componentes/sidebarStyle.css') }}">
 </head>
-<body>
+<body style="background-color: #ffffff !important;">
 
-    <header class="navbar">
+    <header class="navbar p-0" style="background-color: #ffffff !important; background: #ffffff !important; border-bottom: 1px solid #f1f5f9;">
         @include('componentes.navbar')
     </header>
 
-    <main class="content" style="flex: 1; padding: 20px;">
+    <main class="content" style="flex: 1; padding: 20px; background-color: #ffffff !important;">
         @yield('content')
     </main>
  
@@ -30,5 +30,4 @@
 
 </body>
 </html>
-   
    

@@ -1,22 +1,43 @@
+/* ==========================================================================
+   1. FORZAR FONDO BLANCO GLOBAL (Elimina el fondo gris de los bordes)
+   ========================================================================== */
+html, 
+body, 
+main,
+#app,
+.main-content,
+.container-fluid, 
+.container {
+    background-color: #ffffff !important;
+}
+
+/* ==========================================================================
+   2. ESTILOS DEL BANNER PRINCIPAL
+   ========================================================================== */
 /* Gradiente verde para el banner principal */
 .banner-bienvenida {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
 }
 
 .max-width-text {
   max-width: 500px;
 }
 
+/* ==========================================================================
+   3. ESTILOS DE LAS TARJETAS DE ACCESO RÁPIDO
+   ========================================================================== */
 /* Efecto hover interactivo para las tarjetas */
 .tarjeta-acceso {
-  border: 1px solid transparent !important;
+  background-color: #ffffff !important;
+  border: 1px solid #f1f5f9 !important; /* Borde gris extremadamente sutil para resaltar en el fondo blanco */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
 }
 
 .tarjeta-acceso:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 12px 20px rgba(16, 185, 129, 0.1) !important; /* Brillo verde sutil en hover */
   border-color: #10b981 !important;
 }
 
@@ -27,4 +48,5 @@
   align-items: center;
   justify-content: center;
   background-color: #f0fdf4 !important; /* Fondo verde muy claro */
+  border-radius: 16px !important; /* Bordes redondeados para el cuadro del emoji */
 }
