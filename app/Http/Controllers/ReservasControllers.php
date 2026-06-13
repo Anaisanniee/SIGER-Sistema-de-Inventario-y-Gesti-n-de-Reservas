@@ -99,4 +99,27 @@ class ReservasControllers extends Controller
 
         return view('reservas.index-reservas', compact('aulas', 'totalAulas', 'filtroConfig'));
     }
+    // Muestra el formulario para crear un aula
+    public function create()
+    {
+        return view('reservas.crear');
+    }
+
+    // Procesa el formulario de aulas
+    public function store(Request $request)
+    {
+        return redirect('/reservas')->with('success', 'Aula registrada exitosamente.');
+    }
+
+    // Muestra el formulario para crear un activo
+    public function createActivo()
+    {
+        return view('inventario.crear');
+    }
+
+    // Procesa el formulario de activos
+    public function storeActivo(Request $request)
+    {
+        return redirect('/dashboard')->with('success', 'Activo registrado exitosamente.');
+    }
 }

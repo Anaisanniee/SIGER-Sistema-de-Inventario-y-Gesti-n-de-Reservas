@@ -13,9 +13,9 @@
 
         <div id="seccionPrincipal" class="col-md-12 ps-4">
             
-            <div class="d-flex gap-3 mb-4 me-4">
+            <div class="d-flex align-items-center gap-3 mb-4 me-4 w-100">
                 
-                <button type="button" class="btn btn-light border py-2 px-3 rounded-pill text-muted fw-bold" onclick="toggleFiltros()">
+                <button type="button" class="btn btn-light border py-2 px-3 rounded-pill text-muted fw-bold d-flex align-items-center" onclick="toggleFiltros()" style="white-space: nowrap;">
                     <i class="fas fa-filter me-2"></i> Filtros
                 </button>
 
@@ -26,8 +26,8 @@
                         @endif
                     @endforeach
 
-                    <input type="text" name="buscar" value="{{ request('buscar') }}" class="form-control bg-light border-0 py-2 ps-3 pe-5 rounded-pill text-muted" placeholder="Buscar aula por nombre o codigo">
-                    <button type="submit" class="position-absolute top-50 end-0 translate-middle-y me-3 bg-transparent border-0 text-secondary">
+                    <input type="text" name="buscar" value="{{ request('buscar') }}" class="form-control bg-light border-0 py-2 ps-3 pe-5 rounded-pill text-muted w-100" placeholder="Buscar aula por nombre o código">
+                    <button type="submit" class="position-absolute top-50 end-0 translate-middle-y me-3 bg-transparent border-0 text-secondary p-1">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
@@ -80,17 +80,19 @@ function toggleFiltros() {
     }
 }
 
-// Mantener abierto si hay algún parámetro de la configuración activo en la URL
+// Mantener abierto el sidebar automáticamente si hay algún parámetro activo en la URL
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
-    // Convertimos la configuración de PHP a un array de JS para leer los nombres de los campos
     const campos = @json(array_column($filtroConfig, 'name'));
     
     const tieneFiltrosActivos = campos.some(campo => urlParams.has(campo));
 
     if (tieneFiltrosActivos) {
-        document.getElementById('sidebarFiltros').classList.remove('d-none');
-        document.getElementById('seccionPrincipal').classList.replace('col-md-12', 'col-md-9');
+        const sidebar = document.getElementById('sidebarFiltros');
+        const principal = document.getElementById('seccionPrincipal');
+        
+        if (sidebar) sidebar.classList.remove('d-none');
+        if (principal) principal.classList.replace('col-md-12', 'col-md-9');
     }
 });
 </script>

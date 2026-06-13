@@ -37,7 +37,8 @@
         -webkit-text-fill-color: transparent;
     }
 
-    .form-control {
+    /* Corregido: Solo altera los inputs que estén DENTRO de la barra de navegación */
+    .navbar .form-control {
         background-color: var(--color-fondo-secundario);
         width: 100%;
         padding: 10px 20px 10px 15px;
@@ -52,19 +53,19 @@
         box-shadow: none !important;
     }
 
-    .buscador-container {
+    .navbar .buscador-container {
         order: 3;
         position: relative;
         width: 100%;
     }
 
-    ::placeholder {
+    .navbar ::placeholder {
         color: var(--color-texto-secundario) !important;
         font-family: var(--fuente-secundaria);
         font-weight: 400;
     }
 
-    .search-icon {
+    .navbar .search-icon {
         position: absolute;
         right: 15px;
         top: 50%;
@@ -73,14 +74,15 @@
         z-index: 10;
     }
 
-    .d-flex {
+    /* Corregido: Protegemos el d-flex global de Bootstrap */
+    .navbar .d-flex {
         order: 2;
         display: flex;
         gap: 10px;
         align-items: center;
     }
 
-    .d-flex a {
+    .navbar .d-flex a {
         color: var(--color-principal) !important;
         font-size: 26px;
     }
@@ -122,14 +124,15 @@
         -webkit-text-fill-color: transparent;
     }
 
-    .buscador-container {
+    .navbar .buscador-container {
         display: flex;
         align-items: center;
         position: relative;
         width: 60%;
     }
 
-    .form-control {
+    /* Corregido: Específico para el navbar */
+    .navbar .form-control {
         background-color: var(--color-fondo-secundario);
         width: 100%;
         font-family: Inter, sans-serif !important;
@@ -143,7 +146,7 @@
         box-shadow: none !important;
     }
 
-    .search-icon {
+    .navbar .search-icon {
         position: absolute;
         right: 15px;
         top: 50%;
@@ -151,13 +154,14 @@
         color: var(--color-texto-secundario) !important;
     }
 
-    .d-flex {
+    /* Corregido: Específico para el navbar */
+    .navbar .d-flex {
         display: flex;
         gap: 12px;
         align-items: center;
     }
 
-    .d-flex a {
+    .navbar .d-flex a {
         color: var(--color-principal) !important;
         font-size: 26px;
     }
@@ -198,12 +202,13 @@
         -webkit-text-fill-color: transparent;
     }
 
-    .buscador-container {
+    .navbar .buscador-container {
         position: relative;
         width: 50%;
     }
 
-    .form-control {
+    /* Corregido: Específico para el navbar */
+    .navbar .form-control {
         background-color: var(--color-fondo-secundario);
         width: 100%;
         height: 45px;
@@ -216,7 +221,7 @@
         box-shadow: none !important;
     }
 
-    .search-icon {
+    .navbar .search-icon {
         position: absolute;
         right: 15px;
         top: 50%;
@@ -224,14 +229,16 @@
         color: var(--color-texto-secundario) !important;
     }
 
-    .d-flex {
+    /* Corregido: Específico para el navbar */
+    .navbar .d-flex {
         display: flex;
         gap: 15px;
         align-items: center;
     }
 
-    .d-flex a {
+    .navbar .d-flex a {
         color: var(--color-principal) !important;
         font-size: 30px;
     }
 }
+

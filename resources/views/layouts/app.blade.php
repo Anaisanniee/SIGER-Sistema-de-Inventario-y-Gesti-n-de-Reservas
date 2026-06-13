@@ -13,21 +13,26 @@
     <link rel="stylesheet" href="{{ asset('css/componentes/ficha.tecnica.css') }}">
     <link rel="stylesheet" href="{{ asset('css/body.css') }}">
     <link rel="stylesheet" href="{{ asset('css/base/variables.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/componentes/navbarStyle.css') }}">
+    
+    <link rel="stylesheet" href="{{ asset('css/componentes/navbarStyle.css?v=1.1') }}">
+    
     <link rel="stylesheet" href="{{ asset('css/componentes/sidebarStyle.css') }}">
 </head>
-<body style="background-color: #ffffff !important;">
+<body style="background-color: #ffffff !important; min-height: 100vh !important; display: flex !important; flex-direction: column !important; margin: 0 !important;">
 
-    <header class="navbar p-0" style="background-color: #ffffff !important; background: #ffffff !important; border-bottom: 1px solid #f1f5f9;">
+    <header class="navbar p-0" style="background-color: #ffffff !important; background: #ffffff !important; border-bottom: 1px solid #f1f5f9; width: 100% !important;">
         @include('componentes.navbar')
     </header>
 
-    <main class="content" style="flex: 1; padding: 20px; background-color: #ffffff !important;">
+    <main class="content" style="flex: 1 !important; height: auto !important; min-height: auto !important; padding: 20px; background-color: #ffffff !important;">
         @yield('content')
     </main>
  
+    <div style="width: 100% !important; margin-top: auto !important;">
+        @include('componentes.footer')
+    </div>
+
     @stack('scripts')
 
 </body>
 </html>
-   

@@ -29,7 +29,7 @@
         </div>
 
         <div class="col-md-4">
-            <a href="#" class="text-decoration-none">
+            <a href="{{ route('inventario.prestamos') }}" class="text-decoration-none">
                 <div class="card h-100 border-0 shadow-sm p-4 rounded-4 background-hover" style="transition: transform 0.2s;">
                     <div class="d-flex align-items-center gap-3">
                         <div class="fs-1 p-3 bg-light rounded-4">💻</div>
