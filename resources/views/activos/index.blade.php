@@ -1,15 +1,17 @@
-<!-- Cargar Bootstrap y FontAwesome -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <div class="container mt-5">
-    <h2 class="mb-4 text-center">Inventario de Dispositivos</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4 row-md-10 offset-md-1 px-3">
+        <h2 class="mb-0">Inventario de Dispositivos</h2>
+        <a href="{{ route('activos.eliminados') }}" class="btn btn-secondary btn-sm shadow-sm">
+            <i class="fas fa-trash-alt me-1"></i> Ver Papelera
+        </a>
+    </div>
     
-    <!-- Barra de Búsqueda y Filtros -->
     <div class="row mb-2">
         <div class="col-md-10 offset-md-1">
             <form action="{{ route('activos.index') }}" method="GET" class="row g-2 shadow-sm p-3 bg-white rounded border">
-                <!-- Buscador por texto -->
                 <div class="col-md-5">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
@@ -18,7 +20,6 @@
                     </div>
                 </div>
 
-                <!-- Filtro por Categoría -->
                 <div class="col-md-4">
                     <select name="categoria" class="form-select">
                         <option value="">Todas las categorías</option>
@@ -30,7 +31,6 @@
                     </select>
                 </div>
 
-                <!-- Botones de Acción -->
                 <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary w-100">
                         Filtrar
@@ -45,7 +45,6 @@
         </div>
     </div>
 
-    <!-- Contador de Resultados -->
     <div class="row mb-4">
         <div class="col-md-10 offset-md-1">
             <p class="text-muted small">
@@ -58,12 +57,10 @@
         </div>
     </div>
 
-    <!-- Grid de Activos -->
     <div class="row">
         @forelse($activos as $activo)
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card h-100 shadow-sm border-0">
-                    <!-- Contenedor de Imagen -->
                     <div style="height: 180px; overflow: hidden; position: relative;">
                         @if($activo->act_foto)
                             <img src="{{ asset('storage/' . $activo->act_foto) }}" class="card-img-top" style="object-fit: cover; height: 100%; width: 100%;">
@@ -72,7 +69,6 @@
                                 <span class="text-muted small">Sin imagen</span>
                             </div>
                         @endif
-                        <!-- Badge de Categoría sobre la foto -->
                         <span class="position-absolute top-0 end-0 badge bg-dark m-2 opacity-75">
                             {{ $activo->categoria->cate_nombre ?? 'S/C' }}
                         </span>
@@ -93,7 +89,6 @@
                                 <a href="{{ route('activos.edit', $activo->act_id) }}" class="btn btn-warning btn-sm flex-grow-1">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <!-- Formulario con ID para SweetAlert2 -->
                                 <form action="{{ route('activos.destroy', $activo->act_id) }}" method="POST" id="delete-form-{{ $activo->act_id }}" class="flex-grow-1">
                                     @csrf
                                     @method('DELETE')
@@ -107,7 +102,6 @@
                 </div>
             </div>
 
-            <!-- MODAL: Ficha Técnica -->
             <div class="modal fade" id="ficha{{ $activo->act_id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow">
@@ -122,20 +116,37 @@
                                 @endif
                             </div>
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <strong>Nombre:</strong> <span>{{ $activo->act_nombre }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Nombre:</strong> <span class="text-dark fw-bold">{{ $activo->act_nombre }}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <strong>Serial:</strong> <span>{{ $activo->act_serial }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Serial:</strong> <span class="text-muted">{{ $activo->act_serial }}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <strong>Categoría:</strong> <span class="badge bg-info text-dark">{{ $activo->categoria->cate_nombre ?? 'N/A' }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Marca:</strong> <span class="text-dark">{{ $activo->act_marca ?? 'Sin registrar' }}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <strong>Aula:</strong> <span>{{ $activo->aula->aula_nombre ?? 'No asignada' }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Categoría:</strong> <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-bold">{{ $activo->categoria->cate_nombre ?? 'N/A' }}</span>
                                 </li>
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <strong>Estado:</strong> <span>{{ $activo->act_estado_fisico }}</span>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Aula:</strong> <span class="text-dark">{{ $activo->aula->aula_nombre ?? 'No asignada' }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Estado:</strong> <span class="text-dark">{{ $activo->act_estado_fisico }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>¿Es Reservable?</strong> 
+                                    @if($activo->act_reservable == 1)
+                                        <span class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i>Sí, se puede reservar</span>
+                                    @else
+                                        <span class="text-danger fw-bold"><i class="fas fa-times-circle me-1"></i>No reservable</span>
+                                    @endif
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Fecha de Ingreso:</strong> 
+                                    <span class="text-dark">
+                                        {{ $activo->act_fecha_ingreso ? \Carbon\Carbon::parse($activo->act_fecha_ingreso)->format('d/m/Y') : 'Sin fecha' }}
+                                    </span>
                                 </li>
                             </ul>
                         </div>
@@ -151,7 +162,6 @@
     </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -159,16 +169,32 @@
 function confirmarEliminacion(id) {
     Swal.fire({
         title: '¿Eliminar este dispositivo?',
-        text: "Esta acción no se puede deshacer.",
+        text: "Por favor, escribe el motivo o la razón de la baja para enviarlo a la papelera:",
         icon: 'warning',
+        input: 'text',
+        inputPlaceholder: 'Ej: Pantalla rota, Actualización técnica, Traslado definitivo...',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Sí, borrar',
-        cancelButtonText: 'Cancelar'
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+            if (!value) {
+                return '¡Es obligatorio escribir un motivo para procesar la baja del activo!'
+            }
+        }
     }).then((result) => {
         if (result.isConfirmed) {
-            document.getElementById('delete-form-' + id).submit();
+            // Vinculación exacta con el ID 'delete-form-' del HTML
+            let formulario = document.getElementById('delete-form-' + id);
+            
+            let inputMotivo = document.createElement('input');
+            inputMotivo.type = 'hidden';
+            inputMotivo.name = 'act_motivo_baja';
+            inputMotivo.value = result.value; 
+            
+            formulario.appendChild(inputMotivo);
+            formulario.submit();
         }
     })
 }
