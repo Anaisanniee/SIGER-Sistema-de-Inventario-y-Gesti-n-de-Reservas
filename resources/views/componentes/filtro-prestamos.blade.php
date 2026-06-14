@@ -11,7 +11,7 @@
                         <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_all">✨ Todos</label>
 
                         <input type="radio" class="btn-check" name="tipo" id="tipo_laptop" value="fa-laptop" {{ request('tipo') == 'fa-laptop' ? 'checked' : '' }} onchange="this.form.submit()">
-                        <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_laptop">💻 Portátiles</label>
+                        <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_laptop"> Portátiles</label>
 
                         <input type="radio" class="btn-check" name="tipo" id="tipo_tablet" value="fa-tablet-alt" {{ request('tipo') == 'fa-tablet-alt' ? 'checked' : '' }} onchange="this.form.submit()">
                         <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_tablet">📱 Tablets</label>
