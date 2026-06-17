@@ -18,6 +18,11 @@
   
 
   <div class="d-flex">
+    @if($mostrarRegresar ?? true)
+    <a href="@yield('rutaRegresar', url()->previous())" class="btn-back-nav" title="Volver">
+                <i class="fas fa-arrow-left"></i>
+    </a>
+    @endif
     <a href="#" class="nav-link"><i class="fas fa-user"></i></a>
   </div>
 </nav>

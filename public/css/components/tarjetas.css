@@ -4,7 +4,7 @@
     .tarjeta-recurso {
         border: 1px solid var(--color-texto-secundario);
         width: 17rem;
-        height: 13.7rem;
+        height: 14rem;
         border-radius: 15px;
         text-align: left;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -47,20 +47,20 @@
         gap: 10px; /* Espacio entre botones */
         align-items: center;
     }
+    .container-tarjetas{
+    display: flex;
 
-    .btn {
-        flex: 1 ; /* Ambos botones ocupan igual espacio */
-        background-color: var(--color-principal);
-        color: white;
-        border: none;
-        padding: 8px;
-        border-radius: 10px;
-        cursor: pointer;
-    }
+    flex-wrap: wrap;
 
-    .btn:hover {
-        background-color: var(--principal-secundario);
-    }
+    gap: 20px;
+
+    justify-content: center;
+
+    margin-top: 20px;
+
+
+}
+
 }
 
 
@@ -116,20 +116,21 @@
         align-items: center;
 
     }
+    .container-tarjetas{
+    display: flex;
 
-    .btn {
-        flex: 1 !important; /* Ambos botones ocupan igual espacio */
-        background-color: var(--color-principal);
-        color: white;
-        border: none;
-        padding: 8px;
-        border-radius: 10px;
-        cursor: pointer;
-    }
+    flex-wrap: wrap;
 
-    .btn:hover {
-        background-color: var(--principal-secundario);
-    }
+    gap: 20px;
+
+    justify-content: center;
+
+    margin-top: 20px;
+
+
+}
+
+    
 }
 
 
@@ -196,47 +197,11 @@
         align-items: center;
         gap: 8px; /* Espacio uniforme entre botones */
     }
-
-    .btn {
-        flex: 1 ; /* Ambos botones ocupan igual espacio */
-        background-color: var(--color-principal);
-        color: white;
-        border: none;
-        width: 85%; /* Un poco más angosto para que respire */
-        padding: 10px;
-        border-radius: 10px;
-        margin: 0; /* Quitamos el margin-left que lo descentraba */
-        font-weight: 600;
+    .btn{
+        width: 90%;
     }
 
-    .btn:hover {
-        background-color: var(--principal-secundario);
-        cursor: pointer;
-    }
-}
-
-.btn-azul {
-    background-color: var(--color-estado-reservado);
-}
-
-.btn-azul:hover {
-    background-color: var(--color-estado-reservado);
-    opacity: 0.9;
-    cursor: pointer;
-}
-
-.btn-rojo {
-    background-color: var(--color-estado-dañado);
-}
-
-.btn-rojo:hover {
-    background-color: var(--color-estado-dañado);
-    opacity: 0.9;
-    cursor: pointer;
-}
-
-
-.container-tarjetas{
+    .container-tarjetas{
     display: flex;
 
     flex-wrap: wrap;
@@ -246,4 +211,10 @@
     justify-content: flex-start;
 
     margin-top: 20px;
+
+
 }
+
+   
+}
+

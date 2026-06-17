@@ -24,8 +24,8 @@
             {{-- BOTÓN RESERVAR --}}
             <x-botones.boton
                 clase="btn"
-                url="/reservas"
-            >Reservar</x-botones.boton>
+                url="{{ $urlBoton ?? '/reservas' }}"
+            >{{ $textoBoton ?? 'Reservar' }}</x-botones.boton>
 
             {{-- BOTÓN FICHA --}}
             <x-botones.boton
@@ -73,6 +73,7 @@
                 data-aula_reservable="{{ ($recurso->aula_reservable ?? false) ? 'Sí' : 'No' }}"
 
                 data-tip_aula_id="{{ $recurso->tip_aula_id ?? '' }}"
+
             >Ficha técnica</x-botones.boton>
             
 
