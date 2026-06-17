@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('css/componentes/navbarStyle.css') }}">
     <link rel="stylesheet" href="{{ asset('css/componentes/sidebarStyle.css') }}">
     <link rel="stylesheet" href="{{ asset('css/componentes/ficha.tecnica.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 

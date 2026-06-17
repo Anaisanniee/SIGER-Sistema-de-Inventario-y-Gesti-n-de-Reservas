@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('detalles_reservas', function (Blueprint $table) {
             $table->id('det_re_id');
-            $table->string('det_re_motivo', 255);
             $table->dateTime('det_re_fecha_ini');
             $table->date('det_re_fecha_fin');
             $table->unsignedBigInteger('res_id');

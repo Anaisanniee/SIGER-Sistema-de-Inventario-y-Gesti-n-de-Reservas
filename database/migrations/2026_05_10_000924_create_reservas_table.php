@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id('res_id');
             $table->string('res_estado_reserva', 25);
             $table->date('res_fecha_creacion');
+            $table->string('res_motivo', 255);
             $table->unsignedBigInteger('usu_id');
-            $table->foreign('usu_id')->references('usu_id')->on('usuarios');
+            $table->foreign('usu_id')->references('usu_id')->on('users');
             $table->timestamps();
         });
     }

@@ -3,27 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AulasModels extends Model
 {
+    use SoftDeletes;
 
-    protected $table = 'AULAS'; 
+    protected $table = 'aulas';
+    protected $primaryKey = 'aula_id';
 
-    // 1. Nombre de la llave primaria
-    protected $primaryKey = 'AULA_ID';
-
-    // 2. Campos que se pueden llenar (Mass Assignment)
     protected $fillable = [
-        'AULA_NOMBRE',
-        'AULA_CAPACIDAD',
-        'AULA_ESTADO',
-        'AULA_RESERVABLE',
-        'TIP_AULA_ID'
+        'aula_nombre',
+        'aula_capacidad',
+        'aula_estado',
+        'aula_reservable',
+        'tip_aula_id',
+        'aula_motivo_baja'
     ];
 
-    // Relación inversa: Un aula tiene muchos activos
-    public function activos()
+    /**
+     * Relación con TiposAulasModels.
+     * Aunque el modelo sea plural, el método se llama en singular 
+     * porque un aula solo pertenece a UN tipo de aula.
+     */
+    public function tipoAula()
     {
-        return $this->hasMany(ActivosModels::class, 'aula_id', 'AULA_ID');
+        return $this->belongsTo(TiposAulasModels::class, 'tip_aula_id', 'tip_aula_id');
     }
 }

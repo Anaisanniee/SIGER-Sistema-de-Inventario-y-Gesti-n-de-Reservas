@@ -17,6 +17,8 @@ return new class extends Migration
             $table->integer('aula_capacidad');
             $table->string('aula_estado', 25);
             $table->boolean('aula_reservable');
+            $table->softDeletes();
+            $table->string('aula_motivo_baja', 255)->nullable();
             $table->unsignedBigInteger('tip_aula_id');
             $table->foreign('tip_aula_id')->references('tip_aula_id')->on('tipos_aulas');
             $table->timestamps();
