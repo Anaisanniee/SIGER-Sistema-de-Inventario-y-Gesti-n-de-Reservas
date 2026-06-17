@@ -1,0 +1,172 @@
+
+    /* ==========================================================================
+    DISEÑO PARA TABLET (Pantallas entre 769px y 1024px)
+    ========================================================================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .modal-dialog {
+        max-width: 90%; /* Ancho máximo del modal para pantallas pequeñas */
+        width: 100%; /* Asegura que el modal ocupe todo el ancho disponible */
+        margin: 1.75rem auto;
+    }
+
+    .modal-content-siger{
+        background-color: #00000000 !important;
+        display: none !important;
+    }
+
+    .modal.show{
+        display: block !important;
+    }
+
+
+    .modal-header {
+        display: grid;
+        height: 100px;
+        gap: 15px;
+        padding: 20px;
+        background-color: var(--color-verde-pastel);
+        border-bottom: 1px solid var(--color-texto-secundario);
+    }
+    .modal-footer{
+        display: flex;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px;
+
+    }
+
+     h4{ 
+        /* dos columnas para el , otra para el cerrar y  dos filas una para el titulo y otra para el subtitulo */
+        grid-column: 1 / -1;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-left: 48px;
+    }
+    .modal-subtitle{
+            font-size: 1rem;
+            color: var(--color-texto-secundario);
+            margin-left: 48px;
+
+    }
+
+    .btn-close{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+
+}
+
+/* ==========================================================================
+    DISEÑO PARA MÓVIL (Pantallas hasta 768px)
+    ========================================================================== */
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 90%; /* Ancho máximo del modal para pantallas pequeñas */
+        width: 100%; /* Asegura que el modal ocupe todo el ancho disponible */
+        margin: 1.75rem auto;
+    }
+
+    .modal-content-siger{
+        background-color: #00000000 !important;
+        display: none !important;
+    }
+
+    .modal.show{
+        display: block !important;
+    }
+
+
+    .modal-header {
+        display: grid;
+        height: 100px;
+        gap: 7px;
+        padding: 20px;
+        background-color: var(--color-verde-pastel);
+        border-bottom: 1px solid var(--color-texto-secundario);
+    }
+    .modal-footer{
+        display: flex;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px;
+
+    }
+
+    h4{ 
+        /* dos columnas para el , otra para el cerrar y  dos filas una para el titulo y otra para el subtitulo */
+        grid-column: 1 / -1;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-left: 22px;
+    }
+    .modal-subtitle{
+            font-size: 1.1rem;
+            color: var(--color-texto-secundario);
+            margin-left: 22px;
+
+    }
+
+    .btn-close{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+}
+
+/* ==========================================================================
+    DISEÑO PARA ESCRITORIO (Pantallas mayores a 1024px)
+    ========================================================================== */
+@media (min-width: 1025px) {
+    .modal-dialog {
+        max-width: 60%; /* Ancho máximo del modal para pantallas grandes */
+        width: 100%; /* Asegura que el modal ocupe todo el ancho disponible */
+        margin: 1.75rem auto;
+    }
+
+    .modal-content-siger{
+        background-color: #00000000 !important;
+        display: none !important;
+    }
+
+    .modal.show{
+        display: block !important;
+    }
+
+    .modal-header {
+        display: grid;
+        height: 100px;
+        gap: 7px;
+        padding: 20px;
+        background-color: var(--color-verde-pastel);
+        border-bottom: 1px solid var(--color-texto-secundario);
+    }
+    .modal-footer{
+        display: flex;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px;
+    }
+
+    h4{ 
+        /* dos columnas para el , otra para el cerrar y  dos filas una para el titulo y otra para el subtitulo */
+        grid-column: 1 / -1;
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-left: 30px;
+    }
+    .modal-subtitle{
+            font-size: 1.2rem;
+            color: var(--color-texto-secundario);
+            margin-left: 30px;
+
+    }
+
+    .btn-close{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+}
