@@ -14,10 +14,10 @@
                         <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_laptop"> Portátiles</label>
 
                         <input type="radio" class="btn-check" name="tipo" id="tipo_tablet" value="fa-tablet-alt" {{ request('tipo') == 'fa-tablet-alt' ? 'checked' : '' }} onchange="this.form.submit()">
-                        <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_tablet">📱 Tablets</label>
+                        <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_tablet"> Tablets</label>
 
                         <input type="radio" class="btn-check" name="tipo" id="tipo_video" value="fa-video" {{ request('tipo') == 'fa-video' ? 'checked' : '' }} onchange="this.form.submit()">
-                        <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_video">📹 Proyectores</label>
+                        <label class="btn btn-outline-secondary rounded-3 px-3 py-2 small" for="tipo_video"> Proyectores</label>
                     </div>
                 </div>
 
