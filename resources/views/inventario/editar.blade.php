@@ -10,88 +10,127 @@
         </p>
     </div>
 
-    <form action="#" method="POST" class="px-2">
+    <form action="{{ route('activos.update', $activo->act_id) }}" method="POST" enctype="multipart/form-data" class="mt-3">
         @csrf
         @method('PUT')
 
         <div class="row mb-3">
             <div class="col-12">
                 <label for="nombre" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Nombre del Activo *</label>
-                <input type="text" class="form-control border-0 bg-light py-2 px-3 rounded-pill" id="nombre" placeholder="Ej: Computador Portátil, Proyector">
+                <input type="text" name="act_nombre" value="{{ old('act_nombre', $activo->act_nombre) }}" class="form-control border-0 bg-light py-2 px-3 rounded-pill @error('act_nombre') is-invalid @enderror">
+                @error('act_nombre')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="serial" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Número de Serial *</label>
-                <input type="text" class="form-control border-0 bg-light py-2 px-3 rounded-pill" id="serial" placeholder="Ej: SN-12345678">
+                <input type="text" name="act_serial" value="{{ old('act_serial', $activo->act_serial) }}" class="form-control border-0 bg-light py-2 px-3 rounded-pill @error('act_serial') is-invalid @enderror">
+                @error('act_serial')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="col-md-6">
                 <label for="marca" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Marca</label>
-                <input type="text" class="form-control border-0 bg-light py-2 px-3 rounded-pill" id="marca" placeholder="Ej: Dell, HP, Epson">
+                <input type="text" name="act_marca" value="{{ old('act_marca', $activo->act_marca) }}" class="form-control border-0 bg-light py-2 px-3 rounded-pill @error('act_marca') is-invalid @enderror">
+                @error('act_marca')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="fecha_ingreso" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Fecha de Ingreso *</label>
-                <input type="date" class="form-control border-0 bg-light py-2 px-3 rounded-pill" id="fecha_ingreso">
+                <input type="date" name="act_fecha_ingreso" value="{{ old('act_fecha_ingreso', $activo->act_fecha_ingreso) }}" class="form-control border-0 bg-light py-2 px-3 rounded-pill @error('act_fecha_ingreso') is-invalid @enderror">
+                @error('act_fecha_ingreso')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="col-md-6">
                 <label for="estado_fisico" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Estado Físico *</label>
-                <select class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary" id="estado_fisico">
+                <select name="act_estado_fisico" class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary @error('act_estado_fisico') is-invalid @enderror">
                     <option selected disabled>Seleccionar estado...</option>
-                    <option value="Bueno">Bueno</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Malo">Malo</option>
+                    <option value="Excelente" {{ old('act_estado_fisico', $activo->act_estado_fisico) == 'Excelente' ? 'selected' : '' }}>Excelente</option>
+                    <option value="Bueno" {{ old('act_estado_fisico', $activo->act_estado_fisico) == 'Bueno' ? 'selected' : '' }}>Bueno</option>
+                    <option value="Regular" {{ old('act_estado_fisico', $activo->act_estado_fisico) == 'Regular' ? 'selected' : '' }}>Regular</option>
+                    <option value="Malo" {{ old('act_estado_fisico', $activo->act_estado_fisico) == 'Malo' ? 'selected' : '' }}>Malo</option>
                 </select>
+                @error('act_estado_fisico')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="is_reservable" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">¿Es reservable para préstamo? *</label>
-                <select class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary" id="is_reservable">
+                <select name="act_reservable" class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary @error('act_reservable') is-invalid @enderror">
                     <option selected disabled>Seleccionar opción...</option>
-                    <option value="si">Sí, permitir reservas</option>
-                    <option value="no">No reservable</option>
+                    <option value="1" {{ old('act_reservable', $activo->act_reservable) == '1' ? 'selected' : '' }}>Sí, se puede reservar</option>
+                    <option value="0" {{ old('act_reservable', $activo->act_reservable) == '0' ? 'selected' : '' }}>No reservable</option>
                 </select>
+                @error('act_reservable')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="col-md-6">
                 <label for="aula" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Aula de Ubicación *</label>
-                <select class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary" id="aula">
-                    <option selected disabled>Asignar a un aula...</option>
-                    <option value="1">Aula 101</option>
-                    <option value="2">Lab Sistemas 102</option>
-                    <option value="3">Auditorio Principal</option>
+                <select name="aula_id" class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary @error('aula_id') is-invalid @enderror">
+                    <option selected disabled>Seleccionar opción...</option>
+                    @foreach($aulas as $aula)
+                        <option value="{{ $aula->aula_id }}" {{ old('aula_id', $activo->aula_id) == $aula->aula_id ? 'selected' : '' }}>
+                            {{ $aula->aula_nombre }} 
+                        </option>
+                    @endforeach
                 </select>
+                @error('aula_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
         <div class="row mb-4">
             <div class="col-md-6">
                 <label for="categoria" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Categoría del Equipo *</label>
-                <select class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary" id="categoria">
-                    <option selected disabled>Seleccionar categoría...</option>
-                    <option value="Cómputo">Cómputo</option>
-                    <option value="Mobiliario">Mobiliario</option>
-                    <option value="Audiovisual">Audiovisual</option>
+                <select name="cate_id" class="form-select border-0 bg-light py-2 px-3 rounded-pill text-secondary @error('cate_id') is-invalid @enderror">
+                    <option selected disabled>Seleccione la categoría...</option>
+                    @foreach($categorias as $cate)
+                        <option value="{{ $cate->cate_id }}" {{ old('cate_id', $activo->cate_id) == $cate->cate_id ? 'selected' : '' }}>
+                            {{ $cate->cate_nombre }}
+                        </option>
+                    @endforeach
                 </select>
+                @error('cate_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
         <div class="row mb-5">
             <div class="col-12">
                 <label for="foto" class="form-label fw-bold text-secondary mb-1" style="font-size: 0.9rem;">Fotografía del Activo</label>
-                <input type="file" class="form-control border-0 bg-light py-2 px-3 rounded-pill text-secondary" id="foto">
+                @if($activo->act_foto)
+                    <div class="mb-2">
+                        <small class="text-muted d-block">Foto actual:</small>
+                        <img src="{{ asset('storage/' . $activo->act_foto) }}" width="150" class="img-thumbnail">
+                    </div>
+                @endif
+                <input type="file" name="act_foto" class="form-control @error('act_foto') is-invalid @enderror" accept="image/*">
+                <small class="form-text text-muted">Selecciona un archivo solo si deseas reemplazar la foto actual.</small>
+                @error('act_foto')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
         <div class="d-flex justify-content-end gap-3 pt-3">
-            <a href="{{ route('inventario.prestamos') }}" class="btn btn-light border-0 fw-semibold py-2 px-4 rounded-pill text-secondary" style="background-color: #f1f3f4; width: 150px; font-size: 0.95rem;">
+            <a href="{{ route('activos.index') }}" class="btn btn-light border-0 fw-semibold py-2 px-4 rounded-pill text-secondary" style="background-color: #f1f3f4; width: 150px; font-size: 0.95rem;">
                 Cancelar
             </a>
-            <button type="button" class="btn text-white fw-semibold py-2 px-4 rounded-pill" style="background-color: #00bfa5; border: none; width: 170px; font-size: 0.95rem;">
+            <button type="submit" class="btn text-white fw-semibold py-2 px-4 rounded-pill" style="background-color: #00bfa5; border: none; width: 170px; font-size: 0.95rem;">
                 Guardar Activo
             </button>
         </div>

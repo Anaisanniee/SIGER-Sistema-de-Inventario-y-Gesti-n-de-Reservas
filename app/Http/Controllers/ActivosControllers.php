@@ -72,7 +72,7 @@ class ActivosControllers extends Controller
         $activo = ActivosModels::findOrFail($id);
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
-        return view('activos.editar', compact('activo', 'aulas', 'categorias'));
+        return view('inventario.editar', compact('activo', 'aulas', 'categorias'));
     }
 
     public function update(Request $request, $id)
@@ -92,6 +92,7 @@ class ActivosControllers extends Controller
             'act_nombre.min'      => 'El nombre debe tener al menos 3 letras.',
             'act_nombre.required' => 'Escribe el nombre del activo.',
             'act_serial.unique'   => 'Este serial ya pertenece a otro activo registrado.',
+            'act_serial.required' => 'Escribe el serial del activo.',
         ]);
 
         if ($request->hasFile('act_foto')) {
