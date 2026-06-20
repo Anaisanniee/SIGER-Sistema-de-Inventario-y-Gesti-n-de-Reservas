@@ -44,7 +44,7 @@ class ActivosControllers extends Controller
     {
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
-        return view('activos.crear', compact('aulas', 'categorias'));
+        return view('inventario.crear', compact('aulas', 'categorias'));
     }
 
     // ====================================================================
