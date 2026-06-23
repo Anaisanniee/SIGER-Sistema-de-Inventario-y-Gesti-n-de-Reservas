@@ -1,4 +1,3 @@
-// public/js/modal-recurso.js
 document.addEventListener('DOMContentLoaded', function () {
     const modalGeneral = document.getElementById('modalgeneral');
 
@@ -29,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const actUbicacion = boton.getAttribute('data-act_ubicacion') || boton.getAttribute('data-aula_nombre');
             const actReservable = boton.getAttribute('data-act_reservable');
 
-
             // =========================================================
             // 2. RELLENAR CABECERAS DEL MODAL (HEADER VERDE)
             // =========================================================
@@ -41,16 +39,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 txtSubtitulo.textContent = tipo === 'activo' ? 'Serial: ' + secundario : 'Capacidad: ' + secundario;
             }
 
-
             // =========================================================
             // 3. ASIGNACIÓN CAMPO POR CAMPO - SECCIÓN IDENTIFICACIÓN
             // =========================================================
-
-            // Campo: Nombre del Recurso
             const elNombre = document.getElementById('ficha-nombre');
             if (elNombre) elNombre.textContent = nombre || 'N/A';
 
-            // Campo: Categoría / Tipo Aula
             const elCategoria = document.getElementById('ficha-categoria');
             if (elCategoria) {
                 if (tipo === 'activo') {
@@ -60,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            // Campo: Reservable
             const elReservable = document.getElementById('ficha-reservable');
             if (elReservable) {
                 if (tipo === 'activo') {
@@ -70,12 +63,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-
             // =========================================================
-            // 4. CONTROL DINÁMICO DE ESPECIFICACIONES (OCULTAR / MOSTRAR)
+            // 4. CONTROL DINÁMICO DE ESPECIFICACIONES Y ACORDEÓN
             // =========================================================
             const bloqueActivo = document.getElementById('bloque-especificaciones-activo');
             const bloqueAula = document.getElementById('bloque-especificaciones-aula');
+            
+            // Capturamos la sección del inventario adicional
+            const seccionInventario = document.querySelector('.seccion-activos-asignados');
+            const contenedorActivos = document.getElementById('contenedor-activos-dinamicos');
+            const badgeConteo = document.getElementById('ficha-conteo-activos');
 
             if (tipo === 'activo') {
                 // Rellenar datos exclusivos del Activo
@@ -90,6 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (bloqueActivo) bloqueActivo.style.setProperty('display', 'grid', 'important');
                 if (bloqueAula) bloqueAula.style.setProperty('display', 'none', 'important');
 
+                // CRUCIAL: Si es un activo, ocultamos por completo el acordeón de inventario
+                if (seccionInventario) seccionInventario.style.setProperty('display', 'none', 'important');
+
             } else {
                 // Rellenar datos exclusivos del Aula
                 if (document.getElementById('ficha-capacidad')) document.getElementById('ficha-capacidad').textContent = aulaCapacidad || secundario || 'N/A';
@@ -100,7 +100,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (bloqueActivo) bloqueActivo.style.setProperty('display', 'none', 'important');
                 if (bloqueAula) bloqueAula.style.setProperty('grid-template-columns', 'repeat(3, 1fr)', 'important'); 
                 if (bloqueAula) bloqueAula.style.setProperty('display', 'grid', 'important');
+
+                // Si es un aula, volvemos a mostrar la sección del inventario
+                if (seccionInventario) seccionInventario.style.setProperty('display', 'block', 'important');
+
+                // === LOGICA DE INVENTARIO PARA AULAS (Segura sin romper por 'data') ===
+                // Nota: Como los datos vienen de los data-attributes del botón, leemos si pasaste un string JSON
+                const activosRaw = boton.getAttribute('data-activos');
+                let listaActivos = [];
+
+                try {
+                    if (activosRaw) {
+                        listaActivos = JSON.parse(activosRaw);
+                    }
+                } catch (e) {
+                    console.error("Error al parsear los activos del aula", e);
+                }
+
+                // Actualizar el número del badge con la lista real
+                if (badgeConteo) badgeConteo.innerText = listaActivos.length;
+
+                // Limpiar la lista previa
+                if (contenedorActivos) {
+                    contenedorActivos.innerHTML = '';
+
+                    if (listaActivos.length === 0) {
+                        contenedorActivos.innerHTML = `
+                            <li class="text-muted text-center py-3 fs-7">
+                                No hay activos registrados o asignados a esta aula.
+                            </li>`;
+                    } else {
+                        listaActivos.forEach(activo => {
+                            contenedorActivos.innerHTML += `
+                                <li class="activo-item">
+                                    <span><strong>${activo.nombres}</strong></span>
+                                    <span class="activo-serial">S/N: ${activo.serial || 'Sin Serial'}</span>
+                                </li>
+                            `;
+                        });
+                    }
+                }
             }
-        }); // <- Aquí se cierra correctamente el evento listener
+        }); 
     }
 });

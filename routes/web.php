@@ -26,7 +26,7 @@ Route::get('/pruebas', function () {
     $activo = new \stdClass();
     $activo->act_id = 101; // Clave esencial para el @if de la vista
     $activo->act_foto = null; // null usará 'default.jpeg' según tu Blade
-    $activo->act_nombre = 'Proyector Epson PowerLite';
+    $activo->act_nombre = 'Proyector Epson';
     $activo->act_serial = 'EPS-X49-98765';
     $activo->act_estado_fisico = 'Buen Estado';
     $activo->act_reservable = true;

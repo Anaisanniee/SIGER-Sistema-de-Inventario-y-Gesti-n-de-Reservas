@@ -156,3 +156,105 @@
         color: var(--color-texto-secundario);
     }
 }
+
+
+/* --- ESTILOS DEL ACORDEÓN ADICIONAL (SIGER) --- */
+.seccion-activos-asignados {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.accordion-item-siger {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+/* Botón que abre/cierra el acordeón */
+.accordion-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    background-color: #f8f9fa; /* Fondo gris claro suave */
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--fuente-principal);
+    transition: background-color 0.2s ease;
+}
+
+.accordion-trigger:hover {
+    background-color: #f1f3f5;
+}
+
+.trigger-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--color-texto-secundario);
+}
+
+/* Burbuja con el número de activos */
+.badge-conteo {
+    background-color: #6c757d;
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+/* Contenedor de la lista */
+.accordion-body-siger {
+    padding: 1rem;
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0;
+}
+
+.lista-activos-siger {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Cada ítem de activo (como una mini tarjeta interna) */
+.activo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-fondo); /* Usa tu color de fondo de tarjeta */
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.activo-item strong {
+    color: #333;
+}
+
+.activo-serial {
+    font-size: 0.8rem;
+    color: #6c757d;
+    background: #e9ecef;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* DISEÑO MÓVIL (Ajustes automáticos) */
+@media (max-width: 768px) {
+    .accordion-trigger {
+        padding: 0.85rem;
+    }
+    .activo-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}

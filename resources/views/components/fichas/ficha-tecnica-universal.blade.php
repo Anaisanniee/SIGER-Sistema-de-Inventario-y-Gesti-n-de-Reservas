@@ -68,4 +68,33 @@
         </div>
     </div>
 
+    {{-- ========================================== --}}
+{{-- 3. SECCIÓN ADICIONAL: INVENTARIO DE ACTIVOS --}}
+{{-- ========================================== --}}
+<div class="seccion-activos-asignados mt-4">
+    <h3 class="modal-title">Inventario del Espacio</h3>
+    
+    <div class="accordion mt-2" id="acordeonInventario">
+        <div class="accordion-item-siger">
+                <button class="accordion-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#colapsoActivos" aria-expanded="false" aria-controls="colapsoActivos">
+                    <span class="trigger-content">
+                        <span class="icon">📦</span>
+                        <span class="text">Ver activos asignados a esta aula</span>
+                    </span>
+                    <span class="badge-conteo" id="ficha-conteo-activos">0</span>
+                </button>
+
+                <div id="colapsoActivos" class="collapse" data-bs-parent="#acordeonInventario">
+                    <div class="accordion-body-siger">
+                        <ul class="lista-activos-siger" id="contenedor-activos-dinamicos">
+                            <li class="activo-item text-muted text-center py-2">
+                                Cargando activos de la sala...
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
