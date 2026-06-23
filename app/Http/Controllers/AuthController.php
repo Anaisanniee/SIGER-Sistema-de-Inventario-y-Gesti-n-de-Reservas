@@ -26,6 +26,8 @@ class AuthController extends Controller
     // 2. Buscamos al usuario por su correo electrónico
     $user = \App\Models\User::where('USU_CORREO', $request->USU_CORREO)->first();
 
+    //dd($user);
+
     // 3. Verificamos si el usuario existe y si la contraseña coincide
     // (Nota: si usas Hash::check para contraseñas encriptadas, úsalo aquí. Si es texto plano por ahora, déjalo directo)
     if ($user && $user->USU_CONTRASEÑA === $request->USU_CONTRASEÑA) {
@@ -37,7 +39,9 @@ class AuthController extends Controller
         if ($userRolName === $request->rol_name) {
             
             // Si todo coincide, iniciamos la sesión
-            auth()->login($user);
+            Auth::login($user);
+
+            $request->session()->put('user_id', $user->user_id); //PARA ACTUALIZAR SESSION DEL USUARIO EN LA DB
             $request->session()->regenerate();
 
             // Redirección según el rol

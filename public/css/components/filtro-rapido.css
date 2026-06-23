@@ -1,0 +1,58 @@
+/* ========================================================
+   COMPONENT: FILTRO RÁPIDO HORIZONTAL (SIGER OVALADO)
+   ======================================================== */
+
+/* Contenedor principal del filtro */
+.siger-filtro-horizontal-container {
+    width: 100%;
+    background-color: transparent; /* Fondo transparente para que acople con tu diseño */
+    margin-bottom: 1.5rem;
+    padding: 0;
+}
+
+/* Barra con scroll horizontal para móvil y PC */
+.siger-filtro-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto; /* Permite deslizar con el dedo en móviles */
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem 0.2rem;
+    gap: 12px; /* Separación idéntica y limpia entre cada botón */
+}
+
+/* Ocultar la barra de scroll visual para mantener la estética limpia de SIGER */
+.siger-filtro-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Botones con estilo Óvalado (Píldora) */
+.filtro-item-btn {
+    background-color: #ffffff; /* Fondo blanco para que resalte sobre el fondo gris de la app */
+    border: 1px solid #e2e8f0; /* Borde gris muy suave */
+    padding: 0.5rem 1.4rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #4a5568; /* Texto gris intermedio */
+    cursor: pointer;
+    white-space: nowrap; /* Evita que el texto de la categoría se rompa en dos líneas */
+    border-radius: 50px; /* El secreto de la forma ovalada perfecta */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); /* Sombra diminuta para dar relieve */
+    transition: all 0.25s ease;
+}
+
+/* Efecto Hover (Pasar el mouse) */
+.filtro-item-btn:hover {
+    color: #198754; /* Cambia al texto verde de SIGER */
+    border-color: #198754; 
+    background-color: #f0fdf4; /* Fondo verde extremadamente sutil */
+    transform: translateY(-1px); /* Efecto sutil de levantamiento */
+}
+
+/* Estado Activo (Botón seleccionado por el usuario) */
+.filtro-item-btn.active {
+    color: #ffffff !important; /* Texto blanco */
+    background-color: #198754 !important; /* Fondo verde SIGER corporativo */
+    border-color: #198754 !important;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2); /* Sombra verde difuminada */
+}

@@ -26,7 +26,11 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $primaryKey = 'USU_ID';
+    protected $primaryKey = 'user_id'; /*cambie USU_ID por user_id para que se reconozca este ultimo como primarykey*/
+
+    protected $keyType = 'int'; /*le dice a laravel que la clave primaria es un entero*/
+
+    public $incrementing = true; //dice a laravel que es un A_I
 
     /**
      * Get the attributes that should be cast.
@@ -45,6 +49,17 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class, 'ROL_ID', 'id');
+    }
+
+    public function getAuthIdentifierName()
+    {
+        return 'user_id';
+        
+    }
+
+    public function getAuthIdentifier()
+    {
+        return $this->user_id;
     }
 
     

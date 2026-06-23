@@ -27,8 +27,8 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="form-group">
-                <label for="rol">Rol:</label>
-                    <select id="rol" name="rol" required>
+                <label for="rol_name">Rol:</label>
+                    <select id="rol_name" name="rol_name" required>
                         <option value="">--Seleccione una opción--</option>
                         <option value="Rector">Rector</option>
                         <option value="Secretaria">Secretario</option>
@@ -38,7 +38,7 @@
 
             <div class="form-group">
                 <label for="username">Usuario:</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="USU_CORREO" required autocomplete="current-USU_CORREO">
 
                 @error('username')
                   <span style="color: red; font-size: 12px;">{{ $message }}</span>
@@ -47,7 +47,7 @@
 
             <div class="form-group">
                 <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" required autocomplete="current-password"> 
+                <input type="password" id="password" name="USU_CONTRASEÑA" required autocomplete="current-password"> 
                 
                 @error('password')
                   <span style="color: red; font-size: 12px;">{{ $message }}</span>
