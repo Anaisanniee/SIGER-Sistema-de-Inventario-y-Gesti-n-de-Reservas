@@ -1,58 +1,87 @@
 /* ========================================================
-   COMPONENT: FILTRO RÁPIDO HORIZONTAL (SIGER OVALADO)
+   COMPONENT: FILTRO RÁPIDO HORIZONTAL RESPONSIVE
    ======================================================== */
 
-/* Contenedor principal del filtro */
 .siger-filtro-horizontal-container {
     width: 100%;
-    background-color: transparent; /* Fondo transparente para que acople con tu diseño */
     margin-bottom: 1.5rem;
     padding: 0;
 }
 
-/* Barra con scroll horizontal para móvil y PC */
+/* Opciones por defecto para el scroll horizontal (PC/Tablet) */
 .siger-filtro-scroll {
     display: flex;
     flex-wrap: nowrap;
-    overflow-x: auto; /* Permite deslizar con el dedo en móviles */
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding: 0.5rem 0.2rem;
-    gap: 12px; /* Separación idéntica y limpia entre cada botón */
+    gap: 12px;
 }
 
-/* Ocultar la barra de scroll visual para mantener la estética limpia de SIGER */
 .siger-filtro-scroll::-webkit-scrollbar {
     display: none;
 }
 
-/* Botones con estilo Óvalado (Píldora) */
+/* Botón Ovalado */
 .filtro-item-btn {
-    background-color: #ffffff; /* Fondo blanco para que resalte sobre el fondo gris de la app */
-    border: 1px solid #e2e8f0; /* Borde gris muy suave */
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
     padding: 0.5rem 1.4rem;
     font-size: 0.88rem;
     font-weight: 500;
-    color: #4a5568; /* Texto gris intermedio */
+    color: #4a5568;
     cursor: pointer;
-    white-space: nowrap; /* Evita que el texto de la categoría se rompa en dos líneas */
-    border-radius: 50px; /* El secreto de la forma ovalada perfecta */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); /* Sombra diminuta para dar relieve */
+    white-space: nowrap;
+    border-radius: 50px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     transition: all 0.25s ease;
 }
 
-/* Efecto Hover (Pasar el mouse) */
 .filtro-item-btn:hover {
-    color: #198754; /* Cambia al texto verde de SIGER */
-    border-color: #198754; 
-    background-color: #f0fdf4; /* Fondo verde extremadamente sutil */
-    transform: translateY(-1px); /* Efecto sutil de levantamiento */
+    color: #198754;
+    border-color: #198754;
+    background-color: #f0fdf4;
 }
 
-/* Estado Activo (Botón seleccionado por el usuario) */
 .filtro-item-btn.active {
-    color: #ffffff !important; /* Texto blanco */
-    background-color: #198754 !important; /* Fondo verde SIGER corporativo */
+    color: #ffffff !important;
+    background-color: #198754 !important;
     border-color: #198754 !important;
     font-weight: 600;
-    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2); /* Sombra verde difuminada */
+}
+
+/* Contenedor del Select (Móvil) - Oculto en PC por defecto */
+.siger-filtro-select-container {
+    display: none;
+    padding: 0 0.2rem;
+}
+
+/* Estilo ovalado para el Select de Bootstrap */
+.siger-filtro-select {
+    border-radius: 50px !important;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    background-color: #ffffff;
+}
+
+.siger-filtro-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15);
+}
+
+/* ========================================================
+   MEDIA QUERY: DISPOSITIVOS MÓVILES (Menor a 768px)
+   ======================================================== */
+@media (max-width: 767.98px) {
+    /* Ocultamos los botones horizontales por completo */
+    .siger-filtro-scroll {
+        display: none !important;
+    }
+
+    /* Mostramos el menú desplegable */
+    .siger-filtro-select-container {
+        display: block !important;
+    }
 }
