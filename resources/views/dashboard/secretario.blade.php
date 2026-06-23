@@ -1,11 +1,13 @@
 @extends('layouts.app') 
 @section('content')
+@section('mostrarRegresar', 'false')
 
 {{---#TARJETA DE BIENVENIDA---}}
+@include('components.tarjetas.tarjeta-bienvenido', ['titulo' => 'Bienvenida secretaria'])
 
 {{---FILTRO MINIMALISTA PRINCIPAL DE BUSQUEDA RAPIDA PREDERTERMINADA---}}
 <div class="filtro-rapido-contenedor">
-@include('components.filtros.filtro-rapido', ['opciones' => ['Portátiles', 'Proyectores', 'Monitores']])
+@include('components.filtros.filtro-rapido', ['opciones' => ['pendiente', 'aceptada', 'rechazada']])
 </div>
 {{---#TARJETAS DE RECURSOS---}} 
 <div class="container-tarjetas">

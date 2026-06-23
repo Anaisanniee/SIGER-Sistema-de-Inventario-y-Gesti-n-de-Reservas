@@ -21,12 +21,6 @@
 
         <div class="botones-container">
 
-            {{-- BOTÓN RESERVAR --}}
-            <x-botones.boton
-                clase="btn"
-                url="{{ $urlBoton ?? '/reservas' }}"
-            >{{ $textoBoton ?? 'Reservar' }}</x-botones.boton>
-
             {{-- BOTÓN FICHA --}}
             <x-botones.boton
 
@@ -75,6 +69,21 @@
                 data-tip_aula_id="{{ $recurso->tip_aula_id ?? '' }}"
 
             >Ficha técnica</x-botones.boton>
+
+                        {{-- BOTÓN reservar/editar --}}
+            <x-botones.boton
+                clase="btn"
+                url="{{ $urlBoton ?? '/reservas' }}"
+            >{{ $textoBoton ?? 'Reservar' }}</x-botones.boton>
+
+             
+            {{-- BOTÓN eliminar solo secretaria --}}
+            @hasrole('secretaria')
+                <x-botones.boton
+                    clase="btn-rojo"
+                    url="{{ $urlBotonEliminar ?? '/reservas/eliminar' }}"
+                >{{ $textoBotonEliminar ?? 'Eliminar' }}</x-botones.boton>
+            @endhasrole
             
 
         </div>
