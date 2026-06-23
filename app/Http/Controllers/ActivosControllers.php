@@ -18,10 +18,14 @@ class ActivosControllers extends Controller
 
     // Vista del catálogo de préstamos de equipos
     public function prestamos() {
-        return view('inventario.prestamos'); 
+        // 🚀 Creamos la variable vacía para que el @forelse del frontend no se rompa
+        $activos = []; 
+
+        // Se la mandamos a la vista usando compact
+        return view('inventario.prestamos', compact('activos')); 
     }
 
-    // 🚀 Muestra la vista de edición (Frontend Puro)
+    // Muestra la vista de edición (Frontend Puro)
     public function edit() {
         return view('inventario.editar');
     }
