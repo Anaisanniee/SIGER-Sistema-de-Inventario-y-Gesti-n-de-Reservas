@@ -3,65 +3,90 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     /**
      * Muestra la lista de usuarios (Docentes, Secretaria, etc.)
+     * URL: GET /usuarios (Ruta: usuarios.index)
      */
     public function index()
     {
         $users = User::with('role')->get();
-        return "Lista de usuarios de SIGER"; 
+        return view('users.index', compact('users')); // O el string que tenías mientras tanto
     }
 
     /**
-     * Guarda un nuevo miembro del personal en la base de datos
+     * Muestra el formulario de registro que hizo Anaís
+     * URL: GET /usuarios/create (Ruta: usuarios.create)
+     */
+    public function create()
+    {
+        // Traemos los roles para cargarlos en el select del formulario
+        $roles = Role::all();
+        
+        // NOTA: Ajusta 'users.create' según la carpeta real donde Anaís guardó el Blade
+        return view('users.create', compact('roles'));
+    }
+
+    /**
+     * Guarda un nuevo miembro en la base de datos (Ejecutado por la Secretaria)
+     * URL: POST /usuarios (Ruta: usuarios.store)
      */
     public function store(Request $request)
     {
+        // 1. Validamos usando los campos reales de la base de datos de SIGER
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'email'       => 'required|string|email|max:255|unique:users',
-            'document_id' => 'required|string|unique:users',
-            'password'    => 'required|string|min:8',
-            'role_id'     => 'required|exists:roles,id',
+            'USU_CEDULA'           => 'required|string|unique:usuarios,USU_CEDULA',
+            'USU_PRIMER_NOMBRE'    => 'required|string|max:50',
+            'USU_SEGUNDO_NOMBRE'   => 'nullable|string|max:50',
+            'USU_PRIMER_APELLIDO'  => 'required|string|max:50',
+            'USU_SEGUNDO_APELLIDO' => 'nullable|string|max:50',
+            'USU_CORREO'           => 'required|string|email|max:255|unique:usuarios,USU_CORREO',
+            'USU_CONTRASEÑA'       => 'required|string|min:6',
+            'ROL_ID'               => 'required|exists:roles,id',
         ]);
 
+        // 2. Creamos el registro (tu modelo User encripta la contraseña solo)
         User::create([
-            'name'        => $request->name,
-            'email'       => $request->email,
-            'document_id' => $request->document_id,
-            'phone'       => $request->phone,
-            'password'    => Hash::make($request->password),
-            'role_id'     => $request->role_id,
+            'USU_CEDULA'           => $request->USU_CEDULA,
+            'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
+            'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
+            'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
+            'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
+            'USU_CORREO'           => $request->USU_CORREO,
+            'USU_CONTRASEÑA'       => $request->USU_CONTRASEÑA,
+            'USU_ESTADO'           => 'Activo',
+            'ROL_ID'               => $request->ROL_ID,
         ]);
 
-        return redirect()->back()->with('success', 'Personal registrado correctamente.');
+        return redirect()->route('usuarios.create')->with('success', 'Personal registrado correctamente.');
     }
 
     /**
-     * Actualiza la información de un docente o administrativo
+     * Actualiza la información de un usuario
+     * URL: PUT/PATCH /usuarios/{id} (Ruta: usuarios.update)
      */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'email'       => 'required|email|unique:users,email,'.$id,
-            'document_id' => 'required|unique:users,document_id,'.$id,
-            'role_id'     => 'required|exists:roles,id',
+            'USU_PRIMER_NOMBRE'   => 'required|string|max:50',
+            'USU_PRIMER_APELLIDO' => 'required|string|max:50',
+            'USU_CORREO'          => 'required|email|unique:usuarios,USU_CORREO,'.$id.',id', // Evita choque con el mismo registro
+            'ROL_ID'              => 'required|exists:roles,id',
         ]);
 
         $user->update([
-            'name'        => $request->name,
-            'email'       => $request->email,
-            'document_id' => $request->document_id,
-            'phone'       => $request->phone,
-            'role_id'     => $request->role_id,
+            'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
+            'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
+            'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
+            'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
+            'USU_CORREO'           => $request->USU_CORREO,
+            'ROL_ID'               => $request->ROL_ID,
         ]);
 
         return redirect()->back()->with('success', 'Personal actualizado correctamente.');
@@ -69,6 +94,7 @@ class UserController extends Controller
 
     /**
      * Elimina a un usuario del sistema
+     * URL: DELETE /usuarios/{id} (Ruta: usuarios.destroy)
      */
     public function destroy($id)
     {
@@ -77,4 +103,4 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'Usuario eliminado con éxito.');
     }
-} // <--- Esta es la llave que cierra la CLASE y debe ir al final de todo
+}
