@@ -1,4 +1,7 @@
 {{-- resources/views/usuarios/crear-usuario.blade.php --}}
+
+{{---SOLO ENTRA LA SECRETARIA--}}
+
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
@@ -27,8 +30,7 @@
             <div class="post-form">
                 <label for="rol">Rol</label>
                 <select name="rol" id="rol">
-                    <option value="">--Selecciona--</option>
-                    <option value="docente">Docente</option>
+                    <option value="">--Docente--</option>
                 </select>
             </div>
 

@@ -1,21 +1,42 @@
 @extends('layouts.app') 
+
 @section('content')
 @section('mostrarRegresar', 'false')
 
-{{---#TARJETA DE BIENVENIDA---}}
-@include('components.tarjetas.tarjeta-bienvenido', ['titulo' => 'Bienvenido'])
+{{--- 1. TARJETA DE BIENVENIDA ---}}
+@include('components.tarjetas.tarjeta-bienvenido', ['titulo' => 'Bienvenido Docente',   'descripcion' => 'Reserva equipos y aulas de la Institución educativa Bohórquez.'
+])
 
-{{---FILTRO MINIMALISTA PRINCIPAL DE BUSQUEDA RAPIDA PREDERTERMINADA---}}
+{{--- 2. FILTRO MINIMALISTA OVALADO DE RECURSOS ---}}
 <div class="filtro-rapido-contenedor">
-@include('components.filtros.filtro-rapido', ['opciones' => ['pendientes', 'aceptadas', 'en mantenimiento']])
+    @include('components.filtros.filtro-rapido', ['opciones' => ['bueno', 'reservable', 'en mantenimiento']])
 </div>
-{{---#TARJETAS DE RECURSOS---}} 
+
+{{--- 3. CONTENEDOR PRINCIPAL DE TARJETAS (CON MULTI-TAGS) ---}} 
 <div class="container-tarjetas">
     @foreach($recursos as $recurso)
 
         @if(isset($recurso->act_id))
+            
+            {{-- Mapeo dinámico acumulativo para Activos (Proyector, laptops, etc.) --}}
+            @php
+                $tagsActivo = [];
+                
+                // Si está en buen estado, le agregamos el tag 'bueno'
+                if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'buen estado') {
+                    $tagsActivo[] = 'bueno';
+                } 
+                
+                // Si es reservable, le añadimos también ese tag sin borrar el anterior
+                if (isset($recurso->act_reservable) && $recurso->act_reservable === true) {
+                    $tagsActivo[] = 'reservable';
+                }
 
-            <div class="tarjeta-wrapper">
+                // Unimos los tags en una sola cadena separada por espacios ("bueno reservable")
+                $strTagsActivo = count($tagsActivo) > 0 ? implode(' ', $tagsActivo) : 'todos';
+            @endphp
+            
+            <div class="tarjeta-wrapper" data-tags="{{ $strTagsActivo }}">
                 @component(
                     'components.tarjetas.tarjeta-recurso',
                     [
@@ -24,11 +45,7 @@
                         'nombre' => $recurso->act_nombre,
                         'etiqueta' => 'Serial',
                         'valor' => $recurso->act_serial,
-                        
-                        // 🟢 PASAMOS EL OBJETO COMPLETO PARA QUE EL BOTÓN INTERNO LO LEA
                         'recurso' => $recurso,
-                        'textoBoton' => 'Editar'
-                        {{---- agregar url caundo haya vista de editar---}}
                     ]
                 )
                 @endcomponent
@@ -36,7 +53,23 @@
 
         @else
 
-            <div class="tarjeta-wrapper">
+            {{-- Mapeo dinámico acumulativo para Aulas (Laboratorios, salones, etc.) --}}
+            @php
+                $tagsAula = [];
+                
+                // Si está disponible, es apta para reservarse
+                if (isset($recurso->aula_estado) && strtolower($recurso->aula_estado) == 'disponible') {
+                    $tagsAula[] = 'reservable';
+                } 
+                
+                if (isset($recurso->aula_reservable) && $recurso->aula_reservable === true) {
+                    $tagsAula[] = 'reservable';
+                }
+
+                $strTagsAula = count($tagsAula) > 0 ? implode(' ', $tagsAula) : 'todos';
+            @endphp
+
+            <div class="tarjeta-wrapper" data-tags="{{ $strTagsAula }}">
                 @component(
                     'components.tarjetas.tarjeta-recurso',
                     [
@@ -45,14 +78,8 @@
                         'nombre' => $recurso->aula_nombre,
                         'etiqueta' => 'Capacidad',
                         'valor' => $recurso->aula_capacidad,
-                        
-                        // 🟢 LO MISMO PARA EL AULA
                         'recurso' => $recurso,
-                        'textoBoton' => 'Editar'
-
                     ]
-
-
                 )
                 @endcomponent
             </div>
@@ -61,13 +88,10 @@
 
     @endforeach
 
+    {{--- MODAL GLOBAL PARA LAS FICHAS TÉCNICAS ---}}
     <x-modal id="modalgeneral" title="Cargando..." subtitle="">
         @include('components.fichas.ficha-tecnica-universal')
     </x-modal>
 </div>
 
-
-
 @endsection
-
-  

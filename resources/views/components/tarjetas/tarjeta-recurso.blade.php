@@ -76,14 +76,8 @@
                 url="{{ $urlBoton ?? '/reservas' }}"
             >{{ $textoBoton ?? 'Reservar' }}</x-botones.boton>
 
-             
-            {{-- BOTÓN eliminar solo secretaria --}}
-            @hasrole('secretaria')
-                <x-botones.boton
-                    clase="btn-rojo"
-                    url="{{ $urlBotonEliminar ?? '/reservas/eliminar' }}"
-                >{{ $textoBotonEliminar ?? 'Eliminar' }}</x-botones.boton>
-            @endhasrole
+             {{-- BOTÓN eliminar solo secretaria --}}
+
             
 
         </div>

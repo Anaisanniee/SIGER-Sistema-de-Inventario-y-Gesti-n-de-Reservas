@@ -18,7 +18,7 @@
  </head>
  <body>
         <header>
-            @include ('components.navbar' , ['mostrarBusqueda' => $__env->yieldContent('mostrarBusqueda') !== 'false', 'mostrarRegresar' => $__env->yieldContent('mostrarRegresar') !== 'false'])
+            @include ('components.navbar' , ['mostrarBusqueda' => $__env->yieldContent('mostrarBusqueda') !== 'false', 'mostrarRegresar' => $__env->yieldContent('mostrarRegresar') !== 'false', 'mostrarPerfil' => $__env->yieldContent('mostrarPerfil') !== 'false'])
         </header class=navbar>
 
                 <main class="content" style="flex: 1; padding: 20px;">

@@ -1,21 +1,24 @@
 @extends('layouts.app') 
+
 @section('content')
 @section('mostrarRegresar', 'false')
 
-{{---#TARJETA DE BIENVENIDA---}}
+{{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', ['titulo' => 'Bienvenida secretaria'])
 
-{{---FILTRO MINIMALISTA PRINCIPAL DE BUSQUEDA RAPIDA PREDERTERMINADA---}}
+{{--- 2. FILTRO MINIMALISTA OVALADO (COMPONENTE REUTILIZABLE) ---}}
 <div class="filtro-rapido-contenedor">
-@include('components.filtros.filtro-rapido', ['opciones' => ['pendiente', 'aceptada', 'rechazada']])
+    @include('components.filtros.filtro-rapido', ['opciones' => ['pendiente', 'aceptada', 'rechazada']])
 </div>
-{{---#TARJETAS DE RECURSOS---}} 
+
+{{--- 3. CONTENEDOR PRINCIPAL DE TARJETAS DE RECURSOS ---}} 
 <div class="container-tarjetas">
     @foreach($recursos as $recurso)
 
         @if(isset($recurso->act_id))
-
-            <div class="tarjeta-wrapper">
+            
+            {{-- TARJETA DE ACTIVO: Corregido 'valor' para que no rompa la línea 19 --}}
+            <div class="tarjeta-wrapper" data-tags="{{ isset($recurso->act_estado) ? Str::slug($recurso->act_estado) : 'pendiente' }}">
                 @component(
                     'components.tarjetas.tarjeta-recurso',
                     [
@@ -25,10 +28,8 @@
                         'etiqueta' => 'Serial',
                         'valor' => $recurso->act_serial,
                         
-                        // 🟢 PASAMOS EL OBJETO COMPLETO PARA QUE EL BOTÓN INTERNO LO LEA
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar'
-                        {{---- agregar url caundo haya vista de editar---}}
                     ]
                 )
                 @endcomponent
@@ -36,7 +37,8 @@
 
         @else
 
-            <div class="tarjeta-wrapper">
+            {{-- TARJETA DE AULA --}}
+            <div class="tarjeta-wrapper" data-tags="{{ isset($recurso->aula_estado) ? Str::slug($recurso->aula_estado) : 'pendiente' }}">
                 @component(
                     'components.tarjetas.tarjeta-recurso',
                     [
@@ -46,13 +48,10 @@
                         'etiqueta' => 'Capacidad',
                         'valor' => $recurso->aula_capacidad,
                         
-                        // 🟢 LO MISMO PARA EL AULA
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar'
-
+                        {{---colocar url de papagina d edita solo para secretaria-----}}
                     ]
-
-
                 )
                 @endcomponent
             </div>
@@ -61,13 +60,10 @@
 
     @endforeach
 
+    {{--- MODAL GLOBAL PARA VER LAS FICHAS TÉCNICAS ---}}
     <x-modal id="modalgeneral" title="Cargando..." subtitle="">
         @include('components.fichas.ficha-tecnica-universal')
     </x-modal>
 </div>
 
-
-
 @endsection
-
-  

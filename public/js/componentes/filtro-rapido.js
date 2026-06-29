@@ -1,45 +1,55 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const contenedorFiltro = document.getElementById('filtro-rapido-componente');
-    
-    // 2. Crear los botones dinámicamente con JS puro
-    if (contenedorFiltro && misCategorias.length > 0) {
-        misCategorias.forEach(opcion => {
-            // Convierte "Bloque A" en "bloque-a" para usarlo de filtro
-            const slug = opcion.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '-');
-            
-            contenedorFiltro.innerHTML += `
-                <button class="filtro-item-btn" data-filtro="${slug}">
-                    ${opcion}
-                </button>
-            `;
+    // 1. Capturamos los elementos interactivos
+    const botonesFiltro = document.querySelectorAll('.filtro-item-btn');
+    const selectFiltro = document.getElementById('filtro-rapido-select');
+    const tarjetas = document.querySelectorAll('.tarjeta-wrapper'); 
+
+    // Función unificada que realiza el filtrado real en la interfaz
+    function aplicarFiltrado(filtroSeleccionado) {
+        tarjetas.forEach(tarjeta => {
+            // Lee el estado o categoría asignado a la tarjeta en el HTML
+            const tagsTarjeta = tarjeta.getAttribute('data-tags') || '';
+
+            if (filtroSeleccionado === 'todos') {
+                tarjeta.style.setProperty('display', 'block', 'important');
+            } else if (tagsTarjeta === filtroSeleccionado || tagsTarjeta.includes(filtroSeleccionado)) {
+                tarjeta.style.setProperty('display', 'block', 'important');
+            } else {
+                tarjeta.style.setProperty('display', 'none', 'important');
+            }
         });
     }
 
-    // 3. Lógica para detectar el clic y filtrar las tarjetas
-    const botonesFiltro = document.querySelectorAll('.filtro-item-btn');
-    // Asegúrate de que tus tarjetas tengan esta clase para que el script las encuentre
-    const tarjetasAulas = document.querySelectorAll('.card-aula-principal'); 
-
+    // 2. Escuchador para la vista de PC (Botones Ovalados)
     botonesFiltro.forEach(boton => {
         boton.addEventListener('click', function () {
-            // Cambiar el estado visual del botón activo
             botonesFiltro.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
 
-            const filtroSeleccionado = this.getAttribute('data-filtro');
+            const filtro = this.getAttribute('data-filtro');
+            
+            // Sincronizar el select de móvil por si acaso
+            if (selectFiltro) selectFiltro.value = filtro;
 
-            tarjetasAulas.forEach(tarjeta => {
-                // Leemos las etiquetas asignadas a la tarjeta
-                const tagsTarjeta = tarjeta.getAttribute('data-tags') || '';
-
-                if (filtroSeleccionado === 'todos') {
-                    tarjeta.style.display = 'block'; 
-                } else if (tagsTarjeta.includes(filtroSeleccionado)) {
-                    tarjeta.style.display = 'block'; 
-                } else {
-                    tarjeta.style.display = 'none'; 
-                }
-            });
+            aplicarFiltrado(filtro);
         });
     });
+
+    // 3. Escuchador para la vista Móvil (Menú desplegable)
+    if (selectFiltro) {
+        selectFiltro.addEventListener('change', function () {
+            const filtro = this.value;
+
+            // Sincronizar los botones de PC
+            botonesFiltro.forEach(btn => {
+                if (btn.getAttribute('data-filtro') === filtro) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            aplicarFiltrado(filtro);
+        });
+    }
 });

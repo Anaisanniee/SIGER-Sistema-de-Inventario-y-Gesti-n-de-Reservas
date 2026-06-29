@@ -23,6 +23,10 @@
                 <i class="fas fa-arrow-left"></i>
     </a>
     @endif
+
+    @if($mostrarPerfil ?? true)
     <a href="#" class="nav-link"><i class="fas fa-user"></i></a>
+    @endif
+
   </div>
 </nav>

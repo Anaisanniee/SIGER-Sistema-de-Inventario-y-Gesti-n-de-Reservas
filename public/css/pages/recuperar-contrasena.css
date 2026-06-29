@@ -1,0 +1,165 @@
+/* ========================================================
+   ESTILOS EXCLUSIVOS: PÁGINA DE RECUPERACIÓN DE CONTRASEÑA
+   ======================================================== */
+
+/* Contenedor principal para centrar la tarjeta en la pantalla */
+.siger-contenedor-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: var(--espaciado);
+    background-color: var(--color-fondo);
+}
+
+/* Dimensiones específicas para la tarjeta de recuperación */
+.tarjeta-recuperacion {
+    background: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: calc(var(--borde-radio) * 2.5);
+    padding: calc(var(--espaciado) * 2.5);
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015);
+}
+
+/* Alineación de textos en el encabezado */
+.text-center {
+    text-align: center;
+}
+
+.perfil-header-seccion {
+    margin-bottom: calc(var(--espaciado) * 1.5);
+}
+
+/* Reutilización de los estilos de títulos y subtítulos suavizados */
+.perfil-titulo-principal {
+    font-family: var(--fuente-secundaria);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin: 0;
+}
+
+.perfil-subtitulo {
+    font-family: var(--fuente-principal);
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    margin: 8px 0 0 0;
+    line-height: 1.4;
+}
+
+/* Icono circular del candado basado en los estilos de tu avatar */
+.tarjeta-recuperacion .avatar-circulo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-principal), var(--principal-secundario));
+    border-radius: 50%;
+    color: var(--color-fondo);
+}
+
+/* Estructura del formulario en una sola columna */
+.grid-campos-perfil-login {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: calc(var(--espaciado) * 1.2);
+}
+
+.post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.full-width-campo {
+    grid-column: span 1;
+}
+
+/* --- ESTILIZACIÓN DE ETIQUETAS E INPUTS CON EFECTO INSET --- */
+.grid-campos-perfil-login .post-form label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-texto);
+}
+
+.grid-campos-perfil-login .post-form input {
+    padding: 0.75rem 1rem;
+    background: var(--color-fondo-secundario); /* Gris secundario para diferenciar del fondo blanco */
+    border: 1px solid var(--color-borde);
+    border-radius: calc(var(--borde-radio) * 1.5);
+    font-family: var(--fuente-principal);
+    font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box;
+    
+    /* Suavizado del texto escrito */
+    font-weight: 400;
+    color: var(--color-texto);
+    
+    /* Sombra interna para hundir el campo */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+}
+
+.grid-campos-perfil-login .post-form input:focus {
+    outline: none;
+    background: var(--color-fondo);
+    border-color: var(--color-principal);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* --- CONTENEDOR Y COMPONENTES DE BOTONES (<x-botones.boton>) --- */
+.botones-accion-final {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: var(--espaciado);
+}
+
+/* Ajustes base para asegurar que la clase .btn del componente renderice bien */
+.botones-accion-final .btn {
+    padding: 0.75rem 1.8rem;
+    border-radius: calc(var(--borde-radio) * 2.5);
+    font-family: var(--fuente-principal);
+    font-weight: 700;
+    font-size: 0.92rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    flex: 1;
+    max-width: 180px; /* Limita el ancho de los botones en PC */
+}
+
+/* Variación: Cancelar / Volver al login */
+.btn-perfil-cancelar {
+    background: var(--color-fondo-secundario);
+    color: var(--color-texto);
+}
+
+/* Variación: Guardar / Enviar Enlace */
+.btn-perfil-guardar {
+    background: var(--color-principal);
+    color: var(--color-fondo);
+}
+
+/* --- ADAPTACIÓN RESPONSIVA (MÓVILES) --- */
+@media (max-width: 480px) {
+    .tarjeta-recuperacion {
+        padding: calc(var(--espaciado) * 1.5);
+    }
+
+    .botones-accion-final {
+        flex-direction: column-reverse; /* El botón de acción principal queda arriba en móviles */
+        gap: 10px;
+    }
+
+    .botones-accion-final .btn {
+        max-width: 100%;
+        width: 100%;
+    }
+}
