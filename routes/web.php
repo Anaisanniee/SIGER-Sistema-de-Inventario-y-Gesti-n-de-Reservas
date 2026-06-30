@@ -53,5 +53,5 @@ Route::get('/pruebas', function () {
 
     // 4. Retornamos la vista pasando la variable $recursos
     // (Asegúrate de cambiar 'pruebas' por el nombre real de tu archivo .blade.php)
-    return view('usuarios.perfil-usuario', compact('recursos'));
+    return view('usuarios.crear-usuario', compact('recursos'));
 });

@@ -1,172 +1,175 @@
-/* ===========================
-   DISEÑO MÓVIL
-=========================== */
-@media (max-width: 768px) {
+/* ==========================================================================
+   ESTILOS BASE / COMUNES (Se aplican a todas las pantallas por defecto)
+   ========================================================================== */
+body {
+    background-color: var(--color-fondo-secundario);
+    background: linear-gradient(var(--color-borde), var(--color-fondo-secundario));
+    margin: 0;
+    height: 100vh;
+}
 
-    body {
-        background-color: var(--color-fondo-secundario);
-        background: linear-gradient(var(--color-borde), var(--color-fondo-secundario));
-        width: 100%;
-        height: 100vh; /* Ocupa toda la pantalla */
-        margin: 0;
-        display: flex;
-        flex-direction: column; /* Para apilar header y login */
-        align-items: center;
-        position: relative; /* Necesario para posicionar hijos con absolute */
-    }
-
-    .welcome-container {
-    width: 100%;
-    height: 120px; /* Altura del header */
+.welcome-container {
     display: flex;
-    flex-direction: column; /* Coloca h1 y h4 uno debajo del otro */
-    align-items: center;    /* Centra horizontalmente */
-    justify-content: center;/* Centra verticalmente */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     background-color: var(--color-principal);
     color: var(--color-fondo);
     z-index: 1;
     position: relative;
-    text-align: center; /* Centra el texto */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para destacar */
-    }
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    .welcome-container h1 {
-        margin: 0; /* Quita espacio extra */
-        font-size: 1.5rem; /* Ajusta tamaño */
-        color: var(--fuente-secundaria);
-    }
+.welcome-container h1 {
+    margin: 0;
+    color: var(--fuente-secundaria);
+}
 
-    .welcome-container h3 {
-        margin: 5px 0 0 0; /* Pequeño espacio debajo del h1 */
-        font-weight: normal;
-        font-size: 0.9rem;
-    }
+.welcome-container h3,
+.welcome-container h4 {
+    font-weight: normal;
+}
 
-    
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-fondo);
+    border-radius: 4px;
+    color: var(--color-texto);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
 
-    .login-container {
-        position: absolute; /* Para poder moverlo sobre el header */
-        top: 100px; /* Baja desde el top, se superpone 10px sobre el header */
-        transform: translateY(-10px); /* Sube 10px para que se crucen */
+.login-container h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: var(--color-principal);
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+input, select {
+    background-color: var(--color-borde);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-bottom: 15px;
+    transition: border-color 0.2s ease; /* Suaviza el cambio al dar clic */
+}
+
+/* EFECTO: Borde verde al dar clic (foco) */
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-principal);
+}
+
+a {
+    color: var(--color-principal);
+    margin-left: 50px;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+label {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    font-family: var(--fuente-secundaria);
+    font-weight: 500;
+}
+
+.btn, .login-container button {
+    background: var(--color-principal);
+    color: var(--color-fondo);
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover, .login-container button:hover {
+    background-color: var(--principal-secundario);
+}
+
+
+/* ==========================================================================
+   DISEÑO MÓVIL (Hasta 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        position: relative;
+    }
+
+    .welcome-container {
+        width: 100%;
+        height: 120px;
+    }
+
+    .welcome-container h1 {
+        font-size: 1.5rem;
+    }
+
+    .welcome-container h3 {
+        margin: 5px 0 0 0;
+        font-size: 0.9rem;
+    }
+
+    .login-container {
+        position: absolute;
+        top: 100px;
+        transform: translateY(-10px);
         padding: 20px 30px;
-        background-color: var(--color-fondo);
         margin: 0;
         min-height: 27rem;
-        z-index: 2; /* Encima del header */
-        border-radius: 4px; /* Opcional, para estética */
-        color: var(--color-texto);
         font-family: var(--fuente-principal);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para destacar */
     }
-    h2{
-        margin-bottom: 20px;
+
+    .login-container h2 {
         font-size: 1.5rem;
-        color: var(--color-principal);
     }
 
-    label{
-        font-size: 1rem;
-        margin-bottom: 10px;
-        font-family: var(--fuente-secundaria);
-        font-weight: 500;
-    }
-
-    input{
-        background-color: var(--color-borde);
+    input, select, .btn {
         width: 97%;
-        padding: 10px 10px 10px 10px; /* Espacio para el ícono a la izquierda */
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra interna para profundidad */
     }
-
-    select{
-        background-color: var(--color-borde);
-        width: 97%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra interna para profundidad */
-
-    }
-    
 
     a {
-        color: var(--color-principal);
-        margin-left: 50px;
-        text-decoration: none;
         font-size: 0.9rem;
-        margin-top: 10px;
-    }
-
-    .btn {
-        background: var(--color-principal);
-        color: var(--color-fondo);
-        width: 97%;
-        padding: 10px;
-        margin-top: 10px;
-        border: none;
-        border-radius: 4px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-   .btn:hover {
-        background-color: var(--principal-secundario);
     }
 }
 
 
-
-
-
-
-
-/* ===========================
-/* DISEÑO TABLET */
+/* ==========================================================================
+   DISEÑO TABLET (De 769px a 1023px)
+   ========================================================================== */
 @media (min-width: 769px) and (max-width: 1023px) {
-
     body {
-        background-color: var(--color-fondo-secundario);
         display: flex;
-        margin: 0;
-        height: 100vh; /* Altura total de la ventana */
-        display: flex;
-        flex-direction: column; /* Para apilar header y login */
+        flex-direction: column;
         align-items: center;
-        position: relative; /* Necesario para posicionar hijos con absolute */
-        background: linear-gradient(var(--color-borde), var(--color-fondo-secundario));
+        position: relative;
     }
 
     .welcome-container {
-    width: 100%;
-    height: 160px; /* Altura del header */
-    display: flex;
-    flex-direction: column; /* Coloca h1 y h4 uno debajo del otro */
-    align-items: center;    /* Centra horizontalmente */
-    justify-content: center;/* Centra verticalmente */
-    background-color: var(--color-principal);
-    color: var(--color-fondo);
-    z-index: 1;
-    position: relative;
-    text-align: center; /* Centra el texto */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para destacar */
+        width: 100%;
+        height: 160px;
     }
 
-    
     .welcome-container h1 {
         margin: 10px 0;
         font-size: 3rem;
-        color: var(--fuente-secundaria);
         background: linear-gradient(45deg, var(--color-fondo), var(--color-texto-secundario));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -174,223 +177,77 @@
 
     .welcome-container h3 {
         margin: 0 0 20px 0;
-        font-weight: normal;
         font-size: 1.25rem;
     }
 
-    /* Panel de login */
     .login-container {
-        position: absolute; /* Para poder moverlo sobre el header */
-        top: 200px; /* Baja desde el top, se superpone 10px sobre el header */
-        transform: translateY(-10px); /* Sube 10px para que se crucen */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: var(--color-fondo);
+        position: absolute;
+        top: 200px;
+        transform: translateY(-10px);
         padding: 40px 50px;
-        border-radius: 4px;
-        color: var(--color-texto);
-        width: 50%; /* Ocupa el resto del ancho */
-        margin-left: auto; /* Empuja hacia la derecha */
+        width: 50%;
+        margin-left: auto;
         height: auto;
         box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        z-index: 2; /* Encima del header */
     }
 
-    .login-container h2 {
-        margin-bottom: 20px;
-        font-size: 1.8rem;
-        color: var(--color-principal);
-    }
-    .form-group {
-        width: 100%;
-        margin-bottom: 5px;
-    }
-
-    input{
-        background-color: var(--color-borde);
+    input, select, .btn, .login-container button {
         width: 95%;
-        padding: 10px 10px 10px 10px; /* Espacio para el ícono a la izquierda */
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra interna para profundidad */
     }
-
-    .login-container button {
-        padding: 10px;
-        font-size: 1rem;
-        background-color: var(--color-principal);
-        color: var(--color-fondo);
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-
-    }
-
-    .login-container button:hover {
-        background-color: var(--principal-secundario);
-    }
-
-    select{
-        background-color: var(--color-borde);
-        width: 95%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra interna para profundidad */
-    }
-
 
     a {
-        color: var(--color-principal);
-        margin-left: 50px;
-        text-decoration: none;
         font-size: 1rem;
-        margin-top: 10px;
-
-    }
-
-    .btn {
-            width: 95%;
-            padding: 10px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-    .btn:hover {
-        background-color: var(--principal-secundario);
     }
 }
 
 
-/* ===========================
-   DISEÑO PC
-=========================== */
+/* ==========================================================================
+   DISEÑO PC (Desde 1024px en adelante) - CORREGIDO
+   ========================================================================== */
 @media (min-width: 1024px) {
-
     body {
         background-color: var(--color-fondo);
-        margin: 0;
-        height: 100vh;
-        
-        /* Usamos Grid para controlar las dos secciones */
         display: grid;
-        grid-template-columns: 40% 60%; 
+        grid-template-columns: 40% 60%;
     }
 
-    /* Panel de bienvenida (Izquierda) */
     .welcome-container {
-        display: flex;
-        flex-direction: column; 
         justify-content: space-between;
         background: linear-gradient(to bottom, var(--principal-secundario), var(--color-principal));
-        color: var(--color-fondo);
-        box-shadow: 7px 0 10px rgba(0, 0, 0, 0.3); 
-        z-index: 1; 
+        box-shadow: 7px 0 10px rgba(0, 0, 0, 0.3);
         padding: 20px;
+        align-items: flex-start; /* Cambia la alineación general de los hijos a la izquierda en PC */
     }
 
     .welcome-container h1 {
-        margin: 0;
         font-size: 3rem;
-        color: var(--fuente-secundaria);
         background: linear-gradient(45deg, var(--color-fondo), var(--color-texto-secundario));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        text-align: left;     /* Alinea el texto a la izquierda */
+        align-self: flex-start; /* Rompe el centrado de los estilos base y lo manda a la izquierda */
     }
 
     .welcome-container h4 {
-         font-size: 1.5rem;
-         font-weight: normal;
+        font-size: 1.5rem;
+        text-align: left;     /* Asegura que el h4 también acompañe el diseño si lo necesitas */
     }
 
-    /* Panel de login (Derecha) */
     .login-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: var(--color-fondo);
         padding: 40px 50px;
-        border-radius: 4px;
-        
-        /* Al usar grid, "margin: auto" centra la tarjeta PERFECTAMENTE en el 60% de la derecha */
-        margin: auto; 
-        
+        margin: auto;
         height: auto;
-        color: var(--color-texto);
         max-height: 500px;
         max-width: 400px;
         box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        z-index: 2; 
     }
 
-    .login-container h2 {
-        margin-bottom: 20px;
-        font-size: 1.8rem;
-        color: var(--color-principal);
-    }
-
-    .form-group {
-        width: 100%;
-        margin-bottom: 5px;
-    }
-
-    input{
-        background-color: var(--color-borde);
+    input, select, .login-container button {
         width: 95%;
-        padding: 10px 10px 10px 10px; /* Espacio para el ícono a la izquierda */
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra interna para profundidad */
-    }
-    
-    select{
-        background-color: var(--color-borde);
-        width: 95%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1rem;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra interna para profundidad */
     }
 
-    .login-container button {
-        background: var(--color-principal);
-        color: var(--color-fondo);
-        width: 95%;
-        padding: 10px;
+    a {
         font-size: 1rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-       
-    }
-     
-    a{
-        color: var(--color-principal);
-        margin-left: 50px;
-        text-decoration: none;
-        font-size: 1rem;
-        margin-top: 10px;
         margin-bottom: 15px;
-    }
-
-    .btn:hover {
-        background-color: var(--principal-secundario);
     }
 }
-

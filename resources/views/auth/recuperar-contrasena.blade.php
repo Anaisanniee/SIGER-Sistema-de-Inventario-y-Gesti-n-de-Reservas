@@ -9,65 +9,63 @@
 </head>
 <body>
 
-    <div class="siger-contenedor-login">
-        <div class="tarjeta-blanca-datos tarjeta-recuperacion">
-            
-            <div class="perfil-header-seccion text-center">
-                <div class="avatar-circulo" style="width: 60px; height: 60px; margin: 0 auto calc(var(--espaciado) * 0.75) auto;">
+   <div class="siger-contenedor-login">
+    <div class="tarjeta-recuperacion tarjeta-blanca-datos">
+        
+        <div class="perfil-header-seccion text-center">
+            <div class="avatar-circulo" style="width: 60px; height: 60px; margin: 0 auto calc(var(--espaciado) * 0.75) auto;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
                 </svg>
-                </div>
-
-                <h1 class="perfil-titulo-principal">¿Olvidaste tu contraseña?</h1>
-                <p class="perfil-subtitulo">Ingresa tu correo electrónico registrado para enviarte las instrucciones de restablecimiento.</p>
             </div>
 
-            {{-- Si se manda un mensaje de ÉXITO desde el controlador --}}
-            @if (session('status'))
-                <x-alertas.notificacion tipo="exito">
-                    {{ session('status') }}
-                </x-alertas.notificacion>
-            @endif
-
-            {{-- Si el controlador devuelve ERRORES de validación --}}
-            @if ($errors->any())
-                @foreach ($errors->all() as $error)
-                    <x-alertas.notificacion tipo="error">
-                        {{ $error }}
-                    </x-alertas.notificacion>
-                @endforeach
-            @endif
-
-            <main>
-                <form action="/api/auth/recuperar-password" method="POST" class="grid-campos-perfil-login">
-                    
-                {{---RESPLAZAR POR CAMPOR DEL CONTROLLER O DB RECORDAR---}}
-                    <div class="post-form full-width-campo">
-                        <label for="correo-recuperacion">Correo Electrónico</label>
-                        <input 
-                            type="email" 
-                            id="correo-recuperacion"   
-                            name="correo"
-                            placeholder="ejemplo@correo.com" 
-                            required
-                        >
-                    </div>
-
-                    <div class="botones-accion-final full-width-campo">
-                        <x-botones.boton href="login" class="btn btn-perfil-cancelar text-center-link">
-                            Volver al Login
-                        </x-botones.boton>
-                        
-                        <x-botones.boton type="submit" class="btn btn-perfil-guardar">
-                            Enviar Enlace
-                        </x-botones.boton>
-                    </div>
-
-                </form>
-            </main>
-
+            <h1 class="perfil-titulo-principal">¿Olvidaste tu contraseña?</h1>
+            <p class="perfil-subtitulo">Ingresa tu correo electrónico registrado para enviarte las instrucciones de restablecimiento.</p>
         </div>
+
+        @if (session('status'))
+            <x-alertas.notificacion tipo="exito">
+                {{ session('status') }}
+            </x-alertas.notificacion>
+        @endif
+
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                <x-alertas.notificacion tipo="error">
+                    {{ $error }}
+                </x-alertas.notificacion>
+            @endforeach
+        @endif
+
+        <main>
+            <form action="/api/auth/recuperar-password" method="POST" class="grid-campos-perfil-login">
+                @csrf {{-- ¡No olvides el token de Laravel si es web/api protegida! --}}
+                
+                <div class="post-form full-width-campo">
+                    <label for="correo-recuperacion">Correo Electrónico</label>
+                    <input 
+                        type="email" 
+                        id="correo-recuperacion"   
+                        name="correo"
+                        placeholder="ejemplo@correo.com" 
+                        required
+                    >
+                </div>
+
+                <div class="botones-accion-final full-width-campo">
+                    <x-botones.boton href="login" class="btn btn-rojo text-center-link">
+                        Volver al Login
+                    </x-botones.boton>
+                    
+                    <x-botones.boton type="submit" class="btn btn-perfil-guardar">
+                        Enviar Enlace
+                    </x-botones.boton>
+                </div>
+
+            </form>
+        </main>
+
+    </div>
     </div>
 
 </body>

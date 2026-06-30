@@ -1,16 +1,15 @@
 <div class="modal fade" id="modalgeneral" tabindex="-1" >
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-content-siger">
 
             <div class="modal-header">
-                {{-- 👇 Les agregamos las clases 'modal-title' y 'modal-subtitle' para que el JS las encuentre 👇 --}}
                 <h4 class="modal-title">
                     Nombre del Recurso
                 </h4>
-                <h6 class="modal-subtitle text-muted">
+                <h6 class="modal-subtitle">
                     Característica
                 </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close-x" data-bs-dismiss="modal" aria-label="Close">✕</button>
             </div>
 
             <div class="modal-body">
@@ -18,7 +17,9 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn" data-bs-dismiss="modal">Cerrar</button>
+                <x-botones.boton type="button" class="btn btn-perfil-guardar" data-bs-dismiss="modal">
+                    Cerrar
+                </x-botones.boton>
             </div>
 
         </div>

@@ -68,7 +68,7 @@
 
                 data-tip_aula_id="{{ $recurso->tip_aula_id ?? '' }}"
 
-            >Ficha técnica</x-botones.boton>
+            >Ver ficha</x-botones.boton>
 
                         {{-- BOTÓN reservar/editar --}}
             <x-botones.boton

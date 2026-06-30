@@ -8,11 +8,28 @@
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', url('/usuarios')) {{-- Puedes cambiar esta ruta a donde quieras que regrese el botón --}}
 @section('content')
+     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
     <link rel="stylesheet" href="{{ asset('css/pages/usuarios-crear.css') }}">
 
     <h2 class="titulo-pagina"><i class="fas fa-user-plus"></i> Crear Usuario</h2>
 
 <div class="contenedor-registro-flexible">
+
+ {{-- Atrapa mensajes de estado o éxito (Ej: cuando vienes de restablecer la clave) --}}
+        @if (session('status'))
+            <x-alertas.notificacion tipo="exito">
+                {{ session('status') }}
+            </x-alertas.notificacion>
+        @endif
+
+        {{-- Atrapa errores generales que envíe el controlador --}}
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                <x-alertas.notificacion tipo="error">
+                    {{ $error }}
+                </x-alertas.notificacion>
+            @endforeach
+        @endif
 
     {{--BOTÓN DISPARADOR: Solo se ve en celulares/tablets (< 768px). Abre y cierra el formulario --}}
     <button class="btn-toggle-formulario" type="button" data-bs-toggle="collapse" data-bs-target="#formularioColapsable" aria-expanded="false" aria-controls="formularioColapsable">
@@ -22,7 +39,7 @@
 
     {{--CONTENEDOR COLAPSABLE: En móviles arranca cerrado, en PC ignora el colapso y se queda abierto --}}
     <div class="collapse dont-collapse-md" id="formularioColapsable">
-        <form class="form-registrar" action="POST" method="post">
+        <form class="form-registrar" action="{{ route('usuarios.store')}}" method="POST">
             @csrf {{-- ¡No olvides el token de seguridad de Laravel! --}}
 
             <h3>Registrar nuevo usuario</h3>
@@ -30,7 +47,9 @@
             <div class="post-form">
                 <label for="rol">Rol</label>
                 <select name="rol" id="rol">
-                    <option value="">--Docente--</option>
+                    <option value="">--Selecciona--</option>
+                    <option value="2">Docente</option>
+                    <option value="3">Rector(a)</option>
                 </select>
             </div>
 
@@ -65,8 +84,8 @@
             </div>
 
             <div class="contenedor-botones">
-                <x-botones.boton class="btn">Registrar</x-botones.boton> 
-                <x-botones.boton class="btn-rojo">Cancelar</x-botones.boton>  
+                <x-botones.boton class="btn btn-verde" type="submit">Registrar</x-botones.boton> 
+                <x-botones.boton class="btn btn-rojo" type="button">Cancelar</x-botones.boton>  
             </div>   
         </form>
     </div>
@@ -86,7 +105,7 @@
                 </div>
                 <div class="tarjeta-contador">
                     <span class="numero-contador">12</span>{{---//cambiar a dinamico//---}}
-                    <span class="etiqueta-contador">Activos este mes</span>
+                    <span class="etiqueta-contador">Activos</span>
                 </div>
             </div>
         </div>

@@ -1,172 +1,159 @@
+/* ==========================================================================
+   ESTILOS PREMIUM: MODAL GENERAL SOBRIO (SIGER)
+   Ancho expandido en PC y soporte para componente de botón verde principal
+   ========================================================================== */
 
-    /* ==========================================================================
-    DISEÑO PARA TABLET (Pantallas entre 769px y 1024px)
-    ========================================================================== */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .modal-dialog {
-        max-width: 90%; /* Ancho máximo del modal para pantallas pequeñas */
-        width: 100%; /* Asegura que el modal ocupe todo el ancho disponible */
-        margin: 1.75rem auto;
-    }
-
-    .modal-content-siger{
-        background-color: #00000000 !important;
-        display: none !important;
-    }
-
-    .modal.show{
-        display: block !important;
-    }
-
-
-    .modal-header {
-        display: grid;
-        height: 100px;
-        gap: 15px;
-        padding: 20px;
-        background-color: var(--color-verde-pastel);
-        border-bottom: 1px solid var(--color-texto-secundario);
-    }
-    .modal-footer{
-        display: flex;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 20px;
-
-    }
-
-     h4{ 
-        /* dos columnas para el , otra para el cerrar y  dos filas una para el titulo y otra para el subtitulo */
-        grid-column: 1 / -1;
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-left: 48px;
-    }
-    .modal-subtitle{
-            font-size: 1rem;
-            color: var(--color-texto-secundario);
-            margin-left: 48px;
-
-    }
-
-    .btn-close{
-        position: absolute;
-        top: 20px;
-        right: 20px;
-    }
-
-
+/* Forzar despliegue limpio */
+.modal.show {
+    display: block !important;
 }
 
+/* La tarjeta contenedora del modal (Acabado sobrio) */
+.modal-content-siger {
+    background-color: #ffffff !important;
+    border: 1px solid var(--color-borde) !important;
+    border-radius: 4px !important; 
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important; 
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column;
+    animation: none !important; 
+    transition: none !important;
+}
+
+/* Cabecera del modal: Espaciado elegante y color muy suave */
+.modal-header {
+    display: block !important; 
+    padding: 24px 30px !important; 
+    background-color: var(--color-verde-pastel) !important;
+    border-bottom: 1px solid var(--color-borde) !important;
+    position: relative !important;
+}
+
+/* Título con el icono integrado con sobriedad */
+.modal-header .modal-title {
+    font-family: var(--fuente-secundaria);
+    color: var(--color-principal); 
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Icono integrado de manera sutil */
+.modal-header .modal-title::before {
+    content: "📦";
+    font-size: 1.3rem;
+}
+
+/* Subtítulo alineado perfectamente */
+.modal-header .modal-subtitle {
+    font-family: var(--fuente-principal);
+    color: var(--color-texto-secundario) !important;
+    font-size: 0.95rem !important;
+    font-weight: 400 !important;
+    margin: 6px 0 0 0 !important;
+    padding-left: 32px; 
+}
+
+/* El botón 'X' de la esquina superior derecha */
+.btn-close-x {
+    position: absolute;
+    top: 24px;
+    right: 25px;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--color-texto-secundario);
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+.btn-close-x:hover {
+    color: var(--color-principal);
+}
+
+/* Cuerpo del modal */
+.modal-body {
+    padding: 30px !important;
+    background-color: #ffffff;
+    font-family: var(--fuente-principal);
+}
+
+/* Pie del modal: Botones alineados de forma natural a la derecha */
+.modal-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important; /* Descentrado hacia la derecha clásica */
+    padding: 15px 30px !important;
+    border-top: 1px solid var(--color-borde) !important;
+    background-color: var(--color-fondo) !important; 
+}
+
+/* INTEGRACIÓN CON TU COMPONENTE DE BOTÓN VERDE (btn-perfil-guardar) */
+.modal-footer .btn.btn-perfil-guardar {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 140px !important; 
+    height: 40px !important;
+    padding: 0 24px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    font-family: var(--fuente-principal);
+    border-radius: 4px !important;
+    border: none !important;
+    background-color: var(--color-principal) !important; /* Verde corporativo */
+    color: var(--color-fondo) !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.modal-footer .btn.btn-perfil-guardar:hover {
+    background-color: var(--principal-secundario) !important; /* Verde más oscuro al pasar el mouse */
+}
+
+
 /* ==========================================================================
-    DISEÑO PARA MÓVIL (Pantallas hasta 768px)
-    ========================================================================== */
+   MÓVIL & RESPONSIVO
+   ========================================================================== */
 @media (max-width: 768px) {
     .modal-dialog {
-        max-width: 90%; /* Ancho máximo del modal para pantallas pequeñas */
-        width: 100%; /* Asegura que el modal ocupe todo el ancho disponible */
-        margin: 1.75rem auto;
+        max-width: 92%; 
+        margin: 1.5rem auto;
     }
-
-    .modal-content-siger{
-        background-color: #00000000 !important;
-        display: none !important;
-    }
-
-    .modal.show{
-        display: block !important;
-    }
-
 
     .modal-header {
-        display: grid;
-        height: 100px;
-        gap: 7px;
-        padding: 20px;
-        background-color: var(--color-verde-pastel);
-        border-bottom: 1px solid var(--color-texto-secundario);
-    }
-    .modal-footer{
-        display: flex;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 20px;
-
+        padding: 20px !important;
     }
 
-    h4{ 
-        /* dos columnas para el , otra para el cerrar y  dos filas una para el titulo y otra para el subtitulo */
-        grid-column: 1 / -1;
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-left: 22px;
-    }
-    .modal-subtitle{
-            font-size: 1.1rem;
-            color: var(--color-texto-secundario);
-            margin-left: 22px;
-
+    .modal-header .modal-subtitle {
+        padding-left: 0; 
     }
 
-    .btn-close{
-        position: absolute;
-        top: 20px;
-        right: 20px;
+    .modal-body {
+        padding: 20px !important;
     }
 
+    .modal-footer {
+        padding: 15px 20px !important;
+    }
+
+    .modal-footer .btn.btn-perfil-guardar {
+        width: 100% !important; /* Full width solo en pantallas táctiles */
+    }
 }
 
 /* ==========================================================================
-    DISEÑO PARA ESCRITORIO (Pantallas mayores a 1024px)
-    ========================================================================== */
-@media (min-width: 1025px) {
+   ESCRITORIO: MÁS ANCHO Y VISTOSO
+   ========================================================================== */
+@media (min-width: 769px) {
     .modal-dialog {
-        max-width: 60%; /* Ancho máximo del modal para pantallas grandes */
-        width: 100%; /* Asegura que el modal ocupe todo el ancho disponible */
-        margin: 1.75rem auto;
-    }
-
-    .modal-content-siger{
-        background-color: #00000000 !important;
-        display: none !important;
-    }
-
-    .modal.show{
-        display: block !important;
-    }
-
-    .modal-header {
-        display: grid;
-        height: 100px;
-        gap: 7px;
-        padding: 20px;
-        background-color: var(--color-verde-pastel);
-        border-bottom: 1px solid var(--color-texto-secundario);
-    }
-    .modal-footer{
-        display: flex;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 20px;
-    }
-
-    h4{ 
-        /* dos columnas para el , otra para el cerrar y  dos filas una para el titulo y otra para el subtitulo */
-        grid-column: 1 / -1;
-        font-size: 1.8rem;
-        font-weight: bold;
-        margin-left: 30px;
-    }
-    .modal-subtitle{
-            font-size: 1.2rem;
-            color: var(--color-texto-secundario);
-            margin-left: 30px;
-
-    }
-
-    .btn-close{
-        position: absolute;
-        top: 20px;
-        right: 20px;
+        max-width: 800px; /* Expandido de 600px a 800px para mayor amplitud en PC */
+        margin: 3rem auto;
     }
 }

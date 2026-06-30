@@ -1,184 +1,90 @@
 /* ==========================================================================
-   DISEÑO PARA MÓVIL (Pantallas hasta 768px)
+   FICHA TÉCNICA UNIVERSAL Y ACORDEÓN SIGER
+   Estilos Estructurados, Ordenados y Demarcados Basados Solo en tus Variables
    ========================================================================== */
-@media (max-width: 768px) {
-    
-    /* DESACTIVAMOS el flex horizontal para que el título se quede arriba y el grid abajo */
-    .seccion-identificacion {
-        display: block; /* Cambiado de flex a block */
-        width: 100%;
-    }
 
-    /* Forzamos a que el grid ocupe todo el ancho sin importar qué */
-    .grid-tres-columnas {
-        display: grid !important; /* Asegura que mantenga el comportamiento grid */
-        grid-template-columns: 1fr !important; /* Una sola columna vertical */
-        justify-items: stretch;     
-        gap: 1rem;
-        width: 100% !important;
-        max-width: 100% !important; /* Quitamos el límite de 400px para que llegue a las puntas */
-        margin: 1rem 0 0 0; /* Espaciado superior respecto al título */
-    }
+/* --- 1. CONTENEDOR PRINCIPAL (Demarcación con Sombra Hacia Afuera) --- */
+.ficha-tecnica-universal {
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde); 
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+}
 
-    /* Estilos del h3 para que se comporte como un bloque limpio */
-    h3 {
-        display: block;
-        width: 100%;
-        font-size: 1.5rem;
-        font-weight: 500;
-        font-family: var(--fuente-principal);
-        color: var(--color-texto-secundario);
-        margin-bottom: 0.5rem;
-    }
+.seccion-identificacion {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+}
 
-    /* Ajuste de las tarjetas para que se estiren al 100% real */
-    .form-group {
-        background-color: var(--color-fondo);
-        padding: 0.5rem;
-        width: 100% !important;      
-        box-sizing: border-box; /* Crucial para que el padding no rompa el 100% */
-        border-radius: 10px;
-    }
+/* Base de rejilla para Escritorio (3 columnas) */
+.grid-tres-columnas {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    justify-items: stretch;     
+    gap: 1rem;
+    width: 100% !important;
+    max-width: none !important;
+    margin-top: 15px;
+}
 
-    label {
-        font-size: 0.9rem;
-        font-weight: 600;
-        font-family: var(--fuente-secundaria);
-        color: var(--color-texto-secundario);
-        margin-bottom: 0.5rem;
-    }
+/* --- 2. ELEMENTOS DE FORMULARIO (Fondo Original con Sombra Interna) --- */
+h3 {
+    display: block;
+    width: 100%;
+    font-family: var(--fuente-principal);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--color-texto-secundario);
+    margin-bottom: 0.5rem;
+}
+
+.form-group {
+    width: 100% !important;      
+    padding: 0.5rem;
+    box-sizing: border-box;
+    background-color: var(--color-fondo) !important; 
+    border: 1px solid var(--color-borde);
+    border-radius: 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04); 
+}
+
+label {
+    display: inline-block;
+    font-family: var(--fuente-secundaria);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-texto-secundario);
+    margin-bottom: 0.5rem;
 }
 
 
-/* ==========================================================================
-   DISEÑO PARA TABLET (Pantallas entre 769px y 1024px)
-   ========================================================================== */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .ficha-tecnica-universal {
-        width: 90%;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .seccion-identificacion {
-        display: flex;
-        flex-direction: column; /* Apilamos el título y el grid verticalmente */
-        align-items: flex-start; /* Alineamos a la izquierda */
-        gap: 20px; /* Espacio entre el título y el grid */
-    }
-
-    .grid-tres-columnas {
-        display: grid !important; /* Asegura que mantenga el comportamiento grid */
-        grid-template-columns: repeat(1, 1fr) !important; /* una columna */
-        justify-items: stretch;     
-        gap: 1rem;
-        width: 100% !important;
-        max-width: none !important; /* Quitamos cualquier límite de ancho para que se adapte al contenedor */
-    }
-
-    h3 {
-        font-size: 1.8rem;
-        font-weight: 500;
-        font-family: var(--fuente-principal);
-        color: var(--color-texto-secundario);
-    }
-
-    .form-group {
-        background-color: var(--color-fondo);
-        padding: 0.5rem;
-        width: 100% !important;      
-        box-sizing: border-box; /* Crucial para que el padding no rompa el 100% */
-        border-radius: 10px;
-    }
-
-    label {
-        font-size: 0.9rem;
-        font-weight: 600;
-        font-family: var(--fuente-secundaria);
-        color: var(--color-texto-secundario);}
-}
-
-/* ==========================================================================
-   DISEÑO PARA ESCRITORIO (Pantallas mayores a 1024px)
-   ========================================================================== */
-@media (min-width: 1025px) {
-    
-    .ficha-tecnica-universal {
-        width: 95%;
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .seccion-identificacion {
-        display: flex;
-        flex-direction: column; /* Título y grid en fila */
-        align-items: flex-start; /* Alineamos a la izquierda */
-        gap: 10px; /* Espacio entre el título y el grid */
-
-    }
-
-    .grid-tres-columnas {
-        display: grid !important; /* Asegura que mantenga el comportamiento grid */
-        grid-template-columns: repeat(3, 1fr) !important; /* Tres columnas */
-        justify-items: stretch;     
-        gap: 1rem;
-        width: 100% !important;
-        max-width: none !important; /* Quitamos cualquier límite de ancho para que se adapte al contenedor */
-        /*bajamos el grip para que queden debajo del título y no al lado*/
-        margin-top: 15px;
-    }
-
-    h3 {
-        display: block;
-        width: 100%;
-        font-size: 1.5rem;
-        font-weight: 500;
-        font-family: var(--fuente-principal);
-        color: var(--color-texto-secundario);
-        margin-bottom: 0.5rem;
-        
-    }
-
-    .form-group {
-        background-color: var(--color-fondo);
-        padding: 0.5rem;
-        width: 100% !important;      
-        box-sizing: border-box; /* Crucial para que el padding no rompa el 100% */
-        border-radius: 10px;
-    }
-
-    label {
-        font-size: 0.9rem;
-        font-weight: 600;
-        font-family: var(--fuente-secundaria);
-        color: var(--color-texto-secundario);
-    }
-}
-
-
-/* --- ESTILOS DEL ACORDEÓN ADICIONAL (SIGER) --- */
+/* --- 3. COMPONENTES DEL ACORDEÓN --- */
 .seccion-activos-asignados {
     width: 100%;
+    margin-top: var(--espaciado);
     box-sizing: border-box;
 }
 
 .accordion-item-siger {
-    border: 1px solid #e0e0e0;
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
     border-radius: 10px;
     overflow: hidden;
-    background-color: #ffffff;
 }
 
-/* Botón que abre/cierra el acordeón */
 .accordion-trigger {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     padding: 1rem;
-    background-color: #f8f9fa; /* Fondo gris claro suave */
+    background-color: var(--color-fondo-secundario); 
     border: none;
     text-align: left;
     cursor: pointer;
@@ -187,7 +93,7 @@
 }
 
 .accordion-trigger:hover {
-    background-color: #f1f3f5;
+    background-color: var(--color-borde);
 }
 
 .trigger-content {
@@ -198,63 +104,182 @@
     color: var(--color-texto-secundario);
 }
 
-/* Burbuja con el número de activos */
 .badge-conteo {
-    background-color: #6c757d;
-    color: white;
+    background-color: var(--color-texto-secundario);
+    color: var(--color-fondo);
     padding: 0.2rem 0.6rem;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: bold;
 }
 
-/* Contenedor de la lista */
 .accordion-body-siger {
     padding: 1rem;
-    background-color: #ffffff;
-    border-top: 1px solid #e0e0e0;
+    background-color: var(--color-fondo);
+    border-top: 1px solid var(--color-borde);
 }
 
 .lista-activos-siger {
-    list-style: none;
-    padding: 0;
-    margin: 0;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
 }
 
-/* Cada ítem de activo (como una mini tarjeta interna) */
 .activo-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background-color: var(--color-fondo); /* Usa tu color de fondo de tarjeta */
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
     border-radius: 8px;
     font-size: 0.9rem;
 }
 
 .activo-item strong {
-    color: #333;
+    color: var(--color-texto);
 }
 
 .activo-serial {
+    font-family: var(--fuente-secundaria);
     font-size: 0.8rem;
-    color: #6c757d;
-    background: #e9ecef;
+    color: var(--color-texto-secundario);
+    background: var(--color-fondo-secundario);
     padding: 0.15rem 0.4rem;
     border-radius: 4px;
 }
 
-/* DISEÑO MÓVIL (Ajustes automáticos) */
+
+/* ==========================================================================
+   4. MEDIA QUERIES (Adaptabilidad y Comportamiento Responsivo)
+   ========================================================================== */
+
+/* --- TABLETS (Pantallas entre 769px y 1024px) --- */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .ficha-tecnica-universal {
+        width: 90%;
+        max-width: 800px;
+        padding: 20px;
+    }
+
+    .seccion-identificacion {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .grid-tres-columnas {
+        display: grid !important;
+        grid-template-columns: repeat(1, 1fr) !important;
+        justify-items: stretch;     
+        gap: 1rem;
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    h3 {
+        font-size: 1.8rem;
+        font-weight: 500;
+        font-family: var(--fuente-principal);
+        color: var(--color-texto-secundario);
+    }
+
+    .form-group {
+        background-color: var(--color-fondo) !important;
+        padding: 0.5rem;
+        width: 100% !important;      
+        box-sizing: border-box;
+        border-radius: 10px;
+    }
+
+    label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: var(--fuente-secundaria);
+        color: var(--color-texto-secundario);
+    }
+}
+
+/* --- MÓVIL (Pantallas hasta 768px - Corrección Máxima) --- */
 @media (max-width: 768px) {
+    .ficha-tecnica-universal {
+        width: 100% !important;
+        padding: 15px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); 
+    }
+
+    .seccion-identificacion {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* 1. Intento por Grid */
+    .grid-tres-columnas, 
+    .seccion-identificacion div[class*="grid"], 
+    .seccion-identificacion .grid-tres-columnas,
+    .ficha-tecnica-universal div[class*="grid"],
+    h3 + div {
+        display: grid !important;
+        grid-template-columns: 1fr !important; 
+        gap: 1rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 1rem 0 0 0 !important;
+    }
+
+    /* 2. SOLUCIÓN MAESTRA: Si el contenedor de Especificaciones usa Flexbox en el HTML de Aulas, esto lo rompe y lo vuelve vertical */
+    .seccion-identificacion flex,
+    .ficha-tecnica-universal div {
+        flex-direction: column !important;
+        flex-wrap: wrap !important;
+    }
+
+    h3 {
+        display: block;
+        width: 100%;
+        font-size: 1.5rem;
+        font-weight: 500;
+        font-family: var(--fuente-principal);
+        color: var(--color-texto-secundario);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group {
+        background-color: var(--color-fondo) !important; 
+        padding: 0.5rem !important;
+        width: 100% !important;      
+        box-sizing: border-box;
+        border-radius: 10px !important;
+    }
+
+    label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: var(--fuente-secundaria);
+        color: var(--color-texto-secundario);
+        margin-bottom: 0.5rem;
+    }
+
     .accordion-trigger {
         padding: 0.85rem;
     }
+
     .activo-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.25rem;
+    }
+}
+
+/* --- ESCRITORIO EXPANSIÓN (Mayor a 1024px) --- */
+@media (min-width: 1025px) {
+    .ficha-tecnica-universal {
+        width: 95%;
+        max-width: 1000px;
+        padding: 20px;
     }
 }

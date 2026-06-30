@@ -1,5 +1,6 @@
 /* ========================================================
    SECCIÓN EXCLUSIVA DEL PERFIL (LLAMANDO A TUS VARIABLES)
+   Adaptada a la línea de diseño base (Login)
    ======================================================== */
 .siger-modulo-perfil {
     width: 100%;
@@ -47,9 +48,10 @@
     text-align: center;
     background: var(--color-fondo);
     border: 1px solid var(--color-borde);
-    border-radius: calc(var(--borde-radio) * 2.5);
+    border-radius: 4px; /* Unificado con el login-container */
     padding: calc(var(--espaciado) * 2);
     box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Unificado con el login-container */
 }
 
 .avatar-wrapper {
@@ -84,6 +86,11 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-editar-avatar:hover {
+    background-color: var(--color-borde);
 }
 
 .docente-nombre {
@@ -126,7 +133,7 @@
 .badge-reserva {
     background: var(--color-verde-pastel);
     padding: 2px 10px;
-    border-radius: var(--borde-radio);
+    border-radius: 4px;
     font-weight: bold;
     color: var(--color-texto);
 }
@@ -140,13 +147,13 @@
 
 .btn-siger-accion {
     width: 100%;
-    padding: 0.75rem;
-    border-radius: calc(var(--borde-radio) * 1.5);
+    padding: 10px; /* Unificado con .btn */
+    border-radius: 4px; /* Unificado con .btn */
     border: none;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 1rem; /* Unificado con .btn */
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.3s ease, transform 0.1s ease; /* Transición suave como base */
 }
 
 .btn-siger-accion:active {
@@ -158,16 +165,24 @@
     color: var(--color-fondo);
 }
 
+.btn-verde-siger:hover {
+    background-color: var(--principal-secundario); /* Mismo hover del login */
+}
+
 .btn-oscuro-siger {
     background-color: var(--color-texto);
     color: var(--color-fondo);
+}
+
+.btn-oscuro-siger:hover {
+    opacity: 0.9;
 }
 
 /* --- Bloque Derecho (Contenedor de Módulos) --- */
 .perfil-columna-derecha {
     display: flex;
     flex-direction: column;
-    gap: calc(var(--espaciado) * 1.5); /* Espaciado automático entre bloques */
+    gap: calc(var(--espaciado) * 1.5); 
     width: 100%;
 }
 
@@ -180,9 +195,8 @@
     transition: max-height 0.4s ease-in-out, opacity 0.3s ease, transform 0.3s ease, margin-bottom 0.3s ease;
 }
 
-/* Cuando tiene la clase .activo, empuja suavemente al módulo de reservas hacia abajo */
 .formulario-desplegable.activo {
-    max-height: 2000px; /* Suficiente para expandir todo el grid */
+    max-height: 2000px; 
     opacity: 1;
     transform: translateY(0);
     margin-bottom: calc(var(--espaciado) * 0.5);
@@ -191,18 +205,21 @@
 .tarjeta-blanca-datos {
     background: var(--color-fondo);
     border: 1px solid var(--color-borde);
-    border-radius: calc(var(--borde-radio) * 2.5);
+    border-radius: 4px; /* Unificado */
     padding: calc(var(--espaciado) * 2.5);
     box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Unificado */
 }
 
+/* Títulos internos de fichas */
 .titulo-ficha-datos {
     font-family: var(--fuente-secundaria);
+    font-size: 1.4rem;
     font-weight: 700;
     margin-bottom: var(--espaciado);
     border-bottom: 1px solid var(--color-borde);
     padding-bottom: 0.5rem;
-    color: var(--color-texto);
+    color: var(--color-principal); /* Cambiado a principal para hacer juego con el H2 del Login */
 }
 
 /* Rejilla de campos organizada de 2 columnas */
@@ -216,37 +233,41 @@
 .post-form {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
 }
 
 .post-form label {
-    font-size: 0.85rem;
+    font-size: 1rem; /* Unificado con el login */
+    margin-bottom: 5px;
+    font-family: var(--fuente-secundaria);
     font-weight: 500;
     color: var(--color-texto);
 }
 
+/* Inputs y Selects del formulario de perfil heredando la estética exacta del login */
 .post-form input,
 .post-form select {
-    padding: 0.75rem 1rem;
-    background: var(--color-fondo-secundario);
-    border: 1px solid var(--color-borde);
-    border-radius: calc(var(--borde-radio) * 1.5);
-    font-family: var(--fuente-principal);
-    font-size: 0.95rem;
+    background-color: var(--color-borde); /* Color de fondo del login */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-bottom: 15px;
     width: 100%;
     box-sizing: border-box;
+    font-family: var(--fuente-principal);
     font-weight: 400;
     color: var(--color-texto);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease-in-out;
+    transition: border-color 0.2s ease;
 }
 
+/* EFECTO: Borde verde al dar clic (foco) idéntico al del Login */
 .post-form input:focus,
 .post-form select:focus {
     outline: none;
-    background: var(--color-fondo);
     border-color: var(--color-principal);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    background-color: var(--color-borde); /* Mantiene consistencia */
 }
 
 .full-width-campo {
@@ -260,10 +281,39 @@
     margin-top: var(--espaciado);
 }
 
+/* Botones específicos de guardar y cancelar en la ficha */
+#btn-perfil-guardar {
+    background: var(--color-principal);
+    color: var(--color-fondo);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+#btn-perfil-guardar:hover {
+    background-color: var(--principal-secundario);
+}
+
+#btn-perfil-cancelar {
+    background: transparent;
+    color: var(--color-texto-secundario);
+    padding: 10px 20px;
+    border: 1px solid var(--color-borde);
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
 #btn-perfil-cancelar:hover {
     color: var(--color-fondo);
     background-color: var(--color-estado-dañado);
-    transition: background-color 0.3s ease;
+    border-color: var(--color-estado-dañado);
 }
 
 /* --- Contenedor Temporal (Placeholder) de Mis Reservas --- */
@@ -275,7 +325,7 @@
     padding: calc(var(--espaciado) * 3) var(--espaciado);
     text-align: center;
     border: 2px dashed var(--color-borde);
-    border-radius: calc(var(--borde-radio) * 1.5);
+    border-radius: 4px;
     background: var(--color-fondo-secundario);
     color: var(--color-texto-secundario);
     gap: 15px;
@@ -322,7 +372,7 @@
         background: var(--color-fondo);
         border: 1px solid var(--color-borde);
         padding: 10px 6px;
-        border-radius: var(--borde-radio);
+        border-radius: 4px;
         font-size: 0.8rem;
         gap: 4px;
     }
