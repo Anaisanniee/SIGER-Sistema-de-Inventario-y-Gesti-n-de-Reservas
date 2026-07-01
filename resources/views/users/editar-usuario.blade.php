@@ -83,7 +83,7 @@
                 </div>
                 <div class="tarjeta-contador">
                     <span class="numero-contador">12</span>{{---//cambiar a dinamico//---}}
-                    <span class="etiqueta-contador">Activos este mes</span>
+                    <span class="etiqueta-contador">Activos</span>
                 </div>
             </div>
         </div>

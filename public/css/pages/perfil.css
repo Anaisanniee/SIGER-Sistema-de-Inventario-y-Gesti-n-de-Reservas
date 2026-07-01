@@ -392,3 +392,85 @@
         text-align: center;
     }
 }
+
+
+/* ==========================================================================
+   ESTILOS DE LA TABLA DE GESTIÓN DE USUARIOS
+   ========================================================================== */
+
+.siger-tabla {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+}
+
+.siger-tabla thead tr {
+    background-color: #f8fafc;
+}
+
+.siger-tabla th {
+    padding: 1.2rem 1rem;
+    color: #64748b;
+    font-family: var(--fuente-principal);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.siger-tabla td {
+    padding: 1.2rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--color-texto);
+    font-family: var(--fuente-principal);
+}
+
+/* Efecto Hover en las filas */
+.siger-tabla tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.siger-tabla tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Badges de Estado Estilizados */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-status.activo {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.badge-status.inactivo {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Contenedor de datos del usuario */
+.user-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.user-info-cell .user-name {
+    font-weight: 600;
+    color: var(--color-texto);
+    font-size: 1rem;
+}
+
+.user-info-cell .user-email {
+    font-size: 0.85rem;
+    color: #64748b;
+}
