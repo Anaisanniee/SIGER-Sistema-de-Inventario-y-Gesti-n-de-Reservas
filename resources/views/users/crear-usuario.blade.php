@@ -1,110 +1,66 @@
-{{-- resources/views/usuarios/crear-usuario.blade.php --}}
-
-{{---SOLO ENTRA LA SECRETARIA--}}
-
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/usuarios')) {{-- Puedes cambiar esta ruta a donde quieras que regrese el botón --}}
+@section('rutaRegresar', url('/usuarios'))
+
 @section('content')
-     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
-    <link rel="stylesheet" href="{{ asset('css/pages/usuarios-crear.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
+    <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
     <h2 class="titulo-pagina"><i class="fas fa-user-plus"></i> Crear Usuario</h2>
 
 <div class="contenedor-registro-flexible">
 
- {{-- Atrapa mensajes de estado o éxito (Ej: cuando vienes de restablecer la clave) --}}
-        @if (session('status'))
-            <x-alertas.notificacion tipo="exito">
-                {{ session('status') }}
+    {{-- Notificaciones de estado o éxito --}}
+    @if (session('status'))
+        <x-alertas.notificacion tipo="exito">
+            {{ session('status') }}
+        </x-alertas.notificacion>
+    @endif
+
+    {{-- Errores de validación --}}
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            <x-alertas.notificacion tipo="error">
+                {{ $error }}
             </x-alertas.notificacion>
-        @endif
+        @endforeach
+    @endif
 
-        {{-- Atrapa errores generales que envíe el controlador --}}
-        @if ($errors->any())
-            @foreach ($errors->all() as $error)
-                <x-alertas.notificacion tipo="error">
-                    {{ $error }}
-                </x-alertas.notificacion>
-            @endforeach
-        @endif
-
-    {{--BOTÓN DISPARADOR: Solo se ve en celulares/tablets (< 768px). Abre y cierra el formulario --}}
+    {{-- BOTÓN DISPARADOR (Móviles) --}}
     <button class="btn-toggle-formulario" type="button" data-bs-toggle="collapse" data-bs-target="#formularioColapsable" aria-expanded="false" aria-controls="formularioColapsable">
         <span><i class="fas fa-user-plus"></i> Formulario de Registro</span>
         <i class="fas fa-chevron-down"></i>
     </button>
 
-    {{--CONTENEDOR COLAPSABLE: En móviles arranca cerrado, en PC ignora el colapso y se queda abierto --}}
+    {{-- CONTENEDOR COLAPSABLE --}}
     <div class="collapse dont-collapse-md" id="formularioColapsable">
-        <form class="form-registrar" action="{{ route('usuarios.store')}}" method="POST">
-            @csrf {{-- ¡No olvides el token de seguridad de Laravel! --}}
+        <form class="form-registrar" action="{{ route('usuarios.store') }}" method="POST">
+            @csrf
 
             <h3>Registrar nuevo usuario</h3>
 
-            <div class="post-form">
-                <label for="rol">Rol</label>
-                <select name="rol" id="rol">
-                    <option value="">--Selecciona--</option>
-                    <option value="2">Docente</option>
-                    <option value="3">Rector(a)</option>
-                </select>
-            </div>
-
-            <div class="post-form">
-                <label for="name">Primer Nombre</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-
-            <div class="post-form">
-                <label for="second-name">Segundo Nombre</label>
-                <input type="text" id="second-name" name="second-name">
-            </div>
-
-            <div class="post-form">
-                <label for="lastname">Primer Apellido</label>
-                <input type="text" id="lastname" name="lastname" required>
-            </div>
-          
-            <div class="post-form">
-                <label for="second-last-name">Segundo Apellido</label>
-                <input type="text" id="second-last-name" name="second-last-name">
-            </div>
-
-            <div class="post-form">
-                <label for="identificacion">Cédula</label>
-                <input type="text" id="identificacion" name="identificacion">
-            </div>
-
-            <div class="post-form">
-                <label for="correo">Correo</label>
-                <input type="email" id="correo" name="correo"> {{-- Corregido 'mail' por 'email' --}}
-            </div>
-
-            <div class="contenedor-botones">
-                <x-botones.boton class="btn btn-verde" type="submit">Registrar</x-botones.boton> 
-                <x-botones.boton class="btn btn-rojo" type="button">Cancelar</x-botones.boton>  
-            </div>   
+            {{-- INYECCIÓN DEL COMPONENTE PARCIAL --}}
+            @include('components.formularios.form-usuario')
+  
         </form>
     </div>
 
-    {{--TARJETA LATERAL: En móvil queda visible desde el inicio abajo del botón --}}
+    {{-- TARJETA LATERAL ESTADÍSTICAS Y GUÍA --}}
     <div class="tarjeta-lateral-gestion">
         
-        {{-- BLOQUE 1: RESUMEN DE CUENTAS --}}
         <div class="bloque-estadisticas">
             <h3><i class="fas fa-chart-pie"></i> Estado del Sistema</h3>
             <p class="subtexto-tarjeta">Registro exclusivo para el rol de <strong>Secretario(a)</strong>.</p>
             
             <div class="grid-contadores">
                 <div class="tarjeta-contador">
-                    <span class="numero-contador">48</span>{{----/*cambiar a dinamico*/----}}
+                    <span class="numero-contador">48</span>
                     <span class="etiqueta-contador">Registrados</span>
                 </div>
                 <div class="tarjeta-contador">
-                    <span class="numero-contador">12</span>{{---//cambiar a dinamico//---}}
+                    <span class="numero-contador">12</span>
                     <span class="etiqueta-contador">Activos</span>
                 </div>
             </div>
@@ -112,7 +68,6 @@
 
         <hr class="divisor-tarjeta">
 
-        {{-- BLOQUE 2: GUÍA DE REGISTRO SEGURO --}}
         <div class="bloque-guia-segura">
             <h3><i class="fas fa-shield-alt"></i> Guía de Registro Seguro</h3>
             

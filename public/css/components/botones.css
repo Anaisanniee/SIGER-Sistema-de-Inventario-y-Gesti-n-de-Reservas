@@ -144,3 +144,7 @@
         width: 100%; 
     }
 }
+
+.btn-cancelar-formulario * {
+    pointer-events: none; /* Obliga al navegador a registrar el clic en el botón, jamás en el texto */
+}

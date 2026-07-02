@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/dashboard')) {{-- O la ruta de retorno segura --}}
+@section('rutaRegresar', url('/perfil/secretario')) {{-- O la ruta de retorno segura --}}
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
@@ -22,7 +22,7 @@
             <thead>
                 <tr>
                     <th>Usuario</th>
-                    <th>Identificación (Cédula)</th>
+                    <th>Identificación</th>
                     <th>Rol</th>
                     <th>Estado</th>
                     <th style="text-align: center;">Acciones</th>
@@ -47,7 +47,7 @@
                         <td>{{ $usuario->USU_CEDULA }}</td>
                         <td>
                             <span style="text-transform: capitalize;">
-                                {{ $usuario->role->nombre ?? 'Sin Rol' }} {{-- Cambia 'nombre' por la columna real de la tabla roles --}}
+                                {{ $usuario->role->ROL_ID ?? 'Sin Rol' }} {{-- Cambia 'nombre' por la columna real de la tabla roles --}}
                             </span>
                         </td>
                         <td>

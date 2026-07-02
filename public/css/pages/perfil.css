@@ -1,5 +1,5 @@
 /* ========================================================
-   SECCIÓN EXCLUSIVA DEL PERFIL (LLAMANDO A TUS VARIABLES)
+   SECCIÓN EXCLUSIVA DEL PERFIL (LLAMANDO A VARIABLES)
    Adaptada a la línea de diseño base (Login)
    ======================================================== */
 .siger-modulo-perfil {
@@ -202,6 +202,17 @@
     margin-bottom: calc(var(--espaciado) * 0.5);
 }
 
+.formulario-desplegable .contenedor-botones {
+    display: flex;
+    
+    /* OPCIÓN A: Si quieres moverlos a la derecha */
+    justify-content: flex-end !important; 
+    gap: 15px;
+    
+    /* OPCIÓN B: Si quieres que abarquen todo el ancho en móviles */
+    /* flex-direction: column; */
+}
+
 .tarjeta-blanca-datos {
     background: var(--color-fondo);
     border: 1px solid var(--color-borde);
@@ -265,7 +276,7 @@
 /* EFECTO: Borde verde al dar clic (foco) idéntico al del Login */
 .post-form input:focus,
 .post-form select:focus {
-    outline: none;
+    outline: none !important;
     border-color: var(--color-principal);
     background-color: var(--color-borde); /* Mantiene consistencia */
 }
@@ -395,7 +406,7 @@
 
 
 /* ==========================================================================
-   ESTILOS DE LA TABLA DE GESTIÓN DE USUARIOS
+   ESTILOS DE LA TABLA DE GESTIÓN DE USUARIOS DE LA SECREATTIA /LISTA DE USUARIOS
    ========================================================================== */
 
 .siger-tabla {
@@ -406,24 +417,24 @@
 }
 
 .siger-tabla thead tr {
-    background-color: #f8fafc;
+    background-color: var(--color-fondo);
 }
 
 .siger-tabla th {
     padding: 1.2rem 1rem;
-    color: #64748b;
+    color: var(--color-azulado);
     font-family: var(--fuente-principal);
     font-weight: 700;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--color-fondo);
 }
 
 .siger-tabla td {
     padding: 1.2rem 1rem;
     vertical-align: middle;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-fondo);
     color: var(--color-texto);
     font-family: var(--fuente-principal);
 }
@@ -434,7 +445,7 @@
 }
 
 .siger-tabla tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: var(--color-fondo);
 }
 
 /* Badges de Estado Estilizados */
@@ -448,13 +459,13 @@
 }
 
 .badge-status.activo {
-    background-color: #d1fae5;
-    color: #065f46;
+    background-color: var(--color-verde-pastel);
+    color: var(--color-principal-secundario);
 }
 
 .badge-status.inactivo {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: var(--color-fondo);
+    color: var(--color-estado-dañado);
 }
 
 /* Contenedor de datos del usuario */
@@ -472,5 +483,100 @@
 
 .user-info-cell .user-email {
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--color-azulado);
+}
+
+
+/* ==========================================================================
+   PANTALLA: CAMBIO DE CONTRASEÑA
+   ========================================================================== */
+
+.formulario-seguridad {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.perfil-header-seccion-password {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-fondo);
+    padding-bottom: 1rem;
+}
+
+.perfil-titulo-principal-password {
+    color: var(--color-verde-siger, var(--color-principal));
+    font-family: var(--fuente-principal);
+    font-weight: 600;
+}
+
+.perfil-subtitulo-password {
+    color: var(--color-azulado);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+/* Rejilla idéntica a la de editar datos */
+.siger-grid-formulario {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.label-siger {
+    font-weight: 600;
+    color: var(--color-texto);
+    font-family: var(--fuente-principal);
+    font-size: 0.95rem;
+}
+
+.input-siger {
+    padding: 0.75rem;
+    border: 1px solid var(--color-fondo);
+    border-radius: 6px;
+    font-family: var(--fuente-principal);
+    font-size: 0.95rem;
+    background-color: var(--color-fondo);
+    transition: border-color 0.2s ease;
+}
+
+.input-siger:focus {
+    border-color: var(--color-verde-siger, var(--color-principal));
+    outline: none !important;
+}
+
+/* Área de botones inferior */
+.siger-form-acciones {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-fondo);
+    padding-top: 1.5rem;
+}
+
+.enlace-cancelar {
+    text-decoration: none;
+}
+
+.btn-cancelar-siger {
+    background-color: transparent !important;
+    border: 1px solid var(--color-fondo) !important;
+    color: var(--color-azulado) !important;
+    padding: 10px 24px;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+
+/* Responsive */
+@media(max-width: 768px) {
+    .grupo-formulario-vacio {
+        display: none;
+    }
+    .siger-form-acciones {
+        flex-direction: column-reverse;
+    }
+    .btn-siger-accion {
+        width: 100% !important;
+    }
 }

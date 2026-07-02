@@ -28,7 +28,7 @@
         position: relative !important; /* Cambia a relativo para respetar el flujo de colapso */
         top: 0 !important;
         transform: none !important;
-        display: flex;
+        display: none; /* Oculto por defecto, se mostrará al expandir */
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -43,6 +43,11 @@
         font-family: var(--fuente-principal);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
+    .collapse.show .form-registrar, 
+        .collapsing .form-registrar {
+            display: flex;
+        }
 
     h3 {
         text-align: center;
@@ -142,7 +147,7 @@
         gap: 10px;
     }
     .form-registrar {
-        display: flex;
+        display: flex; 
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -159,7 +164,7 @@
 
     h3 {
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         font-size: 1.8rem;
         color: var(--color-principal);
     }
@@ -211,7 +216,7 @@
     .titulo-pagina{
         font-size: 2rem;
         color: var(--color-principal);
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -228,7 +233,7 @@
         border-radius: 4px;
         height: auto;
         color: var(--color-texto);
-        max-height: 740px;
+        max-height: 800px;
         min-width: 400px;
         box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }

@@ -53,5 +53,19 @@ Route::get('/pruebas', function () {
 
     // 4. Retornamos la vista pasando la variable $recursos
     // (Asegúrate de cambiar 'pruebas' por el nombre real de tu archivo .blade.php)
-    return view('users.perfil.secretario', compact('recursos'));
+    return view('users.crear-usuario', compact('recursos'));
 });
+
+/* ==========================================================================
+   RUTAS TEMPORALES DE PRUEBA (FRONTEND)
+   ========================================================================== */
+
+// 1. Ruta para renderizar el perfil de la secretaría
+Route::get('/perfil/secretario', function () {
+    // Apunta a la carpeta donde tienes el archivo de la secretaria
+    // Si está en 'usuarios.perfil.perfil-secretaria', cámbialo aquí:
+    return view('users.perfil.secretario'); 
+})->name('perfil.secretario');
+
+// 2. Ruta para renderizar la tabla de gestión de usuarios (La que ya tienes)
+Route::get('/usuarios', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');

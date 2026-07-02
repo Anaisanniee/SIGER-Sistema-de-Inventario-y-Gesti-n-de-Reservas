@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/dashboard'))
+@section('rutaRegresar', url('/dashboard')) {{-- O la ruta de retorno segura --}}
 
 @section('mostrarPerfil', 'false')
 @section('content')
@@ -76,7 +76,9 @@
                     </div>
 
                     {{-- Llamamos a tu archivo de formulario modular con la ruta correcta --}}
-                    @include('components.formularios.update_form_datos')
+                    @include('components.formularios.form-usuario', ['usuario' => Auth::user()])
+
+                    
 
                 </div>
             </div>
