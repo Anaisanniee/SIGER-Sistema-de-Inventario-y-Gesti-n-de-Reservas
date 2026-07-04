@@ -363,6 +363,10 @@
     .tarjeta-blanca-datos {
         padding: var(--espaciado);
     }
+    .btn-siger-accion {
+        margin-bottom: 10px;
+        width: 100%;
+    }
 }
 
 /* --- ADAPTACIÓN MÓVIL (RESPONSIVE) --- */
@@ -401,6 +405,10 @@
     #btn-perfil-guardar {
         width: 100% !important;
         text-align: center;
+    }
+    .btn-siger-accion {
+        margin-bottom: 10px;
+        width: 100%;
     }
 }
 
@@ -459,7 +467,7 @@
 }
 
 .badge-status.activo {
-    background-color: var(--color-verde-pastel);
+    background-color: var(--color-estado-disponible);
     color: var(--color-principal-secundario);
 }
 
@@ -484,6 +492,11 @@
 .user-info-cell .user-email {
     font-size: 0.85rem;
     color: var(--color-azulado);
+}
+
+.btn-siger-accion {
+        margin-left: 10px;
+        width: 100%;
 }
 
 

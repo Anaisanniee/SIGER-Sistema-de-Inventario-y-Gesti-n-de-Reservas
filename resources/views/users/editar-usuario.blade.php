@@ -1,74 +1,34 @@
-{{-- resources/views/usuarios/crear-usuario.blade.php --}}
+{{-- resources/views/usuarios/editar-usuario.blade.php --}}
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/usuarios')) {{-- Puedes cambiar esta ruta a donde quieras que regrese el botón --}}
+@section('rutaRegresar', url('/usuarios')) 
+@section('mostrarPerfil', 'false')
 @section('content')
-    <link rel="stylesheet" href="{{ asset('css/pages/usuarios-crear.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
-    <h2 class="titulo-pagina"><i class="fas fa-user-plus"></i> Crear Usuario</h2>
+    <h2 class="titulo-pagina"><i class="fas fa-user-edit"></i> Editar Usuario</h2>
 
 <div class="contenedor-registro-flexible">
 
-    {{--BOTÓN DISPARADOR: Solo se ve en celulares/tablets (< 768px). Abre y cierra el formulario --}}
+    {{-- BOTÓN DISPARADOR: Solo se ve en celulares/tablets (< 768px). Abre y cierra el formulario --}}
     <button class="btn-toggle-formulario" type="button" data-bs-toggle="collapse" data-bs-target="#formularioColapsable" aria-expanded="false" aria-controls="formularioColapsable">
-        <span><i class="fas fa-user-plus"></i> Formulario de Registro</span>
+        <span><i class="fas fa-user-edit"></i> Formulario de Edición</span>
         <i class="fas fa-chevron-down"></i>
     </button>
 
-    {{--CONTENEDOR COLAPSABLE: En móviles arranca cerrado, en PC ignora el colapso y se queda abierto --}}
+    {{-- CONTENEDOR COLAPSABLE: Usa el formulario modular reutilizable --}}
     <div class="collapse dont-collapse-md" id="formularioColapsable">
-        <form class="form-registrar" action="POST" method="post">
-            @csrf {{-- ¡No olvides el token de seguridad de Laravel! --}}
+        <div class="tarjeta-blanca-datos" style="background: var(--color-fondo); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--color-principal);">Editar Usuario</h3>
 
-            <h3>Registrar nuevo usuario</h3>
-
-            <div class="post-form">
-                <label for="rol">Rol</label>
-                <select name="rol" id="rol">
-                    <option value="">--Docente--</option>
-                </select>
-            </div>
-
-            <div class="post-form">
-                <label for="name">Primer Nombre</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-
-            <div class="post-form">
-                <label for="second-name">Segundo Nombre</label>
-                <input type="text" id="second-name" name="second-name">
-            </div>
-
-            <div class="post-form">
-                <label for="lastname">Primer Apellido</label>
-                <input type="text" id="lastname" name="lastname" required>
-            </div>
-          
-            <div class="post-form">
-                <label for="second-last-name">Segundo Apellido</label>
-                <input type="text" id="second-last-name" name="second-last-name">
-            </div>
-
-            <div class="post-form">
-                <label for="identificacion">Cédula</label>
-                <input type="text" id="identificacion" name="identificacion">
-            </div>
-
-            <div class="post-form">
-                <label for="correo">Correo</label>
-                <input type="email" id="correo" name="correo"> {{-- Corregido 'mail' por 'email' --}}
-            </div>
-
-            <div class="contenedor-botones">
-                <x-botones.boton class="btn">Registrar</x-botones.boton> 
-                <x-botones.boton class="btn-rojo">Cancelar</x-botones.boton>  
-            </div>   
-        </form>
+            {{--Inyectamos formulario modular reutilizable --}}
+            @include('components.formularios.form-usuario', ['usuario' => $usuario])
+        </div>
     </div>
 
-    {{--TARJETA LATERAL: En móvil queda visible desde el inicio abajo del botón --}}
+    {{-- TARJETA LATERAL: Guía e información del sistema --}}
     <div class="tarjeta-lateral-gestion">
         
         {{-- BLOQUE 1: RESUMEN DE CUENTAS --}}
@@ -78,11 +38,11 @@
             
             <div class="grid-contadores">
                 <div class="tarjeta-contador">
-                    <span class="numero-contador">48</span>{{----/*cambiar a dinamico*/----}}
+                    <span class="numero-contador">48</span> {{-- TODO: Cambiar a dinámico --}}
                     <span class="etiqueta-contador">Registrados</span>
                 </div>
                 <div class="tarjeta-contador">
-                    <span class="numero-contador">12</span>{{---//cambiar a dinamico//---}}
+                    <span class="numero-contador">12</span> {{-- TODO: Cambiar a dinámico --}}
                     <span class="etiqueta-contador">Activos</span>
                 </div>
             </div>
@@ -113,7 +73,7 @@
                 </li>
                 <li>
                     <strong>Seguridad inicial:</strong> 
-                    La contraseña por defecto se asignará automáticamente igual al número de documento del usuario.
+                    La contraseñase inicial se recomienda que sea igual al número de documento del usuario, para facilitar el primer acceso.
                 </li>
             </ul>
         </div>

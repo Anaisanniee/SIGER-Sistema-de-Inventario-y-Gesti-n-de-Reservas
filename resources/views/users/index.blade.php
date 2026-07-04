@@ -3,7 +3,7 @@
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', url('/perfil/secretario')) {{-- O la ruta de retorno segura --}}
-
+@section('mostrarPerfil', 'false')
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
 
@@ -63,7 +63,14 @@
                                   data-usuario="{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}" 
                                   data-accion="{{ $usuario->USU_ESTADO === 'Activo' ? 'desactivar' : 'activar' }}">
                                 @csrf
-                                
+                                <x-botones.boton 
+                                    style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
+                                    type="button" 
+                                    class="btn-siger-accion btn-azul" 
+                                    onclick="window.location.href='{{ route('usuarios.edit', $usuario->user_id) }}'">
+                                    Editar
+                                </x-botones.boton>
+
                                 @if($usuario->USU_ESTADO === 'Activo')
                                     <x-botones.boton type="submit" class="btn-siger-accion btn-rojo" style="padding: 6px 16px; font-size: 0.85rem; width: auto;">
                                         Desactivar
@@ -79,7 +86,7 @@
                 @empty
                     {{-- Por si la base de datos llega a estar vacía --}}
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #64748b; padding: 2rem;">
+                        <td colspan="5" style="text-align: center; color: var(--color-principal); padding: 2rem;">
                             No se encontraron usuarios registrados en el sistema.
                         </td>
                     </tr>

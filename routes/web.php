@@ -20,6 +20,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
+
+//Pruebas las de abajo son rutas temporales para probar vistas con datos simulados.
+
+
+
+
+
 Route::get('/pruebas', function () {
     
     // 1. RECURSO TIPO: ACTIVO
@@ -53,7 +60,7 @@ Route::get('/pruebas', function () {
 
     // 4. Retornamos la vista pasando la variable $recursos
     // (Asegúrate de cambiar 'pruebas' por el nombre real de tu archivo .blade.php)
-    return view('users.crear-usuario', compact('recursos'));
+    return view('aulas.editar-aula', compact('recursos'));
 });
 
 /* ==========================================================================
@@ -62,10 +69,31 @@ Route::get('/pruebas', function () {
 
 // 1. Ruta para renderizar el perfil de la secretaría
 Route::get('/perfil/secretario', function () {
-    // Apunta a la carpeta donde tienes el archivo de la secretaria
-    // Si está en 'usuarios.perfil.perfil-secretaria', cámbialo aquí:
-    return view('users.perfil.secretario'); 
-})->name('perfil.secretario');
+    $usuario = new \App\Models\User();
+    
+    // Le llenamos los campos manualmente para probar la vista
+    $usuario->name = 'Ana';
+    $usuario->lastname = 'Rodríguez';
+    $usuario->identificacion = '1042456789';
+    $usuario->correo = 'ana.rodriguez@colegio.edu.co';
+    // Agrega aquí los nombres exactos de tus columnas si se llaman distinto
+
+    return view('users.perfil.secretario', compact('usuario'));
+});
 
 // 2. Ruta para renderizar la tabla de gestión de usuarios (La que ya tienes)
 Route::get('/usuarios', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+
+
+Route::get('/editar', function () {
+    $usuario = new \App\Models\User();
+    
+    // Le llenamos los campos manualmente para probar la vista
+    $usuario->name = 'Ana';
+    $usuario->lastname = 'Rodríguez';
+    $usuario->identificacion = '1042456789';
+    $usuario->correo = 'ana.rodriguez@colegio.edu.co';
+    // Agrega aquí los nombres exactos de tus columnas si se llaman distinto
+
+    return view('users.editar-usuario', compact('usuario'));
+});

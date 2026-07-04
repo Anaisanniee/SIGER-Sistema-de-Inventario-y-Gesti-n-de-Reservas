@@ -36,7 +36,7 @@
 
     {{-- CONTENEDOR COLAPSABLE --}}
     <div class="collapse dont-collapse-md" id="formularioColapsable">
-        <form class="form-registrar" action="{{ route('usuarios.store') }}" method="POST">
+        <form class="form-registrar" action="{{ route('usuarios.store') }}" method="PUT">
             @csrf
 
             <h3>Registrar nuevo usuario</h3>
@@ -90,7 +90,7 @@
                 </li>
                 <li>
                     <strong>Seguridad inicial:</strong> 
-                    La contraseña por defecto se asignará automáticamente igual al número de documento del usuario.
+                    La contraseñase inicial se recomienda que sea igual al número de documento del usuario, para facilitar el primer acceso.
                 </li>
             </ul>
         </div>

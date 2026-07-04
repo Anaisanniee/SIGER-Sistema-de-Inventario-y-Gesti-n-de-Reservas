@@ -3,7 +3,6 @@
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', url('/dashboard')) {{-- O la ruta de retorno segura --}}
-
 @section('mostrarPerfil', 'false')
 @section('content')
 
@@ -65,7 +64,7 @@
             </div>
         </aside>
 
-        {{-- COLUMNA DERECHA --}}
+       {{-- COLUMNA DERECHA --}}
         <main class="perfil-columna-derecha">
             
             {{-- SECCIÓN 1: FORMULARIO DE EDICIÓN DESPLEGABLE --}}
@@ -75,11 +74,8 @@
                         <span>Actualizar Mis Datos</span>
                     </div>
 
-                    {{-- Llamamos a tu archivo de formulario modular con la ruta correcta --}}
-                    @include('components.formularios.form-usuario', ['usuario' => Auth::user()])
-
-                    
-
+                    {{-- Llamamos el formulario--}}
+                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
                 </div>
             </div>
 

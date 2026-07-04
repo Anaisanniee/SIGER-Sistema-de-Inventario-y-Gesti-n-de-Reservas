@@ -14,16 +14,16 @@
 /* --- DISEÑO PARA MÓVIL (Hasta 768px) --- */
 @media (max-width: 768px) {
     .container-tarjetas {
-        justify-content: center;
+        justify-content: left;
     }
 
     .tarjeta-recurso {
         background-color: var(--color-fondo);
         border: 1px solid var(--color-borde);
         width: 17rem;
-        max-height: 14.2rem;
-        height: auto; /* Dinámico para evitar desbordes */
-        border-radius: 4px; /* Unificado con el Login */
+        max-height: 18rem; /* Aumentado ligeramente para dar espacio a la nueva fila de botones */
+        height: auto; 
+        border-radius: 4px; 
         text-align: left;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         padding-bottom: 15px;
@@ -59,13 +59,34 @@
         margin-bottom: 12px;
     }
 
+    /* Contenedor padre de todos los bloques de botones */
     .botones-container {
         display: flex;
-        gap: 10px;
-        align-items: center;
+        flex-direction: column;
+        gap: 8px;
         width: 100%;
     }
 
+    .botones-container .btn {
+        width: 100%; /* El botón de "Ver ficha" ocupará todo el ancho */
+    }
+
+    /* ¡NUEVO! Contenedor de tus botones administrativos (Editar y Eliminar) */
+    .botones-admin {
+        display: flex;
+        gap: 8px; /* Espacio de separación entre los dos botones */
+        width: 100%;
+    }
+
+    /* Fuerza a que los componentes de botón internos compartan el espacio mitad y mitad */
+    .botones-admin > x-botones.boton,
+    .botones-admin > a, 
+    .botones-admin .btn {
+        flex: 1; 
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
 }
 
 /* --- DISEÑO PARA TABLET (De 769px a 1024px) --- */
@@ -77,10 +98,10 @@
     .tarjeta-recurso {
         background-color: var(--color-fondo);
         border: 1px solid var(--color-borde);
-        max-height: 15rem;
+        max-height: 18.5rem; /* Ajustado */
         width: 18rem;
         height: auto;
-        border-radius: 4px; /* Unificado */
+        border-radius: 4px; 
         text-align: left;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         overflow: hidden;
@@ -118,9 +139,26 @@
 
     .botones-container {
         display: flex;
+        flex-direction: column;
         width: 100%;
-        gap: 10px;
-        align-items: center;
+        gap: 8px;
+    }
+
+    .botones-container .btn {
+        width: 100%;
+    }
+
+    /* Distribución horizontal para los botones administrativos */
+    .botones-admin {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .botones-admin > x-botones.boton,
+    .botones-admin > a,
+    .botones-admin .btn {
+        flex: 1;
     }
 }
 
@@ -134,8 +172,8 @@
         background-color: var(--color-fondo);
         border: 1px solid var(--color-borde);
         width: 15rem;
-        height: 20.5rem; 
-        border-radius: 4px; /* Unificado */
+        height: 21.5rem; /* Ajustado sutilmente para acomodar la nueva distribución */
+        border-radius: 4px; 
         text-align: left;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         overflow: hidden; 
@@ -156,7 +194,7 @@
         flex-direction: column;
         flex-grow: 1; 
         padding: 15px;
-        justify-content: space-between; /* Empuja los botones siempre al fondo */
+        justify-content: space-between; 
     }
 
     .card-title {
@@ -167,7 +205,7 @@
         margin: 0 0 5px 0;
         min-height: 40px;
         display: -webkit-box;
-        -webkit-line-clamp: 2; /* Limita títulos largos a dos líneas */
+        -webkit-line-clamp: 2; 
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -183,11 +221,34 @@
         width: 100%;
         display: flex;
         flex-direction: column;
-        align-items: center;
         gap: 8px; 
     }
     
     .botones-container .btn {
-        width: 100%; /* El botón se adapta al contenedor interno */
+        width: 100%; 
+    }
+
+    /* Fila de abajo compartida al 50% en escritorio */
+    .botones-admin {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+
+    }
+
+    .botones-admin > x-botones.boton,
+    .botones-admin > a,
+    .botones-admin .btn {
+        flex: 1;
+        min-width: 0; /* 👈 Evita que el contenido interno empuje el ancho del botón hacia afuera */
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        padding-left: 4px;  /* Reduce sutilmente el padding horizontal en PC si el texto es largo */
+        padding-right: 4px;
+        font-size: 0.9rem;  /* Ajusta un poco el texto si ves que queda muy apretado */
+        white-space: nowrap; /* Evita que el texto se rompa en dos líneas raras */
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }

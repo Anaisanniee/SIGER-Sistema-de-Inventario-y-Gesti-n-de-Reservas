@@ -82,8 +82,8 @@
                         <span>Información personal</span>
                     </div>
 
-                    {{-- Llamamos a tu archivo de formulario usando la ruta de puntos exacta dentro de usuarios --}}
-                    @include('components.formularios.update_form_datos')
+                    {{-- Llamamos a tu archivo de formulario usando la ruta de puntos exacta dentro de usuarios obtiene los dtos del usuario --}}
+                    @include('components.formularios.update_form_datos', ['usuario' => $usuario])
 
                 </div>
             </div>

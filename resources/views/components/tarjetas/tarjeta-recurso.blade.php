@@ -1,5 +1,9 @@
 {{-- resources/views/components/tarjetas/tarjeta-recurso.blade.php --}}
 
+@php
+    // Si la variable fue enviada desde la vista, usa ese valor. Si no, la pone en false por defecto.
+    $esAdmin = isset($esAdmin) ? $esAdmin : false; 
+@endphp
 
 <div class="tarjeta-recurso">
 
@@ -24,7 +28,7 @@
             {{-- BOTÓN FICHA --}}
             <x-botones.boton
 
-                clase="btn"
+                class="btn btn-azul"
 
                 target="modalgeneral"
 
@@ -70,14 +74,26 @@
 
             >Ver ficha</x-botones.boton>
 
-                        {{-- BOTÓN reservar/editar --}}
-            <x-botones.boton
-                clase="btn"
-                url="{{ $urlBoton ?? '/reservas' }}"
-            >{{ $textoBoton ?? 'Reservar' }}</x-botones.boton>
+                        {{-- BOTONES ADMINISTRATIVOS --}}
+            <div class="botones-admin">
 
-             {{-- BOTÓN eliminar solo secretaria --}}
+                {{-- BOTÓN EDITAR --}}
+                <x-botones.boton 
+                    class="btn" 
+                    url="{{ $urlBoton ?? '/reservas' }}">
+                    {{ $textoBoton ?? 'Reservar' }}
+                </x-botones.boton>
 
+                {{-- BOTÓN ELIMINAR --}}
+                @if($esAdmin)
+                    <x-botones.boton 
+                        class="btn btn-rojo" 
+                        url="{{ $urlEliminar ?? '#' }}">
+                        Eliminar
+                    </x-botones.boton>
+                @endif
+
+            </div>
             
 
         </div>

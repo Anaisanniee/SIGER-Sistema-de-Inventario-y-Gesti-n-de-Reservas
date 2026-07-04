@@ -66,6 +66,12 @@
 --color-verde-pastel: #bbf7d0;
 --color-azulado: #64748b;
 
+/*COLOR DE LOS BOTONES en pasteles*/
+--color-disponible-pastel: #bbf7d0;
+--color-reservado-pastel: #dbeafe;
+--color-en-mantenimiento-pastel: #fef3c7;
+--color-dañado-pastel: #fee2e2;
+
 
   /* Fondo y color de texto por defecto */
   background-color: var(--color-fondo);
