@@ -4,7 +4,7 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-trash-alt text-danger me-2"></i> Papelera de Activos</h2>
-        <a href="{{ route('activos.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('inventario.index_unificado') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left"></i> Volver al Inventario
         </a>
     </div>

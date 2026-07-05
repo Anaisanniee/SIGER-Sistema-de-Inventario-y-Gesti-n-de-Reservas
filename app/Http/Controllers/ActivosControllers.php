@@ -10,17 +10,19 @@ use Illuminate\Support\Facades\Storage;
 
 class ActivosControllers extends Controller
 {
-    public function index(Request $request)
+    public function indexUnificado(Request $request)
     {
+    // --- LÓGICA DE ACTIVOS ---
         $buscar = trim($request->get('buscar'));
         $filtroCategoria = $request->get('categoria');
         $categorias = CategoriasModels::all();
+    
         $query = ActivosModels::with(['aula', 'categoria']);
 
         if ($buscar) {
             $query->where(function($q) use ($buscar) {
                 $q->where('act_nombre', 'LIKE', '%' . $buscar . '%')
-                    ->orWhere('act_serial', 'LIKE', '%' . $buscar . '%');
+                ->orWhere('act_serial', 'LIKE', '%' . $buscar . '%');
             });
         }
 
@@ -29,9 +31,19 @@ class ActivosControllers extends Controller
         }
 
         $activos = $query->orderBy('act_id', 'desc')->get();
-        $total = $activos->count();
+        $totalActivos = $activos->count();
 
-        return view('activos.index', compact('activos', 'categorias', 'total', 'buscar'));
+    // --- LÓGICA DE AULAS ---
+    // Si quieres que las aulas también se puedan buscar, puedes añadir lógica aquí.
+        $aulas = AulasModels::all(); 
+
+        return view('inventario.index_unificado', compact(
+            'activos', 
+            'categorias', 
+            'totalActivos', 
+            'buscar', 
+            'aulas'
+        ));
     }
 
     public function show($id)
@@ -113,7 +125,7 @@ class ActivosControllers extends Controller
     
         $activo->save(); 
 
-        return redirect()->route('activos.index')->with('mensaje', 'Activo actualizado correctamente');
+        return redirect()->route('inventario.index_unificado')->with('mensaje', 'Activo actualizado correctamente');
     }
 
     public function store(Request $request)
@@ -172,7 +184,7 @@ class ActivosControllers extends Controller
     {
         $activo = ActivosModels::onlyTrashed()->findOrFail($id);
         $activo->restore();
-        return redirect()->route('activos.index')->with('mensaje', 'Activo restaurado con éxito.');
+        return redirect()->route('inventario.index_unificado')->with('mensaje', 'Activo restaurado con éxito.');
     }
 
     public function forceDelete($id)

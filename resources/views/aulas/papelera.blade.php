@@ -4,7 +4,7 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Papelera de Aulas</h1>
-        <a href="{{ route('aulas.index') }}" class="btn btn-secondary">Volver al listado</a>
+        <a href="{{ route('inventario.index_unificado') }}" class="btn btn-secondary">Volver al listado</a>
     </div>
 
     @if(session('success'))

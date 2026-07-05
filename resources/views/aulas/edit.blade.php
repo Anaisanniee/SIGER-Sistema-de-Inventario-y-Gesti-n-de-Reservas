@@ -10,7 +10,7 @@
             
             @if ($errors->any())
                 <div class="alert alert-danger">
-                    <ul>
+                    <ul class="mb-0">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -18,13 +18,24 @@
                 </div>
             @endif
 
-            <form action="{{ route('aulas.update', $aula->aula_id) }}" method="POST">
+            <form action="{{ route('aulas.update', $aula->aula_id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT') 
                 
                 <div class="mb-3">
                     <label>Nombre del Aula</label>
                     <input type="text" name="aula_nombre" class="form-control" value="{{ old('aula_nombre', $aula->aula_nombre) }}" required maxlength="25">
+                </div>
+
+                <div class="mb-3">
+                    <label>Foto del Aula</label>
+                    @if($aula->aula_foto)
+                        <div class="my-2">
+                            <img src="{{ asset('storage/' . $aula->aula_foto) }}" style="max-width: 150px; border-radius: 5px;">
+                            <p class="small text-muted">Imagen actual</p>
+                        </div>
+                    @endif
+                    <input type="file" name="aula_foto" class="form-control" accept="image/*">
                 </div>
 
                 <div class="mb-3">
@@ -61,7 +72,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">Actualizar Aula</button>
-                <a href="{{ route('aulas.index') }}" class="btn btn-secondary">Cancelar</a>
+                <a href="{{ route('inventario.index_unificado') }}" class="btn btn-secondary">Cancelar</a>
             </form>
         </div>
     </div>

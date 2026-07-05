@@ -13,6 +13,7 @@ class AulasModels extends Model
     protected $primaryKey = 'aula_id';
 
     protected $fillable = [
+        'aula_foto',
         'aula_nombre',
         'aula_capacidad',
         'aula_estado',

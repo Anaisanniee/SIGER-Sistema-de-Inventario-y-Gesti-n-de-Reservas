@@ -23,7 +23,7 @@
                 </div>
             </div>
             <hr>
-            <a href="{{ route('aulas.index') }}" class="btn btn-secondary">Volver al listado</a>
+            <a href="{{ route('inventario.index_unificado') }}" class="btn btn-secondary">Volver al listado</a>
             <a href="{{ route('aulas.edit', $aula->aula_id) }}" class="btn btn-warning">Editar Información</a>
         </div>
     </div>

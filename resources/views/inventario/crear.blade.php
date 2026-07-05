@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-3 mt-5 mb-4">
-                    <a href="{{ route('activos.index') }}" class="btn btn-light border py-2 px-4 rounded-pill text-muted fw-bold">Cancelar</a>
+                    <a href="{{ route('inventario.index_unificado') }}" class="btn btn-light border py-2 px-4 rounded-pill text-muted fw-bold">Cancelar</a>
                     <button type="submit" class="btn btn-success py-2 px-4 rounded-pill fw-bold" style="background-color: #00a884; border: none;">Guardar Activo</button>
                 </div>
             </form>

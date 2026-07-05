@@ -7,11 +7,15 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 
 // ==========================================
-// RUTAS DE ACTIVOS (INVENTARIO)
+// RUTA DE INVENTARIO
 // ==========================================
 
 // Ruta para ver el listado
-Route::get('/activos', [ActivosControllers::class, 'index'])->name('activos.index');
+Route::get('/inventario', [ActivosControllers::class, 'indexUnificado'])->name('inventario.index_unificado');
+
+// ==========================================
+// RUTAS DE ACTIVOS (INVENTARIO)
+// ==========================================
 
 // Ruta para ver el formulario
 Route::get('/activos/crear', [ActivosControllers::class, 'create'])->name('activos.create');
@@ -40,9 +44,6 @@ Route::delete('/activos/{id}/force-delete', [ActivosControllers::class, 'forceDe
 // ==========================================
 // RUTAS DE AULAS (INVENTARIO)
 // ==========================================
-
-// Ruta para ver el listado
-Route::get('/aulas', [AulasControllers::class, 'index'])->name('aulas.index');
 
 // Ruta para ver el formulario de creación
 Route::get('/aulas/crear', [AulasControllers::class, 'create'])->name('aulas.create');

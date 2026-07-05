@@ -127,7 +127,7 @@
         </div>
 
         <div class="d-flex justify-content-end gap-3 pt-3">
-            <a href="{{ route('activos.index') }}" class="btn btn-light border-0 fw-semibold py-2 px-4 rounded-pill text-secondary" style="background-color: #f1f3f4; width: 150px; font-size: 0.95rem;">
+            <a href="{{ route('inventario.index_unificado') }}" class="btn btn-light border-0 fw-semibold py-2 px-4 rounded-pill text-secondary" style="background-color: #f1f3f4; width: 150px; font-size: 0.95rem;">
                 Cancelar
             </a>
             <button type="submit" class="btn text-white fw-semibold py-2 px-4 rounded-pill" style="background-color: #00bfa5; border: none; width: 170px; font-size: 0.95rem;">
