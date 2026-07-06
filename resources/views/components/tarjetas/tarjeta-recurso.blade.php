@@ -84,11 +84,14 @@
                     {{ $textoBoton ?? 'Reservar' }}
                 </x-botones.boton>
 
-                {{-- BOTÓN ELIMINAR --}}
+                {{-- BOTÓN ELIMINAR editar cuando haya controllers--}}
                 @if($esAdmin)
                     <x-botones.boton 
                         class="btn btn-rojo" 
-                        url="{{ $urlEliminar ?? '#' }}">
+                        type="button"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#modalConfirmarEliminar"
+                        onclick="prepararEliminacion('{{ $recurso->act_id ?? $recurso->aula_id }}', '{{ isset($recurso->act_id) ? 'activo' : 'aula' }}')">
                         Eliminar
                     </x-botones.boton>
                 @endif

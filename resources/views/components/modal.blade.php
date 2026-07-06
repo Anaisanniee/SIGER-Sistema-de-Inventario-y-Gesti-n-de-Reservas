@@ -1,10 +1,10 @@
-<div class="modal fade" id="modalgeneral" tabindex="-1" >
+<div class="modal fade" id="{{ $id }}" tabindex="-1" >
     <div class="modal-dialog">
         <div class="modal-content modal-content-siger">
 
             <div class="modal-header">
                 <h4 class="modal-title">
-                    Nombre del Recurso
+                    Nombre
                 </h4>
                 <h6 class="modal-subtitle">
                     Característica

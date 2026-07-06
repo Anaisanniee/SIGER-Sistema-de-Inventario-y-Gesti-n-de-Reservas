@@ -66,6 +66,26 @@
         </select>
     </div>
 
+    <div class="post-form-switch">
+        <span class="label-switch">¿Está disponible para reservas?</span>
+        <label class="switch-contenedor" for="act_reservable">
+            <input type="checkbox" id="act_reservable" name="act_reservable" value="1"
+                   {{ old('act_reservable', $activo->act_reservable ?? '1') == '1' ? 'checked' : '' }}>
+            <span class="switch-slider"></span>
+        </label>
+    </div>
+
+     @if($esEdicion) {{-- cambiar logica cuando se implementen los controles --}}
+        {{-- MOTIVO DE BAJA (Sólo en edición) --}}
+    <div class="post-form">
+        <label for="act_motivo_baja">Motivo de Baja (Opcional)</label>
+        <input type="text" id="act_motivo_baja" name="act_motivo_baja" maxlength="255"
+            value="{{ old('act_motivo_baja', $activo->act_motivo_baja ?? '') }}">
+    </div>
+    @endif
+
+    {{-- BOTONES DE ACCIÓN --}}
+
     <div class="contenedor-botones">
         <x-botones.boton type="button" class="btn-siger-accion btn-rojo" onclick="window.location.href='{{ url('/activos') }}'">
             Cancelar

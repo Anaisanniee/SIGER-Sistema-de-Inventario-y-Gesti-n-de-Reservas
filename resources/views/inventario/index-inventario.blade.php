@@ -122,13 +122,48 @@
 
         @endforeach
 
+
         {{--- MODAL GLOBAL PARA LAS FICHAS TÉCNICAS ---}}
         <x-modal id="modalgeneral" title="Cargando..." subtitle="">
             @include('components.fichas.ficha-tecnica-universal')
         </x-modal>
     </div>
+    {{--- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN (PAPELERA DE RECUPERACIÓN) ---}}
+    <x-modal id="modalConfirmarEliminar" title="¿Está seguro de eliminar este recurso?" subtitle="El elemento se moverá temporalmente a la papelera de recuperación.">
+        <div class="d-flex justify-content-center gap-3" style="padding: 15px 0; width: 100%;">
+            
+            <!-- Botón de cancelar que simplemente cierra la ventana -->
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 4px; padding: 8px 16px; font-family: var(--fuente-principal); font-weight: 500;">
+                No, Cancelar
+            </button>
+            
+            <!-- Formulario dinámico que procesará la baja segura -->
+            <form id="formEliminarSeguro" action="#" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger" style="background-color: var(--color-rojo, #dc3545); border: none; border-radius: 4px; padding: 8px 16px; font-family: var(--fuente-principal); font-weight: 500; color: white;">
+                    Sí, Confirmar Baja
+                </button>
+            </form>
+        </div>
+    </x-modal>
 
 </div> {{-- Cierre correcto de .panel-administracion-contenedor al final de la vista --}}
+
+{{--- SCRIPT PARA ENLAZAR LA TARJETA SELECCIONADA CON EL MODAL ---}}
+<script>
+function prepararEliminacion(id, tipo) {
+    // Captura el formulario interno del modal
+    const formulario = document.getElementById('formEliminarSeguro');
+    
+    // Define la ruta exacta de Laravel según si es un aula o un activo
+    if (tipo === 'activo') {
+        formulario.action = `{{ url('/activos') }}/${id}`;
+    } else {
+        formulario.action = `{{ url('/aulas') }}/${id}`;
+    }
+}
+</script>
 
 <!-- SCRIPT EXCLUSIVO PARA LAS CAJAS KPI Y FILTROS -->
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
