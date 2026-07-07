@@ -8,7 +8,7 @@
     {{-- hoja de estilos para la creación/edición de formularios --}}
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
-    <h2 class="titulo-pagina"><i class="fas fa-door-open"></i> Gestión de Activos</h2>
+    <h2 class="titulo-pagina"><i class="fas fa-box"></i> Gestión de Activos</h2>
 
 <div class="contenedor-registro-flexible">
 
