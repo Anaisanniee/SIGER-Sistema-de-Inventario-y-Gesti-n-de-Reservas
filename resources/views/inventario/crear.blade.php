@@ -10,7 +10,7 @@
                 <p class="m-0 fs-5 opacity-75">Sincronizado con la base de datos de la institución.</p>
             </div>
 
-            <form action="{{ route('activos.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row g-4">

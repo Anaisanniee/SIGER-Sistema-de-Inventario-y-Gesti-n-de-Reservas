@@ -56,7 +56,7 @@ class ActivosControllers extends Controller
     {
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
-        return view('inventario.crear', compact('aulas', 'categorias'));
+        return view('activos.crear-activo', compact('aulas', 'categorias'));
     }
 
     // ====================================================================
@@ -84,7 +84,7 @@ class ActivosControllers extends Controller
         $activo = ActivosModels::findOrFail($id);
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
-        return view('inventario.editar', compact('activo', 'aulas', 'categorias'));
+        return view('activos.crear-activo', compact('activo', 'aulas', 'categorias'));
     }
 
     public function update(Request $request, $id)
@@ -165,7 +165,7 @@ class ActivosControllers extends Controller
             }
 
             $activo->save();
-            return redirect()->route('activos.index')->with('mensaje', 'Activo creado con éxito.');
+            return redirect()->route('inventario.index_unificado')->with('mensaje', 'Activo creado con éxito.');
         
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Error técnico: ' . $e->getMessage());

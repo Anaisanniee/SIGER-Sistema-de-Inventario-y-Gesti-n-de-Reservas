@@ -1,0 +1,159 @@
+/* ==========================================================================
+   PANEL DE GESTIÓN DE RECURSOS (AULAS Y ACTIVOS)
+   ========================================================================== */
+
+.panel-administracion-contenedor {
+    width: 100%;
+    padding: 1rem 0;
+}
+
+/* Cabecera Flexible */
+.cabecera-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.texto-cabecera .subtitulo-pagina {
+    font-size: 0.95rem;
+    color: var(--color-texto-secundario, #666);
+    margin-top: 0.25rem;
+}
+
+.acciones-rapidas-panel {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Grid de Indicadores o KPIs */
+.metricas-resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.tarjeta-metrica-kpi {
+    background: var(--color-fondo, #ffffff);
+    border-radius: 8px;
+    padding: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--color-borde, #e0e0e0);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efecto visual cuando una KPI está seleccionada */
+.tarjeta-metrica-kpi.active {
+    border-color: var(--color-estado-disponible, #28a745);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.icono-kpi {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0; /* Evita que el círculo se deforme si hay mucho texto */
+}
+
+/* Colores dinámicos para los iconos del KPI */
+.icono-kpi.azul { background-color: var(--color-reservado-pastel); color: var(--color-estado-reservado); }
+.icono-kpi.verde { background-color: var(--color-disponible-pastel); color: var(--color-estado-disponible); }
+.icono-kpi.rojo { background-color: var(--color-dañado-pastel); color: var(--color-estado-dañado); }
+
+.datos-kpi {
+    display: flex;
+    flex-direction: column;
+}
+
+.cifra-kpi {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--color-texto, #333);
+}
+
+.label-kpi {
+    font-size: 0.85rem;
+    color: var(--color-texto-secundario, #666);
+}
+
+/* ==========================================================================
+   MÓVILES (Hasta 576px) - Solución de desborde y optimización vertical
+   ========================================================================== */
+@media (max-width: 576px) {
+    .cabecera-panel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    /* Solución al botón roto de "Nuevo Activo": Ocupan todo el ancho apilados */
+    .acciones-rapidas-panel {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+
+    .acciones-rapidas-panel .btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap; /* Impide que el texto se parta feo en dos líneas */
+    }
+
+    /* Solución al Scroll Infinito: Las KPIs se vuelven un slider horizontal */
+    .metricas-resumen-grid {
+        display: flex;
+        overflow-x: auto; /* Activa el scroll de izquierda a derecha */
+        gap: 1rem;
+        margin: 1.5rem 0;
+        padding-bottom: 0.5rem;
+        scrollbar-width: none; /* Oculta la barra en Firefox */
+    }
+
+    .metricas-resumen-grid::-webkit-scrollbar {
+        display: none; /* Oculta la barra en Chrome, Safari y Edge */
+    }
+
+    .tarjeta-metrica-kpi {
+        gap: 0.75rem;
+        min-width: 220px; /* Asegura que cada KPI tenga un ancho mínimo */
+        flex: 0 0 80%; /* Cada KPI toma el 80% para asomar la siguiente e invitar a deslizar */
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+}
+
+/* ==========================================================================
+   TABLETS (De 577px a 992px)
+   ========================================================================== */
+@media (min-width: 577px) and (max-width: 992px) {
+    .cabecera-panel {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .acciones-rapidas-panel {
+        width: auto;
+    }
+
+    /* Fuerza a las 3 KPIs a quedarse en una sola fila horizontal bien distribuida */
+    .metricas-resumen-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+}
+
+#modalConfirmarEliminar .modal-footer {
+    display: none !important;
+}

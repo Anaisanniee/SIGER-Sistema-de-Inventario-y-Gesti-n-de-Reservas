@@ -1,0 +1,150 @@
+/* ==========================================================================
+   COMPONENTE BOTÓN GLOBAL (<x-botones.boton>)
+   Estandarizado con esquinas de 4px, fuentes del sistema y animaciones suaves
+   ========================================================================== */
+
+/* --- ESTILOS BASE / ESCRITORIO (Desde 1025px en adelante) --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--fuente-principal);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px; /* Unificado a 4px */
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    outline: none;
+    
+    /* Transición global para todos los estados */
+    transition: background-color 0.3s ease, 
+                transform 0.1s ease, 
+                opacity 0.3s ease, 
+                box-shadow 0.3s ease, 
+                outline 0.2s ease;
+}
+
+/* --- ESTADOS GLOBALES (Afecta a TODOS los botones por igual) --- */
+
+/* 1. Efecto de Clic (Active) */
+.btn:active, 
+.btn-siger-accion:active, 
+.btn-editar-avatar:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* 2. Efecto de Enfoque / Accesibilidad (Focus) */
+.btn:focus-visible, 
+.btn-siger-accion:focus-visible, 
+.btn-editar-avatar:focus-visible {
+    outline: 2px solid var(--color-texto);
+    outline-offset: 2px;
+}
+
+
+/* --- VARIACIONES DE COLOR Y ESTILOS ESPECÍFICOS --- */
+
+/* Botón Principal / Verde / Verde Siger (Combinados) */
+.btn, .btn-verde, .btn-verde-siger {
+    background-color: var(--color-principal);
+    color: var(--color-fondo);
+}
+.btn:hover, .btn-verde:hover, .btn-verde-siger:hover {
+    background-color: var(--principal-secundario);
+}
+
+/* Botón Azul (Reservado) */
+.btn-azul {
+    background-color: var(--color-estado-reservado);
+    color: var(--color-fondo);
+}
+.btn-azul:hover {
+    background-color: #1d4ed8; /* Oscurecido para feedback visual real */
+}
+
+/* Botón Amarillo (Mantenimiento) */
+.btn-amarillo { 
+    background-color: var(--color-estado-en-mantenimiento);
+    color: #1e293b; /* Texto oscuro para legibilidad */
+}
+.btn-amarillo:hover {
+    background-color: #eab308;
+}
+
+/* Botón Rojo (Dañado / Cancelar) */
+.btn-rojo {
+    background-color: var(--color-estado-dañado);
+    color: var(--color-fondo);
+}
+.btn-rojo:hover {
+    background-color: #b91c1c;
+}
+
+
+/* --- BOTONES DE COMPONENTES ESPECÍFICOS --- */
+
+/* Botón Siger Acción (Hereda comportamiento full-width) */
+.btn-siger-accion {
+    /* Mantenemos las propiedades base que ya definiste */
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-sizing: border-box;
+    /* Las transiciones y el active se manejan en los bloques globales de arriba */
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+/* Botón Editar Avatar (Circular con posicionamiento absoluto) */
+.btn-editar-avatar {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: 50%; /* Redondo */
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+.btn-editar-avatar:hover {
+    background-color: var(--color-borde);
+}
+
+
+/* --- RESPONSIVE DESIGN --- */
+
+/* --- DISEÑO TABLET (De 769px a 1024px) --- */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .btn {
+        flex: 1; 
+        padding: 9px 15px;
+    }
+}
+
+/* --- DISEÑO MÓVIL (Hasta 768px) --- */
+@media (max-width: 768px) {
+    .btn {
+        flex: 1; 
+        padding: 12px; 
+        font-size: 0.95rem;
+        width: 100%; 
+    }
+}
+
+.btn-cancelar-formulario * {
+    pointer-events: none; /* Obliga al navegador a registrar el clic en el botón, jamás en el texto */
+}

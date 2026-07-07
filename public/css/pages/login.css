@@ -1,0 +1,253 @@
+/* ==========================================================================
+   ESTILOS BASE / COMUNES (Se aplican a todas las pantallas por defecto)
+   ========================================================================== */
+body {
+    background-color: var(--color-fondo-secundario);
+    background: linear-gradient(var(--color-borde), var(--color-fondo-secundario));
+    margin: 0;
+    height: 100vh;
+}
+
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-principal);
+    color: var(--color-fondo);
+    z-index: 1;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-container h1 {
+    margin: 0;
+    color: var(--fuente-secundaria);
+}
+
+.welcome-container h3,
+.welcome-container h4 {
+    font-weight: normal;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-fondo);
+    border-radius: 4px;
+    color: var(--color-texto);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+.login-container h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: var(--color-principal);
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+input, select {
+    background-color: var(--color-borde);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-bottom: 15px;
+    transition: border-color 0.2s ease; /* Suaviza el cambio al dar clic */
+}
+
+/* EFECTO: Borde verde al dar clic (foco) */
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--color-principal);
+}
+
+a {
+    color: var(--color-principal);
+    margin-left: 50px;
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+label {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    font-family: var(--fuente-secundaria);
+    font-weight: 500;
+}
+
+.btn, .login-container button {
+    background: var(--color-principal);
+    color: var(--color-fondo);
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover, .login-container button:hover {
+    background-color: var(--principal-secundario);
+}
+
+
+/* ==========================================================================
+   DISEÑO MÓVIL (Hasta 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    .welcome-container {
+        width: 100%;
+        height: 120px;
+    }
+
+    .welcome-container h1 {
+        font-size: 1.5rem;
+    }
+
+    .welcome-container h3 {
+        margin: 5px 0 0 0;
+        font-size: 0.9rem;
+    }
+
+    .login-container {
+        position: absolute;
+        top: 100px;
+        transform: translateY(-10px);
+        padding: 20px 30px;
+        margin: 0;
+        min-height: 27rem;
+        font-family: var(--fuente-principal);
+    }
+
+    .login-container h2 {
+        font-size: 1.5rem;
+    }
+
+    input, select, .btn {
+        width: 97%;
+    }
+
+    a {
+        font-size: 0.9rem;
+    }
+}
+
+
+/* ==========================================================================
+   DISEÑO TABLET (De 769px a 1023px)
+   ========================================================================== */
+@media (min-width: 769px) and (max-width: 1023px) {
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    .welcome-container {
+        width: 100%;
+        height: 160px;
+    }
+
+    .welcome-container h1 {
+        margin: 10px 0;
+        font-size: 3rem;
+        background: linear-gradient(45deg, var(--color-fondo), var(--color-texto-secundario));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-container h3 {
+        margin: 0 0 20px 0;
+        font-size: 1.25rem;
+    }
+
+    .login-container {
+        position: absolute;
+        top: 200px;
+        transform: translateY(-10px);
+        padding: 40px 50px;
+        width: 50%;
+        margin-left: auto;
+        height: auto;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    input, select, .btn, .login-container button {
+        width: 95%;
+    }
+
+    a {
+        font-size: 1rem;
+    }
+}
+
+
+/* ==========================================================================
+   DISEÑO PC (Desde 1024px en adelante) - CORREGIDO
+   ========================================================================== */
+@media (min-width: 1024px) {
+    body {
+        background-color: var(--color-fondo);
+        display: grid;
+        grid-template-columns: 40% 60%;
+    }
+
+    .welcome-container {
+        justify-content: space-between;
+        background: linear-gradient(to bottom, var(--principal-secundario), var(--color-principal));
+        box-shadow: 7px 0 10px rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        align-items: flex-start; /* Cambia la alineación general de los hijos a la izquierda en PC */
+    }
+
+    .welcome-container h1 {
+        font-size: 3rem;
+        background: linear-gradient(45deg, var(--color-fondo), var(--color-texto-secundario));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: left;     /* Alinea el texto a la izquierda */
+        align-self: flex-start; /* Rompe el centrado de los estilos base y lo manda a la izquierda */
+    }
+
+    .welcome-container h4 {
+        font-size: 1.5rem;
+        text-align: left;     /* Asegura que el h4 también acompañe el diseño si lo necesitas */
+    }
+
+    .login-container {
+        padding: 40px 50px;
+        margin: auto;
+        height: auto;
+        max-height: 500px;
+        max-width: 400px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    input, select, .login-container button {
+        width: 95%;
+    }
+
+    a {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+}

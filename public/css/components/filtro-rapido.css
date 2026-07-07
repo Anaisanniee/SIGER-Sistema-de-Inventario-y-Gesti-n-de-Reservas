@@ -1,0 +1,87 @@
+/* ========================================================
+   COMPONENT: FILTRO RÁPIDO HORIZONTAL RESPONSIVE
+   ======================================================== */
+
+.siger-filtro-horizontal-container {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 0;
+}
+
+/* Opciones por defecto para el scroll horizontal (PC/Tablet) */
+.siger-filtro-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.5rem 0.2rem;
+    gap: 12px;
+}
+
+.siger-filtro-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Botón Ovalado */
+.filtro-item-btn {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 1.4rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: 50px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s ease;
+}
+
+.filtro-item-btn:hover {
+    color: #198754;
+    border-color: #198754;
+    background-color: #f0fdf4;
+}
+
+.filtro-item-btn.active {
+    color: #ffffff !important;
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    font-weight: 600;
+}
+
+/* Contenedor del Select (Móvil) - Oculto en PC por defecto */
+.siger-filtro-select-container {
+    display: none;
+    padding: 0 0.2rem;
+}
+
+/* Estilo ovalado para el Select de Bootstrap */
+.siger-filtro-select {
+    border-radius: 50px !important;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    background-color: #ffffff;
+}
+
+.siger-filtro-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15);
+}
+
+/* ========================================================
+   MEDIA QUERY: DISPOSITIVOS MÓVILES (Menor a 768px)
+   ======================================================== */
+@media (max-width: 767.98px) {
+    /* Ocultamos los botones horizontales por completo */
+    .siger-filtro-scroll {
+        display: none !important;
+    }
+
+    /* Mostramos el menú desplegable */
+    .siger-filtro-select-container {
+        display: block !important;
+    }
+}
