@@ -129,42 +129,70 @@
         </x-modal>
     </div>
     {{--- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN (PAPELERA DE RECUPERACIÓN) ---}}
-    <x-modal id="modalConfirmarEliminar" title="¿Está seguro de eliminar este recurso?" subtitle="El elemento se moverá temporalmente a la papelera de recuperación.">
-        <div class="d-flex justify-content-center gap-3" style="padding: 15px 0; width: 100%;">
-            
-            <!-- Botón de cancelar que simplemente cierra la ventana -->
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 4px; padding: 8px 16px; font-family: var(--fuente-principal); font-weight: 500;">
-                No, Cancelar
-            </button>
-            
-            <!-- Formulario dinámico que procesará la baja segura -->
-            <form id="formEliminarSeguro" action="#" method="POST">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger" style="background-color: var(--color-rojo, #dc3545); border: none; border-radius: 4px; padding: 8px 16px; font-family: var(--fuente-principal); font-weight: 500; color: white;">
+    <x-modal id="modalConfirmarEliminar" titulo="¿Está seguro de eliminar este recurso?" subtitulo="El elemento se moverá temporalmente a la papelera de recuperación.">
+        
+        <form id="formEliminarSeguro" action="#" method="POST" style="width: 100%;">
+            @csrf
+            @method('DELETE')
+
+            {{--- Campo para escribir el motivo de la baja ---}}
+            <div class="form-group-siger" style="margin-bottom: 20px; text-align: left;">
+                <label for="motivo_baja" style="font-family: var(--fuente-principal); font-weight: 600; color: var(--color-texto); display: block; margin-bottom: 8px;">
+                    Motivo de la Baja <span style="color: red;">*</span>
+                </label>
+                <input type="text" id="motivo_baja" name="motivo_baja" class="form-control" placeholder="Ej. Daño estructural, obsolescencia, traslado..." required style="width: 100%; border-radius: 4px;">
+            </div>
+
+            {{--- Contenedor de acciones principales con tus componentes ---}}
+            <div class="d-flex justify-content-center gap-3" style="padding-top: 10px; width: 100%;">
+                
+                {{-- Botón Cancelar usando tu componente --}}
+                <x-botones.boton 
+                    type="button" 
+                    class="btn btn-verde" {{-- Conservando tu estilo verde del 'No, Cancelar' que vi en la captura --}}
+                    data-bs-dismiss="modal">
+                    No, Cancelar
+                </x-botones.boton>
+                
+                {{-- Botón Confirmar usando tu componente --}}
+                <x-botones.boton 
+                    type="submit" 
+                    class="btn btn-rojo">
                     Sí, Confirmar Baja
-                </button>
-            </form>
-        </div>
+                </x-botones.boton>
+                
+            </div>
+        </form>
     </x-modal>
 
 </div> {{-- Cierre correcto de .panel-administracion-contenedor al final de la vista --}}
 
 {{--- SCRIPT PARA ENLAZAR LA TARJETA SELECCIONADA CON EL MODAL ---}}
 <script>
-function prepararEliminacion(id, tipo) {
-    // Captura el formulario interno del modal
+function prepararEliminacion(id, tipo, nombre, caracteristica) {
     const formulario = document.getElementById('formEliminarSeguro');
     
-    // Define la ruta exacta de Laravel según si es un aula o un activo
+    // 1. Modificar la acción del formulario según el tipo de recurso
     if (tipo === 'activo') {
         formulario.action = `{{ url('/activos') }}/${id}`;
     } else {
         formulario.action = `{{ url('/aulas') }}/${id}`;
     }
+
+    // 2. Inyectar dinámicamente el nombre y la característica en la cabecera del modal
+    const modalElement = document.getElementById('modalConfirmarEliminar');
+    if (modalElement) {
+        modalElement.querySelector('.modal-title').textContent = nombre;
+        modalElement.querySelector('.modal-subtitle').textContent = caracteristica;
+    }
+
+    // 3. Limpiar el campo del motivo cada vez que se abra para un recurso nuevo
+    const inputMotivo = document.getElementById('motivo_baja');
+    if (inputMotivo) {
+        inputMotivo.value = '';
+    }
 }
 </script>
-
 <!-- SCRIPT EXCLUSIVO PARA LAS CAJAS KPI Y FILTROS -->
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 @endsection
