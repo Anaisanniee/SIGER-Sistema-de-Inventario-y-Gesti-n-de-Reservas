@@ -1,71 +1,175 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- Botón para regresar al inventario --}}
-<div style="margin-bottom: 20px;">
-    <a href="{{ url('/inventario') }}" class="btn btn-secondary" style="border-radius: 4px; padding: 8px 16px; text-decoration: none; color: var(--color-texto);">
-        <i class="fas fa-arrow-left"></i> Volver al Inventario
-    </a>
-</div>
 
-{{--- 1. CABECERA DE LA PAPELERA ---}}
-<div class="cabecera-panel" style="margin-bottom: 30px;">
-    <h2><i class="fas fa-trash-alt"></i> Papelera de Recuperación</h2>
-    <p class="subtitulo-pagina">Aquí puedes restaurar los recursos eliminados o borrarlos definitivamente del sistema.</p>
-</div>
+<link rel="stylesheet" href="{{ asset('css/pages/papelera.css') }}">
 
-{{--- 2. BOTONES DE PESTAÑAS (TABS) ---}}
-<div class="d-flex gap-2" style="border-bottom: 2px solid var(--color-borde,var(--color-fondo)); margin-bottom: 25px; padding-bottom: 10px;">
-    <button class="btn btn-tab active" onclick="cambiarPapelera('tab-activos', this)" style="border: none; background: none; font-weight: bold; border-bottom: 3px solid var(--color-reservado-pastel, --color-estado-reservado); padding: 5px 15px;">
-        <i class="fas fa-tools"></i> Activos Eliminados
-    </button>
-    <button class="btn btn-tab" onclick="cambiarPapelera('tab-aulas', this)" style="border: none; background: none; color: gray; padding: 5px 15px;">
-        <i class="fas fa-door-open"></i> Aulas Eliminadas
-    </button>
-</div>
+<div class="panel-administracion-contenedor" style="padding: 20px;">
+    
+    {{-- Botón para regresar al Inventario Principal --}}
+    <div style="margin-bottom: 20px;">
+        <x-botones.boton clase="btn-azulado" url="{{ url('/inventario') }}">
+            <i class="fas fa-arrow-left"></i> Volver a Gestión
+        </x-botones.boton>
+    </div>
 
-{{--- 3. CONTENEDOR DE SECCIONES ---}}
-<div class="secciones-papelera">
+    {{--- 1. CABECERA DEL PANEL ---}}
+    <div class="cabecera-panel" style="margin-bottom: 25px;">
+        <div class="texto-cabecera">
+            <h2 class="titulo-pagina" style="font-family: var(--fuente-secundaria); font-weight: 700; color: var(--color-texto); margin-bottom: 5px;">
+                <i class="fas fa-trash-alt"></i> Papelera de Recuperación
+            </h2>
+            <p class="subtitulo-pagina" style="font-family: var(--fuente-principal); color: var(--color-texto-secundario); font-size: 0.95rem;">
+                Consulta, restaura o elimina definitivamente los recursos dados de baja de la institución.
+            </p>
+        </div>
+    </div>
 
-    {{-- SECCIÓN 1: ACTIVOS ELIMINADOS --}}
-    <div id="tab-activos" class="contenido-tab">
-        <div class="container-tarjetas">
-            {{-- Aquí haces el @foreach de los activos borrados que te mande el backend --}}
-            {{-- En lugar de botones de Editar/Eliminar, les pones botones de "Restaurar" (Verde) y "Destruir" (Rojo) --}}
-            <div class="tarjeta-wrapper">
-                {{-- Ejemplo de tarjeta compacta de papelera o reusa tu tarjeta con acciones cambiadas --}}
+    {{--- 2. CONTENEDOR PRINCIPAL (Misma estructura visual del Perfil/Dashboard) ---}}
+    <div class="card-siger-papelera">
+        
+        {{-- PESTAÑAS (TABS) SUPERIORES --}}
+        <div class="tabs-papelera-contenedor">
+            <button class="btn-tab-siger active-tab" onclick="cambiarTabPapelera('tab-activos', this)">
+                <i class="fas fa-boxes"></i> Activos Eliminados
+            </button>
+            <button class="btn-tab-siger" onclick="cambiarTabPapelera('tab-aulas', this)">
+                <i class="fas fa-school"></i> Aulas Eliminadas
+            </button>
+        </div>
+
+        {{--- 3. CONTENIDO DE LAS TABLAS ---}}
+        <div class="tab-content-papelera">
+
+            {{-- 🛠️ PANE 1: TABLA DE ACTIVOS ELIMINADOS --}}
+            <div id="tab-activos" class="seccion-papelera-pane">
+                <div class="tabla-papelera-wrapper">
+                    <table class="table table-hover align-middle tabla-siger">
+                        <thead>
+                            <tr>
+                                <th>Recurso / Categoría</th>
+                                <th>Serial</th>
+                                <th>Motivo de Baja</th>
+                                <th style="text-align: center; width: 250px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- Ejemplo de fila dinámica (Tu compañero usará @foreach($activosBorrados as $activo)) --}}
+                            <tr>
+                                <td>
+                                    <span style="font-weight: 700; color: var(--color-texto); display: block;">Proyector Epson K301</span>
+                                    <small style="color: var(--color-texto-secundario); font-size: 0.8rem;">Tecnología / Multimedia</small>
+                                </td>
+                                <td style="font-family: var(--fuente-principal); color: var(--color-texto);">EPS-X49-98765</td>
+                                <td><span class="badge-motivo-baja">Lente Quemado / Falla de placa madre</span></td>
+                                <td style="text-align: center;">
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        {{-- Botón Ojo: Muestra el modal con los detalles pesados que mande el Backend --}}
+                                        <x-botones.boton type="button" clase="btn-azulado" style="padding: 6px 10px; font-size: 0.85rem;"
+                                            onclick="verDetallesPapelera('Proyector Epson K301', '<strong>Marca:</strong> Epson <br> <strong>Resevable:</strong> Sí <br> <strong>Fecha de Registro:</strong> 12/03/2024 <br> <strong>Último Estado:</strong> Malo <br> <strong>Fecha de Baja:</strong> 15/08/2026')">
+                                            <i class="fas fa-eye"></i>
+                                        </x-botones.boton>
+
+                                        <x-botones.boton type="button" clase="btn-verde" style="padding: 6px 12px; font-size: 0.85rem;">
+                                            <i class="fas fa-undo"></i> Restaurar
+                                        </x-botones.boton>
+
+                                        <x-botones.boton type="button" clase="btn-rojo" style="padding: 6px 12px; font-size: 0.85rem;">
+                                            <i class="fas fa-times-circle"></i> Destruir
+                                        </x-botones.boton>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            {{-- 🚪 PANE 2: TABLA DE AULAS ELIMINADAS (Oculta por defecto) --}}
+            <div id="tab-aulas" class="seccion-papelera-pane" style="display: none;">
+                <div class="tabla-papelera-wrapper">
+                    <table class="table table-hover align-middle tabla-siger">
+                        <thead>
+                            <tr>
+                                <th>Nombre de Aula</th>
+                                <th>Capacidad</th>
+                                <th>Motivo de Baja</th>
+                                <th style="text-align: center; width: 250px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- Ejemplo de fila dinámica --}}
+                            <tr>
+                                <td>
+                                    <span style="font-weight: 700; color: var(--color-texto); display: block;">Laboratorio de Informática B</span>
+                                    <small style="color: var(--color-texto-secundario); font-size: 0.8rem;">laboratorio</small>
+                                </td>
+                                <td style="font-family: var(--fuente-principal); color: var(--color-texto);">25 Personas</td>
+                                <td><span class="badge-motivo-baja">Remodelación Estructural e Inundación</span></td>
+                                <td style="text-align: center;">
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        {{-- Botón Ojo para el Aula --}}
+                                        <x-botones.boton type="button" clase="btn-azulado" style="padding: 6px 10px; font-size: 0.85rem;"
+                                            onclick="verDetallesPapelera('Laboratorio de Informática B', '<strong>Tipo de Aula:</strong> Laboratorio <br> <strong>Reservable:</strong> Sí <br> <strong>Último Estado:</strong> Disponible <br> <strong>Fecha de Baja:</strong> 05/07/2026')">
+                                            <i class="fas fa-eye"></i>
+                                        </x-botones.boton>
+
+                                        <x-botones.boton type="button" clase="btn-verde" style="padding: 6px 12px; font-size: 0.85rem;">
+                                            <i class="fas fa-undo"></i> Restaurar
+                                        </x-botones.boton>
+
+                                        <x-botones.boton type="button" clase="btn-rojo" style="padding: 6px 12px; font-size: 0.85rem;">
+                                            <i class="fas fa-times-circle"></i> Destruir
+                                        </x-botones.boton>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
-
-    {{-- SECCIÓN 2: AULAS ELIMINADAS (Oculta por defecto) --}}
-    <div id="tab-aulas" class="contenido-tab" style="display: none;">
-        <div class="container-tarjetas">
-            {{-- Aquí haces el @foreach de las aulas borradas --}}
-        </div>
-    </div>
-
 </div>
 
-{{---SCRIPT PARA CAMBIAR ENTRE PESTAÑAS ---}}
+{{--- 4. MODAL COMPONENTE REUTILIZADO PARA DETALLES ---}}
+<x-modal titulo="Detalles del Recurso" subtitulo="Especificaciones técnicas y de auditoría interna.">
+    <div id="contenedor-detalles-baja" style="font-family: var(--fuente-principal); color: var(--color-texto); line-height: 1.8; padding: 10px 5px;">
+        </div>
+</x-modal>
+
+{{--- 🚀 LOGICA JAVASCRIPT REACTIVA ---}}
 <script>
-function cambiarPapelera(tabId, boton) {
-    // Ocultar todas las secciones
-    document.querySelectorAll('.contenido-tab').forEach(el => el.style.display = 'none');
-    // Mostrar la seleccionada
+// Manejo del cambio de pestañas (Tabs)
+function cambiarTabPapelera(tabId, botonClickado) {
+    // Ocultar todas las tablas
+    document.querySelectorAll('.seccion-papelera-pane').forEach(panel => {
+        panel.style.display = 'none';
+    });
+    // Mostrar la tabla correspondiente
     document.getElementById(tabId).style.display = 'block';
     
-    // Desactivar todos los botones de pestañas
-    document.querySelectorAll('.btn-tab').forEach(btn => {
-        btn.style.fontWeight = 'normal';
-        btn.style.color = 'gray';
-        btn.style.borderBottom = 'none';
+    // Quitar clase activa a todos los botones
+    document.querySelectorAll('.btn-tab-siger').forEach(btn => {
+        btn.classList.remove('active-tab');
     });
+    // Añadir clase activa al presionado
+    botonClickado.classList.add('active-tab');
+}
+
+// Llenar y desplegar el modal general con los campos extras
+function verDetallesPapelera(nombreRecurso, htmlDatosExtra) {
+    // 1. Modificar textos de la cabecera del componente modal
+    document.getElementById('modal-titulo-dinamico').textContent = nombreRecurso;
+    document.getElementById('modal-sub-dinamico').textContent = "Historial y especificaciones completas";
     
-    // Activar el botón actual
-    boton.style.fontWeight = 'bold';
-    boton.style.color = 'gray';
-    boton.style.borderBottom = '3px solid var(--color-estado-reservado, --color-estado-reservado)';
+    // 2. Inyectar el texto detallado
+    document.getElementById('contenedor-detalles-baja').innerHTML = htmlDatosExtra;
+    
+    // 3. Invocar al modal general nativo de Bootstrap heredado por el componente
+    const modalDetalles = new bootstrap.Modal(document.getElementById('modalgeneral'));
+    modalDetalles.show();
 }
 </script>
 @endsection
