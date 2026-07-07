@@ -16,8 +16,25 @@
             <p class="subtitulo-pagina">Administra y controla las aulas y activos de la institución en un solo lugar.</p>
         </div>
         <div class="acciones-rapidas-panel">
-            <a href="#" class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Aula</a>
-            <a href="#" class="btn btn-success"><i class="fas fa-plus"></i> Nuevo Activo</a>
+
+            <x-botones.boton 
+                clase="btn-verde" {{-- Usando tu clase verde de SIGER --}}
+                url="{{ url('/aulas/crear') }}"> {{-- Cambia por la ruta real cuando la tengan --}}
+                <i class="fas fa-plus"></i> Nueva Aula
+            </x-botones.boton>
+
+            <x-botones.boton 
+                clase="btn-verde" {{-- Mantiene la consistencia con el botón de al lado --}}
+                url="{{ url('/activos/crear') }}"> {{-- Cambia por la ruta real cuando la tengan --}}
+                <i class="fas fa-plus"></i> Nuevo Activo
+            </x-botones.boton>
+
+                        <x-botones.boton 
+                clase="btn-papelera" 
+                url="{{ url('/inventario/papelera') }}">
+                <i class="fas fa-trash-alt" style="margin-right: 5px;"></i> Ver Papelera
+            </x-botones.boton>
+            
         </div>
     </div>
 
@@ -113,6 +130,8 @@
                         'etiqueta' => 'Capacidad',
                         'valor' => $recurso->aula_capacidad,
                         'recurso' => $recurso,
+                        'textoBoton' => 'Editar',
+                        'esAdmin' => true,
                         {{----url AGREGAR RUTA---}}
                     ])
                     @endcomponent
@@ -172,21 +191,21 @@
 function prepararEliminacion(id, tipo, nombre, caracteristica) {
     const formulario = document.getElementById('formEliminarSeguro');
     
-    // 1. Modificar la acción del formulario según el tipo de recurso
+    // 1. Modificar la acción del formulario
     if (tipo === 'activo') {
         formulario.action = `{{ url('/activos') }}/${id}`;
     } else {
         formulario.action = `{{ url('/aulas') }}/${id}`;
     }
 
-    // 2. Inyectar dinámicamente el nombre y la característica en la cabecera del modal
-    const modalElement = document.getElementById('modalConfirmarEliminar');
-    if (modalElement) {
-        modalElement.querySelector('.modal-title').textContent = nombre;
-        modalElement.querySelector('.modal-subtitle').textContent = caracteristica;
-    }
+    // 2. Inyectar el texto usando los nuevos IDs fijos
+    const txtTitulo = document.getElementById('modal-titulo-dinamico');
+    const txtSubtit = document.getElementById('modal-sub-dinamico');
 
-    // 3. Limpiar el campo del motivo cada vez que se abra para un recurso nuevo
+    if (txtTitulo) txtTitulo.textContent = nombre;
+    if (txtSubtit) txtSubtit.textContent = caracteristica;
+
+    // 3. Limpiar el campo del motivo
     const inputMotivo = document.getElementById('motivo_baja');
     if (inputMotivo) {
         inputMotivo.value = '';
