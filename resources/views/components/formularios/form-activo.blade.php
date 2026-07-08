@@ -2,6 +2,22 @@
     $esEdicion = request()->is('*editar*') || isset($activo->act_id);
 @endphp
 
+@if ($errors->any())
+    <div class="alert alert-danger" style="color: #a94442; background-color: #f2dede; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="alert alert-danger" style="color: #a94442; background-color: #f2dede; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        {{ session('error') }}
+    </div>
+@endif
+
 <form action="{{ $esEdicion ? route('activos.update', $activo->act_id) : route('activos.store') }}" 
       method="POST" 
       enctype="multipart/form-data" 
@@ -14,7 +30,7 @@
     {{-- NOMBRE DEL ACTIVO --}}
     <div class="post-form">
         <label for="act_nombre">Nombre del Activo *</label>
-        <input type="text" id="act_nombre" name="act_nombre" required maxlength="50"
+        <input type="text" id="act_nombre" name="act_nombre"
                value="{{ old('act_nombre', $activo->act_nombre ?? '') }}"
                class="@error('act_nombre') is-invalid @enderror"
                placeholder="Ej. Videobeam Epson">
@@ -26,7 +42,7 @@
     {{-- SERIAL --}}
     <div class="post-form">
         <label for="act_serial">Número de Serial *</label>
-        <input type="text" id="act_serial" name="act_serial" required maxlength="255"
+        <input type="text" id="act_serial" name="act_serial"
                value="{{ old('act_serial', $activo->act_serial ?? '') }}"
                class="@error('act_serial') is-invalid @enderror"
                placeholder="Ej. SER123456" {{ $esEdicion ? 'readonly' : '' }}>
@@ -69,7 +85,7 @@
     {{-- UBICACIÓN (AULA ASIGNADA) --}}
     <div class="post-form">
         <label for="aula_id">Ubicación (Aula Asignada) *</label>
-        <select name="aula_id" id="aula_id" required>
+        <select name="aula_id" id="aula_id">
             <option value="">-- Selecciona el Aula --</option>
             @foreach($aulas ?? [] as $a)
                 <option value="{{ $a->aula_id }}" {{ old('aula_id', $activo->aula_id ?? '') == $a->aula_id ? 'selected' : '' }}>
@@ -80,8 +96,8 @@
     </div>
 
     <div class="post-form">
-        <label for="aula_id">Categoria del equipo *</label>
-        <select name="cate_id" id="cate_id" required>
+        <label for="cate_id">Categoria del equipo *</label> 
+        <select name="cate_id" id="cate_id">
             <option value="">-- Selecciona la categoria --</option>
             @foreach($categorias ?? [] as $cate)
                 <option value="{{ $cate->cate_id }}" {{ old('cate_id', $activo->cate_id ?? '') == $cate->cate_id ? 'selected' : '' }}>
@@ -93,7 +109,7 @@
 
     <div class="col-md-6">
         <label for="act_fecha_ingreso">Fecha de Ingreso *</label>
-        <input type="date" name="act_fecha_ingreso" value="{{ old('act_fecha_ingreso', date('Y-m-d')) }}" class="form-control bg-light border-0 py-2 px-3 rounded-pill" required>
+        <input type="date" name="act_fecha_ingreso" value="{{ old('act_fecha_ingreso', date('Y-m-d')) }}" class="form-control bg-light border-0 py-2 px-3 rounded-pill">
     </div>
 
     <div class="post-form-switch">
@@ -105,15 +121,6 @@
             <span class="switch-slider"></span>
         </label>
     </div>
-
-     @if($esEdicion) {{-- cambiar logica cuando se implementen los controles --}}
-        {{-- MOTIVO DE BAJA (Sólo en edición) --}}
-    <div class="post-form">
-        <label for="act_motivo_baja">Motivo de Baja (Opcional)</label>
-        <input type="text" id="act_motivo_baja" name="act_motivo_baja" maxlength="255"
-            value="{{ old('act_motivo_baja', $activo->act_motivo_baja ?? '') }}">
-    </div>
-    @endif
 
     {{-- BOTONES DE ACCIÓN --}}
 

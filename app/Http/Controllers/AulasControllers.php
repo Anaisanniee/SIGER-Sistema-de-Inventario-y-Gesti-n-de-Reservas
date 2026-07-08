@@ -27,7 +27,7 @@ class AulasControllers extends Controller
     public function create()
     {
         $tipos = TiposAulasModels::all();
-        return view('aulas.create', compact('tipos'));
+        return view('aulas.crear-aula', compact('tipos'));
     }
 
     // 3. Guardar nueva aula
@@ -39,6 +39,7 @@ class AulasControllers extends Controller
             'aula_capacidad'   => 'required|integer|min:1',
             'aula_estado'      => 'required|in:Disponible,Ocupado,En Mantenimiento',
             'tip_aula_id'      => 'required',
+            'aula_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $data = $request->except(['_token', 'aula_foto']);
@@ -65,7 +66,7 @@ class AulasControllers extends Controller
     {
         $aula = AulasModels::findOrFail($id);
         $tipos = TiposAulasModels::all();
-        return view('aulas.edit', compact('aula', 'tipos'));
+        return view('aulas.editar-aula', compact('aula', 'tipos'));
     }
 
     // 5. Actualizar aula

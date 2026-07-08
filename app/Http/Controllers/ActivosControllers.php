@@ -84,7 +84,7 @@ class ActivosControllers extends Controller
         $activo = ActivosModels::findOrFail($id);
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
-        return view('activos.crear-activo', compact('activo', 'aulas', 'categorias'));
+        return view('activos.editar-activos', compact('activo', 'aulas', 'categorias'));
     }
 
     public function update(Request $request, $id)

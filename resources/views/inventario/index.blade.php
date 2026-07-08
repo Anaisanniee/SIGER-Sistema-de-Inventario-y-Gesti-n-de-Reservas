@@ -29,7 +29,7 @@
                 <i class="fas fa-plus"></i> Nuevo Activo
             </x-botones.boton>
 
-                        <x-botones.boton 
+            <x-botones.boton 
                 clase="btn-papelera" 
                 url="{{ url('/inventario/papelera') }}">
                 <i class="fas fa-trash-alt" style="margin-right: 5px;"></i> Ver Papelera
