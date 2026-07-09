@@ -11,7 +11,7 @@ use App\Http\Controllers\AuthController;
 // ==========================================
 
 // Ruta para ver el listado
-Route::get('/inventario', [ActivosControllers::class, 'indexUnificado'])->name('inventario.index_unificado');
+Route::get('/inventario', [ActivosControllers::class, 'indexUnificado'])->name('inventario.index');
 
 // ==========================================
 // RUTAS DE ACTIVOS (INVENTARIO)

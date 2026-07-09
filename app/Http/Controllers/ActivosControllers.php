@@ -12,11 +12,11 @@ class ActivosControllers extends Controller
 {
     public function indexUnificado(Request $request)
     {
-    // --- LÓGICA DE ACTIVOS ---
         $buscar = trim($request->get('buscar'));
         $filtroCategoria = $request->get('categoria');
         $categorias = CategoriasModels::all();
-    
+
+        // --- LÓGICA DE ACTIVOS ---
         $query = ActivosModels::with(['aula', 'categoria']);
 
         if ($buscar) {
@@ -30,19 +30,31 @@ class ActivosControllers extends Controller
             $query->where('cate_id', $filtroCategoria);
         }
 
-        $activos = $query->orderBy('act_id', 'desc')->get();
-        $totalActivos = $activos->count();
+        $activos = $query->orderBy('act_id', 'desc')->get()->map(function($activo) {
+            $activo->tipo_recurso = 'activo'; 
+            return $activo;
+        });
 
-    // --- LÓGICA DE AULAS ---
-    // Si quieres que las aulas también se puedan buscar, puedes añadir lógica aquí.
-        $aulas = AulasModels::all(); 
+        // --- LÓGICA DE AULAS ---
+        $queryAulas = AulasModels::query();
+        
+        // Si hay búsqueda, filtramos también las aulas
+        if ($buscar) {
+            $queryAulas->where('aula_nombre', 'LIKE', '%' . $buscar . '%');
+        }
 
-        return view('inventario.index_unificado', compact(
-            'activos', 
+        $aulas = $queryAulas->get()->map(function($aula) {
+            $aula->tipo_recurso = 'aula';
+            return $aula;
+        });
+
+        // UNIFICAMOS todo
+        $recursos = $activos->concat($aulas)->shuffle();
+
+        return view('inventario.index', compact(
+            'recursos', 
             'categorias', 
-            'totalActivos', 
-            'buscar', 
-            'aulas'
+            'buscar'
         ));
     }
 

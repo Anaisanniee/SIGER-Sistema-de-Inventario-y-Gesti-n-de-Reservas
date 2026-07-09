@@ -2,6 +2,7 @@
 
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
+@section('rutaBusqueda', route('inventario.index'))
 
 @section('content')
 {{-- Vinculamos los estilos exclusivos de la vista index --}}
@@ -88,14 +89,14 @@
                 <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsActivo }}">
                     @component('components.tarjetas.tarjeta-recurso',  [
                         'tipo' => 'activo',
-                        'foto' => $recurso->act_foto ? asset('storage/images/activos/' . $recurso->act_foto) : asset('storage/images/activos/default.jpeg'),
+                        'foto' => $recurso->act_foto ? asset('storage/' . $recurso->act_foto) : asset('storage/activos/default.jpeg'),
                         'nombre' => $recurso->act_nombre,
                         'etiqueta' => 'Serial',
                         'valor' => $recurso->act_serial,
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar',
                         'esAdmin' => true,  {{-- Indicamos que el usuario es administrador para mostrar el botón de eliminar --}}
-                        {{-- url AGREGAR RUTA --}}
+                        'urlBoton' => url('/activos/' . $recurso->act_id . '/editar')
                     ])
                     @endcomponent
                 </div>
@@ -125,14 +126,14 @@
                 <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsAula }}">
                     @component('components.tarjetas.tarjeta-recurso', [
                         'tipo' => 'aula',
-                        'foto' => $recurso->aula_foto ? asset('storage/images/aulas/' . $recurso->aula_foto) : asset('storage/images/aulas/default.jpeg'),
+                        'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
                         'nombre' => $recurso->aula_nombre,
                         'etiqueta' => 'Capacidad',
                         'valor' => $recurso->aula_capacidad,
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar',
                         'esAdmin' => true,
-                        {{----url AGREGAR RUTA---}}
+                        'urlBoton' => url('/aulas/' . $recurso->aula_id . '/editar')
                     ])
                     @endcomponent
                 </div>
