@@ -31,4 +31,10 @@ class AulasModels extends Model
     {
         return $this->belongsTo(TiposAulasModels::class, 'tip_aula_id', 'tip_aula_id');
     }
+
+    public function activos()
+    {
+        // Asegúrate de que 'aula_id' es el nombre real de la columna en tu tabla 'activos'
+        return $this->hasMany(ActivosModels::class, 'aula_id', 'aula_id');
+    }
 }

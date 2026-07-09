@@ -36,21 +36,39 @@ class ActivosControllers extends Controller
         });
 
         // --- LÓGICA DE AULAS ---
-        $queryAulas = AulasModels::query();
-        
-        // Si hay búsqueda, filtramos también las aulas
+        // 1. Añadimos 'activos' a la carga ansiosa (with)
+        $queryAulas = AulasModels::with(['tipoAula', 'activos']);
+
         if ($buscar) {
             $queryAulas->where('aula_nombre', 'LIKE', '%' . $buscar . '%');
         }
 
+        // 2. Ejecutamos el map sobre la consulta
         $aulas = $queryAulas->get()->map(function($aula) {
             $aula->tipo_recurso = 'aula';
+
+            $aula->activos_json = $aula->activos->map(function($activo) {
+                return [
+                    // Asegúrate de que estos nombres coincidan con las columnas de tu BD
+                    'act_nombre' => $activo->act_nombre, 
+                    'act_serial' => $activo->act_serial ?? 'Sin Serial',
+                    'act_foto' => $activo->act_foto ? asset('storage/' . $activo->act_foto) : asset('img/default-activo.png')
+                ];
+            })->toJson();
+            
+            // Extracción segura solo para Tipo Aula
+            $nombre = $aula->tipoAula ? $aula->tipoAula->tip_aula_nombre : 'Sin tipo';
+            $aula->nombre_tipo_aula_legible = (empty($nombre) || is_numeric($nombre)) ? 'No especificado' : $nombre;
+            
+            // La categoría ya no existe, la dejamos como 'N/A'
+            $aula->nombre_categoria_legible = 'N/A'; 
+            
+            // Nota: Laravel ahora tiene $aula->activos disponible automáticamente
             return $aula;
         });
 
-        // UNIFICAMOS todo
-        $recursos = $activos->concat($aulas)->shuffle();
-
+        // --- UNIFICACIÓN ---
+        $recursos = $activos->concat($aulas)->shuffle(); 
         return view('inventario.index', compact(
             'recursos', 
             'categorias', 
@@ -137,7 +155,7 @@ class ActivosControllers extends Controller
     
         $activo->save(); 
 
-        return redirect()->route('inventario.index_unificado')->with('mensaje', 'Activo actualizado correctamente');
+        return redirect()->route('inventario.index')->with('mensaje', 'Activo actualizado correctamente');
     }
 
     public function store(Request $request)
@@ -177,7 +195,7 @@ class ActivosControllers extends Controller
             }
 
             $activo->save();
-            return redirect()->route('inventario.index_unificado')->with('mensaje', 'Activo creado con éxito.');
+            return redirect()->route('inventario.index')->with('mensaje', 'Activo creado con éxito.');
         
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Error técnico: ' . $e->getMessage());
@@ -196,7 +214,7 @@ class ActivosControllers extends Controller
     {
         $activo = ActivosModels::onlyTrashed()->findOrFail($id);
         $activo->restore();
-        return redirect()->route('inventario.index_unificado')->with('mensaje', 'Activo restaurado con éxito.');
+        return redirect()->route('inventario.index')->with('mensaje', 'Activo restaurado con éxito.');
     }
 
     public function forceDelete($id)

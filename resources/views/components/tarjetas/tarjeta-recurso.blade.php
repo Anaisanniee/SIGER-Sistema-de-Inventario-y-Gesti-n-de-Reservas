@@ -39,6 +39,8 @@
 
                 {{-- HEADER --}}
                 data-nombre="{{ $nombre }}"
+                data-categoria-nombre="{{ $recurso->categoria->cate_nombre ?? 'Sin categoría' }}"
+                data-aula-ubicacion="{{ $recurso->aula->aula_nombre ?? ($recurso->tipo_recurso == 'aula' ? $recurso->aula_nombre : 'No asignado') }}"
 
                 data-secundario="{{ $valor }}"
 
@@ -63,7 +65,10 @@
 
                 data-aula_id="{{ $recurso->aula_id ?? '' }}"
 
+                data-tip_aula_nombre="{{ $recurso->nombre_tipo_aula_legible ?? 'No especificado' }}"
 
+                data-categoria-nombre="{{ $recurso->nombre_tipo_aula_legible ?? 'Sin categoría' }}"
+                
                 data-aula_capacidad="{{ $recurso->aula_capacidad ?? '' }}"
 
                 data-aula_estado="{{ $recurso->aula_estado ?? '' }}"
@@ -71,6 +76,8 @@
                 data-aula_reservable="{{ ($recurso->aula_reservable ?? false) ? 'Sí' : 'No' }}"
 
                 data-tip_aula_id="{{ $recurso->tip_aula_id ?? '' }}"
+
+                data-activos="{{ $recurso->activos_json }}"
 
             >Ver ficha</x-botones.boton>
 

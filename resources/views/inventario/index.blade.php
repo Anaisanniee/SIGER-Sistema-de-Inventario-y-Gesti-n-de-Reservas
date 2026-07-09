@@ -71,11 +71,14 @@
                     $tagsActivo = ['activo'];
                     
                     // Sincroniza con las opciones del componente ('disponible', 'en-mantenimiento', 'reservado')
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'buen estado') {
+                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'bueno') {
+                        $tagsActivo[] = 'disponible'; 
+                    }
+                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'regular') {
                         $tagsActivo[] = 'disponible'; 
                     } 
                     
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'en mantenimiento') {
+                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'malo') {
                         $tagsActivo[] = 'en-mantenimiento';
                     }
 
@@ -128,6 +131,7 @@
                         'tipo' => 'aula',
                         'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
                         'nombre' => $recurso->aula_nombre,
+                        'categoriaNombre' => $recurso->categoria->cat_nombre ?? 'Sin categoría',
                         'etiqueta' => 'Capacidad',
                         'valor' => $recurso->aula_capacidad,
                         'recurso' => $recurso,
@@ -213,6 +217,59 @@ function prepararEliminacion(id, tipo, nombre, caracteristica) {
     }
 }
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const contenedor = document.getElementById('contenedor-activos-dinamicos');
+            const conteoBadge = document.getElementById('ficha-conteo-activos');
+            
+            // 1. Limpiar visualmente primero
+            contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
+            
+            // 2. Obtener y parsear datos de forma segura
+            let activos = [];
+            try {
+                const data = this.getAttribute('data-activos');
+                if (data) {
+                    activos = JSON.parse(data);
+                }
+            } catch (e) {
+                console.error("Error al parsear JSON:", e);
+                activos = [];
+            }
+
+            // 3. Actualizar contador
+            conteoBadge.textContent = activos.length;
+
+            // 4. Renderizar lista
+            contenedor.innerHTML = ''; // Limpiamos el "Cargando..."
+            
+            if (Array.isArray(activos) && activos.length > 0) {
+                activos.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'activo-item text-center py-2';
+                    // Usamos las claves que definimos en el controlador: act_nombre y act_serial
+                    li.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
+                            <img src="${item.act_foto}" alt="${item.act_nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                            <div>
+                                <strong>${item.act_nombre}</strong><br>
+                                <small class="text-muted">N.º de serie: ${item.act_serial}</small>
+                            </div>
+                        </div>
+                    `;
+                    contenedor.appendChild(li);
+                });
+            } else {
+                contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
+            }
+        });
+    });
+});
+</script>
+
 <!-- SCRIPT EXCLUSIVO PARA LAS CAJAS KPI Y FILTROS -->
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 @endsection

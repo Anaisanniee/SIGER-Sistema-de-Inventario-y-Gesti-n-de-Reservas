@@ -58,7 +58,7 @@ class AulasControllers extends Controller
 
         AulasModels::create($data);
 
-        return redirect()->route('inventario.index_unificado')->with('success', 'Aula creada correctamente.');
+        return redirect()->route('inventario.index')->with('success', 'Aula creada correctamente.');
     }
 
     // 4. Mostrar formulario de edición
@@ -111,7 +111,7 @@ class AulasControllers extends Controller
         // 5. Guardar
         $aula->save();
 
-        return redirect()->route('inventario.index_unificado')->with('success', 'Aula actualizada con éxito.');
+        return redirect()->route('inventario.index')->with('success', 'Aula actualizada con éxito.');
     }
 
     // 6. SoftDelete (Dar de baja)
@@ -128,7 +128,7 @@ class AulasControllers extends Controller
         
         $aula->delete();
 
-        return redirect()->route('inventario.index_unificado')->with('success', 'Aula dada de baja exitosamente.');
+        return redirect()->route('inventario.index')->with('success', 'Aula dada de baja exitosamente.');
     }
 
     // 7. Listar elementos en la papelera
@@ -144,6 +144,6 @@ class AulasControllers extends Controller
         $aula = AulasModels::withTrashed()->findOrFail($id);
         $aula->restore();
         
-        return redirect()->route('inventario.index_unificado')->with('success', 'Aula restaurada.');
+        return redirect()->route('inventario.index')->with('success', 'Aula restaurada.');
     }
 }
