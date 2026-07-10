@@ -95,19 +95,17 @@ class ActivosControllers extends Controller
     // ====================================================================
     public function destroy(Request $request, $id)
     {
-        // 1. Buscar el activo por su ID
         $activo = ActivosModels::findOrFail($id);
 
-        // 2. Capturar el motivo que viene desde el SweetAlert2
-        $activo->act_motivo_baja = $request->input('act_motivo_baja');
+        // Usamos update para forzar la escritura del campo
+        $activo->update([
+            'act_motivo_baja' => $request->input('motivo_baja') // Asegúrate que el name en HTML sea 'motivo_baja'
+        ]);
         
-        // 3. ¡IMPORTANTE! Guardar en la BD mientras el registro sigue activo
-        $activo->save(); 
-
-        // 4. Ahora sí, aplicar el SoftDelete (pone la fecha en deleted_at)
+        // Luego borramos
         $activo->delete();
 
-        return redirect()->back()->with('mensaje', 'Activo enviado a la papelera con su respectivo motivo de baja.');
+        return redirect()->back()->with('mensaje', 'Activo enviado a la papelera.');
     }
 
     public function edit($id)
@@ -207,8 +205,14 @@ class ActivosControllers extends Controller
     public function trashed()
     {
         $activos = ActivosModels::onlyTrashed()->with(['aula', 'categoria'])->orderBy('deleted_at', 'desc')->get();
-        $total = $activos->count();
-        return view('activos.eliminados', compact('activos', 'total'));
+        $aulas = AulasModels::onlyTrashed()->orderBy('deleted_at', 'desc')->get();
+        
+        // El 'total' que tenías antes era solo de activos. 
+        // Si quieres el total de ambos, puedes sumarlos:
+        $total = $activos->count() + $aulas->count(); 
+
+        // AQUÍ ES DONDE DEBES AGREGAR '$aulas'
+        return view('inventario.papelera', compact('activos', 'aulas', 'total'));
     }
 
     public function restore($id)

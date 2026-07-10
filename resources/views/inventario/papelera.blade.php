@@ -54,38 +54,43 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- Ejemplo de fila dinámica (Tu compañero usará @foreach($activosBorrados as $activo)) --}}
+                            @foreach($activos as $activo)
                             <tr>
                                 <td>
-                                    <span style="font-weight: 700; color: var(--color-texto); display: block;">Proyector Epson K301</span>
-                                    <small style="color: var(--color-texto-secundario); font-size: 0.8rem;">Tecnología / Multimedia</small>
+                                    <span style="font-weight: 700; color: var(--color-texto); display: block;">{{ $activo->act_nombre }}</span>
+                                    <small style="color: var(--color-texto-secundario); font-size: 0.8rem;">{{ $activo->categoria->cate_nombre ?? 'Sin categoría' }}</small>
                                 </td>
-                                <td style="font-family: var(--fuente-principal); color: var(--color-texto);">EPS-X49-98765</td>
-                                <td><span class="badge-motivo-baja">Lente Quemado / Falla de placa madre</span></td>
+                                <td>{{ $activo->act_serial }}</td>
+                                <td><span class="badge-motivo-baja">{{ $activo->act_motivo_baja ?? 'Sin motivo' }}</span></td>
                                 <td style="text-align: center;">
                                     <div class="d-flex justify-content-center align-items-center gap-2">
-                                        {{-- Botón Ojo: Muestra el modal con los detalles pesados que mande el Backend --}}
+                                        {{-- Detalles --}}
                                         <x-botones.boton type="button" clase="btn-azulado" style="padding: 6px 10px; font-size: 0.85rem;"
-                                            onclick="verDetallesPapelera('Proyector Epson K301', '<strong>Marca:</strong> Epson <br> <strong>Resevable:</strong> Sí <br> <strong>Fecha de Registro:</strong> 12/03/2024 <br> <strong>Último Estado:</strong> Malo <br> <strong>Fecha de Baja:</strong> 15/08/2026')">
+                                            onclick="verDetallesPapelera('{{ $activo->act_nombre }}', '<strong>Marca:</strong> {{ $activo->act_marca ?? 'N/A' }} <br> <strong>Fecha de Baja:</strong> {{ $activo->deleted_at ? $activo->deleted_at->format('d/m/Y') : 'N/A' }}')">
                                             <i class="fas fa-eye"></i>
                                         </x-botones.boton>
 
-                                        <x-botones.boton type="button" clase="btn-verde" style="padding: 6px 12px; font-size: 0.85rem;">
-                                            <i class="fas fa-undo"></i> Restaurar
-                                        </x-botones.boton>
+                                        {{-- Restaurar --}}
+                                        <form action="{{ route('activos.restore', $activo->act_id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-verde" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fas fa-undo"></i> Restaurar</button>
+                                        </form>
 
-                                        <x-botones.boton type="button" clase="btn-rojo" style="padding: 6px 12px; font-size: 0.85rem;">
-                                            <i class="fas fa-times-circle"></i> Destruir
-                                        </x-botones.boton>
+                                        {{-- Destruir --}}
+                                        <form action="{{ route('activos.forceDelete', $activo->act_id) }}" method="POST">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-rojo" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fas fa-times-circle"></i> Destruir</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            {{-- 🚪 PANE 2: TABLA DE AULAS ELIMINADAS (Oculta por defecto) --}}
+            {{-- 🚪 PANE 2: TABLA DE AULAS ELIMINADAS --}}
             <div id="tab-aulas" class="seccion-papelera-pane" style="display: none;">
                 <div class="tabla-papelera-wrapper">
                     <table class="table table-hover align-middle tabla-siger">
@@ -98,37 +103,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- Ejemplo de fila dinámica --}}
+                            @foreach($aulas as $aula)
                             <tr>
                                 <td>
-                                    <span style="font-weight: 700; color: var(--color-texto); display: block;">Laboratorio de Informática B</span>
-                                    <small style="color: var(--color-texto-secundario); font-size: 0.8rem;">laboratorio</small>
+                                    <span style="font-weight: 700; color: var(--color-texto); display: block;">
+                                        {{ $aula->aula_nombre ?? 'Sin nombre' }}
+                                    </span>
                                 </td>
-                                <td style="font-family: var(--fuente-principal); color: var(--color-texto);">25 Personas</td>
-                                <td><span class="badge-motivo-baja">Remodelación Estructural e Inundación</span></td>
+                                <td>{{ $aula->aula_capacidad ?? '0' }} personas</td>
+                                <td>
+                                    <span class="badge-motivo-baja">
+                                        {{ $aula->aula_motivo_baja ?? 'Sin motivo' }}
+                                    </span>
+                                </td>
                                 <td style="text-align: center;">
                                     <div class="d-flex justify-content-center align-items-center gap-2">
-                                        {{-- Botón Ojo para el Aula --}}
-                                        <x-botones.boton type="button" clase="btn-azulado" style="padding: 6px 10px; font-size: 0.85rem;"
-                                            onclick="verDetallesPapelera('Laboratorio de Informática B', '<strong>Tipo de Aula:</strong> Laboratorio <br> <strong>Reservable:</strong> Sí <br> <strong>Último Estado:</strong> Disponible <br> <strong>Fecha de Baja:</strong> 05/07/2026')">
-                                            <i class="fas fa-eye"></i>
-                                        </x-botones.boton>
-
-                                        <x-botones.boton type="button" clase="btn-verde" style="padding: 6px 12px; font-size: 0.85rem;">
-                                            <i class="fas fa-undo"></i> Restaurar
-                                        </x-botones.boton>
-
-                                        <x-botones.boton type="button" clase="btn-rojo" style="padding: 6px 12px; font-size: 0.85rem;">
-                                            <i class="fas fa-times-circle"></i> Destruir
-                                        </x-botones.boton>
+                                        {{-- Restaurar --}}
+                                        <form action="{{ route('aulas.restore', $aula->aula_id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-verde">Restaurar</button>
+                                        </form>
+                                        {{-- Destruir --}}
+                                        <form action="{{ route('aulas.forceDelete', $aula->aula_id) }}" method="POST">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-rojo">Destruir</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

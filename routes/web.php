@@ -21,7 +21,7 @@ Route::get('/inventario', [ActivosControllers::class, 'indexUnificado'])->name('
 Route::get('/activos/crear', [ActivosControllers::class, 'create'])->name('activos.create');
 
 // NUEVA: Vista de la papelera / eliminados (Va arriba de las de {id} para evitar conflictos)
-Route::get('/activos/eliminados', [ActivosControllers::class, 'trashed'])->name('activos.eliminados');
+Route::get('/inventario/papelera', [ActivosControllers::class, 'trashed'])->name('inventario.papelera');
 
 // Ruta para procesar el guardado
 Route::post('/activos', [ActivosControllers::class, 'store'])->name('activos.store');

@@ -118,17 +118,17 @@ class AulasControllers extends Controller
     public function destroy(Request $request, $id)
     {
         $aula = AulasModels::findOrFail($id);
-        
-        $request->validate([
-            'aula_motivo_baja' => 'required|string|min:5|max:255'
+
+        // 1. Guardar el motivo en la columna correspondiente
+        // Asegúrate de que el nombre del campo sea el correcto en tu BD
+        $aula->update([
+            'aula_motivo_baja' => $request->input('aula_motivo_baja') 
         ]);
         
-        $aula->aula_motivo_baja = $request->aula_motivo_baja;
-        $aula->save();
-        
+        // 2. Eliminar (SoftDelete)
         $aula->delete();
 
-        return redirect()->route('inventario.index')->with('success', 'Aula dada de baja exitosamente.');
+        return redirect()->back()->with('mensaje', 'Aula enviada a la papelera.');
     }
 
     // 7. Listar elementos en la papelera
