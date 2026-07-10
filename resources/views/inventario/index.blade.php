@@ -96,6 +96,7 @@
                         'nombre' => $recurso->act_nombre,
                         'etiqueta' => 'Serial',
                         'valor' => $recurso->act_serial,
+                        'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar',
                         'esAdmin' => true,  {{-- Indicamos que el usuario es administrador para mostrar el botón de eliminar --}}
@@ -222,41 +223,51 @@ function prepararEliminacion(id, tipo, nombre, caracteristica) {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
         button.addEventListener('click', function() {
+            // 1. Elementos del Modal
             const contenedor = document.getElementById('contenedor-activos-dinamicos');
             const conteoBadge = document.getElementById('ficha-conteo-activos');
+            const fichaCategoria = document.getElementById('ficha-categoria');
             
-            // 1. Limpiar visualmente primero
+            // 2. Obtener datos básicos del botón
+            const tipo = this.getAttribute('data-tipo');
+            
+            // 3. Lógica para diferenciar categoría según el tipo
+            if (fichaCategoria) {
+                if (tipo === 'activo') {
+                    const catActivo = this.getAttribute('data-activo-categoria');
+                    fichaCategoria.textContent = catActivo || 'Sin categoría';
+                } else {
+                    const catAula = this.getAttribute('data-aula-categoria');
+                    fichaCategoria.textContent = catAula || 'N/A';
+                }
+            }
+            
+            // 4. Lógica de Activos (JSON)
             contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
             
-            // 2. Obtener y parsear datos de forma segura
             let activos = [];
             try {
                 const data = this.getAttribute('data-activos');
-                if (data) {
-                    activos = JSON.parse(data);
-                }
+                if (data) activos = JSON.parse(data);
             } catch (e) {
                 console.error("Error al parsear JSON:", e);
                 activos = [];
             }
 
-            // 3. Actualizar contador
             conteoBadge.textContent = activos.length;
-
-            // 4. Renderizar lista
-            contenedor.innerHTML = ''; // Limpiamos el "Cargando..."
+            contenedor.innerHTML = '';
             
             if (Array.isArray(activos) && activos.length > 0) {
                 activos.forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'activo-item text-center py-2';
-                    // Usamos las claves que definimos en el controlador: act_nombre y act_serial
                     li.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
-                            <img src="${item.act_foto}" alt="${item.act_nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                            <img src="${item.act_foto}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
                             <div>
                                 <strong>${item.act_nombre}</strong><br>
-                                <small class="text-muted">N.º de serie: ${item.act_serial}</small>
+                                <small class="text-muted">Serial: ${item.act_serial}</small><br>
+                                <span class="badge bg-info">${item.act_categoria}</span>
                             </div>
                         </div>
                     `;

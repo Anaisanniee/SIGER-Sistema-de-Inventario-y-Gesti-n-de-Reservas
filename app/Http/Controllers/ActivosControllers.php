@@ -37,7 +37,7 @@ class ActivosControllers extends Controller
 
         // --- LÓGICA DE AULAS ---
         // 1. Añadimos 'activos' a la carga ansiosa (with)
-        $queryAulas = AulasModels::with(['tipoAula', 'activos']);
+        $queryAulas = AulasModels::with(['tipoAula', 'activos.categoria']);
 
         if ($buscar) {
             $queryAulas->where('aula_nombre', 'LIKE', '%' . $buscar . '%');
@@ -52,7 +52,8 @@ class ActivosControllers extends Controller
                     // Asegúrate de que estos nombres coincidan con las columnas de tu BD
                     'act_nombre' => $activo->act_nombre, 
                     'act_serial' => $activo->act_serial ?? 'Sin Serial',
-                    'act_foto' => $activo->act_foto ? asset('storage/' . $activo->act_foto) : asset('img/default-activo.png')
+                    'act_foto' => $activo->act_foto ? asset('storage/' . $activo->act_foto) : asset('img/default-activo.png'),
+                    'act_categoria' => $activo->categoria ? $activo->categoria->cate_nombre : 'Sin categoría'
                 ];
             })->toJson();
             
@@ -78,7 +79,7 @@ class ActivosControllers extends Controller
 
     public function show($id)
     {
-        $activo = ActivosModels::with(['aula', 'categoria'])->findOrFail($id);
+        $activo = ActivosModels::with('categoria')->findOrFail($id);
         return view('activos.show', compact('activo'));
     }
 
