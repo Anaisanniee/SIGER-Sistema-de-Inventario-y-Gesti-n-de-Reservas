@@ -45,7 +45,7 @@
         <input type="text" id="act_serial" name="act_serial"
                value="{{ old('act_serial', $activo->act_serial ?? '') }}"
                class="@error('act_serial') is-invalid @enderror"
-               placeholder="Ej. SER123456" {{ $esEdicion ? 'readonly' : '' }}>
+               placeholder="Ej. SER123456">
         @error('act_serial') 
             <div class="text-danger small">{{ $message }}</div> 
         @enderror
