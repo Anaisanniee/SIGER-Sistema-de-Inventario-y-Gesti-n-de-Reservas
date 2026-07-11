@@ -5,6 +5,7 @@ use App\Http\Controllers\ActivosControllers;
 use App\Http\Controllers\AulasControllers;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 
 // ==========================================
 // RUTA DE INVENTARIO
@@ -71,6 +72,17 @@ Route::delete('/aulas/{id}/force-delete', [AulasControllers::class, 'forceDelete
 
 // Ruta para ver ficha tecnica
 Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show');
+
+// ==========================================
+// RUTAS DEL DASHBOARD
+// ==========================================
+
+// Rutas de Dashboard sin middleware para poder trabajar libremente
+Route::get('/dashboard/docente', [DashboardController::class, 'indexDocente'])->name('dashboard.docente');
+
+Route::get('/dashboard/rector', [DashboardController::class, 'indexRector'])->name('dashboard.rector');
+
+Route::get('/dashboard/secretario', [DashboardController::class, 'indexSecretario'])->name('dashboard.secretario');
 
 // ==========================================
 // OTRAS RUTAS DEL SISTEMA

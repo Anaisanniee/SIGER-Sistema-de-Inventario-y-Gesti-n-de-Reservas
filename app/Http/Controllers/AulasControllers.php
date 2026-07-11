@@ -88,7 +88,7 @@ class AulasControllers extends Controller
         $aula->aula_capacidad = $request->aula_capacidad;
         $aula->aula_estado    = $request->aula_estado;
         $aula->tip_aula_id    = $request->tip_aula_id;
-        $aula->aula_reservable = $request->has('aula_reservable') ? 1 : 0;
+        $aula->aula_reservable = $request->input('aula_reservable') ? 1 : 0;
 
         // 4. Lógica de FOTO (Simplificada al máximo)
         if ($request->hasFile('aula_foto')) {

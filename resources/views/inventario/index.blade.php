@@ -317,6 +317,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscador-recursos');
+
+    if (buscador) {
+        // Filtrado en tiempo real (opcional: ayuda a que se vea rápido mientras carga la página)
+        buscador.addEventListener('keyup', function() {
+            let filtro = this.value.toLowerCase();
+            let tarjetas = document.querySelectorAll('.recurso-item');
+            
+            tarjetas.forEach(function(tarjeta) {
+                let nombre = tarjeta.innerText.toLowerCase();
+                tarjeta.style.display = nombre.includes(filtro) ? "" : "none";
+            });
+        });
+
+        // EN ESTA VISTA NO bloqueamos el submit, 
+        // para que al presionar 'Enter' se envíe el formulario a la ruta del servidor
+    }
+});
+</script>
+
 <!-- SCRIPT EXCLUSIVO PARA LAS CAJAS KPI Y FILTROS -->
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 @endsection

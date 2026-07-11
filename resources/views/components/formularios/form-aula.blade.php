@@ -70,16 +70,19 @@
         </select>
     </div>
 
-    <div class="post-form-switch">
+    <div class="post-form-switch" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+    
+        <!-- Texto a la izquierda -->
         <span class="label-switch">¿Está disponible para reservas?</span>
-        <label class="switch-contenedor" for="aula_reservable">
-            <input type="hidden" name="aula_reservable" value="0">
+        
+        <!-- Switch a la derecha -->
+        <label class="switch-contenedor" for="aula_reservable" style="margin-bottom: 0;">
             <input type="checkbox" id="aula_reservable" name="aula_reservable" value="1"
-                   {{ old('aula_reservable', $aula->aula_reservable ?? '1') == '1' ? 'checked' : '' }}>
+                {{ old('aula_reservable', $aula->aula_reservable ?? '1') == '1' ? 'checked' : '' }}>
             <span class="switch-slider"></span>
         </label>
+        
     </div>
-
     {{-- BOTONES DE ACCIÓN --}}
 
     <div class="contenedor-botones">

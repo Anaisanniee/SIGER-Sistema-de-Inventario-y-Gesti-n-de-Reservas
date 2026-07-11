@@ -9,10 +9,12 @@
         <div class="buscador-container" style="position: relative; display: flex; align-items: center;">
             <form action="{{ $rutaBusqueda ?? route('inventario.index') }}" method="GET" style="width: 100%; margin: 0;">
                 <input type="text" 
-                      name="buscar" 
+                      name="buscar"
+                      id="buscador-recursos" 
                       class="form-control" 
                       placeholder="Buscar..." 
                       value="{{ request('buscar') }}" 
+                      onsubmit="return false;"
                       style="padding-left: 15px; padding-right: 40px;">
                 
                 {{-- La lupa se pone encima del input usando posición absoluta --}}
