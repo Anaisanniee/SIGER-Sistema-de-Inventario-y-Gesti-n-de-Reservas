@@ -4,6 +4,20 @@
 @section('mostrarRegresar', 'true')
 @section('rutaBusqueda', route('inventario.index'))
 
+<div id="contenedor-alertas">
+    @if (session('error'))
+        <div class="alert alert-danger" id="alerta-mensaje">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (session('mensaje'))
+        <div class="alert alert-success" id="alerta-mensaje">
+            {{ session('mensaje') }}
+        </div>
+    @endif
+</div>
+
 @section('content')
 {{-- Vinculamos los estilos exclusivos de la vista index --}}
 <link rel="stylesheet" href="{{ asset('css/pages/recursos-index.css') }}">
@@ -279,6 +293,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+</script>
+
+<script>
+    // Espera a que el documento cargue
+    document.addEventListener('DOMContentLoaded', function() {
+        // Seleccionamos la alerta por su ID
+        let alerta = document.getElementById('alerta-mensaje');
+        
+        // Si la alerta existe, programamos que se oculte después de 5000 milisegundos (5 segundos)
+        if (alerta) {
+            setTimeout(function() {
+                // Opción A: Ocultar suavemente con opacidad
+                alerta.style.transition = "opacity 0.5s ease";
+                alerta.style.opacity = "0";
+                
+                // Opción B: Eliminarla del DOM después de la transición
+                setTimeout(function() {
+                    alerta.remove();
+                }, 500); // Espera a que termine la transición de 0.5s
+            }, 5000); 
+        }
+    });
 </script>
 
 <!-- SCRIPT EXCLUSIVO PARA LAS CAJAS KPI Y FILTROS -->

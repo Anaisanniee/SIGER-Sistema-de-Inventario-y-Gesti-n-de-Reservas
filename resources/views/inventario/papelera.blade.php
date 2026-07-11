@@ -65,21 +65,27 @@
                                 <td style="text-align: center;">
                                     <div class="d-flex justify-content-center align-items-center gap-2">
                                         {{-- Detalles --}}
-                                        <x-botones.boton type="button" clase="btn-azulado" style="padding: 6px 10px; font-size: 0.85rem;"
-                                            onclick="verDetallesPapelera('{{ $activo->act_nombre }}', '<strong>Marca:</strong> {{ $activo->act_marca ?? 'N/A' }} <br> <strong>Fecha de Baja:</strong> {{ $activo->deleted_at ? $activo->deleted_at->format('d/m/Y') : 'N/A' }}')">
+                                        <x-botones.boton type="button" clase="btn-azulado" style="display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem;"
+                                            onclick="verDetallesPapelera(
+                                                '{{ $activo->act_nombre }}',
+                                                '<strong>Marca:</strong> {{ $activo->act_marca ?? 'N/A' }} <br> <strong>Serial:</strong> {{ $activo->act_serial }} <br> <strong>Categoria:</strong> {{ $activo->categoria->cate_nombre ?? 'Sin categoría' }} <br> <strong>Fecha de Baja:</strong> {{ $activo->deleted_at ? $activo->deleted_at->format('d/m/Y') : 'N/A' }}')">
                                             <i class="fas fa-eye"></i>
                                         </x-botones.boton>
 
                                         {{-- Restaurar --}}
-                                        <form action="{{ route('activos.restore', $activo->act_id) }}" method="POST">
+                                        <form action="{{ route('activos.restore', $activo->act_id) }}" method="POST" style="display: inline-flex; margin: 0;">
                                             @csrf
-                                            <button type="submit" class="btn btn-verde" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fas fa-undo"></i> Restaurar</button>
+                                            <button type="submit" class="btn btn-verde" style="display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem;">
+                                                <i class="fas fa-undo"></i>&nbsp;Restaurar
+                                            </button>
                                         </form>
 
                                         {{-- Destruir --}}
-                                        <form action="{{ route('activos.forceDelete', $activo->act_id) }}" method="POST">
+                                        <form action="{{ route('activos.forceDelete', $activo->act_id) }}" method="POST" style="display: inline-flex; margin: 0;">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-rojo" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fas fa-times-circle"></i> Destruir</button>
+                                            <button type="submit" class="btn btn-rojo" style="display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem;">
+                                                <i class="fas fa-times-circle"></i>&nbsp;Destruir
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
@@ -118,15 +124,28 @@
                                 </td>
                                 <td style="text-align: center;">
                                     <div class="d-flex justify-content-center align-items-center gap-2">
+                                        {{-- Detalles --}}
+                                        <x-botones.boton type="button" clase="btn-azulado" style="display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem;"
+                                            onclick="verDetallesPapelera(
+                                                '{{ $aula->aula_nombre }}',
+                                                '<strong>Capacidad:</strong> {{ $aula->aula_capacidad ?? 'N/A' }} personas <br> <strong>Estado:</strong> {{ $aula->aula_estado }} <br> <strong>Tipo de aula:</strong> {{ $aula->tipoAula->tip_aula_nombre ?? 'Sin tipo de aula' }} <br> <strong>Fecha de Baja:</strong> {{ $aula->deleted_at ? $aula->deleted_at->format('d/m/Y') : 'N/A' }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </x-botones.boton>
+
                                         {{-- Restaurar --}}
-                                        <form action="{{ route('aulas.restore', $aula->aula_id) }}" method="POST">
+                                        <form action="{{ route('aulas.restore', $aula->aula_id) }}" method="POST" style="display: inline-flex; margin: 0;">
                                             @csrf
-                                            <button type="submit" class="btn btn-verde">Restaurar</button>
+                                            <button type="submit" class="btn btn-verde" style="display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem;">
+                                                <i class="fas fa-undo"></i>&nbsp;Restaurar
+                                            </button>
                                         </form>
+
                                         {{-- Destruir --}}
-                                        <form action="{{ route('aulas.forceDelete', $aula->aula_id) }}" method="POST">
+                                        <form action="{{ route('aulas.forceDelete', $aula->aula_id) }}" method="POST" style="display: inline-flex; margin: 0;">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-rojo">Destruir</button>
+                                            <button type="submit" class="btn btn-rojo" style="display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem;">
+                                                <i class="fas fa-times-circle"></i>&nbsp;Destruir
+                                            </button>
                                         </form>
                                     </div>
                                 </td>

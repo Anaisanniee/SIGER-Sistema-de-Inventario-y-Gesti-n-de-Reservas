@@ -119,10 +119,15 @@ class AulasControllers extends Controller
     {
         $aula = AulasModels::findOrFail($id);
 
+        if ($aula->activos()->exists()) {
+        // Redirigimos de vuelta con un mensaje de error tipo 'danger' o 'error'
+            return redirect()->back()->with('error', 'No se puede eliminar el aula "' . $aula->aula_nombre . '" porque tiene activos registrados actualmente.');
+        }
+        
         // 1. Guardar el motivo en la columna correspondiente
         // Asegúrate de que el nombre del campo sea el correcto en tu BD
         $aula->update([
-            'aula_motivo_baja' => $request->input('aula_motivo_baja') 
+            'aula_motivo_baja' => $request->input('motivo_baja') 
         ]);
         
         // 2. Eliminar (SoftDelete)
@@ -145,5 +150,17 @@ class AulasControllers extends Controller
         $aula->restore();
         
         return redirect()->route('inventario.index')->with('success', 'Aula restaurada.');
+    }
+
+    public function forceDelete($id)
+    {
+        // Buscamos el aula, incluso si está eliminada (soft delete)
+        $aula = AulasModels::withTrashed()->findOrFail($id);
+
+        // Eliminamos permanentemente de la base de datos
+        $aula->forceDelete();
+
+        // Redirigimos de vuelta con un mensaje de éxito
+        return redirect()->back()->with('mensaje', 'Aula eliminada permanentemente.');
     }
 }
