@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TiposAulasModels;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AulasModels extends Model
@@ -36,5 +37,11 @@ class AulasModels extends Model
     {
         // Asegúrate de que 'aula_id' es el nombre real de la columna en tu tabla 'activos'
         return $this->hasMany(ActivosModels::class, 'aula_id', 'aula_id');
+    }
+
+    public function categoria()
+    {
+        // Ajusta 'categoria_id' y 'Categoria' si tus nombres reales son distintos
+        return $this->belongsTo(TiposAulasModels::class, 'tip_aula_id');
     }
 }

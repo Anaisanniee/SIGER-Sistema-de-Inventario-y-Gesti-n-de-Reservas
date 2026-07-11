@@ -153,7 +153,61 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Elementos
+            const contenedor = document.getElementById('contenedor-activos-dinamicos');
+            const conteoBadge = document.getElementById('ficha-conteo-activos');
+            const fichaCategoria = document.getElementById('ficha-categoria');
+            const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
+            
+            // 1. Asignar categorías (mantenemos tu lógica que ya sirve)
+            const categoriaGenerica = this.getAttribute('data-categoria');
+            const tipoAulaEspecifico = this.getAttribute('data-tipo-aula');
+            const tipoRecurso = this.getAttribute('data-tipo');
+            
+            if (fichaCategoria) fichaCategoria.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
+            if (fichaTipoAula) fichaTipoAula.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
+            
+            // 2. Lógica de Activos
+            contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
+            
+            let activos = [];
+            try {
+                const data = this.getAttribute('data-activos');
+                if (data) activos = JSON.parse(data);
+            } catch (e) {
+                activos = [];
+            }
 
+            conteoBadge.textContent = activos.length;
+            contenedor.innerHTML = '';
+            
+            if (Array.isArray(activos) && activos.length > 0) {
+                activos.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'activo-item'; // Mantenemos la clase de tu estructura
+                    // Estructura idéntica a tu diseño de ficha-tecnica-universal
+                    li.innerHTML = `
+                        <div class="activo-card-siger" style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
+                            <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            <div>
+                                <strong>${item.act_nombre}</strong><br>
+                                <small class="text-muted">: ${item.act_serial}</small>
+                            </div>
+                        </div>
+                    `;
+                    contenedor.appendChild(li);
+                });
+            } else {
+                contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
+            }
+        });
+    });
+});
+</script>
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 
 @endsection

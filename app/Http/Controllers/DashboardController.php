@@ -11,9 +11,16 @@ class DashboardController extends Controller
 {
     public function indexDocente()
     {
-        // Cambia Activo por ActivosModels y Aula por AulasModels
-        $recursos = ActivosModels::all()->concat(AulasModels::all());
+        // 1. Cargamos activos normalmente
+        $activos = ActivosModels::all();
         
+        // 2. Cargamos las aulas con la relación 'categoria' incluida desde el principio
+        $aulas = AulasModels::with('categoria', 'activos')->get();
+        
+        // 3. Concatenamos ambas colecciones ya cargadas
+        $recursos = $activos->concat($aulas);
+        
+        // 4. Pasamos $recursos a la vista
         return view('dashboard.docente', compact('recursos'));
     }
 

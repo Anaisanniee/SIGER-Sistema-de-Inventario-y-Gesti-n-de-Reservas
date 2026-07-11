@@ -25,60 +25,38 @@
 
         <div class="botones-container">
 
-            {{-- BOTÓN FICHA --}}
             <x-botones.boton
-
                 class="btn btn-azul"
-
                 target="modalgeneral"
-
-
 
                 {{-- CONTROL --}}
                 data-tipo="{{ $tipo }}"
 
                 {{-- HEADER --}}
                 data-nombre="{{ $nombre }}"
-                data-activo-categoria="{{ $recurso->categoria->cate_nombre ?? 'Sin categoría' }}"
+                data-categoria="{{ $recurso->categoria->cate_nombre ?? ($recurso->nombre_tipo_aula_legible ?? 'Sin categoría') }}"
+                {{-- AGREGADO: Nuevo atributo exclusivo para aulas que no rompe la lógica actual --}}
+                data-tipo-aula="{{ $recurso->categoria->tip_aula_nombre ?? 'Sin categoría' }}"
                 data-aula-ubicacion="{{ $recurso->aula->aula_nombre ?? ($recurso->tipo_recurso == 'aula' ? $recurso->aula_nombre : 'No asignado') }}"
 
                 data-secundario="{{ $valor }}"
 
                 {{-- ACTIVOS --}}
                 data-act_id="{{ $recurso->act_id ?? '' }}"
-
                 data-act_marca="{{ $recurso->act_marca ?? 'No registra' }}"
-
                 data-act_estado_fisico="{{ $recurso->act_estado_fisico ?? '' }}"
-
                 data-act_reservable="{{ ($recurso->act_reservable ?? false) ? 'Sí' : 'No' }}"
-
                 data-act_fecha_ingreso="{{ $recurso->act_fecha_ingreso ?? '' }}"
-
                 data-cate_id="{{ $recurso->cate_id ?? '' }}"
-
                 data-aula_nombre="{{ $recurso->aula_nombre ?? 'No asignada' }}"
-
                 data-act_precio_actual="{{ $recurso->act_precio_actual ?? 'No registra' }}"
 
                 {{-- AULAS --}}
-
                 data-aula_id="{{ $recurso->aula_id ?? '' }}"
-
-                data-tip_aula_nombre="{{ $recurso->nombre_tipo_aula_legible ?? 'No especificado' }}"
-
-                data-aula-nombre="{{ $recurso->nombre_tipo_aula_legible ?? 'Sin categoría' }}"
-                
                 data-aula_capacidad="{{ $recurso->aula_capacidad ?? '' }}"
-
                 data-aula_estado="{{ $recurso->aula_estado ?? '' }}"
-
                 data-aula_reservable="{{ ($recurso->aula_reservable ?? false) ? 'Sí' : 'No' }}"
-
-                data-aula-categoria="{{ $recurso->nombre_tipo_aula_legible ?? 'N/A' }}"
-
-                data-activos="{{ $recurso->activos_json }}"
-
+                data-activos="{{ isset($recurso->activos) ? json_encode($recurso->activos) : ($recurso->activos_json ?? '[]') }}"
             >Ver ficha</x-botones.boton>
 
                         {{-- BOTONES ADMINISTRATIVOS --}}

@@ -237,24 +237,18 @@ function prepararEliminacion(id, tipo, nombre, caracteristica) {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
         button.addEventListener('click', function() {
-            // 1. Elementos del Modal
+            // 1. Obtener los elementos del modal
             const contenedor = document.getElementById('contenedor-activos-dinamicos');
             const conteoBadge = document.getElementById('ficha-conteo-activos');
             const fichaCategoria = document.getElementById('ficha-categoria');
+            const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
             
-            // 2. Obtener datos básicos del botón
-            const tipo = this.getAttribute('data-tipo');
+            // 2. Obtener el dato desde el botón
+            const categoria = this.getAttribute('data-categoria') || 'Sin categoría';
             
-            // 3. Lógica para diferenciar categoría según el tipo
-            if (fichaCategoria) {
-                if (tipo === 'activo') {
-                    const catActivo = this.getAttribute('data-activo-categoria');
-                    fichaCategoria.textContent = catActivo || 'Sin categoría';
-                } else {
-                    const catAula = this.getAttribute('data-aula-categoria');
-                    fichaCategoria.textContent = catAula || 'N/A';
-                }
-            }
+            // 3. Asignar los valores a la ficha
+            if (fichaCategoria) fichaCategoria.textContent = categoria;
+            if (fichaTipoAula) fichaTipoAula.textContent = categoria;
             
             // 4. Lógica de Activos (JSON)
             contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
@@ -264,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = this.getAttribute('data-activos');
                 if (data) activos = JSON.parse(data);
             } catch (e) {
-                console.error("Error al parsear JSON:", e);
                 activos = [];
             }
 
@@ -277,11 +270,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     li.className = 'activo-item text-center py-2';
                     li.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
-                            <img src="${item.act_foto}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                            <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
                             <div>
                                 <strong>${item.act_nombre}</strong><br>
-                                <small class="text-muted">Serial: ${item.act_serial}</small><br>
-                                <span class="badge bg-info">${item.act_categoria}</span>
+                                <small class="text-muted">Serial: ${item.act_serial}</small>
                             </div>
                         </div>
                     `;
