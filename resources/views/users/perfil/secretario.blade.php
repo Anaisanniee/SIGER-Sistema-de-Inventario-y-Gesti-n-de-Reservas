@@ -21,9 +21,11 @@
         {{-- COLUMNA IZQUIERDA: AVATAR Y ACCIONES --}}
         <aside class="perfil-columna-izquierda">
             <div class="avatar-wrapper">
+<<<<<<< HEAD
                 <div class="avatar-circulo" style="background-color: var(--color-azulado);">
 =======
                 <div class="avatar-circulo" style="background-color: #3b82f6;">
+>>>>>>> origin/backend-Elias
                     @auth
                         {{ strtoupper(substr(Auth::user()->name, 0, 1) . substr(Auth::user()->lastname ?? 'S', 0, 1)) }}
                     @else
@@ -46,7 +48,6 @@
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Pendientes</span>
-                    <span class="item-valor badge-reserva" style="background-color: var(--color-estado-en-mantenimiento);">4</span>
                     <span class="item-valor badge-reserva" style="background-color: #eab308;">4</span>
                 </div>
             </div>
@@ -86,7 +87,7 @@
             <div class="tarjeta-blanca-datos">
                 
                 {{-- Navegación de pestañas interna --}}
-                <div class="tabs-gestion-admin" style="display: flex; gap: 1rem; border-bottom: 2px solid var(--color-fondo); margin-bottom: 1.5rem;">
+                <div class="tabs-gestion-admin" style="display: flex; gap: 1rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem;">
                     <button class="tab-btn activo" data-tab="tab-pendientes" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid var(--color-principal); color: var(--color-texto);">
                         Solicitudes Pendientes
                     </button>
@@ -98,6 +99,8 @@
                 {{-- CONTENIDO PESTAÑA 1: SOLICITUDES POR APROBAR --}}
                 <div class="tab-contenido" id="tab-pendientes">
                     <div class="modulo-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon" style="color: #64748b; margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <p style="color: #475569; font-weight: 500; font-size: 1rem; margin: 0;">Bandeja de entrada: Aquí aparecerán las solicitudes de las aulas y activos listas para ser [Aprobadas] o [Rechazadas].</p>
                     </div>
                 </div>
 
@@ -146,6 +149,7 @@
                 tabs.forEach(t => {
                     t.classList.remove('activo');
                     t.style.borderBottom = 'none';
+<<<<<<< HEAD
                     t.style.color = 'var(--color-azulado)';
 =======
                     t.style.color = '#64748b';
