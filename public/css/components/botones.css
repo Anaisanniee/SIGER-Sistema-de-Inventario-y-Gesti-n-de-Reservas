@@ -64,16 +64,20 @@
     color: var(--color-fondo);
 }
 .btn-azul:hover {
-    background-color: #1d4ed8; /* Oscurecido para feedback visual real */
+    background-color:var(--color-estado-reservado);
+    color: var(--color-texto ); /* Texto oscuro para legibilidad */
+    /* Oscurecido para feedback visual real */
 }
 
 /* Botón Amarillo (Mantenimiento) */
 .btn-amarillo { 
     background-color: var(--color-estado-en-mantenimiento);
-    color: #1e293b; /* Texto oscuro para legibilidad */
+    color: var(--color-texto ); /* Texto oscuro para legibilidad */
 }
 .btn-amarillo:hover {
     background-color: #eab308;
+    color: var(--color-fondo); /* Texto oscuro para legibilidad */
+
 }
 
 /* Botón Rojo (Dañado / Cancelar) */

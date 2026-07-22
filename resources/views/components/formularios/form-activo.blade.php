@@ -75,14 +75,6 @@
         </label>
     </div>
 
-     @if($esEdicion) {{-- cambiar logica cuando se implementen los controles --}}
-        {{-- MOTIVO DE BAJA (Sólo en edición) --}}
-    <div class="post-form">
-        <label for="act_motivo_baja">Motivo de Baja (Opcional)</label>
-        <input type="text" id="act_motivo_baja" name="act_motivo_baja" maxlength="255"
-            value="{{ old('act_motivo_baja', $activo->act_motivo_baja ?? '') }}">
-    </div>
-    @endif
 
     {{-- BOTONES DE ACCIÓN --}}
 

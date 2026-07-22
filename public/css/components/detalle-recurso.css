@@ -1,0 +1,61 @@
+/* ==========================================================================
+   COMPONENTE: DETALLE DEL RECURSO SELECCIONADO
+   ========================================================================== */
+
+.info-item-seleccionado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-disponible-pastel) !important; /* Fuerza tu fondo verde claro */
+    border: 1px solid rgba(43, 182, 115, 0.2); /* Borde sutil verde */
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-sizing: border-box;
+    width: 100%;
+    box-shadow: inset 0 2px 4px rgba(250, 250, 250, 0.6); /* Brillo interno superior */
+}
+
+.detalles-equipo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.detalles-equipo strong {
+    font-family: var(--fuente-principal);
+    color: var(--color-principal); /* Nombre en tu verde corporativo oscuro */
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.detalles-equipo span {
+    font-family: var(--fuente-secundaria);
+    color: var(--color-texto-secundario);
+    font-size: 0.9rem;
+}
+
+/* Botón/Tag de Disponible Blanco para resaltar sobre el fondo verde pastel */
+.tag-disponibilidad {
+    font-family: var(--fuente-secundaria);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    background-color: #ffffff;
+    border: 1px solid var(--color-principal);
+    color: var(--color-principal);
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* --- RESPONSIVO TARJETA --- */
+@media (max-width: 768px) {
+    .info-item-seleccionado {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    .tag-disponibilidad {
+        align-self: flex-end;
+    }
+}

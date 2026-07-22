@@ -2,7 +2,7 @@
 
 /* Contenedor tipo perfil/panel principal */
 .card-siger-papelera {
-    background-color: var(--color-fondo);
+    background-color: var(--color-fondo)       ;
     border-radius: var(--borde-radio);
     border: 1px solid var(--color-borde);
     padding: 25px;

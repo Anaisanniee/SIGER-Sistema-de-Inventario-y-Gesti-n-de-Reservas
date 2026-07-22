@@ -4,6 +4,7 @@
 @section('content')
     <h1>Pruebas SIGER</h1>
     <p>Esta es una página de pruebas para mostrar los recursos disponibles.</p>
+    
 
 <div class="container-tarjetas">
     @foreach($recursos as $recurso)
@@ -55,3 +56,4 @@
     </x-modal>
 </div>
 @endsection
+

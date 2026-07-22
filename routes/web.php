@@ -60,7 +60,7 @@ Route::get('/pruebas', function () {
 
     // 4. Retornamos la vista pasando la variable $recursos
     // (Asegúrate de cambiar 'pruebas' por el nombre real de tu archivo .blade.php)
-    return view('inventario.papelera', compact('recursos'));
+    return view('reservas.crear.paso2', compact('recursos'));
 });
 
 /* ==========================================================================
