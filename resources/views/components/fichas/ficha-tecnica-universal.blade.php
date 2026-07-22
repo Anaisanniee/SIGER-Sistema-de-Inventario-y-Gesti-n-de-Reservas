@@ -88,7 +88,7 @@
                     <div class="accordion-body-siger">
                         <ul class="lista-activos-siger" id="contenedor-activos-dinamicos">
                             <li class="activo-item text-muted text-center py-2">
-                                Cargando activos de la sala...
+                                
                             </li>
                         </ul>
                     </div>

@@ -1,8 +1,92 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ActivosControllers;
+use App\Http\Controllers\AulasControllers;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+
+// ==========================================
+// RUTA DE INVENTARIO
+// ==========================================
+
+// Ruta para ver el listado
+Route::get('/inventario', [ActivosControllers::class, 'indexUnificado'])->name('inventario.index');
+
+// ==========================================
+// RUTAS DE ACTIVOS (INVENTARIO)
+// ==========================================
+
+// Ruta para ver el formulario
+Route::get('/activos/crear', [ActivosControllers::class, 'create'])->name('activos.create');
+
+// NUEVA: Vista de la papelera / eliminados (Va arriba de las de {id} para evitar conflictos)
+Route::get('/inventario/papelera', [ActivosControllers::class, 'trashed'])->name('inventario.papelera');
+
+// Ruta para procesar el guardado
+Route::post('/activos', [ActivosControllers::class, 'store'])->name('activos.store');
+
+// Ruta para mostrar el formulario de edición
+Route::get('/activos/{id}/editar', [ActivosControllers::class, 'edit'])->name('activos.edit');
+
+// Ruta para procesar la actualización (PUT o PATCH)
+Route::put('/activos/{id}', [ActivosControllers::class, 'update'])->name('activos.update');
+
+// Ruta para el borrado lógico (Soft Delete)
+Route::delete('/activos/{id}', [ActivosControllers::class, 'destroy'])->name('activos.destroy');
+
+// NUEVA: Restaurar un activo eliminado
+Route::post('/activos/{id}/restore', [ActivosControllers::class, 'restore'])->name('activos.restore');
+
+// NUEVA: Borrado permanente de la base de datos (Físico)
+Route::delete('/activos/{id}/force-delete', [ActivosControllers::class, 'forceDelete'])->name('activos.forceDelete');
+
+// ==========================================
+// RUTAS DE AULAS (INVENTARIO)
+// ==========================================
+
+// Ruta para ver el formulario de creación
+Route::get('/aulas/crear', [AulasControllers::class, 'create'])->name('aulas.create');
+
+// Ruta para procesar el guardado
+Route::post('/aulas', [AulasControllers::class, 'store'])->name('aulas.store');
+
+// Ruta para ver la papelera
+Route::get('/aulas/eliminados', [AulasControllers::class, 'trashed'])->name('aulas.trashed');
+
+// Ruta para mostrar el formulario de edición
+Route::get('/aulas/{id}/editar', [AulasControllers::class, 'edit'])->name('aulas.edit');
+
+// Ruta para procesar la actualización
+Route::put('/aulas/{id}', [AulasControllers::class, 'update'])->name('aulas.update');
+
+// Ruta para el borrado lógico (Soft Delete)
+Route::delete('/aulas/{id}', [AulasControllers::class, 'destroy'])->name('aulas.destroy');
+
+// Ruta para restaurar un aula
+Route::post('/aulas/{id}/restore', [AulasControllers::class, 'restore'])->name('aulas.restore');
+
+// Ruta para borrado permanente (Físico)
+Route::delete('/aulas/{id}/force-delete', [AulasControllers::class, 'forceDelete'])->name('aulas.forceDelete');
+
+// Ruta para ver ficha tecnica
+Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show');
+
+// ==========================================
+// RUTAS DEL DASHBOARD
+// ==========================================
+
+// Rutas de Dashboard sin middleware para poder trabajar libremente
+Route::get('/dashboard/docente', [DashboardController::class, 'indexDocente'])->name('dashboard.docente');
+
+Route::get('/dashboard/rector', [DashboardController::class, 'indexRector'])->name('dashboard.rector');
+
+Route::get('/dashboard/secretario', [DashboardController::class, 'indexSecretario'])->name('dashboard.secretario');
+
+// ==========================================
+// OTRAS RUTAS DEL SISTEMA
+// ==========================================
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,82 +102,3 @@ Route::middleware(['auth', 'role:Secretaria'])->group(function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-
-
-//Pruebas las de abajo son rutas temporales para probar vistas con datos simulados.
-
-
-
-
-
-Route::get('/pruebas', function () {
-    
-    // 1. RECURSO TIPO: ACTIVO
-    $activo = new \stdClass();
-    $activo->act_id = 101; // Clave esencial para el @if de la vista
-    $activo->act_foto = null; // null usará 'default.jpeg' según tu Blade
-    $activo->act_nombre = 'Proyector Epson';
-    $activo->act_serial = 'EPS-X49-98765';
-    $activo->act_estado_fisico = 'Buen Estado';
-    $activo->act_reservable = true;
-    $activo->act_marca = 'Epson';
-    $activo->act_fecha_ingreso = '2026-01-10';
-    $activo->act_precio_actual = 450.00;
-    $activo->precio_actual = 450.00; // Lo pide el modal con este nombre
-    $activo->aula_nombre = 'Auditorio Principal';
-    $activo->cate_id = 3;
-
-    // 2. RECURSO TIPO: AULA
-    $aula = new \stdClass();
-    // No definimos 'act_id' para que la vista lo procese en el @else
-    $aula->aula_id = 12;
-    $aula->aula_foto = null; // null usará 'default.jpeg' de aulas
-    $aula->aula_nombre = 'Laboratorio';
-    $aula->aula_capacidad = 25;
-    $aula->aula_estado = 'Disponible';
-    $aula->aula_reservable = true;
-    $aula->tip_aula_id = 1;
-
-    // 3. Empaquetamos ambos elementos en la colección que espera el Blade
-    $recursos = collect([$activo, $aula]);
-
-    // 4. Retornamos la vista pasando la variable $recursos
-    // (Asegúrate de cambiar 'pruebas' por el nombre real de tu archivo .blade.php)
-    return view('reservas.crear.paso2', compact('recursos'));
-});
-
-/* ==========================================================================
-   RUTAS TEMPORALES DE PRUEBA (FRONTEND)
-   ========================================================================== */
-
-// 1. Ruta para renderizar el perfil de la secretaría
-Route::get('/perfil/secretario', function () {
-    $usuario = new \App\Models\User();
-    
-    // Le llenamos los campos manualmente para probar la vista
-    $usuario->name = 'Ana';
-    $usuario->lastname = 'Rodríguez';
-    $usuario->identificacion = '1042456789';
-    $usuario->correo = 'ana.rodriguez@colegio.edu.co';
-    // Agrega aquí los nombres exactos de tus columnas si se llaman distinto
-
-    return view('users.perfil.secretario', compact('usuario'));
-});
-
-// 2. Ruta para renderizar la tabla de gestión de usuarios (La que ya tienes)
-Route::get('/usuarios', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
-
-
-Route::get('/editar', function () {
-    $usuario = new \App\Models\User();
-    
-    // Le llenamos los campos manualmente para probar la vista
-    $usuario->name = 'Ana';
-    $usuario->lastname = 'Rodríguez';
-    $usuario->identificacion = '1042456789';
-    $usuario->correo = 'ana.rodriguez@colegio.edu.co';
-    // Agrega aquí los nombres exactos de tus columnas si se llaman distinto
-
-    return view('users.editar-usuario', compact('usuario'));
-});

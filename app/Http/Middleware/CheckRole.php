@@ -2,37 +2,43 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Support\Facades\Auth;
-
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
     /**
-     * Handle an incoming request.
+     * Maneja las peticiones entrantes y valida el rol del usuario.
      *
-     * @param  Closure(Request): (Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  string  ...$roles Lista de roles permitidos (Ej: 'Rectora', 'Secretaria')
      */
- public function handle(Request $request, Closure $next, ...$roles)
- {
-    // Si el usuario no está logueado, al login
-    if (!Auth::check()) {
-        return redirect('login');
-    }
-
-    $user = Auth::user();
-    
-    // Si el rol del usuario está en la lista permitida, pasa.
-    // Recuerda: 1=Rectora, 2=Secretaria, 3=Docente
-    foreach ($roles as $role) {
-       if ($user->role && $user->role->name === $role) {
-            return $next($request);
+    public function handle(Request $request, Closure $next, ...$roles): Response
+    {
+        // 1. Si el usuario ni siquiera ha iniciado sesión, lo mandamos al Login
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
-    }
 
-    // Si no tiene permiso, lo mandamos afuera con un mensaje
-    return redirect('/')->with('error', 'No tienes permisos para acceder a esta sección.');
- }
+        $user = Auth::user();
+
+        // 2. Si por alguna razón el usuario no tiene un rol asignado en la BD, afuera
+        if (!$user->role) {
+            return redirect('/')->with('error', 'Tu cuenta no tiene un rol asignado en el sistema.');
+        }
+
+        // 3. Recorremos los roles permitidos en la ruta y los comparamos con el de la BD
+        // Recuerda que en el Seeder los guardamos con Mayúscula Inicial: 'Rectora', 'Secretaria'
+        foreach ($roles as $role) {
+            if ($user->role->name === $role) {
+                return $next($request); // ¡Tiene permiso! Continúa hacia la ruta
+            }
+        }
+
+        // 4. Si termina el ciclo y no coincidió con ningún rol, denegamos el acceso
+        return redirect('/')->with('error', 'No tienes permisos de acceso para esta sección.');
+    }
 }

@@ -2,6 +2,10 @@
 
 @section('content')
 @section('mostrarRegresar', 'false')
+<<<<<<< HEAD
+=======
+@section('mostrarBusqueda', 'true')
+>>>>>>> origin/backend-Elias
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
@@ -43,9 +47,22 @@
                 if ($estadoActivo == 'buen estado' || $estadoActivo == 'bueno') {
                     $tagsActivo[] = 'bueno'; 
                 } 
+<<<<<<< HEAD
                 
                 if ($estadoActivo == 'en mantenimiento') {
                     // Sincroniza con el filtro rápido: usa espacio o guion según lo requiera tu JavaScript
+=======
+
+                if ($estadoActivo == 'buen estado' || $estadoActivo == 'excelente') {
+                    $tagsActivo[] = 'bueno'; 
+                } 
+
+                if ($estadoActivo == 'buen estado' || $estadoActivo == 'regular') {
+                    $tagsActivo[] = 'bueno'; 
+                } 
+                
+                if ($estadoActivo == 'malo' || $estadoActivo == 'malo') {
+>>>>>>> origin/backend-Elias
                     $tagsActivo[] = 'en-mantenimiento'; 
                 }
 
@@ -59,10 +76,18 @@
             <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsActivo }}">
                 @component('components.tarjetas.tarjeta-recurso',  [
                     'tipo' => 'activo',
+<<<<<<< HEAD
                     'foto' => $recurso->act_foto ? asset('storage/images/activos/' . $recurso->act_foto) : asset('storage/images/activos/default.jpeg'),
                     'nombre' => $recurso->act_nombre,
                     'etiqueta' => 'Serial',
                     'valor' => $recurso->act_serial,
+=======
+                    'foto' => $recurso->act_foto ? asset('storage/' . $recurso->act_foto) : asset('storage/activos/default.jpeg'),
+                    'nombre' => $recurso->act_nombre,
+                    'etiqueta' => 'Serial',
+                    'valor' => $recurso->act_serial,
+                    'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
+>>>>>>> origin/backend-Elias
                     'recurso' => $recurso
                 ])
                 @endcomponent
@@ -97,7 +122,11 @@
             <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsAula }}">
                 @component('components.tarjetas.tarjeta-recurso', [
                     'tipo' => 'aula',
+<<<<<<< HEAD
                     'foto' => $recurso->aula_foto ? asset('storage/images/aulas/' . $recurso->aula_foto) : asset('storage/images/aulas/default.jpeg'),
+=======
+                    'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
+>>>>>>> origin/backend-Elias
                     'nombre' => $recurso->aula_nombre,
                     'etiqueta' => 'Capacidad',
                     'valor' => $recurso->aula_capacidad,
@@ -116,6 +145,92 @@
     </x-modal>
 </div>
 
+<<<<<<< HEAD
+=======
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscador-recursos');
+
+    if (buscador) {
+        // Lógica de filtrado en tiempo real (al escribir)
+        buscador.addEventListener('keyup', function() {
+            let filtro = this.value.toLowerCase();
+            let tarjetas = document.querySelectorAll('.recurso-item');
+            
+            tarjetas.forEach(function(tarjeta) {
+                let nombre = tarjeta.innerText.toLowerCase();
+                tarjeta.style.display = nombre.includes(filtro) ? "" : "none";
+            });
+        });
+
+        // Interceptar el "Enter" para evitar recargas en los Dashboards
+        buscador.closest('form').addEventListener('submit', function(e) {
+            // Si existe el contenedor de tarjetas, bloqueamos el envío (filtrado local)
+            if (document.querySelector('.container-tarjetas')) {
+                e.preventDefault(); 
+                return false;
+            }
+            // Si NO estamos en un dashboard, el formulario se envía normal (búsqueda en BD)
+        });
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Elementos
+            const contenedor = document.getElementById('contenedor-activos-dinamicos');
+            const conteoBadge = document.getElementById('ficha-conteo-activos');
+            const fichaCategoria = document.getElementById('ficha-categoria');
+            const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
+            
+            // 1. Asignar categorías (mantenemos tu lógica que ya sirve)
+            const categoriaGenerica = this.getAttribute('data-categoria');
+            const tipoAulaEspecifico = this.getAttribute('data-tipo-aula');
+            const tipoRecurso = this.getAttribute('data-tipo');
+            
+            if (fichaCategoria) fichaCategoria.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
+            if (fichaTipoAula) fichaTipoAula.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
+            
+            // 2. Lógica de Activos
+            contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
+            
+            let activos = [];
+            try {
+                const data = this.getAttribute('data-activos');
+                if (data) activos = JSON.parse(data);
+            } catch (e) {
+                activos = [];
+            }
+
+            conteoBadge.textContent = activos.length;
+            contenedor.innerHTML = '';
+            
+            if (Array.isArray(activos) && activos.length > 0) {
+                activos.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'activo-item'; // Mantenemos la clase de tu estructura
+                    // Estructura idéntica a tu diseño de ficha-tecnica-universal
+                    li.innerHTML = `
+                        <div class="activo-card-siger" style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
+                            <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            <div>
+                                <strong>${item.act_nombre}</strong><br>
+                                <small class="text-muted">: ${item.act_serial}</small>
+                            </div>
+                        </div>
+                    `;
+                    contenedor.appendChild(li);
+                });
+            } else {
+                contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
+            }
+        });
+    });
+});
+</script>
+>>>>>>> origin/backend-Elias
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 
 @endsection

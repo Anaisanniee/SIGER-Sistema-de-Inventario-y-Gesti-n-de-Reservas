@@ -4,7 +4,6 @@
 @section('content')
     <h1>Pruebas SIGER</h1>
     <p>Esta es una página de pruebas para mostrar los recursos disponibles.</p>
-    
 
 <div class="container-tarjetas">
     @foreach($recursos as $recurso)
@@ -55,5 +54,9 @@
         @include('components.fichas.ficha-tecnica-universal')
     </x-modal>
 </div>
+<<<<<<< HEAD
 @endsection
 
+=======
+@endsection
+>>>>>>> origin/backend-Elias

@@ -2,6 +2,21 @@
 
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
+@section('rutaBusqueda', route('inventario.index'))
+
+<div id="contenedor-alertas">
+    @if (session('error'))
+        <div class="alert alert-danger" id="alerta-mensaje">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (session('mensaje'))
+        <div class="alert alert-success" id="alerta-mensaje">
+            {{ session('mensaje') }}
+        </div>
+    @endif
+</div>
 
 @section('content')
 {{-- Vinculamos los estilos exclusivos de la vista index --}}
@@ -29,7 +44,7 @@
                 <i class="fas fa-plus"></i> Nuevo Activo
             </x-botones.boton>
 
-                        <x-botones.boton 
+            <x-botones.boton 
                 clase="btn-papelera" 
                 url="{{ url('/inventario/papelera') }}">
                 <i class="fas fa-trash-alt" style="margin-right: 5px;"></i> Ver Papelera
@@ -70,11 +85,14 @@
                     $tagsActivo = ['activo'];
                     
                     // Sincroniza con las opciones del componente ('disponible', 'en-mantenimiento', 'reservado')
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'buen estado') {
+                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'bueno') {
+                        $tagsActivo[] = 'disponible'; 
+                    }
+                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'regular') {
                         $tagsActivo[] = 'disponible'; 
                     } 
                     
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'en mantenimiento') {
+                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'malo') {
                         $tagsActivo[] = 'en-mantenimiento';
                     }
 
@@ -88,14 +106,15 @@
                 <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsActivo }}">
                     @component('components.tarjetas.tarjeta-recurso',  [
                         'tipo' => 'activo',
-                        'foto' => $recurso->act_foto ? asset('storage/images/activos/' . $recurso->act_foto) : asset('storage/images/activos/default.jpeg'),
+                        'foto' => $recurso->act_foto ? asset('storage/' . $recurso->act_foto) : asset('storage/activos/default.jpeg'),
                         'nombre' => $recurso->act_nombre,
                         'etiqueta' => 'Serial',
                         'valor' => $recurso->act_serial,
+                        'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar',
                         'esAdmin' => true,  {{-- Indicamos que el usuario es administrador para mostrar el botón de eliminar --}}
-                        {{-- url AGREGAR RUTA --}}
+                        'urlBoton' => url('/activos/' . $recurso->act_id . '/editar')
                     ])
                     @endcomponent
                 </div>
@@ -125,14 +144,15 @@
                 <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsAula }}">
                     @component('components.tarjetas.tarjeta-recurso', [
                         'tipo' => 'aula',
-                        'foto' => $recurso->aula_foto ? asset('storage/images/aulas/' . $recurso->aula_foto) : asset('storage/images/aulas/default.jpeg'),
+                        'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
                         'nombre' => $recurso->aula_nombre,
+                        'categoriaNombre' => $recurso->categoria->cat_nombre ?? 'Sin categoría',
                         'etiqueta' => 'Capacidad',
                         'valor' => $recurso->aula_capacidad,
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar',
                         'esAdmin' => true,
-                        {{----url AGREGAR RUTA---}}
+                        'urlBoton' => url('/aulas/' . $recurso->aula_id . '/editar')
                     ])
                     @endcomponent
                 </div>
@@ -212,6 +232,105 @@ function prepararEliminacion(id, tipo, nombre, caracteristica) {
     }
 }
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
+        button.addEventListener('click', function() {
+            // 1. Obtener los elementos del modal
+            const contenedor = document.getElementById('contenedor-activos-dinamicos');
+            const conteoBadge = document.getElementById('ficha-conteo-activos');
+            const fichaCategoria = document.getElementById('ficha-categoria');
+            const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
+            
+            // 2. Obtener el dato desde el botón
+            const categoria = this.getAttribute('data-categoria') || 'Sin categoría';
+            
+            // 3. Asignar los valores a la ficha
+            if (fichaCategoria) fichaCategoria.textContent = categoria;
+            if (fichaTipoAula) fichaTipoAula.textContent = categoria;
+            
+            // 4. Lógica de Activos (JSON)
+            contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
+            
+            let activos = [];
+            try {
+                const data = this.getAttribute('data-activos');
+                if (data) activos = JSON.parse(data);
+            } catch (e) {
+                activos = [];
+            }
+
+            conteoBadge.textContent = activos.length;
+            contenedor.innerHTML = '';
+            
+            if (Array.isArray(activos) && activos.length > 0) {
+                activos.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'activo-item text-center py-2';
+                    li.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
+                            <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            <div>
+                                <strong>${item.act_nombre}</strong><br>
+                                <small class="text-muted">Serial: ${item.act_serial}</small>
+                            </div>
+                        </div>
+                    `;
+                    contenedor.appendChild(li);
+                });
+            } else {
+                contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
+            }
+        });
+    });
+});
+</script>
+
+<script>
+    // Espera a que el documento cargue
+    document.addEventListener('DOMContentLoaded', function() {
+        // Seleccionamos la alerta por su ID
+        let alerta = document.getElementById('alerta-mensaje');
+        
+        // Si la alerta existe, programamos que se oculte después de 5000 milisegundos (5 segundos)
+        if (alerta) {
+            setTimeout(function() {
+                // Opción A: Ocultar suavemente con opacidad
+                alerta.style.transition = "opacity 0.5s ease";
+                alerta.style.opacity = "0";
+                
+                // Opción B: Eliminarla del DOM después de la transición
+                setTimeout(function() {
+                    alerta.remove();
+                }, 500); // Espera a que termine la transición de 0.5s
+            }, 5000); 
+        }
+    });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscador-recursos');
+
+    if (buscador) {
+        // Filtrado en tiempo real (opcional: ayuda a que se vea rápido mientras carga la página)
+        buscador.addEventListener('keyup', function() {
+            let filtro = this.value.toLowerCase();
+            let tarjetas = document.querySelectorAll('.recurso-item');
+            
+            tarjetas.forEach(function(tarjeta) {
+                let nombre = tarjeta.innerText.toLowerCase();
+                tarjeta.style.display = nombre.includes(filtro) ? "" : "none";
+            });
+        });
+
+        // EN ESTA VISTA NO bloqueamos el submit, 
+        // para que al presionar 'Enter' se envíe el formulario a la ruta del servidor
+    }
+});
+</script>
+
 <!-- SCRIPT EXCLUSIVO PARA LAS CAJAS KPI Y FILTROS -->
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 @endsection

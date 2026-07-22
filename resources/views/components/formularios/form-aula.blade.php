@@ -2,7 +2,24 @@
     $esEdicion = request()->is('*editar*') || isset($aula->aula_id);
 @endphp
 
+<<<<<<< HEAD
 <form action="#" method="POST" enctype="multipart/form-data" class="formulario-dinamico">
+=======
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<form action="{{ $esEdicion ? route('aulas.update', $aula->aula_id) : route('aulas.store') }}" 
+      method="POST" 
+      enctype="multipart/form-data" 
+      class="formulario-dinamico">
+>>>>>>> origin/backend-Elias
     @csrf
     @if($esEdicion)
         @method('PUT')
@@ -11,7 +28,11 @@
     {{-- NOMBRE DEL AULA --}}
     <div class="post-form">
         <label for="aula_nombre">Nombre del Aula / Espacio *</label>
+<<<<<<< HEAD
         <input type="text" id="aula_nombre" name="aula_nombre" required maxlength="25"
+=======
+        <input type="text" id="aula_nombre" name="aula_nombre"
+>>>>>>> origin/backend-Elias
                value="{{ old('aula_nombre', $aula->aula_nombre ?? '') }}"
                placeholder="Ej. Laboratorio A, Aula 102">
     </div>
@@ -19,18 +40,28 @@
     {{-- TIPO DE AULA (Llave foránea mapeada de la BD) --}}
     <div class="post-form">
         <label for="tip_aula_id">Categoría / Tipo de Aula *</label>
+<<<<<<< HEAD
         <select name="tip_aula_id" id="tip_aula_id" required>
             <option value="">-- Selecciona el Tipo --</option>
             <option value="1" {{ old('tip_aula_id', $aula->tip_aula_id ?? '') == '1' ? 'selected' : '' }}>Aula Teórica</option>
             <option value="2" {{ old('tip_aula_id', $aula->tip_aula_id ?? '') == '2' ? 'selected' : '' }}>Laboratorio de Química</option>
             <option value="3" {{ old('tip_aula_id', $aula->tip_aula_id ?? '') == '3' ? 'selected' : '' }}>Sala de Sistemas</option>
+=======
+        <select name="tip_aula_id" id="tip_aula_id">
+            @foreach($tipos as $tipo)
+                <option value="{{ $tipo->tip_aula_id }}" 
+                    {{ old('tip_aula_id', $aula->tip_aula_id ?? '') == $tipo->tip_aula_id ? 'selected' : '' }}>
+                    {{ $tipo->tip_aula_nombre }}
+                </option>
+            @endforeach
+>>>>>>> origin/backend-Elias
         </select>
     </div>
 
     {{-- CAPACIDAD --}}
     <div class="post-form">
         <label for="aula_capacidad">Capacidad (Personas) *</label>
-        <input type="number" id="aula_capacidad" name="aula_capacidad" required
+        <input type="number" id="aula_capacidad" name="aula_capacidad"
                value="{{ old('aula_capacidad', $aula->aula_capacidad ?? '') }}"
                placeholder="Ej. 30">
     </div>
@@ -49,34 +80,29 @@
     {{-- ESTADO --}}
     <div class="post-form">
         <label for="aula_estado">Estado Inicial *</label>
-        <select name="aula_estado" id="aula_estado" required>
+        <select name="aula_estado" id="aula_estado">
             <option value="Disponible" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Disponible' ? 'selected' : '' }}>Disponible</option>
             <option value="Mantenimiento" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Mantenimiento' ? 'selected' : '' }}>En Mantenimiento</option>
         </select>
     </div>
 
-    <div class="post-form-switch">
+    <div class="post-form-switch" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+    
+        <!-- Texto a la izquierda -->
         <span class="label-switch">¿Está disponible para reservas?</span>
-        <label class="switch-contenedor" for="aula_reservable">
+        
+        <!-- Switch a la derecha -->
+        <label class="switch-contenedor" for="aula_reservable" style="margin-bottom: 0;">
             <input type="checkbox" id="aula_reservable" name="aula_reservable" value="1"
-                   {{ old('aula_reservable', $aula->aula_reservable ?? '1') == '1' ? 'checked' : '' }}>
+                {{ old('aula_reservable', $aula->aula_reservable ?? '1') == '1' ? 'checked' : '' }}>
             <span class="switch-slider"></span>
         </label>
+        
     </div>
-
     {{-- BOTONES DE ACCIÓN --}}
 
-    @if($esEdicion)
-        {{-- MOTIVO DE BAJA (Sólo en edición, tal cual tu migración) --}}
-        <div class="post-form">
-            <label for="aula_motivo_baja">Motivo de Baja (Opcional)</label>
-            <input type="text" id="aula_motivo_baja" name="aula_motivo_baja" maxlength="255"
-                   value="{{ old('aula_motivo_baja', $aula->aula_motivo_baja ?? '') }}">
-        </div>
-    @endif
-
     <div class="contenedor-botones">
-        <x-botones.boton type="button" class="btn-siger-accion btn-rojo" onclick="window.location.href='{{ url('/aulas') }}'">
+        <x-botones.boton type="button" class="btn-siger-accion btn-rojo" onclick="window.location.href='{{ url('/inventario') }}'">
             Cancelar
         </x-botones.boton>
 
