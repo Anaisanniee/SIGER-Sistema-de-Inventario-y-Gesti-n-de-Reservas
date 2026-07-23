@@ -1,12 +1,10 @@
-{{-- resources/views/components/alertas/notificacion.blade.php --}}
 @props([
-    'tipo' => 'advertencia', // peligro, advertencia, exito, info
+    'tipo' => 'advertencia',
     'titulo' => null,
     'descartable' => true
 ])
 
 @php
-    // Mapeo de íconos según el tipo de alerta
     $iconos = [
         'peligro'     => 'fas fa-exclamation-circle',
         'advertencia' => 'fas fa-tools',
@@ -32,3 +30,30 @@
         </button>
     @endif
 </div>
+
+{{-- Estilos propios encapsulados para que NUNCA vuelva a salir el recuadro feo --}}
+<style>
+    .alerta-siger {
+        position: relative;
+    }
+    .btn-cerrar-alerta {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: currentColor;
+        opacity: 0.5;
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        line-height: 1;
+        transition: opacity 0.2s, background-color 0.2s;
+    }
+    .btn-cerrar-alerta:hover {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.08) !important;
+    }
+</style>
