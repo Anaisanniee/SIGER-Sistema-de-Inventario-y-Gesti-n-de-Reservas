@@ -3,36 +3,124 @@
 @section('content')
 @section('mostrarRegresar', 'false')
 
-{{--- 1. TARJETA DE BIENVENIDA (Adaptada al Rol de Secretaría) ---}}
+<link rel="stylesheet" href="{{ asset('css/pages/dashboard-secretario.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}">
+
+@php
+    $reservasSimuladas = [
+        (object)[
+            'id' => 1,
+            'recurso_foto' => null,
+            'recurso_nombre' => 'Computador Dell Inspiron',
+            'estado' => 'pendiente',
+            'usuario_nombre' => 'Docente Carlos Mendoza',
+            'fecha' => '2026-07-12',
+            'hora_inicio' => '8:00 AM',
+            'hora_fin' => '10:00 AM',
+            'ubicacion' => 'Aula 101'
+        ],
+        (object)[
+            'id' => 2,
+            'recurso_foto' => null,
+            'recurso_nombre' => 'Videobeam Epson X41',
+            'estado' => 'pendiente',
+            'usuario_nombre' => 'Docente María Alejandra',
+            'fecha' => '2026-07-13',
+            'hora_inicio' => '10:00 AM',
+            'hora_fin' => '12:00 PM',
+            'ubicacion' => 'Laboratorio de Sistemas'
+        ]
+    ];
+@endphp
+
+{{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => 'Bienvenido Panel de Gestión',   
-    'descripcion' => 'Revisa, aprueba o rechaza las solicitudes de reserva de aulas y activos de la institución.'
+    'titulo' => 'Panel de Control - SIGER',   
+    'descripcion' => 'Sistema institucional de inventario, activos y gestión de reservas en tiempo real.'
 ])
 
-{{--- 2. KPIs ENFOCADAS EN EL ESTADO DE LAS RESERVAS ---}}
-<div class="contenedor-kpis">
-    @component('components.filtros.kpi-selector', [
-        'kpis' => [
-            ['filtro' => 'pendientes', 'color' => 'azul',  'icono' => 'fas fa-clock',       'titulo' => 'Pendientes', 'subtitulo' => 'Por aprobar o rechazar'],
-            ['filtro' => 'aprobadas',  'color' => 'verde', 'icono' => 'fas fa-check-circle', 'titulo' => 'Aprobadas',  'subtitulo' => 'Reservas aseguradas'],
-            ['filtro' => 'rechazadas', 'color' => 'rojo',  'icono' => 'fas fa-times-circle', 'titulo' => 'Rechazadas', 'subtitulo' => 'Solicitudes denegadas']
-        ]
-    ])
-    @endcomponent
+{{--- 2. SECCIÓN SUPERIOR: ACCESOS Y ALERTAS (Gobernados por .dashboard-grid) ---}}
+<div class="dashboard-grid">
+    
+    <!-- COLUMNA 1: ACCESOS RÁPIDOS -->
+    <div class="dashboard-columna">
+        <h3 class="dashboard-subtitulo">Módulos Disponibles</h3>
+        <div class="contenedor-accesos">
+            
+            <!-- Acceso a Reservas -->
+            <a href="{{ url('/reservas/gestion') }}" class="tarjeta-acceso-rapido acceso-reservas">
+                <div class="acceso-icono">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="acceso-texto">
+                    <h4>Gestión de Reservas</h4>
+                    <p>Revisa solicitudes, aprueba, rechaza y controla las agendas del día.</p>
+                </div>
+                <i class="fas fa-chevron-right flecha-acceso"></i>
+            </a>
+
+            <!-- Acceso a Inventario -->
+            <a href="{{ url('/inventario') }}" class="tarjeta-acceso-rapido acceso-inventario">
+                <div class="acceso-icono">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="acceso-texto">
+                    <h4>Gestión de Inventario</h4>
+                    <p>Controla las aulas, equipos tecnológicos y el estado de los activos.</p>
+                </div>
+                <i class="fas fa-chevron-right flecha-acceso"></i>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- COLUMNA 2: ALERTAS DEL SISTEMA -->
+    <div class="dashboard-columna">
+        <h3 class="dashboard-subtitulo">Alertas del Sistema</h3>
+        <div class="contenedor-alertas">
+            
+            <div class="alerta-siger alerta-peligro">
+                <i class="fas fa-exclamation-circle icono-alerta"></i>
+                <div class="alerta-contenido-texto">
+                    <h5>Entrega Retrasada</h5>
+                    <p>El <strong>Computador Dell Inspiron</strong> debió devolverse a las 10:00 AM.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
-{{--- 3. FILTRO RÁPIDO PARA LAS SOLICITUDES ---}}
-<div class="filtro-rapido-contenedor">
-    @include('components.filtros.filtro-rapido', ['opciones' => ['hoy', 'esta semana', 'historial']])
-</div>
+{{--- 3. SECCIÓN INFERIOR: PENDIENTES ---}}
+<div class="dashboard-pendientes-seccion">
+    <div class="pendientes-header">
+        <h3 class="dashboard-subtitulo">
+            <i class="fas fa-clock"></i> Solicitudes Pendientes
+        </h3>
+        <a href="{{ url('/reservas/gestion') }}" class="btn-ver-todo">Ver toda la gestión</a>
+    </div>
 
-{{--- 4. ESPACIO ENFOCADO EN EL LISTADO DE RESERVAS ---}} 
-<div class="container-solicitudes-reservas" style="margin-top: 30px;">
-    <!-- Aquí renderizaremos las tarjetas o la tabla de reservas pendientes cuando entremos a ese módulo -->
-    <div class="alerta-informativa" style="padding: 20px; background-color: var(--color-fondo-bloque, #f8f9fa); border-left: 4px solid var(--color-borde, #ccc); border-radius: 4px;">
-        <p style="margin: 0; font-family: var(--fuente-principal); color: var(--color-texto-secundario); font-size: 0.95rem;">
-            <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i> **Módulo de Gestión de Reservas:** Espacio reservado para el control de solicitudes entrantes de los docentes.
-        </p>
+    <div class="container-tarjetas-vertical">
+        @foreach($reservasSimuladas as $reserva)
+            @if(strtolower($reserva->estado) === 'pendiente')
+                <div class="tarjeta-dashboard-link">
+                    @component('components.tarjetas.tarjeta-reserva', [
+                        'id'          => $reserva->id,
+                        'foto'        => asset('storage/images/activos/default.jpeg'),
+                        'nombre'      => $reserva->recurso_nombre,
+                        'estado'      => $reserva->estado,
+                        'solicitante' => $reserva->usuario_nombre,
+                        'fecha'       => \Carbon\Carbon::parse($reserva->fecha)->format('d \d\e F Y'),
+                        'horaInicio'  => $reserva->hora_inicio,
+                        'horaFin'     => $reserva->hora_fin,
+                        'ubicacion'   => $reserva->ubicacion,
+                        'urlDetalles' => url('/reservas/gestion')
+                    ])
+                    @endcomponent
+                </div>
+            @endif
+        @endforeach
     </div>
 </div>
 
