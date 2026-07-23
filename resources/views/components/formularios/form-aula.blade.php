@@ -2,9 +2,6 @@
     $esEdicion = request()->is('*editar*') || isset($aula->aula_id);
 @endphp
 
-<<<<<<< HEAD
-<form action="#" method="POST" enctype="multipart/form-data" class="formulario-dinamico">
-=======
 @if ($errors->any())
     <div class="alert alert-danger">
         <ul class="mb-0">
@@ -19,7 +16,6 @@
       method="POST" 
       enctype="multipart/form-data" 
       class="formulario-dinamico">
->>>>>>> origin/backend-Elias
     @csrf
     @if($esEdicion)
         @method('PUT')
@@ -28,11 +24,7 @@
     {{-- NOMBRE DEL AULA --}}
     <div class="post-form">
         <label for="aula_nombre">Nombre del Aula / Espacio *</label>
-<<<<<<< HEAD
-        <input type="text" id="aula_nombre" name="aula_nombre" required maxlength="25"
-=======
         <input type="text" id="aula_nombre" name="aula_nombre"
->>>>>>> origin/backend-Elias
                value="{{ old('aula_nombre', $aula->aula_nombre ?? '') }}"
                placeholder="Ej. Laboratorio A, Aula 102">
     </div>
@@ -40,13 +32,6 @@
     {{-- TIPO DE AULA (Llave foránea mapeada de la BD) --}}
     <div class="post-form">
         <label for="tip_aula_id">Categoría / Tipo de Aula *</label>
-<<<<<<< HEAD
-        <select name="tip_aula_id" id="tip_aula_id" required>
-            <option value="">-- Selecciona el Tipo --</option>
-            <option value="1" {{ old('tip_aula_id', $aula->tip_aula_id ?? '') == '1' ? 'selected' : '' }}>Aula Teórica</option>
-            <option value="2" {{ old('tip_aula_id', $aula->tip_aula_id ?? '') == '2' ? 'selected' : '' }}>Laboratorio de Química</option>
-            <option value="3" {{ old('tip_aula_id', $aula->tip_aula_id ?? '') == '3' ? 'selected' : '' }}>Sala de Sistemas</option>
-=======
         <select name="tip_aula_id" id="tip_aula_id">
             @foreach($tipos as $tipo)
                 <option value="{{ $tipo->tip_aula_id }}" 
@@ -54,7 +39,6 @@
                     {{ $tipo->tip_aula_nombre }}
                 </option>
             @endforeach
->>>>>>> origin/backend-Elias
         </select>
     </div>
 

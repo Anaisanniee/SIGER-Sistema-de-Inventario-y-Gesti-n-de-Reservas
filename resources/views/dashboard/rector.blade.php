@@ -4,10 +4,41 @@
 @section('mostrarRegresar', 'false')
 @section('mostrarBusqueda', 'true')
 
+<link rel="stylesheet" href="{{ asset('css/pages/dashboard-secretario.css') }}">
+
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-'titulo' => 'Bienvenida Rectora'
+'titulo' => 'Bienvenido Rector',
+'descripcion' => 'Consulta informes de invertario y reservas de INSEBOR aquí'
 ])
+
+<!-- Acceso a Inventario -->
+ <div class="dashboard-columna">
+        <h3 class="dashboard-subtitulo">Módulos Disponibles</h3>
+        <div class="contenedor-accesos">
+            <a href="" class="tarjeta-acceso-rapido acceso-inventario">
+                <div class="acceso-icono">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="acceso-texto">
+                    <h4>Informes Inventario</h4>
+                    <p>Consulta y genera informes detallados sobre el inventario.</p>
+                </div>
+                <i class="fas fa-chevron-right flecha-acceso"></i>
+            </a>
+
+            <a href="" class="tarjeta-acceso-rapido acceso-reservas">
+                <div class="acceso-icono">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="acceso-texto">
+                    <h4>Informes Reservas</h4>
+                    <p>Consulta y genera informes detallados sobre las reservas.</p>
+                </div>
+                <i class="fas fa-chevron-right flecha-acceso"></i>
+            </a>
+        </div>
+</div>
 
 <div class="contenedor-kpis">
     @component('components.filtros.kpi-selector', [
