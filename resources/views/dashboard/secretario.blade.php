@@ -76,18 +76,19 @@
 
     <!-- COLUMNA 2: ALERTAS DEL SISTEMA -->
     <div class="dashboard-columna">
-        <h3 class="dashboard-subtitulo">Alertas del Sistema</h3>
-        <div class="contenedor-alertas">
-            
-            <div class="alerta-siger alerta-peligro">
-                <i class="fas fa-exclamation-circle icono-alerta"></i>
-                <div class="alerta-contenido-texto">
-                    <h5>Entrega Retrasada</h5>
-                    <p>El <strong>Computador Dell Inspiron</strong> debió devolverse a las 10:00 AM.</p>
-                </div>
-            </div>
+    <h3 class="dashboard-subtitulo">Alertas del Sistema</h3>
+    
+    <div class="contenedor-alertas" id="contenedor-alertas-siger">
+        
+        <x-alertas.notificacion tipo="peligro" titulo="Entrega Retrasada">
+            El <strong>Computador Dell Inspiron</strong> debió devolverse a las 10:00 AM.
+        </x-alertas.notificacion>
 
-        </div>
+        <x-alertas.notificacion tipo="advertencia" titulo="Mantenimiento">
+            El Aula 101 reporta fallas en la red.
+        </x-alertas.notificacion>
+
+    </div>
     </div>
 
 </div>
