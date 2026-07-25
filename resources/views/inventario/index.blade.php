@@ -85,6 +85,10 @@
                     $tagsActivo = ['activo'];
                     
                     // Sincroniza con las opciones del componente ('disponible', 'en-mantenimiento', 'reservado')
+                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'excelente') {
+                        $tagsActivo[] = 'disponible'; 
+                    }
+
                     if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'bueno') {
                         $tagsActivo[] = 'disponible'; 
                     }

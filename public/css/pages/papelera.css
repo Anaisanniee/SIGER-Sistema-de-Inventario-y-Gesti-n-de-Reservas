@@ -2,7 +2,7 @@
 
 /* Contenedor tipo perfil/panel principal */
 .card-siger-papelera {
-    background-color: #ffffff;
+    background-color: var(--color-fondo)       ;
     border-radius: var(--borde-radio);
     border: 1px solid var(--color-borde);
     padding: 25px;
@@ -82,7 +82,7 @@
    MEDIA QUERIES COMPLEMENTARIOS PARA LA PAPELERA (RESPONSIVE)
    ========================================================================== */
 
-/* 📱 ADAPTACIÓN PARA TABLETS (Hasta 1024px) */
+/* ADAPTACIÓN PARA TABLETS (Hasta 1024px) */
 @media (max-width: 1024px) {
     .card-siger-papelera {
         padding: var(--espaciado); /* Reduce el acolchado interno usando tu variable */
@@ -93,7 +93,7 @@
     }
 }
 
-/* 📱 ADAPTACIÓN PARA MÓVILES (Hasta 768px) */
+/* ADAPTACIÓN PARA MÓVILES (Hasta 768px) */
 @media (max-width: 768px) {
     .tabs-papelera-contenedor {
         gap: 10px;
@@ -116,7 +116,7 @@
         color: var(--color-texto);
     }
 
-    /* 🔥 El truco maestro para que la tabla no rompa la pantalla del celular:
+    /* El truco maestro para que la tabla no rompa la pantalla del celular:
        Permite scroll horizontal suave SOLO dentro del recuadro de la tabla */
     .tabla-papelera-wrapper {
         overflow-x: auto;
