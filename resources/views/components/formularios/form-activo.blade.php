@@ -29,7 +29,7 @@
 
     {{-- NOMBRE DEL ACTIVO --}}
     <div class="post-form">
-        <label for="act_nombre">Nombre del Activo *</label>
+        <label for="act_nombre">Nombre del Activo <span class="text-danger">*</span></label>
         <input type="text" id="act_nombre" name="act_nombre"
                value="{{ old('act_nombre', $activo->act_nombre ?? '') }}"
                class="@error('act_nombre') is-invalid @enderror"
@@ -41,7 +41,7 @@
 
     {{-- SERIAL --}}
     <div class="post-form">
-        <label for="act_serial">Número de Serial *</label>
+        <label for="act_serial">Número de Serial <span class="text-danger">*</span></label>
         <input type="text" id="act_serial" name="act_serial"
                value="{{ old('act_serial', $activo->act_serial ?? '') }}"
                class="@error('act_serial') is-invalid @enderror"
@@ -53,7 +53,7 @@
 
     {{-- FOTO DEL ACTIVO --}}
     <div class="post-form">
-        <label for="act_foto">Fotografía del Activo</label>
+        <label for="act_foto">Fotografía del Activo <span class="text-danger">*</span></label>
         <input type="file" id="act_foto" name="act_foto" accept="image/*">
         @if($esEdicion && isset($activo->act_foto))
             <small class="texto-aviso-foto">
@@ -71,9 +71,22 @@
                placeholder="Ej: Dell, HP, Epson">
     </div>
 
+    <div class="post-form">
+        <label for="his_pre_valor">Precio</label>
+        <input type="number" 
+            step="0.01" 
+            min="0" 
+            id="his_pre_valor" 
+            name="his_pre_valor" 
+            maxlength="50"
+            value="{{ old('his_pre_valor', $activo->his_pre_valor ?? '') }}"
+            class="@error('his_pre_valor') is-invalid @enderror"
+            placeholder="Ej: 1500000">
+    </div>
+
     {{-- ESTADO FÍSICO --}}
     <div class="post-form">
-        <label for="act_estado_fisico">Estado Físico *</label>
+        <label for="act_estado_fisico">Estado Físico <span class="text-danger">*</span></label>
         <select name="act_estado_fisico" id="act_estado_fisico" required>
             <option value="Excelente" {{ old('act_estado_fisico', $activo->act_estado_fisico ?? '') == 'Excelente' ? 'selected' : '' }}>Excelente</option>
             <option value="Bueno" {{ old('act_estado_fisico', $activo->act_estado_fisico ?? '') == 'Bueno' ? 'selected' : '' }}>Bueno</option>
@@ -84,7 +97,7 @@
 
     {{-- UBICACIÓN (AULA ASIGNADA) --}}
     <div class="post-form">
-        <label for="aula_id">Ubicación (Aula Asignada) *</label>
+        <label for="aula_id">Ubicación (Aula Asignada) <span class="text-danger">*</span></label>
         <select name="aula_id" id="aula_id">
             <option value="">-- Selecciona el Aula --</option>
             @foreach($aulas ?? [] as $a)
@@ -96,7 +109,7 @@
     </div>
 
     <div class="post-form">
-        <label for="cate_id">Categoria del equipo *</label> 
+        <label for="cate_id">Categoria del equipo <span class="text-danger">*</span></label> 
         <select name="cate_id" id="cate_id">
             <option value="">-- Selecciona la categoria --</option>
             @foreach($categorias ?? [] as $cate)
@@ -107,9 +120,20 @@
         </select>
     </div>
 
-    <div class="col-md-6">
-        <label for="act_fecha_ingreso">Fecha de Ingreso *</label>
-        <input type="date" name="act_fecha_ingreso" value="{{ old('act_fecha_ingreso', date('Y-m-d')) }}" class="form-control bg-light border-0 py-2 px-3 rounded-pill">
+    <div class="post-form">
+        <label for="act_fecha_ingreso">Fecha de Ingreso <span class="text-danger">*</span></label>
+        <input type="date" 
+            id="act_fecha_ingreso" 
+            name="act_fecha_ingreso" 
+            value="{{ old('act_fecha_ingreso', isset($activo->act_fecha_ingreso) ? \Carbon\Carbon::parse($activo->act_fecha_ingreso)->format('Y-m-d') : date('Y-m-d')) }}" 
+            class="form-control bg-light border-0 py-2 px-3 rounded-pill @error('act_fecha_ingreso') is-invalid @enderror"
+            required>
+            
+        @error('act_fecha_ingreso')
+            <span class="invalid-feedback" style="display: block; color: var(--color-estado-dañado); font-size: 0.875rem;">
+                {{ $message }}
+            </span>
+        @enderror
     </div>
 
     <div class="post-form-switch">

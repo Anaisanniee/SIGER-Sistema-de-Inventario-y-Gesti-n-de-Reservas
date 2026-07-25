@@ -102,3 +102,12 @@ Route::middleware(['auth', 'role:Secretaria'])->group(function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+
+// ==========================================
+// RUTAS DE PRUEBA (NO TOCAR)
+// ==========================================
+Route::get('/prueba', function () {
+    return view('reservas.crear.paso3');
+});

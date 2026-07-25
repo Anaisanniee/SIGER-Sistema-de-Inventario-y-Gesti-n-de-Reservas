@@ -4,7 +4,7 @@
 
 /* Contenedor Base Adaptable (soporta <button> y <a> sin romper diseño) */
 .tarjeta-reserva-siger {
-    background-color: #ffffff; /* Fondo blanco para contraste */
+    background-color: var(--color-fondo); /* Fondo blanco para contraste */
     border: 1px solid var(--color-borde);
     border-radius: var(--borde-radio, 8px);
     padding: var(--espaciado);
@@ -172,12 +172,12 @@
 
 .btn-aprobar-siger { 
     background-color: var(--color-estado-disponible); 
-    color: #ffffff; 
+    color: var(--color-fondo); 
 }
 
 .btn-rechazar-siger { 
     background-color: var(--color-estado-dañado); 
-    color: #ffffff; 
+    color: var(--color-fondo); 
 }
 
 /* Adaptación Mobile interna del componente */

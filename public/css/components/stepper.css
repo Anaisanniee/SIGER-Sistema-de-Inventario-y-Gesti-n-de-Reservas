@@ -83,7 +83,7 @@
 .paso-item.completado .paso-circulo {
     border-color: var(--color-principal);
     background-color: var(--color-principal);
-    color: var(--color-fondo);
+    color: var(--color-fondo) !important;
 }
 
 .paso-item.actual .paso-circulo {
@@ -109,6 +109,9 @@
 .paso-item.actual .paso-texto,
 .paso-item.completado .paso-texto {
     color: var(--color-principal);
+    /* Aumenta un poco el peso de la fuente para resaltar el paso actual o completado */
+    /*para mostar el chulo de completado, se puede usar un icono de checkmark en lugar de cambiar el color del texto*/
+    
     font-weight: 600;
 }
 

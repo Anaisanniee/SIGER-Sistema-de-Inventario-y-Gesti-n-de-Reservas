@@ -1,10 +1,22 @@
 @extends('layouts.app')
 @section('mostrarPerfil', 'false')
 @section('mostrarBusqueda', 'false')
+
 @section('content')
 @php
-    // Simulamos las variables para pruebas; tu compañero de backend las pasará desde el controlador o sesión
-    $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'aula'; // Puede ser 'activo' o 'aula'
+    // Simulamos las variables para pruebas (o las que mande tu backend desde el controlador / sesión)
+    $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'aula';
+    $recursoNombre = isset($recurso) ? $recurso->nombres : ($tipoRecurso === 'aula' ? 'Laboratorio de Sistemas A' : 'Computador Portátil Dell');
+    $capacidad = isset($recurso) ? $recurso->capacidad : '35 Estudiantes';
+    $serial = isset($recurso) ? $recurso->serial : 'DELL-5420-X92';
+    $marca = isset($recurso) ? $recurso->marca : 'Dell Inspiron';
+
+    // Lista de activos adicionales (SI ES RESERVA MÚLTIPLE O TIENE INVENTARIO VINCULADO)
+    // Si no hay nada o es una reserva simple, la dejas como array vacío: $activosIncluidos = [];
+    $activosIncluidos = session('activos_reserva', [
+        ['nombre' => 'VideoBeam Epson X41', 'codigo' => 'VB-001'],
+
+    ]); 
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -12,105 +24,46 @@
 
 <div class="contenedor-reserva-universal">
     
-    {{-- 1. COMPONENTE STEPPER (Barra de Progreso en Paso 3 - Completo) --}}
+    {{-- 1. COMPONENTE STEPPER --}}
     <x-reservas.stepper paso="3" />
 
-    {{-- 2. BLOQUE CENTRAL DE RESUMEN FINAL --}}
-    <div class="tarjeta-reserva-siger tarjeta-confirmacion-paso3">
+    {{-- 2. COMPONENTE DE RESUMEN FINAL --}}
+    <x-reservas.resumen-reserva 
+        :tipoRecurso="$tipoRecurso"
+        :solicitante="Auth::user()->nombres ?? 'Docente Solicitante'"
+        :identificacion="Auth::user()->identificacion ?? '1.004.234.XXX'"
+        :email="Auth::user()->email ?? 'docente@colegio.edu.co'"
+        :recursoNombre="$recursoNombre"
+        :capacidad="$capacidad"
+        :serial="$serial"
+        :marca="$marca"
+        :fechaInicio="session('res_fecha_inicio') ?? '2026-07-10'"
+        :horaInicio="session('res_hora_inicio') ?? '07:00 AM'"
+        :fechaFin="session('res_fecha_fin') ?? '2026-07-10'"
+        :horaFin="session('res_hora_fin') ?? '09:30 AM'"
+        :aulaUso="session('aula_uso') ?? 'Salón 601'"
+        :activos="$activosIncluidos" 
+    />
+
+    {{-- 3. FORMULARIO FINAL DE ENVÍO --}}
+    <form action="#" method="POST" class="formulario-paso3">
+        @csrf
         
-        <div class="encabezado-resumen-final">
-            <h2><i class="bi bi-file-earmark-check-fill text-verde"></i> Resumen Final de la Reserva</h2>
-            <p class="subtitulo-tarjeta">Por favor, verifique todos los datos antes de confirmar la solicitud del recurso.</p>
+        <div class="notificacion-alerta-siger margin-top-main">
+            <p>⚠️ Al presionar "Confirmar y Guardar", la solicitud se mostrará pendiente para aprobación.</p>
         </div>
 
-        <div class="grid-resumen-bloques">
+        {{-- Botones de Navegación --}}
+        <div class="contenedor-botones-paso3">
+            <x-botones.boton type="button" class="btn-siger-accion btn btn-azul" onclick="window.history.back();">
+                ⬅ Modificar Horario
+            </x-botones.boton>
             
-            {{-- Bloque 1: Datos del Solicitante --}}
-            <div class="bloque-resumen-interno">
-                <h3><i class="bi bi-person-vcard"></i> Datos del Solicitante</h3>
-                <div class="contenido-resumen-item">
-                    <p><strong>Nombre:</strong> {{ Auth::user()->nombres ?? 'Docente Solicitante' }}</p>
-                    <p><strong>Identificación:</strong> {{ Auth::user()->identificacion ?? '1.004.234.XXX' }}</p>
-                    <p><strong>Correo Electrónico:</strong> {{ Auth::user()->email ?? 'docente@colegio.edu.co' }}</p>
-                </div>
-            </div>
-
-            {{-- Bloque 2: Información del Recurso --}}
-            <div class="bloque-resumen-interno">
-                <h3>
-                    @if($tipoRecurso === 'aula')
-                        <i class="bi bi-door-open"></i> Datos del Salón
-                    @else
-                        <i class="bi bi-laptop"></i> Datos del Recurso
-                    @endif
-                </h3>
-                <div class="contenido-resumen-item">
-                    <p><strong>Nombre:</strong> {{ isset($recurso) ? $recurso->nombres : ($tipoRecurso === 'aula' ? 'Laboratorio de Sistemas A' : 'Computador Portátil Dell') }}</p>
-                    
-                    @if($tipoRecurso === 'aula')
-                        <p><strong>Capacidad:</strong> {{ isset($recurso) ? $recurso->capacidad : '35 Estudiantes' }}</p>
-                    @else
-                        <p><strong>Serial/Placa:</strong> {{ isset($recurso) ? $recurso->serial : 'DELL-5420-X92' }}</p>
-                        <p><strong>Marca:</strong> {{ isset($recurso) ? $recurso->marca : 'Dell Inspiron' }}</p>
-                    @endif
-                </div>
-            </div>
-
-            {{-- Bloque 3: Fecha y Horario --}}
-            <div class="bloque-resumen-interno grid-ancho-completo">
-                <h3><i class="bi bi-calendar3"></i> Asignación de Tiempos</h3>
-                <div class="grid-tiempos-paso3">
-                    <div class="tiempo-caja">
-                        <span class="tiempo-titulo">Inicio de Reserva</span>
-                        <p><i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> {{ session('res_fecha_inicio') ?? '2026-07-10' }}</p>
-                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('res_hora_inicio') ?? '07:00 AM' }}</p>
-                    </div>
-                    <div class="tiempo-caja">
-                        <span class="tiempo-titulo">Finalización de Reserva</span>
-                        <p><i class="bi bi-calendar-check"></i> <strong>Fecha:</strong> {{ session('res_fecha_fin') ?? '2026-07-10' }}</p>
-                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('res_hora_fin') ?? '09:30 AM' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Bloque Dinámico: Destino del Traslado (Solo para Activos) --}}
-                @if($tipoRecurso !== 'aula')
-                    <div class="bloque-resumen-interno grid-ancho-completo bloque-ubicacion-paso3">
-                        <h3><i class="bi bi-geo-alt-fill"></i> Ubicación de Destino Asignada</h3>
-                        <div class="contenido-resumen-item">
-                            <p>El recurso será trasladado pedagógicamente para su uso en el siguiente espacio del colegio:</p>
-                            <p style="margin-top: 0.75rem;">
-                                <strong>Lugar de uso:</strong> 
-                                <span class="badge-aula-uso">
-                                    <i class="bi bi-pin-map-fill"></i> {{ session('aula_uso') ?? 'Salón 601' }}
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-                @endif
-
+            <x-botones.boton type="submit" class="btn-siger-accion btn">
+                Confirmar y Guardar Reserva
+            </x-botones.boton>
         </div>
+    </form>
 
-        {{-- Formulario Final de Envío --}}
-        <form action="#" method="POST" class="formulario-paso3">
-            @csrf
-            
-            <div class="notificacion-alerta-siger margin-top-main">
-                <p>⚠️ Al presionar "Confirmar y Guardar", la solicitud se mostrará pendiente para aprobación.</p>
-            </div>
-
-            {{-- Botones de Navegación --}}
-            <div class="contenedor-botones-paso3">
-                <x-botones.boton type="button" class="btn-siger-accion btn btn-azul" onclick="window.history.back();">
-                    ⬅ Modificar Horario
-                </x-botones.boton>
-                
-                <x-botones.boton type="submit" class="btn-siger-accion btn">
-                    Confirmar y Guardar Reserva
-                </x-botones.boton>
-            </div>
-        </form>
-
-    </div>
 </div>
 @endsection

@@ -23,7 +23,7 @@
 
     {{-- NOMBRE DEL AULA --}}
     <div class="post-form">
-        <label for="aula_nombre">Nombre del Aula / Espacio *</label>
+        <label for="aula_nombre">Nombre del Aula / Espacio <span class="text-danger">*</span></label>
         <input type="text" id="aula_nombre" name="aula_nombre"
                value="{{ old('aula_nombre', $aula->aula_nombre ?? '') }}"
                placeholder="Ej. Laboratorio A, Aula 102">
@@ -31,7 +31,7 @@
 
     {{-- TIPO DE AULA (Llave foránea mapeada de la BD) --}}
     <div class="post-form">
-        <label for="tip_aula_id">Categoría / Tipo de Aula *</label>
+        <label for="tip_aula_id">Categoría / Tipo de Aula <span class="text-danger">*</span></label>
         <select name="tip_aula_id" id="tip_aula_id">
             @foreach($tipos as $tipo)
                 <option value="{{ $tipo->tip_aula_id }}" 
@@ -44,13 +44,13 @@
 
     {{-- CAPACIDAD --}}
     <div class="post-form">
-        <label for="aula_capacidad">Capacidad (Personas) *</label>
+        <label for="aula_capacidad">Capacidad (Personas) <span class="text-danger">*</span></label>
         <input type="number" id="aula_capacidad" name="aula_capacidad"
                value="{{ old('aula_capacidad', $aula->aula_capacidad ?? '') }}"
                placeholder="Ej. 30">
     </div>
 
-    {{-- 📸 FOTOGRAFÍA DEL AULA / ESPACIO --}}
+    {{-- FOTOGRAFÍA DEL AULA / ESPACIO --}}
     <div class="post-form">
         <label for="aula_foto">Fotografía del Aula / Espacio</label>
         <input type="file" id="aula_foto" name="aula_foto" accept="image/*">
@@ -63,7 +63,7 @@
 
     {{-- ESTADO --}}
     <div class="post-form">
-        <label for="aula_estado">Estado Inicial *</label>
+        <label for="aula_estado">Estado Inicial <span class="text-danger">*</span></label>
         <select name="aula_estado" id="aula_estado">
             <option value="Disponible" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Disponible' ? 'selected' : '' }}>Disponible</option>
             <option value="Mantenimiento" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Mantenimiento' ? 'selected' : '' }}>En Mantenimiento</option>
