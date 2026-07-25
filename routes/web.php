@@ -74,6 +74,14 @@ Route::delete('/aulas/{id}/force-delete', [AulasControllers::class, 'forceDelete
 Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show');
 
 // ==========================================
+// RUTAS DE RESERVAS
+// ==========================================
+
+// Ruta temporal para visualizar el módulo de reservas
+Route::get('/reservas', function () {
+    return view('reservas.index');
+});
+// ==========================================
 // RUTAS DEL DASHBOARD
 // ==========================================
 
