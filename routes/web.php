@@ -81,6 +81,20 @@ Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show')
 Route::get('/reservas', function () {
     return view('reservas.index');
 });
+
+// Pasos para crear una reserva
+Route::get('/reservas/crear/paso1', function () {
+    return view('reservas.crear.paso1');
+});
+
+Route::get('/reservas/crear/paso2', function () {
+    return view('reservas.crear.paso2');
+});
+
+Route::get('/reservas/crear/paso3', function () {
+    return view('reservas.crear.paso3');
+});
+
 // ==========================================
 // RUTAS DEL DASHBOARD
 // ==========================================
