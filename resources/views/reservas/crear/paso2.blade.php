@@ -3,11 +3,9 @@
 @section('mostrarBusqueda', 'false')
 @section('content')
 @php
-    // La variable no viene del controlador esta en rutas de prueba cambiar cuando se pase a controlador
-    // Filtra los datos de la reserva según el tipo de recurso (activo o aula) para mostrar u ocultar el campo "Aula de uso" en la vista de reserva.
-    // $recursos = session('recursos', []); 
-    // $recurso = isset($recursos[0]) ? $recursos[0] : null; 
-    $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'aula';
+    // Recuperamos el tipo de recurso de la sesión o del controlador
+    $tipoRecurso = $tipoRecurso ?? session('reserva.tipo_recurso', 'activo');
+    $recurso = $recurso ?? session('reserva.recurso_objeto', null);
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -34,14 +32,14 @@
                 
                 {{-- COMPONENTE: Detalle del Recurso (Con Estado Disponible) --}}
                 <x-reservas.detalle-recurso 
-                    :nombre="isset($recurso) ? $recurso->nombres : 'Computador Dell Inspiron'" 
-                    :detalle="isset($recurso) ? $recurso->serial : '#EQ-01 --- Windows 11'" 
+                    :nombre="isset($recurso) && $recurso ? ($recurso->act_nombre ?? ($recurso->aula_nombre ?? ($recurso->nombres ?? 'Recurso Seleccionado'))) : 'Recurso Seleccionado'" 
+                    :detalle="isset($recurso) && $recurso ? ($recurso->act_serial ?? (isset($recurso->aula_capacidad) ? 'Capacidad: ' . $recurso->aula_capacidad : 'Detalle no disponible')) : 'Detalle no disponible'" 
                     estado="Disponible" 
                 />
             </div>
 
             {{-- Formulario Dinámico de Reserva --}}
-            <form action="#" method="POST" class="formulario-dinamico">
+            <form action="{{ route('reservas.paso2.post') }}" method="POST" class="formulario-dinamico">
                 @csrf
                 
                 {{-- Bloque de Fecha y Horario vuelto Desplegable en Móvil --}}
@@ -60,12 +58,14 @@
                             <div class="post-form">
                                 <label for="res_fecha_inicio">Fecha de Inicio <span class="text-danger">*</span></label>
                                 <input type="date" id="res_fecha_inicio" name="res_fecha_inicio" required 
+                                    min="{{ date('Y-m-d') }}"
                                     value="{{ old('res_fecha_inicio') }}">
                             </div>
 
                             <div class="post-form">
                                 <label for="res_fecha_fin">Fecha de Fin <span class="text-danger">*</span></label>
                                 <input type="date" id="res_fecha_fin" name="res_fecha_fin" required 
+                                    min="{{ date('Y-m-d') }}"
                                     value="{{ old('res_fecha_fin') }}">
                             </div>
                         </div>
@@ -106,24 +106,20 @@
 
                                 <div class="post-form">
                                     <label for="aula_uso">¿En qué aula o salón utilizará el recurso? <span class="text-danger">*</span></label>
-                                    <input type="text" 
+                                    <select 
                                         name="aula_uso" 
                                         id="aula_uso" 
-                                        list="lista-salones" 
-                                        placeholder="Escribe para buscar o seleccionar el salón..." 
                                         required 
-                                        class="input-siger"
-                                        value="{{ old('aula_uso') }}"
-                                        autocomplete="off">
-
-                                    <datalist id="lista-salones">
-                                        <option value="Salón 601"></option>
-                                        <option value="Salón 702"></option>
-                                        <option value="Laboratorio de Ciencias"></option>
-                                        <option value="Sala de Sistemas A"></option>
-                                        <option value="Sala de Sistemas B"></option>
-                                        <option value="Biblioteca Principal"></option>
-                                    </datalist>
+                                        class="input-siger form-control"
+                                        style="...">
+                                        <option value="" disabled selected>Selecciona un salón...</option>
+                                        @foreach($aulas as $aula)
+                                            {{-- Aquí cambiamos $aula->aula_nombre por la llave primaria del aula, por ejemplo $aula->id --}}
+                                            <option value="{{ $aula->id ?? $aula->aula_id }}" {{ old('aula_uso') == ($aula->id ?? $aula->aula_id) ? 'selected' : '' }}>
+                                                {{ $aula->aula_nombre }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         @else
@@ -151,7 +147,7 @@
                             <div class="alert alert-danger mt-2">
                                 {{ $errors->first('res_motivo') }}
                             </div>
-                        @endif          
+                        @endif         
                         
                         {{-- Botón de confirmación local --}}
                         <div class="contenedor-botones">
@@ -173,11 +169,11 @@
                 
                 {{-- Reutilización del Componente (Sin Estado para el resumen) --}}
                 <x-reservas.detalle-recurso 
-                    :nombre="isset($recurso) ? $recurso->nombres : 'Computador Dell Inspiron'" 
-                    :detalle="isset($recurso) ? $recurso->serial : '#EQ-01 --- Windows 11'" 
+                    :nombre="isset($recurso) && $recurso ? ($recurso->act_nombre ?? ($recurso->aula_nombre ?? ($recurso->nombres ?? 'Recurso Seleccionado'))) : 'Recurso Seleccionado'" 
+                    :detalle="isset($recurso) && $recurso ? ($recurso->act_serial ?? (isset($recurso->aula_capacidad) ? 'Capacidad: ' . $recurso->aula_capacidad : 'Detalle no disponible')) : 'Detalle no disponible'" 
                 />
 
-                {{-- Tabla de Detalles Requeridos --}}
+                {{-- Tabla de Detalles Requeridos (Con sus respectivos IDs para JS) --}}
                 <table class="tabla-resumen-siger">
                     <tr>
                         <td>Fecha</td>
@@ -193,7 +189,7 @@
                     </tr>
                     <tr>
                         <td>Identificación</td>
-                        <td class="resaltado-amarillo" id="resumen-identificacion-preview">Por completar</td>
+                        <td class="resaltado-amarillo" id="resumen-identificacion-preview">{{ Auth::user()->cedula ?? Auth::user()->identificacion ?? 'Por completar' }}</td>
                     </tr>
                     <tr>
                         <td>Motivo</td>
@@ -224,6 +220,87 @@
     </div> {{-- Fin del Grid --}}
 </div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const inputFechaInicio = document.getElementById('res_fecha_inicio');
+    const inputFechaFin = document.getElementById('res_fecha_fin');
+    const inputHoraInicio = document.getElementById('res_hora_inicio');
+    const inputHoraFin = document.getElementById('res_hora_fin');
+
+    const previewFecha = document.getElementById('resumen-fecha-preview');
+    const previewHorario = document.getElementById('resumen-horario-preview');
+    const previewIdentificacion = document.getElementById('resumen-identificacion-preview');
+
+    const hoy = "{{ date('Y-m-d') }}";
+
+    // 1. Sincronizar la fecha mínima de fin
+    inputFechaInicio.addEventListener('change', function () {
+        inputFechaFin.min = this.value;
+        if (inputFechaFin.value && inputFechaFin.value < this.value) {
+            inputFechaFin.value = this.value;
+        }
+        actualizarFechaPreview();
+    });
+
+    inputFechaFin.addEventListener('change', function () {
+        if (inputFechaInicio.value && this.value < inputFechaInicio.value) {
+            alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+            this.value = inputFechaInicio.value;
+        }
+        actualizarFechaPreview();
+    });
+
+    function actualizarFechaPreview() {
+        if (inputFechaInicio.value && inputFechaFin.value) {
+            if (inputFechaInicio.value === inputFechaFin.value) {
+                previewFecha.textContent = inputFechaInicio.value;
+            } else {
+                previewFecha.textContent = `${inputFechaInicio.value} al ${inputFechaFin.value}`;
+            }
+            previewFecha.classList.remove('resaltado-amarillo');
+        } else if (inputFechaInicio.value) {
+            previewFecha.textContent = inputFechaInicio.value;
+            previewFecha.classList.remove('resaltado-amarillo');
+        } else {
+            previewFecha.textContent = 'Por completar';
+            previewFecha.classList.add('resaltado-amarillo');
+        }
+    }
+
+    // 2. Asegurar que la hora de fin sea mayor a la hora de inicio y actualizar preview
+    inputHoraInicio.addEventListener('change', function () {
+        inputHoraFin.min = this.value;
+        if (inputHoraFin.value && inputHoraFin.value <= this.value) {
+            inputHoraFin.value = '';
+        }
+        actualizarHorarioPreview();
+    });
+
+    inputHoraFin.addEventListener('change', function () {
+        if (inputHoraInicio.value && this.value <= inputHoraInicio.value) {
+            alert('La hora de fin debe ser posterior a la hora de inicio.');
+            this.value = '';
+        }
+        actualizarHorarioPreview();
+    });
+
+    function actualizarHorarioPreview() {
+        if (inputHoraInicio.value && inputHoraFin.value) {
+            previewHorario.textContent = `${inputHoraInicio.value} - ${inputHoraFin.value}`;
+            previewHorario.classList.remove('resaltado-amarillo');
+        } else {
+            previewHorario.textContent = 'Por completar';
+            previewHorario.classList.add('resaltado-amarillo');
+        }
+    }
+
+    // Auto-completar identificación si el usuario la tiene cargada en sesión
+    if (previewIdentificacion && previewIdentificacion.textContent.trim() !== 'Por completar') {
+        previewIdentificacion.classList.remove('resaltado-amarillo');
+    }
+});
+</script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -268,9 +345,9 @@
             });
         }
 
-        // Escucha la escritura o selección en el input del aula de destino
+        // Escucha el cambio de selección en el select del aula de destino
         if (inputAula && previewAula) {
-            inputAula.addEventListener('input', function() {
+            inputAula.addEventListener('change', function() {
                 const valor = this.value.trim();
                 if (valor !== '') {
                     previewAula.textContent = valor;

@@ -8,42 +8,22 @@
 <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}">
 
 @php
-    $reservasSimuladas = [
-        (object)[
-            'id' => 1,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Computador Dell Inspiron',
-            'estado' => 'pendiente',
-            'usuario_nombre' => 'Docente Carlos Mendoza',
-            'fecha' => '2026-07-12',
-            'hora_inicio' => '8:00 AM',
-            'hora_fin' => '10:00 AM',
-            'ubicacion' => 'Aula 101'
-        ],
-        (object)[
-            'id' => 2,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Videobeam Epson X41',
-            'estado' => 'aprobada',
-            'usuario_nombre' => 'Docente María Alejandra',
-            'fecha' => '2026-07-13',
-            'hora_inicio' => '10:00 AM',
-            'hora_fin' => '12:00 PM',
-            'ubicacion' => 'Laboratorio de Sistemas'
-        ],
-        (object)[
-            'id' => 3,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Auditorio Central',
-            'estado' => 'rechazada',
-            'usuario_nombre' => 'Ing. Ricardo Torres',
-            'fecha' => '2026-07-15',
-            'hora_inicio' => '02:00 PM',
-            'hora_fin' => '06:00 PM',
-            'ubicacion' => 'Bloque B'
-        ]
-    ];
-@endphp
+    // Mapeamos las reservas reales de la base de datos al formato visual que ya tienes
+    $reservasMapeadas = $reservas->map(function($reserva) {
+        $detalle = $reserva->detalles->first();
+        return (object)[
+            'id'             => $reserva->res_id,
+            'recurso_foto'   => null,
+            'recurso_nombre' => optional(optional($detalle)->activo)->act_nombre ?? 'Recurso Asignado',
+            'estado'         => strtolower($reserva->res_estado_reserva ?? 'pendiente'),
+            'usuario_nombre' => optional($reserva->usuario)->name ?? optional($reserva->usuario)->nombres ?? 'Usuario #' . $reserva->usu_id,
+            'fecha'          => $detalle && $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('Y-m-d') : now()->format('Y-m-d'),
+            'hora_inicio'    => $detalle && $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('h:i A') : '--:--',
+            'hora_fin'       => $detalle && $detalle->det_re_fecha_fin ? \Carbon\Carbon::parse($detalle->det_re_fecha_fin)->format('h:i A') : '--:--',
+            'ubicacion'      => optional(optional($detalle)->aula)->aula_nombre ?? 'Aula general'
+        ];
+    });
+@endphp 
 
 <div class="panel-administracion-contenedor">
     
@@ -79,7 +59,7 @@
         <!-- COLUMNA IZQUIERDA: LISTADO DE TARJETAS IDÉNTICAS -->
         <div class="columna-solicitudes">
             <div class="container-tarjetas-vertical">
-                @foreach($reservasSimuladas as $reserva)
+                @forelse($reservasMapeadas as $reserva)
                     @php
                         $tagsReserva = ['reserva', strtolower($reserva->estado)];
                         $strTagsReserva = implode(' ', $tagsReserva);
@@ -100,7 +80,12 @@
                         ])
                         @endcomponent
                     </div>
-                @endforeach
+                @empty
+                    <div style="text-align: center; padding: 40px; color: var(--color-texto-secundario);">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p>No hay solicitudes de reservas registradas en este momento.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
 

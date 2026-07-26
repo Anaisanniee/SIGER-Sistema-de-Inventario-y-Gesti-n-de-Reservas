@@ -1,8 +1,19 @@
 {{-- resources/views/components/tarjetas/tarjeta-recurso.blade.php --}}
 
 @php
-    // Si la variable fue enviada desde la vista, usa ese valor. Si no, la pone en false por defecto.
     $esAdmin = isset($esAdmin) ? $esAdmin : false; 
+
+    // Identificamos con precisión quirúrgica el ID y el Tipo exacto
+    // Si el objeto tiene un identificador de activo o serial, es ACTIVO. Si tiene capacidad o aula_id, es AULA.
+    $esActivo = isset($recurso->act_id) || isset($recurso->act_serial) || isset($recurso->act_marca);
+    
+    $tipoStr = $esActivo ? 'activo' : 'aula';
+    
+    // Obtenemos su ID correspondiente
+    $idRecurso = $esActivo ? ($recurso->act_id ?? $recurso->id ?? null) : ($recurso->aula_id ?? $recurso->id ?? null);
+
+    // Construimos la URL limpia
+    $urlReserva = $idRecurso ? route('reservas.paso1', ['id' => $idRecurso]) . '?tipo=' . $tipoStr : '#';
 @endphp
 
 <div class="tarjeta-recurso">
@@ -62,12 +73,36 @@
                         {{-- BOTONES ADMINISTRATIVOS --}}
             <div class="botones-admin">
 
-                {{-- BOTÓN EDITAR --}}
-                <x-botones.boton 
-                    class="btn" 
-                    url="{{ $urlBoton ?? '/reservas' }}">
-                    {{ $textoBoton ?? 'Reservar' }}
-                </x-botones.boton>
+                {{-- BOTÓN DINÁMICO (EDITAR O RESERVAR) --}}
+                @if(request()->is('activos*') || request()->is('inventario*'))
+                    @php
+                        $idEditar = $recurso->act_id ?? $recurso->aula_id ?? null;
+                        $rutaEditar = isset($recurso->act_id) ? route('activos.edit', $idEditar) : route('aulas.edit', $idEditar);
+                    @endphp
+
+                    <x-botones.boton 
+                        class="btn btn-warning" 
+                        url="{{ $rutaEditar }}">
+                        <i class="bi bi-pencil"></i> Editar
+                    </x-botones.boton>
+                @else
+                    @php
+                        // Verificamos de forma estricta qué ID tiene contenido real
+                        if (isset($recurso->act_id) && !empty($recurso->act_id)) {
+                            $idReserva = $recurso->act_id;
+                            $tipoReserva = 'activo';
+                        } else {
+                            $idReserva = $recurso->aula_id;
+                            $tipoReserva = 'aula';
+                        }
+                    @endphp
+
+                    <x-botones.boton 
+                        class="btn btn-primary" 
+                        url="{{ route('reservas.paso1', $idReserva) . '?tipo=' . $tipoReserva }}">
+                        <i class="bi bi-calendar-check"></i> Reservar
+                    </x-botones.boton>
+                @endif
 
                 {{-- BOTÓN ELIMINAR editar cuando haya controllers--}}
                 @if($esAdmin)

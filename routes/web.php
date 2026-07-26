@@ -6,6 +6,7 @@ use App\Http\Controllers\AulasControllers;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReservasControllers;
 
 // ==========================================
 // RUTA DE INVENTARIO
@@ -77,23 +78,25 @@ Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show')
 // RUTAS DE RESERVAS
 // ==========================================
 
-// Ruta temporal para visualizar el módulo de reservas
-Route::get('/reservas', function () {
-    return view('reservas.index');
-});
+Route::get('/secretaria/reservas', [ReservasControllers::class, 'indexSecretaria'])->name('secretaria.reservas');
 
-// Pasos para crear una reserva
-Route::get('/reservas/crear/paso1', function () {
-    return view('reservas.crear.paso1');
-});
+// Ruta para mostrar el paso 1
+Route::get('/reservas/crear/paso1/{id?}/{tipo?}', [ReservasControllers::class, 'paso1'])->name('reservas.paso1');
 
-Route::get('/reservas/crear/paso2', function () {
-    return view('reservas.crear.paso2');
-});
+// Ruta POST que recibe el formulario del paso 1
+Route::post('/reservas/crear/paso1/{id}', [ReservasControllers::class, 'postPaso1'])->name('reservas.paso1.post');
 
-Route::get('/reservas/crear/paso3', function () {
-    return view('reservas.crear.paso3');
-});
+// Ruta para mostrar el Paso 2
+Route::get('/reservas/crear/paso2', [ReservasControllers::class, 'paso2'])->name('reservas.paso2');
+
+// Ruta para procesar el formulario del Paso 2 (POST)
+Route::post('/reservas/paso-2', [ReservasControllers::class, 'guardarPaso2'])->name('reservas.paso2.post');
+
+// Ruta para mostrar el Paso 3 (GET)
+Route::get('/reservas/crear/paso3', [ReservasControllers::class, 'paso3'])->name('reservas.paso3');
+
+// Ruta para guardar o confirmar la reserva final (POST)
+Route::post('/reservas/crear/paso3', [ReservasControllers::class, 'guardarPaso3'])->name('reservas.paso3.post');
 
 // ==========================================
 // RUTAS DEL DASHBOARD

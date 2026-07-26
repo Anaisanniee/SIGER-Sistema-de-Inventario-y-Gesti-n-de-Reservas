@@ -3,8 +3,17 @@
 @section('mostrarBusqueda', 'false')
 @section('content')
 @php
-    // Simulamos las variables para pruebas; tu compañero de backend las pasará desde el controlador o sesión
-    $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'aula'; // Puede ser 'activo' o 'aula'
+    $recursoId = session('reserva.recurso_id');
+    $tipoRecurso = session('reserva.tipo_recurso', 'activo');
+
+    $recurso = null;
+    if ($recursoId) {
+        if ($tipoRecurso === 'aula') {
+            $recurso = \App\Models\AulasModels::find($recursoId);
+        } else {
+            $recurso = \App\Models\ActivosModels::find($recursoId);
+        }
+    }
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -29,9 +38,9 @@
             <div class="bloque-resumen-interno">
                 <h3><i class="bi bi-person-vcard"></i> Datos del Solicitante</h3>
                 <div class="contenido-resumen-item">
-                    <p><strong>Nombre:</strong> {{ Auth::user()->nombres ?? 'Docente Solicitante' }}</p>
-                    <p><strong>Identificación:</strong> {{ Auth::user()->identificacion ?? '1.004.234.XXX' }}</p>
-                    <p><strong>Correo Electrónico:</strong> {{ Auth::user()->email ?? 'docente@colegio.edu.co' }}</p>
+                    <p><strong>Nombre:</strong> {{ Auth::user()?->USU_PRIMER_NOMBRE ?? 'Docente' }} {{ Auth::user()?->USU_PRIMER_APELLIDO ?? 'Solicitante' }}</p>
+                    <p><strong>Identificación:</strong> {{ Auth::user()?->USU_CEDULA ?? '1.004.234.XXX' }}</p>
+                    <p><strong>Correo Electrónico:</strong> {{ Auth::user()?->USU_CORREO ?? 'docente@colegio.edu.co' }}</p>
                 </div>
             </div>
 
@@ -45,13 +54,13 @@
                     @endif
                 </h3>
                 <div class="contenido-resumen-item">
-                    <p><strong>Nombre:</strong> {{ isset($recurso) ? $recurso->nombres : ($tipoRecurso === 'aula' ? 'Laboratorio de Sistemas A' : 'Computador Portátil Dell') }}</p>
-                    
+                    <p><strong>Nombre:</strong> {{ $recurso->act_nombre ?? ($recurso->aula_nombre ?? ($recurso->nombres ?? ($tipoRecurso === 'aula' ? 'Laboratorio de Sistemas A' : 'Computador Portátil Dell'))) }}</p>
+    
                     @if($tipoRecurso === 'aula')
-                        <p><strong>Capacidad:</strong> {{ isset($recurso) ? $recurso->capacidad : '35 Estudiantes' }}</p>
+                        <p><strong>Capacidad:</strong> {{ $recurso->aula_capacidad ?? ($recurso->capacidad ?? '35 Estudiantes') }}</p>
                     @else
-                        <p><strong>Serial/Placa:</strong> {{ isset($recurso) ? $recurso->serial : 'DELL-5420-X92' }}</p>
-                        <p><strong>Marca:</strong> {{ isset($recurso) ? $recurso->marca : 'Dell Inspiron' }}</p>
+                        <p><strong>Serial/Placa:</strong> {{ $recurso->act_serial ?? ($recurso->serial ?? 'DELL-5420-X92') }}</p>
+                        <p><strong>Marca:</strong> {{ $recurso->act_marca ?? ($recurso->marca ?? 'Dell Inspiron') }}</p>
                     @endif
                 </div>
             </div>
@@ -62,13 +71,13 @@
                 <div class="grid-tiempos-paso3">
                     <div class="tiempo-caja">
                         <span class="tiempo-titulo">Inicio de Reserva</span>
-                        <p><i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> {{ session('res_fecha_inicio') ?? '2026-07-10' }}</p>
-                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('res_hora_inicio') ?? '07:00 AM' }}</p>
+                        <p><i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> {{ session('reserva.fecha_inicio') ?? '2026-07-10' }}</p>
+                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('reserva.hora_inicio') ?? '07:00 AM' }}</p>
                     </div>
                     <div class="tiempo-caja">
                         <span class="tiempo-titulo">Finalización de Reserva</span>
-                        <p><i class="bi bi-calendar-check"></i> <strong>Fecha:</strong> {{ session('res_fecha_fin') ?? '2026-07-10' }}</p>
-                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('res_hora_fin') ?? '09:30 AM' }}</p>
+                        <p><i class="bi bi-calendar-check"></i> <strong>Fecha:</strong> {{ session('reserva.fecha_fin') ?? '2026-07-10' }}</p>
+                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('reserva.hora_fin') ?? '09:30 AM' }}</p>
                     </div>
                 </div>
             </div>
@@ -82,7 +91,7 @@
                             <p style="margin-top: 0.75rem;">
                                 <strong>Lugar de uso:</strong> 
                                 <span class="badge-aula-uso">
-                                    <i class="bi bi-pin-map-fill"></i> {{ session('aula_uso') ?? 'Salón 601' }}
+                                    <i class="bi bi-pin-map-fill"></i> {{ session('reserva.aula_uso') ?? 'Salón 601' }}
                                 </span>
                             </p>
                         </div>
@@ -92,14 +101,13 @@
         </div>
 
         {{-- Formulario Final de Envío --}}
-        <form action="#" method="POST" class="formulario-paso3">
+        <form action="{{ route('reservas.paso3.post') }}" method="POST" class="formulario-paso3">
             @csrf
             
             <div class="notificacion-alerta-siger margin-top-main">
                 <p>⚠️ Al presionar "Confirmar y Guardar", la solicitud se mostrará pendiente para aprobación.</p>
             </div>
 
-            {{-- Botones de Navegación --}}
             <div class="contenedor-botones-paso3">
                 <x-botones.boton type="button" class="btn-siger-accion btn btn-azul" onclick="window.history.back();">
                     ⬅ Modificar Horario

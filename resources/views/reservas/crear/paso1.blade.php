@@ -3,9 +3,8 @@
 @section('mostrarBusqueda', 'false')
 @section('content')
 @php
-    // Simulamos la variable para pruebas en rutas; tu compañero la enviará desde el controlador.
-    // Puede ser 'activo' o 'aula'
-    $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'activo'; 
+    // Confiamos plenamente en el $tipoRecurso que viene seguro del controlador
+    $tipoRecurso = $tipoRecurso ?? 'activo';
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -37,7 +36,7 @@
                 <div>
                     <span class="etiqueta-tipo-recurso">{{ ucfirst($tipoRecurso) }}</span>
                     <h1 class="nombre-recurso-paso1">
-                        {{ isset($recurso) ? $recurso->nombres : ($tipoRecurso === 'aula' ? 'Laboratorio de Sistemas A' : 'Computador Portátil Dell') }}
+                        {{ $tipoRecurso === 'aula' ? ($recurso->aula_nombre ?? 'Aula sin nombre') : ($recurso->act_nombre ?? 'Activo sin nombre') }}
                     </h1>
                 </div>
             </div>
@@ -48,32 +47,41 @@
                     {{-- ATRIBUTOS EXCLUSIVOS DE AULA --}}
                     <div class="item-atributo">
                         <span class="label-atributo">Capacidad</span>
-                        <span class="valor-atributo">{{ isset($recurso) ? $recurso->capacidad : '35 Estudiantes' }}</span>
+                        <span class="valor-atributo">
+                            {{ $recurso->aula_capacidad ?? ($recurso->capacidad ?? 'No registra') }} Estudiantes
+                        </span>
                     </div>
                     <div class="item-atributo">
                         <span class="label-atributo">Estado del Aula</span>
-                        <span class="valor-atributo estado-badge disponible">Disponible</span>
+                        <span class="valor-atributo estado-badge disponible">
+                            {{ $recurso->aula_estado ?? ($recurso->estado ?? 'Disponible') }}
+                        </span>
                     </div>
                 @else
                     {{-- ATRIBUTOS EXCLUSIVOS DE ACTIVO --}}
                     <div class="item-atributo">
                         <span class="label-atributo">Serial / Placa</span>
-                        <span class="valor-atributo font-mono">{{ isset($recurso) ? $recurso->serial : 'DELL-5420-X92' }}</span>
+                        <span class="valor-atributo font-mono">
+                            {{ $recurso->act_serial ?? ($recurso->serial ?? ($recurso->placa ?? 'Sin serial')) }}
+                        </span>
                     </div>
                     <div class="item-atributo">
                         <span class="label-atributo">Marca</span>
-                        <span class="valor-atributo">{{ isset($recurso) ? $recurso->marca : 'Dell Inspiron' }}</span>
+                        <span class="valor-atributo">
+                            {{ $recurso->act_marca ?? ($recurso->marca ?? 'No registra') }}
+                        </span>
                     </div>
                     <div class="item-atributo">
                         <span class="label-atributo">Estado Físico</span>
-                        <span class="valor-atributo estado-badge funcional">Excelente Estado</span>
+                        <span class="valor-atributo estado-badge funcional">
+                            {{ $recurso->act_estado_fisico ?? ($recurso->estado_fisico ?? ($recurso->estado ?? 'Excelente Estado')) }}
+                        </span>
                     </div>
                 @endif
             </div>
-        </div>
 
         {{-- Opciones de Decisión y Formulario --}}
-        <form action="#" method="POST" class="formulario-paso1">
+        <form action="{{ route('reservas.paso1.post', ['id' => $recurso->act_id ?? ($recurso->aula_id ?? 1)]) }}" method="POST" class="formulario-paso1">
             @csrf
             
             <div class="zona-decision">
