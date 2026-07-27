@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\ActivosModels;
 use App\Models\AulasModels;
 use App\Models\ReservasModels;
-
+use App\Models\DetallesReservasModels;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -56,12 +57,22 @@ class ReservasControllers extends Controller
             return redirect()->route('dashboard.docente')->with('info', 'Has cancelado la selección.');
         }
 
-        // Guardamos el ID del recurso y su tipo en la sesión temporalmente
-        $request->session()->put('reserva.recurso_id', $id);
-        // Puedes identificar si es activo o aula según tu lógica
-        $request->session()->put('reserva.tipo_recurso', 'activo'); 
+        // Capturamos el tipo de recurso que viene del formulario, o lo determinamos buscando en la BD si no viene
+        $tipoRecurso = $request->input('tipo_recurso');
+        
+        if (!$tipoRecurso) {
+            // Verificamos si existe en aulas, de lo contrario es activo
+            $tipoRecurso = AulasModels::where('aula_id', $id)->exists() ? 'aula' : 'activo';
+        }
 
-        // Redirigimos al Paso 2 (cuando lo tengan listo)
+        // Guardamos el ID del recurso, su tipo real y el objeto en la sesión
+        $recursoObjeto = ($tipoRecurso === 'aula') ? AulasModels::find($id) : ActivosModels::find($id);
+
+        $request->session()->put('reserva.recurso_id', $id);
+        $request->session()->put('reserva.tipo_recurso', $tipoRecurso); 
+        $request->session()->put('reserva.recurso_objeto', $recursoObjeto);
+
+        // Redirigimos al Paso 2
         return redirect()->route('reservas.paso2');
     }
 
@@ -71,48 +82,86 @@ class ReservasControllers extends Controller
         $tipoRecurso = session('reserva.tipo_recurso', 'activo');
 
         $recurso = null;
+        $horasOcupadas = [];
+
         if ($recursoId) {
             if ($tipoRecurso === 'aula') {
                 $recurso = \App\Models\AulasModels::find($recursoId); 
             } else {
                 $recurso = \App\Models\ActivosModels::find($recursoId); 
             }
+
+            // Consultar los rangos de horas ya reservados para bloquearlos
+            $campoFiltro = ($tipoRecurso === 'aula') ? 'aula_id' : 'act_id';
+            
+            $reservasExistentes = \App\Models\DetallesReservasModels::where($campoFiltro, $recursoId)
+                ->whereHas('reserva', function($query) {
+                    $query->whereIn('res_estado_reserva', ['Pendiente', 'Aprobada', 'pendiente', 'aprobada']);
+                })
+                ->get(['det_re_fecha_ini', 'det_re_fecha_fin']);
+
+            // Formateamos los rangos para usarlos fácilmente en JavaScript o validación extra
+            foreach ($reservasExistentes as $res) {
+                $horasOcupadas[] = [
+                    'inicio' => $res->det_re_fecha_ini,
+                    'fin' => $res->det_re_fecha_fin
+                ];
+            }
         }
 
-        // 1. Traemos todas las aulas registradas en el sistema
         $aulas = \App\Models\AulasModels::all();
 
-        // 2. Las enviamos a la vista junto con lo que ya tenías
-        return view('reservas.crear.paso2', compact('recurso', 'tipoRecurso', 'aulas'));
+        return view('reservas.crear.paso2', compact('recurso', 'tipoRecurso', 'aulas', 'horasOcupadas'));
     }
 
     public function guardarPaso2(Request $request)
     {
-        // Validaciones de seguridad en el backend
-        $request->validate([
-            'res_fecha_inicio' => 'required|date|after_or_equal:today',
+        // Obtener el recurso actual de la sesión para saber su tipo
+        $recurso = session('reserva.recurso_objeto', null);
+        $tipoRecurso = session('reserva.tipo_recurso');
+        
+        if (!$tipoRecurso && $recurso) {
+            $tipoRecurso = isset($recurso->aula_nombre) ? 'aula' : 'activo';
+        }
+
+        // 1. Validar los campos de la vista
+        $reglasValidacion = [
+            'res_fecha_inicio' => 'required|date',
             'res_fecha_fin'    => 'required|date|after_or_equal:res_fecha_inicio',
             'res_hora_inicio'  => 'required',
-            'res_hora_fin'     => 'required|after:res_hora_inicio',
-            'res_motivo'       => 'required|string',
-        ], [
-            'res_fecha_inicio.after_or_equal' => 'La fecha de inicio no puede ser una fecha pasada.',
-            'res_fecha_fin.after_or_equal'    => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
-            'res_hora_fin.after'              => 'La hora de fin debe ser posterior a la hora de inicio.',
-        ]);
+            'res_hora_fin'     => 'required',
+            'res_motivo'       => 'required|string|max:255',
+        ];
 
-        // Combinamos la fecha con su respectiva hora para que quede un formato completo (Ej: 2026-07-26 08:00:00)
-        $fechaInicioCompleta = $request->res_fecha_inicio . ' ' . $request->res_hora_inicio . ':00';
-        $fechaFinCompleta    = $request->res_fecha_fin . ' ' . $request->res_hora_fin . ':00';
+        // CORRECCIÓN: Solo exigimos 'aula_uso' si el tipo de recurso NO es un aula
+        if ($tipoRecurso !== 'aula') {
+            $reglasValidacion['aula_uso'] = 'required';
+        }
 
-        // Guardamos en sesión ya unificado
+        $request->validate($reglasValidacion);
+
+        // 2. Procesar y formatear horas asegurando los segundos (:00)
+        $horaInicioInput = $request->res_hora_inicio;
+        $horaFinInput    = $request->res_hora_fin;
+
+        $horaInicio = strlen($horaInicioInput) === 5 ? $horaInicioInput . ':00' : $horaInicioInput;
+        $horaFin    = strlen($horaFinInput) === 5 ? $horaFinInput . ':00' : $horaFinInput;
+
+        // 3. Unir correctamente la fecha con su respectiva hora de inicio y fin
+        $fechaHoraInicio = $request->res_fecha_inicio . ' ' . $horaInicio;
+        $fechaHoraFin    = $request->res_fecha_fin . ' ' . $horaFin;
+
+        // 4. Guardar en la sesión tanto las fechas completas como las horas individuales por respaldo
         session([
-            'reserva.res_fecha_inicio' => $fechaInicioCompleta,
-            'reserva.res_fecha_fin'    => $fechaFinCompleta,
+            'reserva.res_fecha_inicio' => $fechaHoraInicio,
+            'reserva.res_fecha_fin'    => $fechaHoraFin,
+            'reserva.res_hora_inicio'  => $horaInicio,
+            'reserva.res_hora_fin'     => $horaFin,
             'reserva.res_motivo'       => $request->res_motivo,
-            'reserva.aula_uso'         => $request->input('aula_uso'),
+            'reserva.aula_uso'         => $request->aula_uso ?? null,
         ]);
 
+        // Redireccionar al siguiente paso (Paso 3)
         return redirect()->route('reservas.paso3');
     }
 
@@ -121,7 +170,6 @@ class ReservasControllers extends Controller
         // Recuperamos todos los datos almacenados en la sesión de la reserva
         $datosReserva = session('reserva', []);
         
-        // Aquí puedes cargar la vista del paso 3 pasándole los datos acumulados
         return view('reservas.crear.paso3', compact('datosReserva'));
     }
 
@@ -135,17 +183,21 @@ class ReservasControllers extends Controller
             return redirect()->route('dashboard.docente')->with('error', 'No hay datos de reserva en proceso. Por favor, comience de nuevo.');
         }
 
-        // 2. Guardamos la cabecera principal en la tabla 'reservas'
-        $reserva = \App\Models\ReservasModels::create([
-            'usu_id'             => auth()->id() ?? 1, // Si no hay sesión, usa el ID 1 por defecto para probar
-            'res_estado_reserva' => 'Pendiente',
-            'res_fecha_creacion' => now()->toDateString(),
-            'res_motivo'         => $datosReserva['res_motivo'] ?? 'Sin motivo especificado',
-        ]);
+        // Determinamos el tipo de recurso de forma segura desde la sesión
+        $tipoRecurso = $datosReserva['tipo_recurso'] ?? 'activo';
+        if (!isset($datosReserva['tipo_recurso']) && isset($datosReserva['recurso_objeto'])) {
+            $tipoRecurso = isset($datosReserva['recurso_objeto']->aula_nombre) ? 'aula' : 'activo';
+        }
 
-        // Lógica para resolver el ID del aula de forma segura usando 'aula_id'
+        // Rescatamos de forma robusta el ID real del recurso seleccionado
+        $recursoIdReal = $datosReserva['recurso_id'] 
+            ?? ($datosReserva['recurso_objeto']->id ?? null)
+            ?? ($datosReserva['recurso_objeto']->act_id ?? null)
+            ?? ($datosReserva['recurso_objeto']->aula_id ?? 1);
+
+        // Lógica para resolver el ID del aula de destino o uso de forma segura
         $aulaIngresada = $datosReserva['aula_uso'] ?? null;
-        $aulaIdReal = 1; // Valor por defecto por seguridad
+        $aulaIdReal = 1; 
 
         if ($aulaIngresada) {
             $aulaObj = \App\Models\AulasModels::where('aula_id', $aulaIngresada)
@@ -156,20 +208,82 @@ class ReservasControllers extends Controller
             }
         }
 
-        // 3. Guardamos los datos específicos en la tabla 'detalles_reservas'
-        \App\Models\DetallesReservasModels::create([
-            'res_id'                  => $reserva->res_id,
-            'act_id'                  => $datosReserva['recurso_id'] ?? 1,
-            'det_re_fecha_ini'        => $datosReserva['res_fecha_inicio'] ?? now(), // Aquí ya vendrá con la hora unida
-            'det_re_fecha_fin'        => $datosReserva['res_fecha_fin'] ?? now(),       // Aquí también
-            'det_re_aula_destino_act' => $aulaIdReal,
-            'aula_id'                 => 1,
+        // Si es aula, el aula de destino principal es el mismo recurso seleccionado
+        if ($tipoRecurso === 'aula') {
+            $aulaIdReal = $recursoIdReal;
+        }
+
+        $fechaInicio = $datosReserva['res_fecha_inicio'] ?? now();
+        $fechaFin = $datosReserva['res_fecha_fin'] ?? now();
+
+        // Normalización y control para Fecha Inicio
+        if ($fechaInicio && !str_contains($fechaInicio, ' ')) {
+            $horaIni = $datosReserva['res_hora_inicio'] ?? '08:00:00';
+            $fechaInicio = trim($fechaInicio) . ' ' . (strlen($horaIni) === 5 ? $horaIni . ':00' : $horaIni);
+        } elseif (strlen($fechaInicio) === 16) {
+            $fechaInicio .= ':00';
+        }
+
+        // Normalización y control para Fecha Fin (Previene que se guarde solo como YYYY-MM-DD)
+        if ($fechaFin && !str_contains($fechaFin, ' ')) {
+            $horaFin = $datosReserva['res_hora_fin'] ?? '12:00:00';
+            $fechaFin = trim($fechaFin) . ' ' . (strlen($horaFin) === 5 ? $horaFin . ':00' : $horaFin);
+        } elseif (strlen($fechaFin) === 16) {
+            $fechaFin .= ':00';
+        }
+
+        $activoIdValidar = ($tipoRecurso === 'activo') ? $recursoIdReal : null;
+        $aulaIdValidar = ($tipoRecurso === 'aula') ? $recursoIdReal : null;
+
+        // === 2. VALIDACIÓN DE CRUCE DE HORARIOS ===
+        $conflicto = \App\Models\DetallesReservasModels::whereHas('reserva', function($query) {
+                $query->whereIn('res_estado_reserva', ['Pendiente', 'Aprobada', 'pendiente', 'aprobada']);
+            })
+            ->where(function($query) use ($activoIdValidar, $aulaIdValidar) {
+                if ($activoIdValidar) {
+                    $query->where('act_id', $activoIdValidar);
+                }
+                if ($aulaIdValidar) {
+                    $query->where('aula_id', $aulaIdValidar);
+                }
+            })
+            ->where(function($query) use ($fechaInicio, $fechaFin) {
+                $query->where('det_re_fecha_ini', '<', $fechaFin)
+                      ->where('det_re_fecha_fin', '>', $fechaInicio);
+            })
+            ->exists();
+
+        if ($conflicto) {
+            return redirect()->route('reservas.paso2')
+                ->withErrors(['res_hora_inicio' => '¡El recurso o aula ya se encuentra reservado en ese intervalo de horario! Por favor seleccione otra hora.'])
+                ->withInput();
+        }
+        // ==========================================
+
+        // 3. Guardamos la cabecera principal en la tabla 'reservas'
+        $reserva = \App\Models\ReservasModels::create([
+            'usu_id'             => auth()->id() ?? 1, 
+            'res_estado_reserva' => 'Pendiente',
+            'res_fecha_creacion' => now()->toDateString(),
+            'res_motivo'         => $datosReserva['res_motivo'] ?? 'Sin motivo especificado',
         ]);
 
-        // 4. Limpiamos la sesión de la reserva para liberar memoria
+        $activoPorDefecto = \App\Models\ActivosModels::value('act_id') ?? 1;
+
+        // 4. Guardamos los datos específicos en la tabla 'detalles_reservas' de forma limpia
+        \App\Models\DetallesReservasModels::create([
+            'res_id'                    => $reserva->res_id,
+            'act_id'                    => ($tipoRecurso === 'activo') ? $recursoIdReal : $activoPorDefecto,
+            'det_re_fecha_ini'          => $fechaInicio, 
+            'det_re_fecha_fin'          => $fechaFin,      
+            'det_re_aula_destino_act'   => ($tipoRecurso === 'activo') ? $aulaIdReal : null,
+            'aula_id'                   => ($tipoRecurso === 'aula') ? $recursoIdReal : 1,
+        ]);
+
+        // 5. Limpiamos la sesión de la reserva para liberar memoria
         session()->forget('reserva');
 
-        // 5. Redirigimos al usuario al listado con un mensaje de éxito
+        // 6. Redirigimos al usuario al listado con un mensaje de éxito
         return redirect()->route('dashboard.docente')->with('success', '¡Reserva solicitada con éxito! Quedará pendiente de aprobación por el administrador.');
     }
 
@@ -177,12 +291,12 @@ class ReservasControllers extends Controller
     {
         // Obtenemos las reservas reales de la base de datos con sus relaciones
         $reservas = \App\Models\ReservasModels::with([
-                        'usuario', 
-                        'detalles.activo', // Relación con el recurso o activo (ajusta el nombre si es 'recurso' o 'act')
-                        'detalles.aula'    // Relación con el aula
-                    ])
-                    ->orderBy('res_id', 'desc')
-                    ->get();
+                    'usuario', 
+                    'detalles.activo', 
+                    'detalles.aula'    
+                ])
+                ->orderBy('res_id', 'desc')
+                ->get();
 
         return view('reservas.index', compact('reservas'));
     }

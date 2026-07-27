@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('detalles_reservas', function (Blueprint $table) {
             $table->id('det_re_id');
             $table->dateTime('det_re_fecha_ini');
-            $table->date('det_re_fecha_fin');
+            $table->dateTime('det_re_fecha_fin');
             $table->unsignedBigInteger('res_id');
             $table->unsignedBigInteger('act_id');
             $table->unsignedBigInteger('det_re_aula_destino_act')->nullable();

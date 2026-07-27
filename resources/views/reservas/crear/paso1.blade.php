@@ -84,6 +84,7 @@
         <form action="{{ route('reservas.paso1.post', ['id' => $recurso->act_id ?? ($recurso->aula_id ?? 1)]) }}" method="POST" class="formulario-paso1">
             @csrf
             
+            <input type="hidden" name="tipo_recurso" value="{{ $tipoRecurso }}">
             <div class="zona-decision">
                 <label class="tarjeta-radio">
                     <input type="radio" name="confirmacion_recurso" value="si" required checked>

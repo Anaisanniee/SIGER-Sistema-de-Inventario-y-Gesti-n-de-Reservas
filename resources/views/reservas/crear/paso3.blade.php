@@ -14,6 +14,16 @@
             $recurso = \App\Models\ActivosModels::find($recursoId);
         }
     }
+
+    // Resolución segura del nombre del aula usando el ID numérico guardado en sesión
+    $aulaUsoId = session('reserva.aula_uso');
+    $nombreAulaUso = 'Salón no especificado';
+    if ($aulaUsoId) {
+        $aulaObj = \App\Models\AulasModels::find($aulaUsoId);
+        if ($aulaObj) {
+            $nombreAulaUso = $aulaObj->aula_nombre ?? $aulaObj->nombres ?? ('Salón #' . $aulaUsoId);
+        }
+    }
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -71,13 +81,11 @@
                 <div class="grid-tiempos-paso3">
                     <div class="tiempo-caja">
                         <span class="tiempo-titulo">Inicio de Reserva</span>
-                        <p><i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> {{ session('reserva.fecha_inicio') ?? '2026-07-10' }}</p>
-                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('reserva.hora_inicio') ?? '07:00 AM' }}</p>
+                        <p><i class="bi bi-calendar-event"></i> <strong>Fecha/Hora:</strong> {{ session('reserva.res_fecha_inicio') ?? 'No especificada' }}</p>
                     </div>
                     <div class="tiempo-caja">
                         <span class="tiempo-titulo">Finalización de Reserva</span>
-                        <p><i class="bi bi-calendar-check"></i> <strong>Fecha:</strong> {{ session('reserva.fecha_fin') ?? '2026-07-10' }}</p>
-                        <p><i class="bi bi-clock"></i> <strong>Hora:</strong> {{ session('reserva.hora_fin') ?? '09:30 AM' }}</p>
+                        <p><i class="bi bi-calendar-check"></i> <strong>Fecha/Hora:</strong> {{ session('reserva.res_fecha_fin') ?? 'No especificada' }}</p>
                     </div>
                 </div>
             </div>
@@ -91,7 +99,7 @@
                             <p style="margin-top: 0.75rem;">
                                 <strong>Lugar de uso:</strong> 
                                 <span class="badge-aula-uso">
-                                    <i class="bi bi-pin-map-fill"></i> {{ session('reserva.aula_uso') ?? 'Salón 601' }}
+                                    <i class="bi bi-pin-map-fill"></i> {{ $nombreAulaUso }}
                                 </span>
                             </p>
                         </div>

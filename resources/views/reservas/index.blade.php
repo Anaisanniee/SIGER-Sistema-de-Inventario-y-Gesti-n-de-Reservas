@@ -8,22 +8,45 @@
 <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}">
 
 @php
-    // Mapeamos las reservas reales de la base de datos al formato visual que ya tienes
+    // Mapeamos las reservas reales de la base de datos al formato visual
     $reservasMapeadas = $reservas->map(function($reserva) {
         $detalle = $reserva->detalles->first();
+        
+        // Verificamos si la reserva pertenece a un aula
+        $esAula = $detalle && $detalle->aula_id && $detalle->aula_id != 1 && optional($detalle->aula)->exists;
+        
+        if ($esAula) {
+            $aula = $detalle->aula;
+            
+            // Verificamos si el aula tiene una foto guardada, si no, usamos una genérica de aulas
+            $fotoRecurso = (!empty($aula->aula_foto)) 
+                ? asset(\Illuminate\Support\Facades\Storage::url($aula->aula_foto)) 
+                : asset('storage/images/activos/default.jpeg'); // O una imagen genérica válida que tengas en storage
+
+            $nombreRecurso = optional($aula)->aula_nombre ?? 'Aula Reservada';
+            $ubicacionRecurso = 'Espacio físico';
+        } else {
+            $activo = optional($detalle)->activo;
+            $fotoRecurso = ($activo && !empty($activo->act_foto)) 
+                ? asset(\Illuminate\Support\Facades\Storage::url($activo->act_foto)) 
+                : asset('storage/images/activos/default.jpeg');
+            $nombreRecurso = optional($activo)->act_nombre ?? 'Recurso Asignado';
+            $ubicacionRecurso = optional(optional($detalle)->aula)->aula_nombre ?? 'Aula general';
+        }
+
         return (object)[
             'id'             => $reserva->res_id,
-            'recurso_foto'   => null,
-            'recurso_nombre' => optional(optional($detalle)->activo)->act_nombre ?? 'Recurso Asignado',
+            'recurso_foto'   => $fotoRecurso,
+            'recurso_nombre' => $nombreRecurso,
             'estado'         => strtolower($reserva->res_estado_reserva ?? 'pendiente'),
             'usuario_nombre' => optional($reserva->usuario)->name ?? optional($reserva->usuario)->nombres ?? 'Usuario #' . $reserva->usu_id,
             'fecha'          => $detalle && $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('Y-m-d') : now()->format('Y-m-d'),
             'hora_inicio'    => $detalle && $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('h:i A') : '--:--',
             'hora_fin'       => $detalle && $detalle->det_re_fecha_fin ? \Carbon\Carbon::parse($detalle->det_re_fecha_fin)->format('h:i A') : '--:--',
-            'ubicacion'      => optional(optional($detalle)->aula)->aula_nombre ?? 'Aula general'
+            'ubicacion'      => $ubicacionRecurso
         ];
     });
-@endphp 
+@endphp
 
 <div class="panel-administracion-contenedor">
     
@@ -68,7 +91,7 @@
                     <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsReserva }}">
                         @component('components.tarjetas.tarjeta-reserva', [
                             'id'          => $reserva->id,
-                            'foto'        => asset('storage/images/activos/default.jpeg'),
+                            'foto'        => $reserva->recurso_foto,
                             'nombre'      => $reserva->recurso_nombre,
                             'estado'      => $reserva->estado,
                             'solicitante' => $reserva->usuario_nombre,
