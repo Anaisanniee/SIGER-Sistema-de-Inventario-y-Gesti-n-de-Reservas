@@ -1,11 +1,45 @@
 {{-- resources/views/components/tarjetas/tarjeta-recurso.blade.php --}}
 
 @php
-    // Si la variable fue enviada desde la vista, usa ese valor. Si no, la pone en false por defecto.
     $esAdmin = isset($esAdmin) ? $esAdmin : false; 
+
+    // Extraemos de forma transparente el ESTADO REAL desde el objeto $recurso
+    $estadoReal = $recurso->aula_estado 
+        ?? $recurso->act_estado_fisico 
+        ?? $recurso->estado 
+        ?? '';
+
+    $estadoLimpio = strtolower(trim($estadoReal));
+
+    // Evaluamos la clase según el estado real del objeto
+    $claseEstado = match (true) {
+        str_contains($estadoLimpio, 'manten') || 
+        str_contains($estadoLimpio, 'amnten') || 
+        str_contains($estadoLimpio, 'repara')  => 'badge-mantenimiento',
+
+        str_contains($estadoLimpio, 'daña') || 
+        str_contains($estadoLimpio, 'ocupad') || 
+        str_contains($estadoLimpio, 'inactiv') => 'badge-danado',
+
+        str_contains($estadoLimpio, 'reservad') || 
+        str_contains($estadoLimpio, 'prestad') => 'badge-reservado',
+
+        str_contains($estadoLimpio, 'disponibl') || 
+        str_contains($estadoLimpio, 'activ')   => 'badge-disponible',
+
+        default => 'badge-disponible',
+    };
 @endphp
 
 <div class="tarjeta-recurso">
+
+{{-- ETIQUETA EN LA ESQUINA SUPERIOR DERECHA --}}
+    <div class="estado-esquina-container">
+        <span class="badge-siger-estado {{ $claseEstado }}">
+            <i class="fas fa-circle indicador-punto"></i> 
+            {{ $valor }}
+        </span>
+    </div>
 
     <img
         src="{{ $foto }}"
@@ -14,13 +48,14 @@
     >
 
     <div class="tarjeta-body">
-
+        <div class="cuerpo-tarjeta">
         <div class="card-title">
             {{ $nombre }}
         </div>
 
-        <div class="estado">
+        <div class="estado-tarjeta">
             {{ $etiqueta }}: {{ $valor }}
+        </div>
         </div>
 
         <div class="botones-container">

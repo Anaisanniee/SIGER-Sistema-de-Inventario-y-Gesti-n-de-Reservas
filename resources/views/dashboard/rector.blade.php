@@ -101,6 +101,7 @@
                     'nombre' => $recurso->act_nombre,
                     'etiqueta' => 'Serial',
                     'valor' => $recurso->act_serial,
+                    estado' => $recurso->act_estado ?? 'Desconocido',
                     'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
                     'recurso' => $recurso
                 ])
@@ -139,6 +140,7 @@
                     'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
                     'nombre' => $recurso->aula_nombre,
                     'etiqueta' => 'Capacidad',
+                    'estado' => $recurso->aula_estado ?? 'Desconocido',
                     'valor' => $recurso->aula_capacidad,
                     'recurso' => $recurso
                 ])

@@ -2,10 +2,7 @@
 
 @section('content')
 @section('mostrarRegresar', 'false')
-<<<<<<< HEAD
-=======
 @section('mostrarBusqueda', 'true')
->>>>>>> origin/backend-Elias
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
@@ -47,11 +44,6 @@
                 if ($estadoActivo == 'buen estado' || $estadoActivo == 'bueno') {
                     $tagsActivo[] = 'bueno'; 
                 } 
-<<<<<<< HEAD
-                
-                if ($estadoActivo == 'en mantenimiento') {
-                    // Sincroniza con el filtro rápido: usa espacio o guion según lo requiera tu JavaScript
-=======
 
                 if ($estadoActivo == 'buen estado' || $estadoActivo == 'excelente') {
                     $tagsActivo[] = 'bueno'; 
@@ -62,7 +54,6 @@
                 } 
                 
                 if ($estadoActivo == 'malo' || $estadoActivo == 'malo') {
->>>>>>> origin/backend-Elias
                     $tagsActivo[] = 'en-mantenimiento'; 
                 }
 
@@ -76,18 +67,12 @@
             <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsActivo }}">
                 @component('components.tarjetas.tarjeta-recurso',  [
                     'tipo' => 'activo',
-<<<<<<< HEAD
-                    'foto' => $recurso->act_foto ? asset('storage/images/activos/' . $recurso->act_foto) : asset('storage/images/activos/default.jpeg'),
-                    'nombre' => $recurso->act_nombre,
-                    'etiqueta' => 'Serial',
-                    'valor' => $recurso->act_serial,
-=======
                     'foto' => $recurso->act_foto ? asset('storage/' . $recurso->act_foto) : asset('storage/activos/default.jpeg'),
                     'nombre' => $recurso->act_nombre,
                     'etiqueta' => 'Serial',
                     'valor' => $recurso->act_serial,
+                    'estado' => $recurso->act_estado ?? 'Desconocido',
                     'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
->>>>>>> origin/backend-Elias
                     'recurso' => $recurso
                 ])
                 @endcomponent
@@ -122,13 +107,10 @@
             <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsAula }}">
                 @component('components.tarjetas.tarjeta-recurso', [
                     'tipo' => 'aula',
-<<<<<<< HEAD
-                    'foto' => $recurso->aula_foto ? asset('storage/images/aulas/' . $recurso->aula_foto) : asset('storage/images/aulas/default.jpeg'),
-=======
                     'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
->>>>>>> origin/backend-Elias
                     'nombre' => $recurso->aula_nombre,
                     'etiqueta' => 'Capacidad',
+                    'estado' => $recurso->aula_estado ?? 'Desconocido',
                     'valor' => $recurso->aula_capacidad,
                     'recurso' => $recurso
                 ])
@@ -145,8 +127,6 @@
     </x-modal>
 </div>
 
-<<<<<<< HEAD
-=======
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const buscador = document.getElementById('buscador-recursos');
@@ -230,7 +210,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
->>>>>>> origin/backend-Elias
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 
 @endsection

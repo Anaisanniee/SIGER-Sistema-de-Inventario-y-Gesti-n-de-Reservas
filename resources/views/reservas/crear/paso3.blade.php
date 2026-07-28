@@ -15,7 +15,8 @@
     // Si no hay nada o es una reserva simple, la dejas como array vacío: $activosIncluidos = [];
     $activosIncluidos = session('activos_reserva', [
         ['nombre' => 'VideoBeam Epson X41', 'codigo' => 'VB-001'],
-
+        ['nombre' => 'Portátil Docente Dell', 'codigo' => 'LAP-042'],
+        ['nombre' => 'Sistema de Sonido Parlante', 'codigo' => 'AUD-005']
     ]); 
 @endphp
 

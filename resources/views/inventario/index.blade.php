@@ -112,6 +112,7 @@
                         'valor' => $recurso->act_serial,
                         'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
                         'recurso' => $recurso,
+                        'estado' => $recurso->act_estado ?? 'Desconocido',
                         'textoBoton' => 'Editar',
                         'esAdmin' => true,  {{-- Indicamos que el usuario es administrador para mostrar el botón de eliminar --}}
                         'urlBoton' => url('/activos/' . $recurso->act_id . '/editar')
@@ -151,6 +152,7 @@
                         'valor' => $recurso->aula_capacidad,
                         'recurso' => $recurso,
                         'textoBoton' => 'Editar',
+                        'estado' => $recurso->aula_estado ?? 'Desconocido',
                         'esAdmin' => true,
                         'urlBoton' => url('/aulas/' . $recurso->aula_id . '/editar')
                     ])

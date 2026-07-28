@@ -131,6 +131,19 @@
     margin-bottom: 2rem;
 }
 
+/*RESEVRAS PASO 1*/
+.dashboard-reserva-grid.paso1-grid {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100%;
+}
+
+.paso1-grid .columna-formulario {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto !important;
+}
+
 .tarjeta-radio {
     border: 2px solid var(--color-borde);
     border-radius: 12px;
@@ -161,6 +174,16 @@
     font-size: 0.85rem;
     color: var(--color-texto-secundario);
     margin: 0;
+}
+
+.radio-icono.icono-exito{
+    font-size: 1rem;
+    color: var(--color-estado-disponible);
+}
+
+.radio-icono.icono-error{
+    font-size: 1rem;
+    color: var(--color-estado-dañado);
 }
 
 /* Efecto hover y focus al seleccionar la tarjeta */
@@ -201,7 +224,14 @@
 }
 
 
-
+@media (max-width: 400px) {
+    .encabezado-pregunta h2 {
+        font-size: 1.2rem;
+    }
+    .nombre-recurso-paso1 {
+        font-size: 1rem;
+    }
+}
 
 
 /* ==========================================================================
