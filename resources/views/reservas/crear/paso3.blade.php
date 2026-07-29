@@ -21,7 +21,10 @@
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/resumen-reserva.css') }}">
+
 
 <div class="contenedor-reserva-universal">
     
@@ -57,7 +60,7 @@
         {{-- Botones de Navegación --}}
         <div class="contenedor-botones-paso3">
             <x-botones.boton type="button" class="btn-siger-accion btn btn-azul" onclick="window.history.back();">
-                ⬅ Modificar Horario
+                ⬅ Modificar
             </x-botones.boton>
             
             <x-botones.boton type="submit" class="btn-siger-accion btn">

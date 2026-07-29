@@ -7,7 +7,7 @@
     // Filtra los datos de la reserva según el tipo de recurso (activo o aula) para mostrar u ocultar el campo "Aula de uso" en la vista de reserva.
     // $recursos = session('recursos', []); 
     // $recurso = isset($recursos[0]) ? $recursos[0] : null; 
-    $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'aula';
+    $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'activo';
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -170,12 +170,6 @@
         <div class="columna-resumen">
             <div class="tarjeta-reserva-siger resumen-card">
                 <h3>Resumen de Reserva</h3>
-                
-                {{-- Reutilización del Componente (Sin Estado para el resumen) --}}
-                <x-reservas.detalle-recurso 
-                    :nombre="isset($recurso) ? $recurso->nombres : 'Computador Dell Inspiron'" 
-                    :detalle="isset($recurso) ? $recurso->serial : '#EQ-01 --- Windows 11'" 
-                />
 
                 {{-- Tabla de Detalles Requeridos --}}
                 <table class="tabla-resumen-siger">

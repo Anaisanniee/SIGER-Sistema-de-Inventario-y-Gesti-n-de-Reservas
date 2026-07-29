@@ -14,13 +14,8 @@
     'horaFin'          => '09:30 AM',
     'aulaUso'          => 'Salón 601',
     'mostrarSubtitulo' => true,
-    'activos'          => [] // Array de recursos múltiples si selecciona varios. Ej: [['nombre' => 'Laptop Dell', 'serial' => 'DELL-01'], ...]
+    'activos'          => [] // Array de recursos si son múltiples
 ])
-
-@php
-    // Detectamos si es una reserva múltiple cuando traemos elementos en el array $activos
-    $esReservaMultiple = !empty($activos) && count($activos) > 1;
-@endphp
 
 <div class="tarjeta-reserva-siger tarjeta-confirmacion-paso3">
         
@@ -43,71 +38,30 @@
             </div>
         </div>
 
-        {{-- Bloque 2: INFORMACIÓN DEL RECURSO (Sustituible si son múltiples) --}}
+        {{-- Bloque 2: COMPONENTE DETALLE RECURSO (Maneja 1 o Varios dinámicamente) --}}
         <div class="bloque-resumen-interno" id="resumen-bloque-recurso">
-            
-            @if($esReservaMultiple)
-                {{-- CASO A: Múltiples Recursos -> Se convierte en Desplegable --}}
-                <h3><i class="bi bi-boxes"></i> Recursos Seleccionados</h3>
-                
-                <div class="resumen-acordeon-contenedor mt-2">
-                    <div class="resumen-acordeon-item">
-                        <button class="resumen-acordeon-btn" type="button" data-bs-toggle="collapse" data-bs-target="#colapsoResumenActivos" aria-expanded="false" aria-controls="colapsoResumenActivos">
-                            <span class="resumen-acordeon-info">
-                                <span class="resumen-acordeon-icono"><i class="bi bi-box"></i></span>
-                                <span class="resumen-acordeon-texto">Ver lista de recursos</span>
-                            </span>
-                            <span class="resumen-acordeon-badge" id="resumen-conteo-activos">{{ count($activos) }}</span>
-                        </button>
+            <h3>
+                @if(!empty($activos) && count($activos) > 1)
+                    <i class="bi bi-boxes"></i> Recursos Seleccionados
+                @elseif($tipoRecurso === 'aula')
+                    <i class="bi bi-door-open"></i> Datos del Salón
+                @else
+                    <i class="bi bi-laptop"></i> Datos del Recurso
+                @endif
+            </h3>
 
-                        <div id="colapsoResumenActivos" class="collapse">
-                            <div class="resumen-acordeon-body">
-                                <ul class="resumen-lista-activos" id="resumen-contenedor-activos-dinamicos">
-                                    @foreach($activos as $item)
-                                        <li class="resumen-activo-item">
-                                            <i class="fas fa-check-circle text-verde"></i>
-                                            <div>
-                                                <strong>{{ is_array($item) ? ($item['nombre'] ?? 'Recurso') : $item }}</strong>
-                                                @if(is_array($item))
-                                                    @if(isset($item['serial']))
-                                                        <small class="d-block text-muted">Serial/Placa: {{ $item['serial'] }}</small>
-                                                    @elseif(isset($item['capacidad']))
-                                                        <small class="d-block text-muted">Capacidad: {{ $item['capacidad'] }}</small>
-                                                    @endif
-                                                @endif
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            @else
-                {{-- CASO B: Un solo recurso o Aula --}}
-                <h3>
-                    @if($tipoRecurso === 'aula')
-                        <i class="bi bi-door-open"></i> Datos del Salón
-                    @else
-                        <i class="bi bi-laptop"></i> Datos del Recurso
-                    @endif
-                </h3>
-                <div class="contenido-resumen-item">
-                    <p><strong>Nombre:</strong> <span id="resumen-recurso-nombre">{{ $recursoNombre }}</span></p>
-                    
-                    @if($tipoRecurso === 'aula')
-                        <p><strong>Capacidad:</strong> <span id="resumen-capacidad">{{ $capacidad }}</span></p>
-                    @else
-                        <p><strong>Serial/Placa:</strong> <span id="resumen-serial">{{ $serial }}</span></p>
-                        <p><strong>Marca:</strong> <span id="resumen-marca">{{ $marca }}</span></p>
-                    @endif
-                </div>
-            @endif
-
+            {{-- Invocamos el componente reutilizable en el resumen --}}
+            <x-reservas.detalle-recurso 
+                :tipoRecurso="$tipoRecurso"
+                :recursoNombre="$recursoNombre"
+                :capacidad="$capacidad"
+                :serial="$serial"
+                :marca="$marca"
+                :activos="$activos"
+            />
         </div>
 
-        {{-- Bloque: Motivo o Propósito de la Reserva --}}
+        {{-- Bloque: Motivo de la Reserva --}}
         <div class="bloque-resumen-interno grid-ancho-completo">
             <h3><i class="bi bi-chat-left-text-fill"></i> Motivo de la Solicitud</h3>
             <div class="contenido-resumen-item">

@@ -11,17 +11,6 @@
             'nombres' => 'Computador Portátil Dell Inspiron',
             'serial' => 'DELL-5420-X92',
             'marca' => 'Dell'
-        ],
-        (object)[
-            'tipo' => 'activo',
-            'nombres' => 'Video Beam Epson X41',
-            'serial' => 'EPS-8832-A1',
-            'marca' => 'Epson'
-        ],
-        (object)[
-            'tipo' => 'aula',
-            'nombres' => 'Laboratorio de Sistemas A',
-            'capacidad' => '35 Estudiantes'
         ]
     ];
     // Evaluamos si vienen varios recursos o solo uno
