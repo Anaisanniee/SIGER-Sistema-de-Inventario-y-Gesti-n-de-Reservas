@@ -16,9 +16,9 @@ return new class extends Migration
             $table->dateTime('det_re_fecha_ini');
             $table->dateTime('det_re_fecha_fin');
             $table->unsignedBigInteger('res_id');
-            $table->unsignedBigInteger('act_id');
+            $table->unsignedBigInteger('act_id')->nullable();
             $table->unsignedBigInteger('det_re_aula_destino_act')->nullable();
-            $table->unsignedBigInteger('aula_id');
+            $table->unsignedBigInteger('aula_id')->nullable();
             $table->foreign('res_id')->references('res_id')->on('reservas');
             $table->foreign('act_id')->references('act_id')->on('activos');
             $table->foreign('det_re_aula_destino_act')->references('aula_id')->on('aulas');

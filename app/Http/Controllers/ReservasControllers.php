@@ -189,27 +189,37 @@ class ReservasControllers extends Controller
             $tipoRecurso = isset($datosReserva['recurso_objeto']->aula_nombre) ? 'aula' : 'activo';
         }
 
-        // Rescatamos de forma robusta el ID real del recurso seleccionado
-        $recursoIdReal = $datosReserva['recurso_id'] 
-            ?? ($datosReserva['recurso_objeto']->id ?? null)
-            ?? ($datosReserva['recurso_objeto']->act_id ?? null)
-            ?? ($datosReserva['recurso_objeto']->aula_id ?? 1);
-
-        // Lógica para resolver el ID del aula de destino o uso de forma segura
-        $aulaIngresada = $datosReserva['aula_uso'] ?? null;
-        $aulaIdReal = 1; 
-
-        if ($aulaIngresada) {
-            $aulaObj = \App\Models\AulasModels::where('aula_id', $aulaIngresada)
-                        ->orWhere('aula_nombre', $aulaIngresada)
-                        ->first();
-            if ($aulaObj) {
-                $aulaIdReal = $aulaObj->aula_id; 
-            }
+        // Rescatamos de forma robusta y específica el ID real según el tipo de recurso
+        if ($tipoRecurso === 'aula') {
+            $recursoIdReal = $datosReserva['recurso_id'] 
+                ?? ($datosReserva['recurso_objeto']->aula_id ?? null)
+                ?? ($datosReserva['recurso_objeto']->id ?? 1);
+        } else {
+            $recursoIdReal = $datosReserva['recurso_id'] 
+                ?? ($datosReserva['recurso_objeto']->act_id ?? null)
+                ?? ($datosReserva['recurso_objeto']->id ?? 1);
         }
 
-        // Si es aula, el aula de destino principal es el mismo recurso seleccionado
-        if ($tipoRecurso === 'aula') {
+        $aulaIdReal = 1; // Valor por defecto por seguridad
+
+        // 2. Lógica para rescatar el aula elegida en el formulario del Paso 2
+        if ($tipoRecurso === 'activo') {
+            $aulaIngresada = $datosReserva['aula_uso'] ?? null;
+
+            if (!empty($aulaIngresada)) {
+                // Buscamos usando únicamente las columnas reales de tu tabla de aulas
+                $aulaObj = \App\Models\AulasModels::where('aula_id', $aulaIngresada)
+                            ->orWhere('aula_nombre', 'LIKE', '%' . trim($aulaIngresada) . '%')
+                            ->first();
+
+                if ($aulaObj) {
+                    $aulaIdReal = $aulaObj->aula_id;
+                } elseif (is_numeric($aulaIngresada)) {
+                    $aulaIdReal = intval($aulaIngresada);
+                }
+            }
+        } else {
+            // Si es reserva directa de aula, el aula de destino es el mismo recurso seleccionado
             $aulaIdReal = $recursoIdReal;
         }
 
@@ -224,7 +234,7 @@ class ReservasControllers extends Controller
             $fechaInicio .= ':00';
         }
 
-        // Normalización y control para Fecha Fin (Previene que se guarde solo como YYYY-MM-DD)
+        // Normalización y control para Fecha Fin
         if ($fechaFin && !str_contains($fechaFin, ' ')) {
             $horaFin = $datosReserva['res_hora_fin'] ?? '12:00:00';
             $fechaFin = trim($fechaFin) . ' ' . (strlen($horaFin) === 5 ? $horaFin . ':00' : $horaFin);
@@ -232,19 +242,15 @@ class ReservasControllers extends Controller
             $fechaFin .= ':00';
         }
 
-        $activoIdValidar = ($tipoRecurso === 'activo') ? $recursoIdReal : null;
-        $aulaIdValidar = ($tipoRecurso === 'aula') ? $recursoIdReal : null;
-
-        // === 2. VALIDACIÓN DE CRUCE DE HORARIOS ===
+        // === 3. VALIDACIÓN DE CRUCE DE HORARIOS ===
         $conflicto = \App\Models\DetallesReservasModels::whereHas('reserva', function($query) {
                 $query->whereIn('res_estado_reserva', ['Pendiente', 'Aprobada', 'pendiente', 'aprobada']);
             })
-            ->where(function($query) use ($activoIdValidar, $aulaIdValidar) {
-                if ($activoIdValidar) {
-                    $query->where('act_id', $activoIdValidar);
-                }
-                if ($aulaIdValidar) {
-                    $query->where('aula_id', $aulaIdValidar);
+            ->where(function($query) use ($tipoRecurso, $recursoIdReal) {
+                if ($tipoRecurso === 'activo') {
+                    $query->where('act_id', $recursoIdReal);
+                } else {
+                    $query->where('aula_id', $recursoIdReal);
                 }
             })
             ->where(function($query) use ($fechaInicio, $fechaFin) {
@@ -260,7 +266,7 @@ class ReservasControllers extends Controller
         }
         // ==========================================
 
-        // 3. Guardamos la cabecera principal en la tabla 'reservas'
+        // 4. Guardamos la cabecera principal en la tabla 'reservas'
         $reserva = \App\Models\ReservasModels::create([
             'usu_id'             => auth()->id() ?? 1, 
             'res_estado_reserva' => 'Pendiente',
@@ -270,20 +276,20 @@ class ReservasControllers extends Controller
 
         $activoPorDefecto = \App\Models\ActivosModels::value('act_id') ?? 1;
 
-        // 4. Guardamos los datos específicos en la tabla 'detalles_reservas' de forma limpia
+        // 5. Guardamos los datos específicos en la tabla 'detalles_reservas' (Ya preparado para campos NULL)
         \App\Models\DetallesReservasModels::create([
             'res_id'                    => $reserva->res_id,
-            'act_id'                    => ($tipoRecurso === 'activo') ? $recursoIdReal : $activoPorDefecto,
+            'act_id'                    => ($tipoRecurso === 'activo') ? $recursoIdReal : null, // Si es aula, guardará NULL
             'det_re_fecha_ini'          => $fechaInicio, 
             'det_re_fecha_fin'          => $fechaFin,      
-            'det_re_aula_destino_act'   => ($tipoRecurso === 'activo') ? $aulaIdReal : null,
-            'aula_id'                   => ($tipoRecurso === 'aula') ? $recursoIdReal : 1,
+            'det_re_aula_destino_act'   => ($tipoRecurso === 'activo') ? $aulaIdReal : null, 
+            'aula_id'                   => ($tipoRecurso === 'aula') ? $recursoIdReal : null,   // Si es activo, guardará NULL
         ]);
 
-        // 5. Limpiamos la sesión de la reserva para liberar memoria
+        // 6. Limpiamos la sesión de la reserva para liberar memoria
         session()->forget('reserva');
 
-        // 6. Redirigimos al usuario al listado con un mensaje de éxito
+        // 7. Redirigimos al usuario al listado con un mensaje de éxito
         return redirect()->route('dashboard.docente')->with('success', '¡Reserva solicitada con éxito! Quedará pendiente de aprobación por el administrador.');
     }
 

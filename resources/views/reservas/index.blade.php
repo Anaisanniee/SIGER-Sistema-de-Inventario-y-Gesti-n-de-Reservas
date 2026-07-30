@@ -10,28 +10,37 @@
 @php
     // Mapeamos las reservas reales de la base de datos al formato visual
     $reservasMapeadas = $reservas->map(function($reserva) {
-        $detalle = $reserva->detalles->first();
+        $detalle = optional($reserva->detalles)->first();
         
-        // Verificamos si la reserva pertenece a un aula
-        $esAula = $detalle && $detalle->aula_id && $detalle->aula_id != 1 && optional($detalle->aula)->exists;
-        
-        if ($esAula) {
-            $aula = $detalle->aula;
-            
-            // Verificamos si el aula tiene una foto guardada, si no, usamos una genérica de aulas
-            $fotoRecurso = (!empty($aula->aula_foto)) 
-                ? asset(\Illuminate\Support\Facades\Storage::url($aula->aula_foto)) 
-                : asset('storage/images/activos/default.jpeg'); // O una imagen genérica válida que tengas en storage
+        $actId = $detalle ? $detalle->act_id : null;
+        $aulaId = $detalle ? $detalle->aula_id : null;
+        $aulaDestinoAct = $detalle ? $detalle->det_re_aula_destino_act : null;
 
-            $nombreRecurso = optional($aula)->aula_nombre ?? 'Aula Reservada';
+        // Verificamos si el aula_id realmente existe en la tabla de aulas (esto incluye el ID 1, 2, 3, etc.)
+        $aulaObj = !empty($aulaId) ? \App\Models\AulasModels::find($aulaId) : null;
+        
+        // Es una reserva de aula si encontramos un aula válida en la base de datos con ese ID
+        $esReservaDeAulaDirecta = !is_null($aulaObj);
+        
+        if ($esReservaDeAulaDirecta) {
+            $fotoRecurso = (!empty($aulaObj->aula_foto)) 
+                ? asset(\Illuminate\Support\Facades\Storage::url($aulaObj->aula_foto)) 
+                : asset('storage/images/activos/default.jpeg');
+            $nombreRecurso = $aulaObj->aula_nombre ?? 'Aula Reservada';
             $ubicacionRecurso = 'Espacio físico';
         } else {
-            $activo = optional($detalle)->activo;
+            // Si no es un aula, es un activo (Tablet, Computador, etc.)
+            $activo = !empty($actId) ? \App\Models\ActivosModels::find($actId) : null;
             $fotoRecurso = ($activo && !empty($activo->act_foto)) 
                 ? asset(\Illuminate\Support\Facades\Storage::url($activo->act_foto)) 
                 : asset('storage/images/activos/default.jpeg');
             $nombreRecurso = optional($activo)->act_nombre ?? 'Recurso Asignado';
-            $ubicacionRecurso = optional(optional($detalle)->aula)->aula_nombre ?? 'Aula general';
+            
+            // Ubicación del activo
+            $aulaDestinoObj = !empty($aulaDestinoAct) ? \App\Models\AulasModels::find($aulaDestinoAct) : null;
+            $ubicacionRecurso = optional($aulaDestinoObj)->aula_nombre 
+                ?? optional(optional($detalle)->aulaDestino)->aula_nombre 
+                ?? 'Aula general';
         }
 
         return (object)[
@@ -53,7 +62,7 @@
     <!-- CABECERA DEL PANEL -->
     <div class="cabecera-panel">
         <div class="texto-cabecera">
-            <h2 class="titulo-pagina"><i class="fas fa-calendar-alt"></i> Solicitudes de equipos</h2>
+            <h2 class="titulo-pagina"><i class="fas fa-calendar-alt"></i> Solicitudes de equipos y aulas</h2>
             <p class="subtitulo-pagina">Revisa, aprueba o rechaza las solicitudes institucionales con soporte de agenda en tiempo real.</p>
         </div>
         
@@ -79,7 +88,7 @@
     <!-- DISTRIBUCIÓN EN DOS COLUMNAS -->
     <div class="dashboard-reservas-grid">
         
-        <!-- COLUMNA IZQUIERDA: LISTADO DE TARJETAS IDÉNTICAS -->
+        <!-- COLUMNA IZQUIERDA: LISTADO DE TARJETAS -->
         <div class="columna-solicitudes">
             <div class="container-tarjetas-vertical">
                 @forelse($reservasMapeadas as $reserva)
@@ -119,7 +128,6 @@
                     <h4><i class="fas fa-calendar-day"></i> Vista de Ocupación</h4>
                     <span class="badge-agenda-hoy">Hoy</span>
                 </div>
-                <!-- Contenedor donde renderizarás el calendario/agenda luego -->
                 <div class="placeholder-agenda-render">
                     <i class="fas fa-clock" style="font-size: 2rem; color: var(--color-borde); margin-bottom: 12px;"></i>
                     <p>Espacio reservado para el calendario interactivo.</p>
