@@ -1,11 +1,53 @@
 /* ==========================================================================
    SISTEMA DE GESTIÓN DE RESERVAS - SIGER
-   Estilos específicos de la vista de Reservas (Pasos 1, 2 y 3)
+  
    ========================================================================== */
 
+/* ==========================================
+   ESTILOS ESPECÍFICOS PARA MODALES DE RESERVA EN RESOURCES/VIEWS/RESERVAS/INDEX.BLADE.PHP
+   ========================================== */
+
+/* Limpieza del focus azul en el textarea */
+#formRechazarReserva .form-control:focus {
+    border-color: var(--color-principal) !important; /* Verde del sistema */
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+    outline: none !important;
+}
+
+/* Ocultamiento estricto mediante clase para evitar colisiones de JS */
+.accion-modal-oculto {
+    display: none !important;
+}
+
+.accion-modal-visible {
+    display: flex !important;
+}
+
+/* Ajustes de botones dentro de la barra de acciones */
+.acciones-decision-modal {
+    width: 100%;
+    border-top: 1px solid var(--color-borde);
+    padding-top: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Ajustes para el modal de rechazo */
+#modalConfirmarRechazo .modal-header {
+    border-bottom: 1px solid var(--color-borde);
+    background-color: var(--color-fondo);
+}
+
+#modalConfirmarRechazo .modal-title {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+
 /* --------------------------------------------------------------------------
-   1. CONTENEDOR Y ESTRUCTURA DE PÁGINA
+   1. CONTENEDOR Y ESTRUCTURA DE PÁGINA CREAR RESERVA
    -------------------------------------------------------------------------- */
+
+/* CREAR RESERVA*/
 
 .contenedor-reserva-universal {
     max-width: var(--ancho-maximo);
@@ -15,7 +57,7 @@
 
 /* Tarjeta Base de Módulo SIGER */
 .tarjeta-reserva-siger {
-    background-color: #ffffff;
+    background-color: var(--color-fondo);
     border: 1px solid var(--color-borde);
     border-radius: 14px;
     padding: 1.75rem 2rem;

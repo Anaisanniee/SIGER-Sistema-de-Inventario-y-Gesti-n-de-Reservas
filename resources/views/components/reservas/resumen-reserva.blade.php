@@ -20,7 +20,7 @@
 <div class="tarjeta-reserva-siger tarjeta-confirmacion-paso3">
         
     <div class="encabezado-resumen-final">
-        <h2><i class="bi bi-file-earmark-check-fill text-verde"></i> Resumen Final de la Reserva</h2>
+        <h2><i class="bi bi-file-earmark-check-fill text-verde"></i> Resumen de Reserva</h2>
         @if($mostrarSubtitulo)
             <p class="subtitulo-tarjeta">Por favor, verifique todos los datos antes de confirmar la solicitud del recurso.</p>
         @endif
