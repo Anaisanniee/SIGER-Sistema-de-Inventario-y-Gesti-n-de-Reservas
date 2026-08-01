@@ -75,8 +75,8 @@
     <!-- CABECERA DEL PANEL -->
     <div class="cabecera-panel">
         <div class="texto-cabecera">
-            <h2 class="titulo-pagina"><i class="fas fa-calendar-alt"></i> Mis Solicitudes y Reservas</h2>
-            <p class="subtitulo-pagina">Consulta el estado detallado y el resumen completo de tus recursos solicitados.</p>
+            <h2 class="titulo-pagina"><i class="fas fa-calendar-alt"></i> Solicitudes de Reservas</h2>
+            <p class="subtitulo-pagina">Consulta el estado detallado y el resumen completo de los recursos solicitados.</p>
         </div>
         
         <div class="acciones-rapidas-panel">
@@ -131,7 +131,7 @@
             </div>
         </div>
 
-        <!-- COLUMNA DERECHA: AGENDA SIEMPRE VISIBLE -->
+        <!-- COLUMNA DERECHA: AGENDA PERMANENTE -->
         <div class="columna-agenda-permanente">
             <div class="card-calendario-fijo">
                 <div class="agenda-header-siger">
@@ -148,50 +148,86 @@
 
     </div>
 
-    <!-- MODAL GENERAL DE RESUMEN (PLANTILLA CENTRAL) -->
+    <!-- =========================================================================
+         1. MODAL PRINCIPAL GENERAL (RESUMEN DE RESERVA Y ACCIONES)
+         ========================================================================= -->
     <x-modal id="modalgeneral" titulo="Detalle de la Reserva" subtitulo="Estado de la Solicitud">
         
         <x-reservas.resumen-reserva :mostrarSubtitulo="false" />
 
-        <!-- ACCIONES DE GESTIÓN (VISIBILIDAD CONTROLADA POR JS DESDE LA TARJETA) -->
         @if($esAdmin)
             <div id="contenedor-acciones-modal" class="d-flex justify-content-between align-items-center w-100 mt-4 pt-3 border-top">
-                <!-- Bloque Pendiente -->
-                <div id="bloque-acciones-pendiente" class="d-flex gap-2 w-100 justify-content-between">
+                
+                {{-- Botones para Pendiente --}}
+                <div id="bloque-acciones-pendiente" style="display: none; width: 100%; gap: 0.75rem;">
                     <x-botones.boton type="button" class="btn btn-rojo" data-bs-toggle="modal" data-bs-target="#modalConfirmarRechazo">
                          Rechazar
                     </x-botones.boton>
-                    <x-botones.boton type="button" class="btn">
+                    
+                    <x-botones.boton type="button" class="btn" data-bs-toggle="modal" data-bs-target="#modalConfirmarAprobacion">
                          Aprobar Solicitud
                     </x-botones.boton>
                 </div>
 
-                <!-- Bloque Revertir -->
-                <div id="bloque-acciones-revertir" class="d-none gap-2 w-100 justify-content-end">
-                    <x-botones.boton type="button" class="btn btn-amarillo">
-                        Revertir a Pendiente
+                {{-- Botón para Revertir --}}
+                <div id="bloque-acciones-revertir" style="display: none; width: 100%; justify-content: flex-end;">
+                    <x-botones.boton type="button" class="btn btn-amarillo" data-bs-toggle="modal" data-bs-target="#modalConfirmarReversion">
+                        <i class="fas fa-undo"></i> Revertir a Pendiente
                     </x-botones.boton>
                 </div>
+
             </div>
         @endif
     </x-modal>
 
-    <!-- MODAL SECUNDARIO DE CONFIRMACIÓN DE RECHAZO -->
+    <!-- =========================================================================
+         2. MODALES SECUNDARIOS DE CONFIRMACIÓN
+         ========================================================================= -->
     @if($esAdmin)
-        <x-modal id="modalConfirmarRechazo" titulo="¿Rechazar solicitud?" subtitulo="Por favor indique la razón para notificar al usuario">
-            <form id="formRechazarReserva" action="#" method="POST" onsubmit="event.preventDefault();">
+        <!-- MODAL CONFIRMAR RECHAZO -->
+        <x-modal id="modalConfirmarRechazo" titulo="Confirmar Acción" subtitulo="Gestión de Reserva">
+            <div class="mt-2">
+                <x-alertas.notificacion tipo="peligro" titulo="¿Rechazar Solicitud?" :descartable="false">
+                    La solicitud pasará a estado <strong>Rechazada</strong> y el recurso quedará liberado en ese horario sino hay reserva activa.
+                </x-alertas.notificacion>
+            </div>
+            <form action="#" method="POST" class="mt-3">
                 @csrf
-                <div class="form-group-siger mt-2">
-                    <label for="motivo_rechazo" class="fw-bold mb-1">Motivo del Rechazo <span class="text-danger">*</span></label>
-                    <textarea id="motivo_rechazo" name="motivo_rechazo" class="form-control" rows="3" required placeholder="Escriba la razón del rechazo..."></textarea>
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <x-botones.boton type="button" class="btn" data-bs-dismiss="modal">Cancelar</x-botones.boton>
+                    <x-botones.boton type="submit" class="btn btn-rojo">Confirmar Rechazo</x-botones.boton>
                 </div>
-                <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
-                    <x-botones.boton type="button" class="btn btn-rojo" data-bs-dismiss="modal">
-                        Cancelar
-                    </x-botones.boton>
-                    <x-botones.boton type="submit" class="btn" data-bs-dismiss="modal">
-                        Confirmar Rechazo
-                    </x-botones.boton>
+            </form>
+        </x-modal>
+
+        <!-- MODAL CONFIRMAR APROBACIÓN -->
+        <x-modal id="modalConfirmarAprobacion" titulo="Confirmar Acción" subtitulo="Gestión de Reserva">
+            <div class="mt-2">
+                <x-alertas.notificacion tipo="exito" titulo="¿Aprobar Solicitud?" :descartable="false">
+                    La solicitud pasará a estado <strong>Aprobada</strong> y el recurso quedará asignado formalmente al docente en el intervalo de tiempo asignado en la reserva.
+                </x-alertas.notificacion>
+            </div>
+            <form action="#" method="POST" class="mt-3">
+                @csrf
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <x-botones.boton type="button" class="btn" data-bs-dismiss="modal">Cancelar</x-botones.boton>
+                    <x-botones.boton type="submit" class="btn btn-rojo"> Confirmar Aprobación</x-botones.boton>
+                </div>
+            </form>
+        </x-modal>
+
+        <!-- MODAL CONFIRMAR REVERSIÓN -->
+        <x-modal id="modalConfirmarReversion" titulo="Confirmar Acción" subtitulo="Gestión de Reserva">
+            <div class="mt-2">
+                <x-alertas.notificacion tipo="advertencia" titulo="¿Revertir a Pendiente?" :descartable="false">
+                    La solicitud volverá al estado <strong>Pendiente</strong> para ser evaluada nuevamente.
+                </x-alertas.notificacion>
+            </div>
+            <form action="#" method="POST" class="mt-3">
+                @csrf
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <x-botones.boton type="button" class="btn" data-bs-dismiss="modal">Cancelar</x-botones.boton>
+                    <x-botones.boton type="submit" class=" btn btn-amarillo">Confirmar Reversión</x-botones.boton>
                 </div>
             </form>
         </x-modal>
@@ -199,33 +235,29 @@
 
 </div>
 
-<!-- SCRIPT DE CARGA DINÁMICA DEL MODAL -->
+<!-- SCRIPT ÚNICO: CARGA DINÁMICA DE DATOS Y VISIBILIDAD DE BOTONES DEL MODAL -->
 <script>
     function cargarDatosModal(datos) {
-        // 1. Asignar los valores recibidos a los elementos del modal
+        // Título del modal
         const tituloEl = document.getElementById('modalgeneral-titulo');
         if (tituloEl) tituloEl.innerText = datos.titulo || 'Detalle de Reserva';
 
-        // 2. Evaluar y conmutar la visibilidad de las acciones de gestión
+        // Bloques de botones
         const bloquePendiente = document.getElementById('bloque-acciones-pendiente');
         const bloqueRevertir = document.getElementById('bloque-acciones-revertir');
 
         if (bloquePendiente && bloqueRevertir) {
             const estado = (datos.estado || '').toLowerCase().trim();
 
-            // Resetear ambos bloques
-            bloquePendiente.classList.add('d-none');
-            bloquePendiente.classList.remove('d-flex');
-            bloqueRevertir.classList.add('d-none');
-            bloqueRevertir.classList.remove('d-flex');
+            // Reset: Forzamos ocultado directo con prioridad importante
+            bloquePendiente.style.setProperty('display', 'none', 'important');
+            bloqueRevertir.style.setProperty('display', 'none', 'important');
 
-            // Mostrar el bloque según el estado recibido en el JSON
+            // Evaluamos estado para mostrar el bloque correcto
             if (estado === 'pendiente') {
-                bloquePendiente.classList.remove('d-none');
-                bloquePendiente.classList.add('d-flex');
-            } else if (estado === 'aprobada' || estado === 'rechazada') {
-                bloqueRevertir.classList.remove('d-none');
-                bloqueRevertir.classList.add('d-flex');
+                bloquePendiente.style.setProperty('display', 'flex', 'important');
+            } else if (estado === 'aprobada' || estado === 'rechazada' || estado === 'aprobado' || estado === 'rechazado') {
+                bloqueRevertir.style.setProperty('display', 'flex', 'important');
             }
         }
     }

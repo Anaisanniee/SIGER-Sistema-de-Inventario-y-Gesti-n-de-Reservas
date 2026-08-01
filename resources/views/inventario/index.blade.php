@@ -4,20 +4,6 @@
 @section('mostrarRegresar', 'true')
 @section('rutaBusqueda', route('inventario.index'))
 
-<div id="contenedor-alertas">
-    @if (session('error'))
-        <div class="alert alert-danger" id="alerta-mensaje">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if (session('mensaje'))
-        <div class="alert alert-success" id="alerta-mensaje">
-            {{ session('mensaje') }}
-        </div>
-    @endif
-</div>
-
 @section('content')
 {{-- Vinculamos los estilos exclusivos de la vista index --}}
 <link rel="stylesheet" href="{{ asset('css/pages/recursos-index.css') }}">

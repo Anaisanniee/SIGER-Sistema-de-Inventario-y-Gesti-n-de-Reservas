@@ -31,6 +31,42 @@
     margin-top: 1.5rem;
 }
 
+/* Contenedor principal de los botones de pendiente */
+#bloque-acciones-pendiente {
+    display: flex !important;
+    align-items: center;
+    width: 100%;
+    gap: 0.75rem; /* Espacio uniforme entre los dos botones */
+}
+
+/* 
+   Como uno es un <x-botones.boton> directo y el otro es un <form>, 
+   forzamos a que ambos contenedores hijos crezcan exactamente igual 
+*/
+#bloque-acciones-pendiente > button,
+#bloque-acciones-pendiente > form,
+#bloque-acciones-pendiente > .btn {
+    flex: 1 1 0%; /* Reparte el 100% del ancho en partes exactamente iguales */
+    width: 50%;
+    margin: 0;
+}
+
+/* Si hay un <form>, aseguramos que el botón que está adentro ocupe todo su formulario */
+#bloque-acciones-pendiente > form button,
+#bloque-acciones-pendiente > form .btn {
+    width: 100% !important;
+    justify-content: center;
+}
+
+/* Asegurar que los botones centren su texto e icono */
+#bloque-acciones-pendiente button,
+#bloque-acciones-pendiente .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* Evita que el texto se parta en dos líneas si se estrecha */
+}
+
 /* Ajustes para el modal de rechazo */
 #modalConfirmarRechazo .modal-header {
     border-bottom: 1px solid var(--color-borde);
@@ -41,6 +77,7 @@
     color: #0f172a;
     font-weight: 600;
 }
+
 
 
 /* --------------------------------------------------------------------------
