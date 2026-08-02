@@ -3,43 +3,20 @@
 @php
     $esAdmin = isset($esAdmin) ? $esAdmin : false; 
 
-    // Extraemos de forma transparente el ESTADO REAL desde el objeto $recurso
-    $estadoReal = $recurso->aula_estado 
-        ?? $recurso->act_estado_fisico 
-        ?? $recurso->estado 
-        ?? '';
+    // Identificamos con precisión quirúrgica el ID y el Tipo exacto
+    // Si el objeto tiene un identificador de activo o serial, es ACTIVO. Si tiene capacidad o aula_id, es AULA.
+    $esActivo = isset($recurso->act_id) || isset($recurso->act_serial) || isset($recurso->act_marca);
+    
+    $tipoStr = $esActivo ? 'activo' : 'aula';
+    
+    // Obtenemos su ID correspondiente
+    $idRecurso = $esActivo ? ($recurso->act_id ?? $recurso->id ?? null) : ($recurso->aula_id ?? $recurso->id ?? null);
 
-    $estadoLimpio = strtolower(trim($estadoReal));
-
-    // Evaluamos la clase según el estado real del objeto
-    $claseEstado = match (true) {
-        str_contains($estadoLimpio, 'manten') || 
-        str_contains($estadoLimpio, 'amnten') || 
-        str_contains($estadoLimpio, 'repara')  => 'badge-mantenimiento',
-
-        str_contains($estadoLimpio, 'daña') || 
-        str_contains($estadoLimpio, 'ocupad') || 
-        str_contains($estadoLimpio, 'inactiv') => 'badge-danado',
-
-        str_contains($estadoLimpio, 'reservad') || 
-        str_contains($estadoLimpio, 'prestad') => 'badge-reservado',
-
-        str_contains($estadoLimpio, 'disponibl') || 
-        str_contains($estadoLimpio, 'activ')   => 'badge-disponible',
-
-        default => 'badge-disponible',
-    };
+    // Construimos la URL limpia
+    $urlReserva = $idRecurso ? route('reservas.paso1', ['id' => $idRecurso]) . '?tipo=' . $tipoStr : '#';
 @endphp
 
 <div class="tarjeta-recurso">
-
-{{-- ETIQUETA EN LA ESQUINA SUPERIOR DERECHA --}}
-    <div class="estado-esquina-container">
-        <span class="badge-siger-estado {{ $claseEstado }}">
-            <i class="fas fa-circle indicador-punto"></i> 
-            {{ $valor }}
-        </span>
-    </div>
 
     <img
         src="{{ $foto }}"
@@ -48,14 +25,13 @@
     >
 
     <div class="tarjeta-body">
-        <div class="cuerpo-tarjeta">
+
         <div class="card-title">
             {{ $nombre }}
         </div>
 
-        <div class="estado-tarjeta">
+        <div class="estado">
             {{ $etiqueta }}: {{ $valor }}
-        </div>
         </div>
 
         <div class="botones-container">
@@ -97,12 +73,36 @@
                         {{-- BOTONES ADMINISTRATIVOS --}}
             <div class="botones-admin">
 
-                {{-- BOTÓN EDITAR --}}
-                <x-botones.boton 
-                    class="btn" 
-                    url="{{ $urlBoton ?? '/reservas' }}">
-                    {{ $textoBoton ?? 'Reservar' }}
-                </x-botones.boton>
+                {{-- BOTÓN DINÁMICO (EDITAR O RESERVAR) --}}
+                @if(request()->is('activos*') || request()->is('inventario*'))
+                    @php
+                        $idEditar = $recurso->act_id ?? $recurso->aula_id ?? null;
+                        $rutaEditar = isset($recurso->act_id) ? route('activos.edit', $idEditar) : route('aulas.edit', $idEditar);
+                    @endphp
+
+                    <x-botones.boton 
+                        class="btn btn-warning" 
+                        url="{{ $rutaEditar }}">
+                        <i class="bi bi-pencil"></i> Editar
+                    </x-botones.boton>
+                @else
+                    @php
+                        // Verificamos de forma estricta qué ID tiene contenido real
+                        if (isset($recurso->act_id) && !empty($recurso->act_id)) {
+                            $idReserva = $recurso->act_id;
+                            $tipoReserva = 'activo';
+                        } else {
+                            $idReserva = $recurso->aula_id;
+                            $tipoReserva = 'aula';
+                        }
+                    @endphp
+
+                    <x-botones.boton 
+                        class="btn btn-primary" 
+                        url="{{ route('reservas.paso1', $idReserva) . '?tipo=' . $tipoReserva }}">
+                        <i class="bi bi-calendar-check"></i> Reservar
+                    </x-botones.boton>
+                @endif
 
                 {{-- BOTÓN ELIMINAR editar cuando haya controllers--}}
                 @if($esAdmin)
