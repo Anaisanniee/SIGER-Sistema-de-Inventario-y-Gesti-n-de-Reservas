@@ -109,5 +109,5 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // RUTAS DE PRUEBA (NO TOCAR)
 // ==========================================
 Route::get('/prueba', function () {
-    return view('reservas.index');
+    return view('reservas.crear.paso1');
 });

@@ -14,7 +14,7 @@
     'horaFin'          => '09:30 AM',
     'aulaUso'          => 'Salón 601',
     'mostrarSubtitulo' => true,
-    'activos'          => [] // Array de recursos si son múltiples
+    'recursos'          => [] // Array de recursos si son múltiples
 ])
 
 <div class="tarjeta-reserva-siger tarjeta-confirmacion-paso3">
@@ -52,13 +52,12 @@
 
             {{-- Invocamos el componente reutilizable en el resumen --}}
             <x-reservas.detalle-recurso 
-                :tipoRecurso="$tipoRecurso"
-                :recursoNombre="$recursoNombre"
-                :capacidad="$capacidad"
-                :serial="$serial"
-                :marca="$marca"
-                :activos="$activos"
-            />
+                    :tipoRecurso="$recursos[0]->tipo ?? 'activo'"
+                    :recursoNombre="$recursos[0]->nombre ?? $recursos[0]->nombres ?? 'Recurso'"
+                    :serial="$recursos[0]->serial ?? 'Sin Serial'"
+                    :marca="$recursos[0]->marca ?? 'N/A'"
+                    :activos="$recursos" 
+                />
         </div>
 
         {{-- Bloque: Motivo de la Reserva --}}

@@ -5,8 +5,11 @@
 
 <link rel="stylesheet" href="{{ asset('css/pages/dashboard-secretario.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}">
-
+<link rel="stylesheet" href="{{ asset('css/components/resumen-reserva.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
+<link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
 @php
+    $esAdmin = Auth::user()->esAdmin ?? true;
     $reservasSimuladas = [
         (object)[
             'id' => 1,
@@ -124,5 +127,7 @@
         @endforeach
     </div>
 </div>
+
+<x-reservas.modal-detalle-reserva :esAdmin="$esAdmin" />
 
 @endsection

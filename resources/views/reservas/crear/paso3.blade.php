@@ -10,21 +10,51 @@
     $capacidad = isset($recurso) ? $recurso->capacidad : '35 Estudiantes';
     $serial = isset($recurso) ? $recurso->serial : 'DELL-5420-X92';
     $marca = isset($recurso) ? $recurso->marca : 'Dell Inspiron';
+@endphp
 
-    // Lista de activos adicionales (SI ES RESERVA MÚLTIPLE O TIENE INVENTARIO VINCULADO)
-    // Si no hay nada o es una reserva simple, la dejas como array vacío: $activosIncluidos = [];
-    $activosIncluidos = session('activos_reserva', [
-        ['nombre' => 'VideoBeam Epson X41', 'codigo' => 'VB-001'],
-        ['nombre' => 'Portátil Docente Dell', 'codigo' => 'LAP-042'],
-        ['nombre' => 'Sistema de Sonido Parlante', 'codigo' => 'AUD-005']
-    ]); 
+@php
+    // Ejemplo de array de recursos (múltiples equipos para pruebas)
+    $recursos = $recursos ?? [
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Computador Portátil Dell Inspiron 15',
+            'serial' => 'DELL-5420-X92',
+            'marca' => 'Dell'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Video VideoProyector Epson PowerLite',
+            'serial' => 'EPS-880-VP9',
+            'marca' => 'Epson'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Sistema de Sonido / Cabina Cabina Bluetooth 8" ',
+            'serial' => 'JBL-PARTY-04',
+            'marca' => 'JBL'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Tableta de Dibujo Wacom Intuos',
+            'serial' => 'WAC-CTL4100-88',
+            'marca' => 'Wacom'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Camára Réflex Digital Canon EOS Rebel',
+            'serial' => 'CAN-T7-4921',
+            'marca' => 'Canon'
+        ]
+    ];
+
+    // Asignamos para compatibilidad si el backend envía $activosIncluidos
+    $activosIncluidos = $activosIncluidos ?? $recursos;
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/resumen-reserva.css') }}">
-
 
 <div class="contenedor-reserva-universal">
     
@@ -46,7 +76,7 @@
         :fechaFin="session('res_fecha_fin') ?? '2026-07-10'"
         :horaFin="session('res_hora_fin') ?? '09:30 AM'"
         :aulaUso="session('aula_uso') ?? 'Salón 601'"
-        :activos="$activosIncluidos" 
+        :recursos="$recursos" 
     />
 
     {{-- 3. FORMULARIO FINAL DE ENVÍO --}}

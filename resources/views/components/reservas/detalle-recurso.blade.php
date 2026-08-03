@@ -1,15 +1,17 @@
-{{-- resources/views/components/reservas/detalle-recurso.blade.php --}}
 @props([
     'tipoRecurso'   => 'activo',
     'recursoNombre' => 'Laboratorio de Sistemas A',
     'capacidad'     => '35 Estudiantes',
     'serial'        => 'DELL-5420-X92',
     'marca'         => 'Dell Inspiron',
-    'activos'       => []
+    'activos'       => [],
+    'recursos'      => []
 ])
 
 @php
-    $esMultiple = !empty($activos) && count($activos) > 1;
+    // Soportamos que la lista llegue por $recursos o por $activos
+    $coleccionRecursos = !empty($recursos) ? $recursos : $activos;
+    $esMultiple = !empty($coleccionRecursos) && count($coleccionRecursos) > 1;
 @endphp
 
 <div class="contenedor-detalle-recurso">
@@ -20,23 +22,52 @@
             <summary>
                 <span class="resumen-acordeon-info">
                     <i class="bi bi-box-seam text-verde"></i>
-                    <span class="resumen-acordeon-texto">Lista de activos ({{ count($activos) }})</span>
+                    <span class="resumen-acordeon-texto">Lista de recursos ({{ count($coleccionRecursos) }})</span>
                 </span>
                 <i class="bi bi-chevron-down icono-flecha"></i>
             </summary>
 
             <div class="contenido-desplegable mt-2">
                 <ul class="resumen-lista-activos">
-                    @foreach($activos as $item)
+                    @foreach($coleccionRecursos as $item)
+                        @php
+                            // Extraemos las propiedades soportando tanto objetos ($item->campo) como arreglos ($item['campo'])
+                            $tipoItem = is_object($item) 
+                                ? ($item->tipo ?? 'activo') 
+                                : (is_array($item) ? ($item['tipo'] ?? 'activo') : 'activo');
+
+                            $nombreItem = is_object($item) 
+                                ? ($item->nombre ?? $item->nombres ?? 'Recurso') 
+                                : (is_array($item) ? ($item['nombre'] ?? $item['nombres'] ?? 'Recurso') : $item);
+
+                            $serialItem = is_object($item) 
+                                ? ($item->serial ?? null) 
+                                : (is_array($item) ? ($item['serial'] ?? null) : null);
+
+                            $marcaItem = is_object($item) 
+                                ? ($item->marca ?? null) 
+                                : (is_array($item) ? ($item['marca'] ?? null) : null);
+
+                            $capacidadItem = is_object($item) 
+                                ? ($item->capacidad ?? null) 
+                                : (is_array($item) ? ($item['capacidad'] ?? null) : null);
+                        @endphp
+
                         <li class="resumen-activo-item">
-                            <i class="bi bi-check-circle-fill text-verde me-2"></i>
+                            <i class="bi {{ $tipoItem === 'aula' ? 'bi-door-open-fill text-verde me-2' : 'bi-check-circle-fill text-verde me-2' }}"></i>
                             <div>
-                                <strong>{{ is_array($item) ? ($item['nombre'] ?? 'Recurso') : $item }}</strong>
-                                @if(is_array($item))
-                                    @if(isset($item['serial']))
-                                        <small class="d-block text-muted">Serial/Placa: {{ $item['serial'] }}</small>
-                                    @elseif(isset($item['capacidad']))
-                                        <small class="d-block text-muted">Capacidad: {{ $item['capacidad'] }}</small>
+                                <strong>{{ $nombreItem }}</strong>
+                                
+                                @if($tipoItem === 'aula' || $capacidadItem)
+                                    @if($capacidadItem)
+                                        <small class="d-block text-muted">Capacidad: {{ $capacidadItem }}</small>
+                                    @endif
+                                @else
+                                    @if($serialItem)
+                                        <small class="d-block text-muted">Serial: {{ $serialItem }}</small>
+                                    @endif
+                                    @if($marcaItem)
+                                        <small class="d-block text-muted">Marca: {{ $marcaItem }}</small>
                                     @endif
                                 @endif
                             </div>
@@ -67,7 +98,7 @@
                     </div>
                 @else
                     <div class="item-atributo">
-                        <span class="label-atributo">Serial / Placa:</span>
+                        <span class="label-atributo">Serial:</span>
                         <span class="valor-atributo font-mono">{{ $serial }}</span>
                     </div>
                     <div class="item-atributo">

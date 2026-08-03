@@ -9,7 +9,41 @@
     // $recurso = isset($recursos[0]) ? $recursos[0] : null; 
     $tipoRecurso = isset($recurso) && is_object($recurso) ? $recurso->tipo : 'activo';
 @endphp
-
+@php
+    // Ejemplo de array de recursos (múltiples equipos para pruebas)
+    $recursos = $recursos ?? [
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Computador Portátil Dell Inspiron 15',
+            'serial' => 'DELL-5420-X92',
+            'marca' => 'Dell'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Video VideoProyector Epson PowerLite',
+            'serial' => 'EPS-880-VP9',
+            'marca' => 'Epson'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Sistema de Sonido / Cabina Cabina Bluetooth 8" ',
+            'serial' => 'JBL-PARTY-04',
+            'marca' => 'JBL'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Tableta de Dibujo Wacom Intuos',
+            'serial' => 'WAC-CTL4100-88',
+            'marca' => 'Wacom'
+        ],
+        (object)[
+            'tipo' => 'activo',
+            'nombre' => 'Camára Réflex Digital Canon EOS Rebel',
+            'serial' => 'CAN-T7-4921',
+            'marca' => 'Canon'
+        ]
+    ];
+@endphp
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
@@ -34,9 +68,11 @@
                 
                 {{-- COMPONENTE: Detalle del Recurso (Con Estado Disponible) --}}
                 <x-reservas.detalle-recurso 
-                    :nombre="isset($recurso) ? $recurso->nombres : 'Computador Dell Inspiron'" 
-                    :detalle="isset($recurso) ? $recurso->serial : '#EQ-01 --- Windows 11'" 
-                    estado="Disponible" 
+                    :tipoRecurso="$recursos[0]->tipo ?? 'activo'"
+                    :recursoNombre="$recursos[0]->nombre ?? $recursos[0]->nombres ?? 'Recurso'"
+                    :serial="$recursos[0]->serial ?? 'Sin Serial'"
+                    :marca="$recursos[0]->marca ?? 'N/A'"
+                    :recursos="$recursos" 
                 />
             </div>
 
