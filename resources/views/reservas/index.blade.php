@@ -148,7 +148,10 @@
 
     </div>
 
-<x-reservas.modal-detalle-reserva :esAdmin="$esAdmin" />
+    {{-- COMPONENTE DEL MODAL GENERAL CON SU SCRIPT INCLUIDO --}}
+    <x-reservas.modal-detalle-reserva :esAdmin="$esAdmin" />
+
+</div>
 
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 @endsection
