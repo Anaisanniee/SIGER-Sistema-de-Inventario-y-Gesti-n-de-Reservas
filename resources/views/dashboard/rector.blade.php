@@ -124,6 +124,8 @@
     </x-modal>
 </div>
 
+<x-reservas.carrito-flotante/>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const buscador = document.getElementById('buscador-recursos');
