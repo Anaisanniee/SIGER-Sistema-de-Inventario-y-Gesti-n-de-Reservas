@@ -8,8 +8,10 @@
 <link rel="stylesheet" href="{{ asset('css/components/resumen-reserva.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
+
 @php
     $esAdmin = Auth::user()->esAdmin ?? true;
+
     $reservasSimuladas = [
         (object)[
             'id' => 1,
@@ -42,7 +44,7 @@
     'descripcion' => 'Sistema institucional de inventario, activos y gestión de reservas en tiempo real.'
 ])
 
-{{--- 2. SECCIÓN SUPERIOR: ACCESOS Y ALERTAS (Gobernados por .dashboard-grid) ---}}
+{{--- 2. SECCIÓN SUPERIOR: ACCESOS Y ALERTAS ---}}
 <div class="dashboard-grid">
     
     <!-- COLUMNA 1: ACCESOS RÁPIDOS -->
@@ -50,7 +52,6 @@
         <h3 class="dashboard-subtitulo">Módulos Disponibles</h3>
         <div class="contenedor-accesos">
             
-            <!-- Acceso a Reservas -->
             <a href="{{ url('/reservas/gestion') }}" class="tarjeta-acceso-rapido acceso-reservas">
                 <div class="acceso-icono">
                     <i class="fas fa-calendar-check"></i>
@@ -62,7 +63,6 @@
                 <i class="fas fa-chevron-right flecha-acceso"></i>
             </a>
 
-            <!-- Acceso a Inventario -->
             <a href="{{ url('/inventario') }}" class="tarjeta-acceso-rapido acceso-inventario">
                 <div class="acceso-icono">
                     <i class="fas fa-boxes"></i>
@@ -79,19 +79,17 @@
 
     <!-- COLUMNA 2: ALERTAS DEL SISTEMA -->
     <div class="dashboard-columna">
-    <h3 class="dashboard-subtitulo">Alertas del Sistema</h3>
-    
-    <div class="contenedor-alertas" id="contenedor-alertas-siger">
+        <h3 class="dashboard-subtitulo">Alertas del Sistema</h3>
         
-        <x-alertas.notificacion tipo="peligro" titulo="Entrega Retrasada">
-            El <strong>Computador Dell Inspiron</strong> debió devolverse a las 10:00 AM.
-        </x-alertas.notificacion>
+        <div class="contenedor-alertas" id="contenedor-alertas-siger"> <!---COLOCAR NOTIFICACIONES CUANDOS E ESTEN LISTA EN LOS CONTROLLERS--->
+            <x-alertas.notificacion tipo="peligro" titulo="Entrega Retrasada">
+                El <strong>Computador Dell Inspiron</strong> debió devolverse a las 10:00 AM.
+            </x-alertas.notificacion>
 
-        <x-alertas.notificacion tipo="advertencia" titulo="Mantenimiento">
-            El Aula 101 reporta fallas en la red.
-        </x-alertas.notificacion>
-
-    </div>
+            <x-alertas.notificacion tipo="advertencia" titulo="Mantenimiento">
+                El Aula 101 reporta fallas en la red.
+            </x-alertas.notificacion>
+        </div>
     </div>
 
 </div>
@@ -119,7 +117,7 @@
                         'horaInicio'  => $reserva->hora_inicio,
                         'horaFin'     => $reserva->hora_fin,
                         'ubicacion'   => $reserva->ubicacion,
-                        'urlDetalles' => url('/reservas/gestion')
+                        'urlGestion'  => '#'
                     ])
                     @endcomponent
                 </div>
@@ -128,6 +126,7 @@
     </div>
 </div>
 
+{{-- COMPONENTE DEL MODAL GENERAL CON SU SCRIPT INCLUIDO --}}
 <x-reservas.modal-detalle-reserva :esAdmin="$esAdmin" />
 
 @endsection
