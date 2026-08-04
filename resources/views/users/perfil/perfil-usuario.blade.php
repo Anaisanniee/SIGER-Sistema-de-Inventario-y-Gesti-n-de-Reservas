@@ -83,7 +83,7 @@
                     </div>
 
                     {{-- Llamamos a tu archivo de formulario usando la ruta de puntos exacta dentro de usuarios obtiene los dtos del usuario --}}
-                    @include('components.formularios.update_form_datos', ['usuario' => $usuario])
+                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
 
                 </div>
             </div>

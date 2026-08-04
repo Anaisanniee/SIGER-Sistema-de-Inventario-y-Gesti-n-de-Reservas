@@ -21,11 +21,7 @@
         {{-- COLUMNA IZQUIERDA: AVATAR Y ACCIONES --}}
         <aside class="perfil-columna-izquierda">
             <div class="avatar-wrapper">
-<<<<<<< HEAD
                 <div class="avatar-circulo" style="background-color: var(--color-azulado);">
-=======
-                <div class="avatar-circulo" style="background-color: #3b82f6;">
->>>>>>> origin/backend-Elias
                     @auth
                         {{ strtoupper(substr(Auth::user()->name, 0, 1) . substr(Auth::user()->lastname ?? 'S', 0, 1)) }}
                     @else
@@ -79,8 +75,9 @@
                     </div>
 
                     {{-- Llamamos el formulario--}}
-                    @include('components.formularios.form-usuario', ['usuario' => Auth::user(), 'esPerfil' => true])
-                </div>
+                        @include('components.formularios.form-usuario', [
+                            'usuario' => $usuario ?? auth()->user()
+                        ])                </div>
             </div>
 
             {{-- SECCIÓN 2: CONTROL CENTRAL (Pestañas de Gestión de Reservas) --}}
@@ -149,11 +146,7 @@
                 tabs.forEach(t => {
                     t.classList.remove('activo');
                     t.style.borderBottom = 'none';
-<<<<<<< HEAD
                     t.style.color = 'var(--color-azulado)';
-=======
-                    t.style.color = '#64748b';
->>>>>>> origin/backend-Elias
                 });
                 
                 // Ocultar todos los bloques de contenido

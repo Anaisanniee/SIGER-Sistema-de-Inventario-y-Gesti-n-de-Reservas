@@ -133,17 +133,28 @@
 
         <!-- COLUMNA DERECHA: AGENDA PERMANENTE -->
         <div class="columna-agenda-permanente">
-            <div class="card-calendario-fijo">
-                <div class="agenda-header-siger">
-                    <h4><i class="fas fa-calendar-day"></i> Vista de Ocupación</h4>
-                    <span class="badge-agenda-hoy">Hoy</span>
-                </div>
-                <div class="placeholder-agenda-render">
-                    <i class="fas fa-clock" style="font-size: 2rem; color: var(--color-borde); margin-bottom: 12px;"></i>
-                    <p>Espacio reservado para el calendario interactivo.</p>
-                    <small style="color: var(--color-texto-secundario);">Permitirá cruzar horarios visualmente de forma inmediata.</small>
-                </div>
-            </div>
+        <x-agendas.agenda :eventos="[
+                [
+                    'title' => 'Computador Dell - Prof. Carlos',
+                    'start' => '2026-08-12T08:00:00',
+                    'end' => '2026-08-12T10:00:00',
+                    'extendedProps' => [
+                        'recurso' => 'Computador Dell Inspiron',
+                        'usuario' => 'Carlos Mendoza (Docente)',
+                        'estado' => 'Aprobado'
+                    ]
+                ],
+                [
+                    'title' => 'Reserva Aula 101',
+                    'start' => '2026-08-15T10:00:00',
+                    'end' => '2026-08-15T12:00:00',
+                    'extendedProps' => [
+                        'recurso' => 'Aula 101 (Audiovisuales)',
+                        'usuario' => 'María Pérez (Docente)',
+                        'estado' => 'Aprobado'
+                    ]
+                ]
+            ]" />
         </div>
 
     </div>

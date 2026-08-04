@@ -78,6 +78,62 @@
     font-weight: 600;
 }
 
+/* =========================================================================
+   LAYOUT DASHBOARD RESERVAS (35% Tarjetas / 65% Agenda)
+   ========================================================================= */
+.dashboard-reservas-grid {
+    display: flex;
+    gap: 1.25rem;
+    align-items: stretch; /* Mantiene ambas columnas con altura alineada */
+    width: 100%;
+}
+
+/* Columna Izquierda: Tarjetas / Lista de solicitudes (35%) */
+.dashboard-reservas-grid > div:first-child {
+    flex: 0 0 35%;
+    max-width: 35%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Columna Derecha: FullCalendar (65%) */
+.dashboard-reservas-grid > div:last-child {
+    flex: 0 0 calc(65% - 1.25rem);
+    max-width: calc(65% - 1.25rem);
+}
+
+/* Diseño Sobrio y Compacto para las Tarjetas de la izquierda */
+.tarjetas-reserva-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    max-height: 620px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Personalización del Scrollbar de la lista para no romper la estética */
+.tarjetas-reserva-contenedor::-webkit-scrollbar {
+    width: 5px;
+}
+.tarjetas-reserva-contenedor::-webkit-scrollbar-thumb {
+    background: var(--color-fondo-secundario);
+    border-radius: 4px;
+}
+
+/* Adaptación para Pantallas Pequeñas (Mobile / Tablet) */
+@media (max-width: 992px) {
+    .dashboard-reservas-grid {
+        flex-direction: column;
+    }
+
+    .dashboard-reservas-grid > div:first-child,
+    .dashboard-reservas-grid > div:last-child {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
 
 
 /* --------------------------------------------------------------------------
