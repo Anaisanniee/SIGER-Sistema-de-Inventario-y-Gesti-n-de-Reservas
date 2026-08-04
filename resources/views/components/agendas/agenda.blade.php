@@ -14,19 +14,26 @@
         </div>
     </div>
 
-    {{-- Contenedor de FullCalendar --}}
-    <div id="calendario-secretaria" style="min-height: 480px;"></div>
+    {{-- Contenedor de FullCalendar con contención de desborde --}}
+    <div id="calendario-secretaria-container" class="w-100 overflow-hidden">
+        <div id="calendario-secretaria" style="min-height: 480px;"></div>
+    </div>
 </div>
 
-{{-- Estilos encapsulados utilizando únicamente tus variables CSS --}}
+{{-- Estilos encapsulados utilizando únicamente variables CSS y reglas responsivas --}}
 <style>
-    /* Estilos generales de la barra superior */
+    /* =========================================================================
+       ESTILOS BASE DE FULLCALENDAR
+       ========================================================================= */
     #calendario-secretaria .fc-toolbar {
+        display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
+        align-items: center;
+        justify-content: space-between;
         margin-bottom: 1.25rem !important;
     }
 
-    /* Título del Mes/Año */
     #calendario-secretaria .fc-toolbar-title {
         color: var(--color-texto) !important;
         font-family: var(--fuente-secundaria) !important;
@@ -35,7 +42,6 @@
         text-transform: capitalize;
     }
 
-    /* Grupos de botones */
     #calendario-secretaria .fc-button-group {
         gap: 0.3rem;
     }
@@ -54,7 +60,6 @@
         transition: all 0.2s ease-in-out;
     }
 
-    /* Estado Hover / Focus */
     #calendario-secretaria .fc-button:hover,
     #calendario-secretaria .fc-button:focus {
         background-color: var(--principal-secundario) !important;
@@ -62,7 +67,6 @@
         color: var(--color-fondo) !important;
     }
 
-    /* Botón Activo (ej: cuando 'Mes' o 'Semana' está seleccionado) */
     #calendario-secretaria .fc-button-primary:not(:disabled).fc-button-active, 
     #calendario-secretaria .fc-button-primary:not(:disabled):active {
         background-color: var(--principal-secundario) !important;
@@ -71,7 +75,6 @@
         font-weight: 700;
     }
 
-    /* Botón 'Hoy' deshabilitado si ya estás en el día actual */
     #calendario-secretaria .fc-button:disabled {
         background-color: var(--color-fondo-secundario) !important;
         border-color: var(--color-fondo-secundario) !important;
@@ -79,7 +82,7 @@
         opacity: 0.7;
     }
 
-    /* Malla y cabeceras del calendario */
+    /* Malla y cabeceras */
     #calendario-secretaria .fc-theme-standard td, 
     #calendario-secretaria .fc-theme-standard th {
         border-color: var(--color-borde) !important;
@@ -98,12 +101,11 @@
         font-weight: 500;
     }
 
-    /* Resaltado suave del día de HOY */
     #calendario-secretaria .fc-day-today {
         background-color: var(--color-verde-pastel) !important;
     }
 
-    /* ESTILO DE EVENTOS COMO BLOQUES/TARJETAS */
+    /* Tarjetas/Píldoras de eventos */
     #calendario-secretaria .fc-daygrid-event {
         border-radius: var(--borde-radio) !important;
         padding: 2px 6px !important;
@@ -117,6 +119,42 @@
         color: var(--color-fondo) !important;
         font-weight: 500;
     }
+
+    /* =========================================================================
+       REGLAS RESPONSIVAS (MANTENIENDO TODOS LOS BOTONES)
+       ========================================================================= */
+    @media (max-width: 576px) {
+        #calendario-secretaria .fc-toolbar {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        #calendario-secretaria .fc-toolbar-title {
+            text-align: center;
+            font-size: 1rem !important;
+            order: -1;
+        }
+
+        #calendario-secretaria .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        #calendario-secretaria .fc-button {
+            padding: 0.25rem 0.4rem !important;
+            font-size: 0.75rem !important;
+        }
+
+        #calendario-secretaria .fc-col-header-cell-cushion {
+            font-size: 0.75rem !important;
+        }
+
+        #calendario-secretaria .fc-daygrid-day-number {
+            font-size: 0.75rem !important;
+        }
+    }
 </style>
 
 {{-- CDN de FullCalendar --}}
@@ -128,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendario-secretaria');
     let eventosPhp = @json($eventos);
 
-    // Mapeo automático de variables CSS
+    // Mapeo de variables CSS
     const rootStyles = getComputedStyle(document.documentElement);
     const colorDisponible = rootStyles.getPropertyValue('--color-estado-disponible').trim() || '#22c55e';
     const colorPendiente = rootStyles.getPropertyValue('--color-estado-en-mantenimiento').trim() || '#facc15';
@@ -163,7 +201,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ...evt,
             backgroundColor: bg,
             borderColor: bg,
-            // Texto oscuro para pendiente, o color-fondo (blanco) para el resto
             textColor: (estado.toLowerCase() === 'pendiente') ? colorTexto : colorFondo
         };
     });
@@ -172,7 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
         initialView: 'dayGridMonth',
         locale: 'es',
         height: 'auto',
-        eventDisplay: 'block', // Fuerza a renderizar como pildora/bloque lleno y no como viñeta
+        handleWindowResize: true,
+        eventDisplay: 'block',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
