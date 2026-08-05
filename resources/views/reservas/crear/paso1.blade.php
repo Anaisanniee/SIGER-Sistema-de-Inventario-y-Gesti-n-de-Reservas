@@ -1,122 +1,104 @@
 @extends('layouts.app')
+
 @section('mostrarPerfil', 'false')
 @section('mostrarBusqueda', 'false')
+
 @section('content')
 @php
-    // Confiamos plenamente en el $tipoRecurso que viene seguro del controlador
+    // Confiamos en el $tipoRecurso y en la colección de recursos que vienen seguros del controlador
     $tipoRecurso = $tipoRecurso ?? 'activo';
+    $recursos = $recursos ?? collect();
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
 
-<div class="contenedor-reserva-universal">
-    
-    {{-- 1. COMPONENTE STEPPER (Barra de Progreso en Paso 1) --}}
+<div class="contenedor-reserva-universal container py-4">
+
+    {{-- 1. COMPONENTE STEPPER --}}
     <x-reservas.stepper paso="1" />
 
-    {{-- 2. BLOQUE CENTRAL DE CONFIRMACIÓN --}}
-    <div class="tarjeta-reserva-siger tarjeta-confirmacion-paso1">
-        
-        <div class="encabezado-pregunta">
-            <h2>¿Este es el recurso que desea reservar?</h2>
-            <p class="subtitulo-tarjeta">Verifique las especificaciones técnicas del elemento seleccionado antes de continuar.</p>
-        </div>
+    {{-- 2. REJILLA PRINCIPAL CENTRADA --}}
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-8 col-md-10">
 
-        {{-- Contenedor de la Ficha Técnica del Recurso --}}
-        <div class="ficha-tecnica-recurso {{ $tipoRecurso === 'aula' ? 'borde-aula' : 'borde-activo' }}">
-            <div class="info-principal-paso1">
-                    <div class="icono-recurso-grande {{ $tipoRecurso === 'aula' ? 'icono-aula' : 'icono-activo' }}">
-                        @if($tipoRecurso === 'aula')
-                            <i class="bi bi-door-open-fill"></i>
-                        @else
-                            <i class="bi bi-laptop"></i>
-                        @endif
-                    </div>
-                <div>
-                    <span class="etiqueta-tipo-recurso">{{ ucfirst($tipoRecurso) }}</span>
-                    <h1 class="nombre-recurso-paso1">
-                        {{ $tipoRecurso === 'aula' ? ($recurso->aula_nombre ?? 'Aula sin nombre') : ($recurso->act_nombre ?? 'Activo sin nombre') }}
-                    </h1>
+            {{-- Bloque Informativo del Recurso --}}
+            <div class="tarjeta-reserva-siger p-4 shadow-sm bg-white rounded mb-4">
+                <h3 class="fw-bold">Recursos Seleccionados</h3>
+                <p class="subtitulo-tarjeta text-muted">Puedes volver atrás para cambiar los elementos</p>
+
+                {{-- Lista de recursos seleccionados --}}
+                <div class="lista-recursos-seleccionados mt-3">
+                    @foreach($recursos as $recurso)
+                        <div class="tarjeta-item-recurso mb-3 p-3 border rounded shadow-sm bg-light">
+                            <div class="d-flex align-items-center">
+                                <div class="icono-recurso me-3 text-primary fs-3">
+                                    @if($tipoRecurso === 'aula')
+                                        <i class="bi bi-door-open-fill"></i>
+                                    @else
+                                        <i class="bi bi-laptop"></i>
+                                    @endif
+                                </div>
+                                <div>
+                                    <span class="badge bg-secondary mb-1">{{ ucfirst($tipoRecurso) }}</span>
+                                    <h5 class="mb-1 fw-bold">
+                                        {{ $recurso->act_nombre ?? $recurso->aula_nombre ?? 'Sin nombre' }}
+                                    </h5>
+                                    <p class="text-muted mb-0 small">
+                                        <strong>Serial / Código:</strong> {{ $recurso->act_serial ?? $recurso->aula_codigo ?? 'N/A' }} | 
+                                        <strong>Marca:</strong> {{ $recurso->act_marca ?? 'N/A' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 
-            {{-- Rejilla Dinámica de Atributos --}}
-            <div class="grid-atributos-paso1">
-                @if($tipoRecurso === 'aula')
-                    {{-- ATRIBUTOS EXCLUSIVOS DE AULA --}}
-                    <div class="item-atributo">
-                        <span class="label-atributo">Capacidad</span>
-                        <span class="valor-atributo">
-                            {{ $recurso->aula_capacidad ?? ($recurso->capacidad ?? 'No registra') }} Estudiantes
-                        </span>
-                    </div>
-                    <div class="item-atributo">
-                        <span class="label-atributo">Estado del Aula</span>
-                        <span class="valor-atributo estado-badge disponible">
-                            {{ $recurso->aula_estado ?? ($recurso->estado ?? 'Disponible') }}
-                        </span>
-                    </div>
-                @else
-                    {{-- ATRIBUTOS EXCLUSIVOS DE ACTIVO --}}
-                    <div class="item-atributo">
-                        <span class="label-atributo">Serial / Placa</span>
-                        <span class="valor-atributo font-mono">
-                            {{ $recurso->act_serial ?? ($recurso->serial ?? ($recurso->placa ?? 'Sin serial')) }}
-                        </span>
-                    </div>
-                    <div class="item-atributo">
-                        <span class="label-atributo">Marca</span>
-                        <span class="valor-atributo">
-                            {{ $recurso->act_marca ?? ($recurso->marca ?? 'No registra') }}
-                        </span>
-                    </div>
-                    <div class="item-atributo">
-                        <span class="label-atributo">Estado Físico</span>
-                        <span class="valor-atributo estado-badge funcional">
-                            {{ $recurso->act_estado_fisico ?? ($recurso->estado_fisico ?? ($recurso->estado ?? 'Excelente Estado')) }}
-                        </span>
-                    </div>
-                @endif
-            </div>
+            {{-- Opciones de Decisión y Formulario apuntando a la ruta limpia --}}
+            <form action="{{ route('reservas.paso1.post') }}" method="POST" class="formulario-paso1">
+                @csrf
+                
+                <input type="hidden" name="tipo_recurso" value="{{ $tipoRecurso }}">
 
-        {{-- Opciones de Decisión y Formulario --}}
-        <form action="{{ route('reservas.paso1.post', ['id' => $recurso->act_id ?? ($recurso->aula_id ?? 1)]) }}" method="POST" class="formulario-paso1">
-            @csrf
-            
-            <input type="hidden" name="tipo_recurso" value="{{ $tipoRecurso }}">
-            <div class="zona-decision">
-                <label class="tarjeta-radio">
-                    <input type="radio" name="confirmacion_recurso" value="si" required checked>
-                    <div class="radio-contenido">
-                        <span class="radio-icono">✅</span>
-                        <div>
-                            <strong>Sí, es correcto</strong>
-                            <p>Continuar con la asignación de horarios.</p>
+                <div class="zona-decision mb-4">
+                    <label class="tarjeta-radio d-block mb-2 p-3 border rounded shadow-sm bg-white cursor-pointer">
+                        <div class="d-flex align-items-center">
+                            <input type="radio" name="confirmacion_recurso" value="si" required checked class="me-3">
+                            <div class="radio-contenido d-flex align-items-center">
+                                <span class="radio-icono icono-exito text-success fs-4 me-3"><i class="fas fa-check-circle"></i></span>
+                                <div>
+                                    <strong class="d-block">Sí, es correcto</strong>
+                                    <p class="mb-0 text-muted small">Continuar con la asignación de horarios.</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </label>
+                    </label>
 
-                <label class="tarjeta-radio">
-                    <input type="radio" name="confirmacion_recurso" value="no" required>
-                    <div class="radio-contenido">
-                        <span class="radio-icono">❌</span>
-                        <div>
-                            <strong>No, me equivoqué</strong>
-                            <p>Regresar a la página principal.</p>
+                    <label class="tarjeta-radio d-block p-3 border rounded shadow-sm bg-white cursor-pointer">
+                        <div class="d-flex align-items-center">
+                            <input type="radio" name="confirmacion_recurso" value="no" required class="me-3">
+                            <div class="radio-contenido d-flex align-items-center">
+                                <span class="radio-icono icono-error text-danger fs-4 me-3"><i class="fas fa-times-circle"></i></span>
+                                <div>
+                                    <strong class="d-block">No, me equivoqué</strong>
+                                    <p class="mb-0 text-muted small">Regresar a la página principal.</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </label>
-            </div>
+                    </label>
+                </div>
 
-            {{-- Botón Siguiente alineado a la derecha --}}
-            <div class="contenedor-botones-paso1">
-                <x-botones.boton type="submit" class="btn-siger-accion btn btn-largo">
-                    Siguiente Paso →
-                </x-botones.boton>
-            </div>
-        </form>
+                <div class="contenedor-botones-paso1 text-end">
+                    <x-botones.boton type="submit" class="btn-siger-accion btn btn-primary btn-lg w-100">
+                        Siguiente Paso →
+                    </x-botones.boton>
+                </div>
+            </form>
 
+        </div>
     </div>
+
 </div>
 @endsection

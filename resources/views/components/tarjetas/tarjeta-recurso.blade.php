@@ -99,7 +99,14 @@
 
                     <x-botones.boton 
                         class="btn btn-primary" 
-                        url="{{ route('reservas.paso1', $idReserva) . '?tipo=' . $tipoReserva }}">
+                        type="button"
+                        onclick="window.CarritoReservas.agregar({
+                            id: '{{ $idReserva }}',
+                            nombre: '{{ addslashes($nombre) }}',
+                            secundario: '{{ addslashes($valor) }}',
+                            foto: '{{ $foto }}',
+                            tipo: '{{ $tipoReserva }}'
+                        })">
                         <i class="bi bi-calendar-check"></i> Reservar
                     </x-botones.boton>
                 @endif

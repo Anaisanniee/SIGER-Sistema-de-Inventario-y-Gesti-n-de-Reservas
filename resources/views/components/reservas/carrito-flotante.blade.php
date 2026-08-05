@@ -43,28 +43,25 @@
                 <x-botones.boton type="button" class="btn btn-rojo btn-outline-danger" onclick="window.CarritoReservas.limpiar()">
                     <i class="fas fa-trash-alt me-1"></i> Vaciar lista
                 </x-botones.boton>
-                <x-botones.boton type="button" class="btn btn-azul btn-success px-4" id="btn-confirmar-solicitud">
+                <button type="button" class="btn btn-success px-4" id="btn-confirmar-solicitud" onclick="window.CarritoReservas.procesarSolicitud()" style="background-color: #2563eb; border-color: #2563eb;">
                     <i class="fas fa-paper-plane me-1"></i> Procesar Solicitud
-                </x-botones.boton>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ========================================== -->
-<!-- 3. SCRIPT GESTOR GLOBAL DEL CARRITO         -->
+<!-- 3. SCRIPT GESTOR GLOBAL DEL CARRITO        -->
 <!-- ========================================== -->
 <script>
-    // Identificador único por usuario para no mezclar carritos entre sesiones
-    const contextoRuta = window.location.pathname.replace(/[^a-zA-Z0-0]/g, '_');
-
-    // Clave única según la URL en la que estés parado
-    const usuarioId = "{{ auth()->check() ? auth()->id() : '' }}";
-    const claveFinal = usuarioId ? `usr_${usuarioId}` : `dev_${contextoRuta}`;
+    // Identificador único por usuario y ruta para evitar mezclas o datos fantasma
+    const contextoRuta = window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
+    const usuarioId = "{{ auth()->check() ? auth()->id() : 'invitado' }}";
 
     window.CarritoReservas = {
         items: [],
-        claveStorage: `siger_carrito_reservas_usr_${usuarioId}`,
+        claveStorage: `siger_carrito_${usuarioId}_${contextoRuta}`,
 
         init() {
             const guardado = localStorage.getItem(this.claveStorage);
@@ -82,12 +79,24 @@
             document.getElementById('btn-ver-carrito')?.addEventListener('click', () => {
                 this.abrirModalResumen();
             });
+
+            document.getElementById('btn-confirmar-solicitud')?.addEventListener('click', () => {
+                this.procesarSolicitud();
+            });
         },
 
         agregar(recurso) {
-            if (!recurso || !recurso.id) return;
+            if (!recurso || !recurso.id || !recurso.tipo) return;
 
-            // Validamos por ID y TIPO (evita colisión entre Aula 1 y Activo 1)
+            // REGLA: Si van a agregar un Aula y ya hay un aula en el carrito, impedirlo de frente en el cliente
+            if (recurso.tipo === 'aula') {
+                const yaHayAula = this.items.some(item => item.tipo === 'aula');
+                if (yaHayAula) {
+                    alert('Solo puedes seleccionar máximo un aula por reserva.');
+                    return;
+                }
+            }
+
             const existe = this.items.some(item => 
                 String(item.id) === String(recurso.id) && item.tipo === recurso.tipo
             );
@@ -110,7 +119,6 @@
             if (this.items.length > 0) {
                 this.renderizarListaModal();
             } else {
-                // Si borra todos los items, cierra el modal
                 const modalEl = document.getElementById('modalCarrito');
                 if (modalEl) {
                     const bsModal = bootstrap.Modal.getInstance(modalEl);
@@ -135,6 +143,37 @@
             localStorage.setItem(this.claveStorage, JSON.stringify(this.items));
         },
 
+        procesarSolicitud() {
+            if (this.items.length === 0) {
+                alert('No hay recursos seleccionados en el carrito.');
+                return;
+            }
+
+            fetch('/reservas/guardar-seleccion-temporal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({ 
+                    items: this.items,
+                    ids: this.items.map(i => i.id) // Enviamos ambos para compatibilidad total con el controlador nuevo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/reservas/crear/paso1';
+                } else {
+                    alert(data.message || 'Hubo un error al procesar la selección.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error de red al intentar procesar la solicitud.');
+            });
+        },
+
         actualizarInterfaz() {
             const contenedor = document.getElementById('contenedor-carrito-flotante');
             const contador = document.getElementById('contador-carrito');
@@ -147,11 +186,8 @@
 
         abrirModalResumen() {
             if (this.items.length === 0) return;
-
-            // 1. Renderiza los elementos en el HTML del modal
             this.renderizarListaModal();
 
-            // 2. Muestra el modal #modalCarrito
             const modalEl = document.getElementById('modalCarrito');
             if (modalEl) {
                 const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);

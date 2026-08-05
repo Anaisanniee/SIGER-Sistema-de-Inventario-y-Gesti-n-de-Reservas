@@ -7,8 +7,8 @@
 
 <div class="info-item-seleccionado">
     <div class="detalles-equipo">
-        <strong>{{ $nombre }}</strong>
-        <span>{{ $detalle }}</span>
+        <strong>{{ $nombre ?? $recurso->act_nombre ?? $recurso->aula_nombre ?? 'Recurso' }}</strong>
+        <span>{{ $detalle ?? $recurso->act_serial ?? $recurso->aula_codigo ?? 'Sin detalle' }}</span>
     </div>
     
     @if($estado)

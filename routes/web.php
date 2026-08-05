@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReservasControllers;
-
+use App\Http\Controllers\CarritoController;
 // ==========================================
 // RUTA DE INVENTARIO
 // ==========================================
@@ -80,11 +80,11 @@ Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show')
 
 Route::get('/secretaria/reservas', [ReservasControllers::class, 'indexSecretaria'])->name('secretaria.reservas');
 
-// Ruta para mostrar el paso 1
-Route::get('/reservas/crear/paso1/{id?}/{tipo?}', [ReservasControllers::class, 'paso1'])->name('reservas.paso1');
+// Ruta para mostrar el paso 1 (Ya no necesita {id?} ni {tipo?})
+Route::get('/reservas/crear/paso1', [ReservasControllers::class, 'paso1'])->name('reservas.paso1');
 
-// Ruta POST que recibe el formulario del paso 1
-Route::post('/reservas/crear/paso1/{id}', [ReservasControllers::class, 'postPaso1'])->name('reservas.paso1.post');
+// Ruta POST que recibe el formulario del paso 1 (Tampoco necesita {id})
+Route::post('/reservas/crear/paso1', [ReservasControllers::class, 'postPaso1'])->name('reservas.paso1.post');
 
 // Ruta para mostrar el Paso 2
 Route::get('/reservas/crear/paso2', [ReservasControllers::class, 'paso2'])->name('reservas.paso2');
@@ -97,6 +97,12 @@ Route::get('/reservas/crear/paso3', [ReservasControllers::class, 'paso3'])->name
 
 // Ruta para guardar o confirmar la reserva final (POST)
 Route::post('/reservas/crear/paso3', [ReservasControllers::class, 'guardarPaso3'])->name('reservas.paso3.post');
+
+// ==========================================
+// RUTAS DEL CARRITO
+// ==========================================
+
+Route::post('/reservas/guardar-seleccion-temporal', [CarritoController::class, 'guardarSeleccionTemporal'])->name('reservas.guardar.seleccion');
 
 // ==========================================
 // RUTAS DEL DASHBOARD
