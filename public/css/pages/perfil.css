@@ -59,6 +59,18 @@
     margin-bottom: var(--espaciado);
 }
 
+.acciones-laterales {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem; /* Espaciado uniforme entre todos los botones */
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.acciones-laterales form {
+    margin: 0;
+}
+
 .avatar-circulo {
     width: 130px;
     height: 130px;

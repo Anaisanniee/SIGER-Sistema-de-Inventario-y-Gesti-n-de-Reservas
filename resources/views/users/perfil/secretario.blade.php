@@ -56,11 +56,12 @@
                 <x-botones.boton id="btn-cambiar-contraseña" type="button" class="btn-siger-accion btn-verde-siger">
                     Cambiar contraseña
                 </x-botones.boton>
-                <a href="{{ route('users.index') }}" style="text-decoration: none; width: 100%;">
+                <a href="" style="text-decoration: none; width: 100%;">
                     <x-botones.boton type="button" class="btn-siger-accion btn-azul">
                         Gestionar Usuarios
                     </x-botones.boton>
                 </a>
+                <x-botones.boton-logout />
             </div>
         </aside>
 
@@ -86,10 +87,10 @@
                 {{-- Navegación de pestañas interna --}}
                 <div class="tabs-gestion-admin" style="display: flex; gap: 1rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem;">
                     <button class="tab-btn activo" data-tab="tab-pendientes" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid var(--color-principal); color: var(--color-texto);">
-                        Solicitudes Pendientes
+                        Informe de reserva
                     </button>
                     <button class="tab-btn" data-tab="tab-historial-global" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; color: #64748b;">
-                        Historial General
+                        Reporte de inventario
                     </button>
                 </div>
 
