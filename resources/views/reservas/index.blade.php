@@ -8,53 +8,90 @@
 <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}">
 
 @php
-    // Mapeamos las reservas reales de la base de datos al formato visual
-    $reservasMapeadas = $reservas->map(function($reserva) {
-        $detalle = optional($reserva->detalles)->first();
-        
-        $actId = $detalle ? $detalle->act_id : null;
-        $aulaId = $detalle ? $detalle->aula_id : null;
-        $aulaDestinoAct = $detalle ? $detalle->det_re_aula_destino_act : null;
+    // Mapeamos las reservas reales agrupando cuando son múltiples
+    $reservasMapeadas = collect();
 
-        // Verificamos si el aula_id realmente existe en la tabla de aulas (esto incluye el ID 1, 2, 3, etc.)
-        $aulaObj = !empty($aulaId) ? \App\Models\AulasModels::find($aulaId) : null;
-        
-        // Es una reserva de aula si encontramos un aula válida en la base de datos con ese ID
-        $esReservaDeAulaDirecta = !is_null($aulaObj);
-        
-        if ($esReservaDeAulaDirecta) {
-            $fotoRecurso = (!empty($aulaObj->aula_foto)) 
-                ? asset(\Illuminate\Support\Facades\Storage::url($aulaObj->aula_foto)) 
-                : asset('storage/images/activos/default.jpeg');
-            $nombreRecurso = $aulaObj->aula_nombre ?? 'Aula Reservada';
-            $ubicacionRecurso = 'Espacio físico';
-        } else {
-            // Si no es un aula, es un activo (Tablet, Computador, etc.)
-            $activo = !empty($actId) ? \App\Models\ActivosModels::find($actId) : null;
-            $fotoRecurso = ($activo && !empty($activo->act_foto)) 
-                ? asset(\Illuminate\Support\Facades\Storage::url($activo->act_foto)) 
-                : asset('storage/images/activos/default.jpeg');
-            $nombreRecurso = optional($activo)->act_nombre ?? 'Recurso Asignado';
+    foreach($reservas as $reserva) {
+        $detalles = $reserva->detalles;
+        $totalDetalles = $detalles ? $detalles->count() : 0;
+
+        if ($totalDetalles > 1) {
+            // CASO 1: Es una reserva múltiple
+            $primerDetalle = $detalles->first();
             
-            // Ubicación del activo
-            $aulaDestinoObj = !empty($aulaDestinoAct) ? \App\Models\AulasModels::find($aulaDestinoAct) : null;
-            $ubicacionRecurso = optional($aulaDestinoObj)->aula_nombre 
-                ?? optional(optional($detalle)->aulaDestino)->aula_nombre 
-                ?? 'Aula general';
-        }
+            // Buscamos primero si hay un aula_id explícito en los detalles o el destino de activo
+            $aulaDestinoId = null;
+            foreach($detalles as $det) {
+                if (!empty($det->aula_id)) {
+                    $aulaDestinoId = $det->aula_id;
+                    break;
+                }
+                if (!empty($det->det_re_aula_destino_act)) {
+                    $aulaDestinoId = $det->det_re_aula_destino_act;
+                    break;
+                }
+            }
+            
+            $aulaDestinoObj = !empty($aulaDestinoId) ? \App\Models\AulasModels::find($aulaDestinoId) : null;
+            $ubicacionRecurso = $aulaDestinoObj->aula_nombre ?? $aulaDestinoObj->nombres ?? 'Espacio institucional';
 
-        return (object)[
-            'id'             => $reserva->res_id,
-            'recurso_foto'   => $fotoRecurso,
-            'recurso_nombre' => $nombreRecurso,
-            'estado'         => strtolower($reserva->res_estado_reserva ?? 'pendiente'),
-            'usuario_nombre' => optional($reserva->usuario)->name ?? optional($reserva->usuario)->nombres ?? 'Usuario #' . $reserva->usu_id,
-            'fecha'          => $detalle && $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('Y-m-d') : now()->format('Y-m-d'),
-            'hora_inicio'    => $detalle && $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('h:i A') : '--:--',
-            'hora_fin'       => $detalle && $detalle->det_re_fecha_fin ? \Carbon\Carbon::parse($detalle->det_re_fecha_fin)->format('h:i A') : '--:--',
-            'ubicacion'      => $ubicacionRecurso
-        ];
-    });
+            // Imagen por defecto específica para reservas múltiples (puedes cambiarla por la ruta de tu asset)
+            $fotoRecurso = asset('storage/images/activos/multi-default.png'); 
+            // Si no tienes una imagen específica, puedes usar un icono o una general: asset('storage/images/activos/default.jpeg')
+
+            $reservasMapeadas->push((object)[
+                'id'             => $reserva->res_id,
+                'recurso_foto'   => $fotoRecurso,
+                'recurso_nombre' => 'Reserva Múltiple (' . $totalDetalles . ' elementos)',
+                'estado'         => strtolower($reserva->res_estado_reserva ?? 'pendiente'),
+                'usuario_nombre' => optional($reserva->usuario)->name ?? optional($reserva->usuario)->nombres ?? 'Usuario #' . $reserva->usu_id,
+                'fecha'          => $primerDetalle->det_re_fecha_ini ? \Carbon\Carbon::parse($primerDetalle->det_re_fecha_ini)->format('Y-m-d') : now()->format('Y-m-d'),
+                'hora_inicio'    => $primerDetalle->det_re_fecha_ini ? \Carbon\Carbon::parse($primerDetalle->det_re_fecha_ini)->format('h:i A') : '--:--',
+                'hora_fin'       => $primerDetalle->det_re_fecha_fin ? \Carbon\Carbon::parse($primerDetalle->det_re_fecha_fin)->format('h:i A') : '--:--',
+                'ubicacion'      => $ubicacionRecurso
+            ]);
+
+        } elseif ($totalDetalles === 1) {
+            // CASO 2: Es un único elemento
+            $detalle = $detalles->first();
+            $actId = $detalle->act_id;
+            $aulaId = $detalle->aula_id;
+            $aulaDestinoAct = $detalle->det_re_aula_destino_act;
+
+            $aulaObj = !empty($aulaId) ? \App\Models\AulasModels::find($aulaId) : null;
+            $esReservaDeAulaDirecta = !is_null($aulaObj);
+
+            if ($esReservaDeAulaDirecta) {
+                $fotoRecurso = (!empty($aulaObj->aula_foto)) 
+                    ? asset(\Illuminate\Support\Facades\Storage::url($aulaObj->aula_foto)) 
+                    : asset('storage/images/activos/default.jpeg');
+                $nombreRecurso = $aulaObj->aula_nombre ?? $aulaObj->nombres ?? 'Aula Reservada';
+                $ubicacionRecurso = 'Espacio físico';
+            } else {
+                $activo = !empty($actId) ? \App\Models\ActivosModels::find($actId) : null;
+                $fotoRecurso = ($activo && !empty($activo->act_foto)) 
+                    ? asset(\Illuminate\Support\Facades\Storage::url($activo->act_foto)) 
+                    : asset('storage/images/activos/default.jpeg');
+                $nombreRecurso = optional($activo)->act_nombre ?? 'Recurso Asignado';
+                
+                $idUstedDestino = $aulaDestinoAct ?? $detalle->aula_id;
+                $aulaDestinoObj = !empty($idUstedDestino) ? \App\Models\AulasModels::find($idUstedDestino) : null;
+                $ubicacionRecurso = $aulaDestinoObj->aula_nombre ?? $aulaDestinoObj->nombres ?? 'Aula general';
+            }
+
+            $reservasMapeadas->push((object)[
+                'id'             => $reserva->res_id,
+                'recurso_foto'   => $fotoRecurso,
+                'recurso_nombre' => $nombreRecurso,
+                'estado'         => strtolower($reserva->res_estado_reserva ?? 'pendiente'),
+                'usuario_nombre' => optional($reserva->usuario)->name ?? optional($reserva->usuario)->nombres ?? 'Usuario #' . $reserva->usu_id,
+                'fecha'          => $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('Y-m-d') : now()->format('Y-m-d'),
+                'hora_inicio'    => $detalle->det_re_fecha_ini ? \Carbon\Carbon::parse($detalle->det_re_fecha_ini)->format('h:i A') : '--:--',
+                'hora_fin'       => $detalle->det_re_fecha_fin ? \Carbon\Carbon::parse($detalle->det_re_fecha_fin)->format('h:i A') : '--:--',
+                'ubicacion'      => $ubicacionRecurso
+            ]);
+        }
+    }
 @endphp
 
 <div class="panel-administracion-contenedor">

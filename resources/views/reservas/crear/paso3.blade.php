@@ -6,6 +6,12 @@
     $recursoId = session('reserva.recurso_id');
     $tipoRecurso = session('reserva.tipo_recurso', 'activo');
 
+    // Respaldo para múltiples recursos si vienen de una selección múltiple
+    $recursosBrutos = session('reserva.recursos_objetos', collect());
+    $recursosColeccion = collect($recursosBrutos)->map(function($item) {
+        return (object) $item;
+    });
+
     $recurso = null;
     if ($recursoId) {
         if ($tipoRecurso === 'aula') {
@@ -15,13 +21,25 @@
         }
     }
 
-    // Resolución segura del nombre del aula usando el ID numérico guardado en sesión
-    $aulaUsoId = session('reserva.aula_uso');
+    // Resolución mejorada del aula de uso:
+    // 1. Intentar buscar si dentro de los recursos seleccionados hay un aula (como el Aula de docentes)
+    $aulaSeleccionada = $recursosColeccion->first(function($item) {
+        return isset($item->aula_nombre) || isset($item->aula_capacidad);
+    });
+
     $nombreAulaUso = 'Salón no especificado';
-    if ($aulaUsoId) {
-        $aulaObj = \App\Models\AulasModels::find($aulaUsoId);
-        if ($aulaObj) {
-            $nombreAulaUso = $aulaObj->aula_nombre ?? $aulaObj->nombres ?? ('Salón #' . $aulaUsoId);
+
+    if ($aulaSeleccionada) {
+        // Si el recurso seleccionado ya es un aula, tomamos su nombre directamente
+        $nombreAulaUso = $aulaSeleccionada->aula_nombre ?? $aulaSeleccionada->nombres ?? 'Aula seleccionada';
+    } else {
+        // Si no, buscamos por el ID que se guardó en el select de la sesión (aula_uso)
+        $aulaUsoId = session('reserva.aula_uso');
+        if ($aulaUsoId) {
+            $aulaObj = \App\Models\AulasModels::find($aulaUsoId);
+            if ($aulaObj) {
+                $nombreAulaUso = $aulaObj->aula_nombre ?? $aulaObj->nombres ?? ('Salón #' . $aulaUsoId);
+            }
         }
     }
 @endphp
@@ -31,7 +49,7 @@
 
 <div class="contenedor-reserva-universal">
     
-    {{-- 1. COMPONENTE STEPPER (Barra de Progreso en Paso 3 - Completo) --}}
+    {{-- 1. COMPONENTE STEPPER (Barra de Progreso en Paso 3) --}}
     <x-reservas.stepper paso="3" />
 
     {{-- 2. BLOQUE CENTRAL DE RESUMEN FINAL --}}
@@ -48,13 +66,13 @@
             <div class="bloque-resumen-interno">
                 <h3><i class="bi bi-person-vcard"></i> Datos del Solicitante</h3>
                 <div class="contenido-resumen-item">
-                    <p><strong>Nombre:</strong> {{ Auth::user()?->USU_PRIMER_NOMBRE ?? 'Docente' }} {{ Auth::user()?->USU_PRIMER_APELLIDO ?? 'Solicitante' }}</p>
-                    <p><strong>Identificación:</strong> {{ Auth::user()?->USU_CEDULA ?? '1.004.234.XXX' }}</p>
-                    <p><strong>Correo Electrónico:</strong> {{ Auth::user()?->USU_CORREO ?? 'docente@colegio.edu.co' }}</p>
+                    <p><strong>Nombre:</strong> {{ Auth::user()?->nombres ?? (Auth::user()?->USU_PRIMER_NOMBRE . ' ' . Auth::user()?->USU_PRIMER_APELLIDO ?? 'Docente Solicitante') }}</p>
+                    <p><strong>Identificación:</strong> {{ Auth::user()?->cedula ?? (Auth::user()?->identificacion ?? (Auth::user()?->USU_CEDULA ?? '1.004.234.XXX')) }}</p>
+                    <p><strong>Correo Electrónico:</strong> {{ Auth::user()?->email ?? (Auth::user()?->USU_CORREO ?? 'docente@colegio.edu.co') }}</p>
                 </div>
             </div>
 
-            {{-- Bloque 2: Información del Recurso --}}
+            {{-- Bloque 2: Información del Recurso o Recursos Seleccionados --}}
             <div class="bloque-resumen-interno">
                 <h3>
                     @if($tipoRecurso === 'aula')
@@ -64,13 +82,22 @@
                     @endif
                 </h3>
                 <div class="contenido-resumen-item">
-                    <p><strong>Nombre:</strong> {{ $recurso->act_nombre ?? ($recurso->aula_nombre ?? ($recurso->nombres ?? ($tipoRecurso === 'aula' ? 'Laboratorio de Sistemas A' : 'Computador Portátil Dell'))) }}</p>
-    
-                    @if($tipoRecurso === 'aula')
-                        <p><strong>Capacidad:</strong> {{ $recurso->aula_capacidad ?? ($recurso->capacidad ?? '35 Estudiantes') }}</p>
+                    @if($recursosColeccion->count() > 1)
+                        <p><strong>Elementos seleccionados:</strong></p>
+                        <ul style="padding-left: 15px; margin-top: 5px;">
+                            @foreach($recursosColeccion as $item)
+                                <li>{{ $item->act_nombre ?? ($item->aula_nombre ?? 'Recurso') }} (Serial: {{ $item->act_serial ?? 'N/A' }})</li>
+                            @endforeach
+                        </ul>
                     @else
-                        <p><strong>Serial/Placa:</strong> {{ $recurso->act_serial ?? ($recurso->serial ?? 'DELL-5420-X92') }}</p>
-                        <p><strong>Marca:</strong> {{ $recurso->act_marca ?? ($recurso->marca ?? 'Dell Inspiron') }}</p>
+                        <p><strong>Nombre:</strong> {{ $recurso->act_nombre ?? ($recurso->aula_nombre ?? ($recurso->nombres ?? ($tipoRecurso === 'aula' ? 'Laboratorio de Sistemas A' : 'Computador Portátil Dell'))) }}</p>
+        
+                        @if($tipoRecurso === 'aula')
+                            <p><strong>Capacidad:</strong> {{ $recurso->aula_capacidad ?? ($recurso->capacidad ?? '35 Estudiantes') }}</p>
+                        @else
+                            <p><strong>Serial/Placa:</strong> {{ $recurso->act_serial ?? ($recurso->serial ?? 'DELL-5420-X92') }}</p>
+                            <p><strong>Marca:</strong> {{ $recurso->act_marca ?? ($recurso->marca ?? 'Dell Inspiron') }}</p>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -88,23 +115,26 @@
                         <p><i class="bi bi-calendar-check"></i> <strong>Fecha/Hora:</strong> {{ session('reserva.res_fecha_fin') ?? 'No especificada' }}</p>
                     </div>
                 </div>
+                <div style="margin-top: 15px;">
+                    <p><strong>Motivo de la Reserva:</strong> {{ session('reserva.res_motivo') ?? 'No especificado' }}</p>
+                </div>
             </div>
 
             {{-- Bloque Dinámico: Destino del Traslado (Solo para Activos) --}}
-                @if($tipoRecurso !== 'aula')
-                    <div class="bloque-resumen-interno grid-ancho-completo bloque-ubicacion-paso3">
-                        <h3><i class="bi bi-geo-alt-fill"></i> Ubicación de Destino Asignada</h3>
-                        <div class="contenido-resumen-item">
-                            <p>El recurso será trasladado pedagógicamente para su uso en el siguiente espacio del colegio:</p>
-                            <p style="margin-top: 0.75rem;">
-                                <strong>Lugar de uso:</strong> 
-                                <span class="badge-aula-uso">
-                                    <i class="bi bi-pin-map-fill"></i> {{ $nombreAulaUso }}
-                                </span>
-                            </p>
-                        </div>
+            @if($tipoRecurso !== 'aula')
+                <div class="bloque-resumen-interno grid-ancho-completo bloque-ubicacion-paso3">
+                    <h3><i class="bi bi-geo-alt-fill"></i> Ubicación de Destino Asignada</h3>
+                    <div class="contenido-resumen-item">
+                        <p>El recurso será trasladado pedagógicamente para su uso en el siguiente espacio del colegio:</p>
+                        <p style="margin-top: 0.75rem;">
+                            <strong>Lugar de uso:</strong> 
+                            <span class="badge-aula-uso">
+                                <i class="bi bi-pin-map-fill"></i> {{ $nombreAulaUso }}
+                            </span>
+                        </p>
                     </div>
-                @endif
+                </div>
+            @endif
 
         </div>
 

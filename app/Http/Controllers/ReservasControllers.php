@@ -75,31 +75,27 @@ class ReservasControllers extends Controller
         $idsActivos = [];
         $idsAulas = [];
 
-        // CASO 1: Si la sesión viene con la estructura nueva de 'items' (objetos con id y tipo)
+        // 1. Extraemos los IDs de forma robusta soportando tanto 'id' como 'aula_id' o 'act_id'
         if (!empty($reservaTemp['items']) && is_array($reservaTemp['items'])) {
             foreach ($reservaTemp['items'] as $item) {
-                // Soportamos tanto 'id' como claves alternativas por seguridad
-                $idItem = $item['id'] ?? $item['act_id'] ?? $item['aula_id'] ?? null;
                 $tipoItem = $item['tipo'] ?? null;
-
-                if ($idItem) {
-                    if ($tipoItem === 'activo') {
-                        $idsActivos[] = $idItem;
-                    } elseif ($tipoItem === 'aula') {
+                
+                if ($tipoItem === 'aula') {
+                    $idItem = $item['aula_id'] ?? $item['id'] ?? null;
+                    if ($idItem !== null) {
                         $idsAulas[] = $idItem;
-                    } else {
-                        // Si no especifica tipo, intentamos adivinar buscando en bases de datos o por defecto a activos
+                    }
+                } else {
+                    $idItem = $item['act_id'] ?? $item['id'] ?? null;
+                    if ($idItem !== null) {
                         $idsActivos[] = $idItem;
                     }
                 }
             }
-        } 
-        // CASO 2: Si la sesión viene con la estructura vieja de 'ids' planos
-        elseif (!empty($reservaTemp['ids']) && is_array($reservaTemp['ids'])) {
+        } elseif (!empty($reservaTemp['ids']) && is_array($reservaTemp['ids'])) {
             $idsActivos = $reservaTemp['ids'];
         }
 
-        // Limpiamos duplicados de los arrays
         $idsActivos = array_unique($idsActivos);
         $idsAulas = array_unique($idsAulas);
 
@@ -110,21 +106,21 @@ class ReservasControllers extends Controller
 
         $recursos = collect();
 
+        // 2. Consultamos Activos de forma segura
         if (!empty($idsActivos)) {
-            foreach (ActivosModels::whereIn('act_id', $idsActivos)->get() as $item) {
+            $activosEncontrados = ActivosModels::whereIn('act_id', $idsActivos)->get();
+            foreach ($activosEncontrados as $item) {
                 $item->tipo_recurso_real = 'activo';
-                if (!$recursos->contains('act_id', $item->act_id)) {
-                    $recursos->push($item);
-                }
+                $recursos->push($item);
             }
         }
 
+        // 3. Consultamos Aulas usando explícitamente 'aula_id' (la llave primaria de tu modelo)
         if (!empty($idsAulas)) {
-            foreach (AulasModels::whereIn('aula_id', $idsAulas)->get() as $item) {
+            $aulasEncontradas = AulasModels::whereIn('aula_id', $idsAulas)->get();
+            foreach ($aulasEncontradas as $item) {
                 $item->tipo_recurso_real = 'aula';
-                if (!$recursos->contains('aula_id', $item->aula_id)) {
-                    $recursos->push($item);
-                }
+                $recursos->push($item);
             }
         }
 
@@ -254,19 +250,34 @@ class ReservasControllers extends Controller
             return redirect()->route('dashboard.docente')->with('error', 'No hay datos de reserva en proceso. Por favor, comience de nuevo.');
         }
 
-        $aulaIdReal = 1; 
-        $aulaIngresada = $datosReserva['aula_uso'] ?? null;
+        // Determinación robusta y segura del aula de destino para los activos:
+        // Si la reserva incluye un aula en los IDs, esa es obligatoriamente el aula de destino.
+        $aulaIdReal = null;
 
-        if (!empty($aulaIngresada)) {
-            $aulaObj = AulasModels::where('aula_id', $aulaIngresada)
-                        ->orWhere('aula_nombre', 'LIKE', '%' . trim($aulaIngresada) . '%')
-                        ->first();
-
-            if ($aulaObj) {
-                $aulaIdReal = $aulaObj->aula_id;
-            } elseif (is_numeric($aulaIngresada)) {
-                $aulaIdReal = intval($aulaIngresada);
+        if (!empty($idsAulas)) {
+            $aulaIdReal = $idsAulas[0];
+        } else {
+            $aulaIngresada = $datosReserva['aula_uso'] ?? null;
+            if (!empty($aulaIngresada)) {
+                if (is_numeric($aulaIngresada)) {
+                    $aulaObj = AulasModels::where('aula_id', $aulaIngresada)->first();
+                    if ($aulaObj) {
+                        $aulaIdReal = $aulaObj->aula_id;
+                    }
+                }
+                if (!$aulaIdReal) {
+                    $aulaObj = AulasModels::where('aula_nombre', 'LIKE', '%' . trim($aulaIngresada) . '%')->first();
+                    if ($aulaObj) {
+                        $aulaIdReal = $aulaObj->aula_id;
+                    }
+                }
             }
+        }
+
+        // Fallback de seguridad estricto consultando la primera aula real disponible
+        if (!$aulaIdReal) {
+            $primeraAula = AulasModels::first();
+            $aulaIdReal = $primeraAula ? $primeraAula->aula_id : 3;
         }
 
         $fechaInicio = $datosReserva['res_fecha_inicio'] ?? now();
@@ -324,7 +335,7 @@ class ReservasControllers extends Controller
                 'act_id'                    => $idActivo, 
                 'det_re_fecha_ini'          => $fechaInicio, 
                 'det_re_fecha_fin'          => $fechaFin,      
-                'det_re_aula_destino_act'   => $aulaIdReal, 
+                'det_re_aula_destino_act'   => $aulaIdReal, // Asigna de forma blindada el ID correcto de la tabla aulas
                 'aula_id'                   => null,   
             ]);
         }
