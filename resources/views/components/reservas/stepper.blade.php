@@ -2,7 +2,7 @@
 
 @php
     // Calculamos el porcentaje de avance de la línea verde
-    $porcentaje = 0;
+    $porcentaje = 12;
     if ($paso == 2) $porcentaje = 50;
     if ($paso == 3) $porcentaje = 100;
 @endphp
