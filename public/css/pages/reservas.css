@@ -1,134 +1,201 @@
 /* ==========================================================================
-   ESTILOS ESPECÍFICOS PARA EL PASO 1 (CONFIRMACIÓN DE RECURSO)
+   SISTEMA DE GESTIÓN DE RESERVAS - SIGER
+  
    ========================================================================== */
 
-.tarjeta-confirmacion-paso1 {
-    max-width: 750px;
-    margin: 0 auto 2rem auto; /* Lo centra elegantemente en la pantalla */
+/* ==========================================
+   ESTILOS ESPECÍFICOS PARA MODALES DE RESERVA EN RESOURCES/VIEWS/RESERVAS/INDEX.BLADE.PHP
+   ========================================== */
+
+/* Limpieza del focus azul en el textarea */
+#formRechazarReserva .form-control:focus {
+    border-color: var(--color-principal) !important; /* Verde del sistema */
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+    outline: none !important;
 }
 
-.encabezado-pregunta h2 {
-    font-family: var(--fuente-principal);
-    font-size: 1.7rem;
-    font-weight: 600;
-    color: var(--color-texto);
-    margin: 0 0 0.5rem 0;
-    text-align: center;
+/* Ocultamiento estricto mediante clase para evitar colisiones de JS */
+.accion-modal-oculto {
+    display: none !important;
 }
 
-.encabezado-pregunta .subtitulo-tarjeta {
-    text-align: center;
-    margin-bottom: 2rem;
+.accion-modal-visible {
+    display: flex !important;
 }
 
-/* Ficha técnica del recurso */
-.ficha-tecnica-recurso {
-    background-color:var(--color-fondo);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2.5rem;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.03); /* Relieve hacia adentro */
-}
-
-.borde-activo {
-    border-left: 5px solid var(--color-principal); /* Verde para activos */
+/* Ajustes de botones dentro de la barra de acciones */
+.acciones-decision-modal {
+    width: 100%;
     border-top: 1px solid var(--color-borde);
-    border-right: 1px solid var(--color-borde);
-    border-bottom: 1px solid var(--color-borde);
+    padding-top: 1rem;
+    margin-top: 1.5rem;
 }
 
-.borde-aula {
-    border-left: 5px solid var(--color-estado-reservado); /* Un tono azul para las aulas si quieren diferenciarlas */
-    border-top: 1px solid var(--color-borde);
-    border-right: 1px solid var(--color-borde);
-    border-bottom: 1px solid var(--color-borde);
-}
-
-.info-principal-paso1 {
-    display: flex;
+/* Contenedor principal de los botones de pendiente */
+#bloque-acciones-pendiente {
+    display: flex !important;
     align-items: center;
-    gap: 1.2rem;
-    margin-bottom: 1.5rem;
+    width: 100%;
+    gap: 0.75rem; /* Espacio uniforme entre los dos botones */
 }
 
-.icono-recurso-grande {
-    font-size: 2.5rem;
-    background-color: var(--color-fondo);
-    padding: 0.5rem;
-    border-radius: 10px;
-    border: 1px solid var(--color-borde);
-}
-
-.etiqueta-tipo-recurso {
-    font-family: var(--fuente-secundaria);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--color-texto-secundario);
-    font-weight: 700;
-}
-
-.nombre-recurso-paso1 {
-    font-family: var(--fuente-principal);
-    font-size: 1.5rem;
-    color: var(--color-texto);
+/* 
+   Como uno es un <x-botones.boton> directo y el otro es un <form>, 
+   forzamos a que ambos contenedores hijos crezcan exactamente igual 
+*/
+#bloque-acciones-pendiente > button,
+#bloque-acciones-pendiente > form,
+#bloque-acciones-pendiente > .btn {
+    flex: 1 1 0%; /* Reparte el 100% del ancho en partes exactamente iguales */
+    width: 50%;
     margin: 0;
 }
 
-/* Grid de Atributos Internos */
-.grid-atributos-paso1 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
-    background-color: var(--color-fondo);
-    padding: 1.25rem;
-    border-radius: 8px;
-    border: 1px solid var(--color-borde);
+/* Si hay un <form>, aseguramos que el botón que está adentro ocupe todo su formulario */
+#bloque-acciones-pendiente > form button,
+#bloque-acciones-pendiente > form .btn {
+    width: 100% !important;
+    justify-content: center;
 }
 
-.item-atributo {
+/* Asegurar que los botones centren su texto e icono */
+#bloque-acciones-pendiente button,
+#bloque-acciones-pendiente .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* Evita que el texto se parta en dos líneas si se estrecha */
+}
+
+/* Ajustes para el modal de rechazo */
+#modalConfirmarRechazo .modal-header {
+    border-bottom: 1px solid var(--color-borde);
+    background-color: var(--color-fondo);
+}
+
+#modalConfirmarRechazo .modal-title {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* =========================================================================
+   LAYOUT DASHBOARD RESERVAS (35% Tarjetas / 65% Agenda)
+   ========================================================================= */
+.dashboard-reservas-grid {
+    display: flex;
+    gap: 1.25rem;
+    align-items: stretch; /* Mantiene ambas columnas con altura alineada */
+    width: 100%;
+}
+
+/* Columna Izquierda: Tarjetas / Lista de solicitudes (35%) */
+.dashboard-reservas-grid > div:first-child {
+    flex: 0 0 35%;
+    max-width: 35%;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
 }
 
-.label-atributo {
-    font-family: var(--fuente-secundaria);
-    font-size: 0.8rem;
-    color: var(--color-texto-secundario);
+/* Columna Derecha: FullCalendar (65%) */
+.dashboard-reservas-grid > div:last-child {
+    flex: 0 0 calc(65% - 1.25rem);
+    max-width: calc(65% - 1.25rem);
 }
 
-.valor-atributo {
+/* Diseño Sobrio y Compacto para las Tarjetas de la izquierda */
+.tarjetas-reserva-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    max-height: 620px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Personalización del Scrollbar de la lista para no romper la estética */
+.tarjetas-reserva-contenedor::-webkit-scrollbar {
+    width: 5px;
+}
+.tarjetas-reserva-contenedor::-webkit-scrollbar-thumb {
+    background: var(--color-fondo-secundario);
+    border-radius: 4px;
+}
+
+/* Adaptación para Pantallas Pequeñas (Mobile / Tablet) */
+@media (max-width: 992px) {
+    .dashboard-reservas-grid {
+        flex-direction: column;
+    }
+
+    .dashboard-reservas-grid > div:first-child,
+    .dashboard-reservas-grid > div:last-child {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+
+
+/* --------------------------------------------------------------------------
+   1. CONTENEDOR Y ESTRUCTURA DE PÁGINA CREAR RESERVA
+   -------------------------------------------------------------------------- */
+
+/* CREAR RESERVA*/
+
+.contenedor-reserva-universal {
+    max-width: var(--ancho-maximo);
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* Tarjeta Base de Módulo SIGER */
+.tarjeta-reserva-siger {
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: 14px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    box-sizing: border-box;
+}
+
+.tarjeta-reserva-siger h3 {
     font-family: var(--fuente-secundaria);
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--color-texto);
+    margin: 0 0 0.25rem 0;
 }
 
-.font-mono {
-    font-family: monospace;
-    font-size: 1.05rem;
+.subtitulo-tarjeta {
+    font-family: var(--fuente-principal);
+    font-size: 0.88rem;
+    color: var(--color-azulado);
+    margin: 0 0 1.25rem 0;
 }
 
-/* Badges de estado */
-.estado-badge {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    width: fit-content;
+
+/* ==========================================================================
+   PASO 1: VERIFICACIÓN Y ELECCIÓN DE RECURSO
+   ========================================================================== */
+.contenedor-reserva-universal{
+    max-width: 90%;
+
 }
-.estado-badge.disponible, .estado-badge.funcional {
-    background-color: var(--color-disponible-pastel);
-    color: var(--color-principal);
+/* Rejilla de centrado del Paso 1 */
+.paso1-grid {
+    max-width: 800px;
+    display: block !important;
+    margin: 0 auto;
 }
 
-/* Zona de Radio Buttons en Tarjetas */
+/* Zona de Decisión (Tarjetas Radio para "Sí, es correcto" / "No, me equivoqué") */
 .zona-decision {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .tarjeta-radio {
@@ -139,553 +206,247 @@
     align-items: flex-start;
     gap: 1rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     background-color: var(--color-fondo);
 }
 
-.tarjeta-radio input[type="radio"] {
-    margin-top: 0.3rem;
-    accent-color: var(--color-principal); /* Pinta el puntito nativo con tu verde */
-}
-
-.radio-contenido strong {
-    font-family: var(--fuente-principal);
-    font-size: 1.05rem;
-    color: var(--color-texto);
-    display: block;
-    margin-bottom: 0.2rem;
-}
-
-.radio-contenido p {
-    font-family: var(--fuente-secundaria);
-    font-size: 0.85rem;
-    color: var(--color-texto-secundario);
-    margin: 0;
-}
-
-/* Efecto hover y focus al seleccionar la tarjeta */
 .tarjeta-radio:hover {
-    border-color: var(--color-texto-secundario);
+    border-color: var(--color-principal);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .tarjeta-radio:has(input[type="radio"]:checked) {
     border-color: var(--color-principal);
-    background-color: var(--color-disponible-pastel);
-    box-shadow: 0 4px 12px rgba(43, 182, 115, 0.08);
+    background-color: rgba(16, 185, 129, 0.05);
 }
 
-/* Botones */
-.contenedor-botones-paso1 {
+.tarjeta-radio input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--color-principal);
+    width: 18px;
+    height: 18px;
+}
+
+.radio-contenido {
     display: flex;
-    justify-content: flex-end;
-    border-top: 1px solid var(--color-borde);
-    padding-top: 1.5rem;
+    align-items: flex-start;
+    gap: 0.75rem;
 }
 
-.btn-largo {
-    min-width: 180px;
+.radio-icono {
+    font-size: 1rem;
+    margin-top: 2px;
 }
 
-/* Ajustes Móviles */
-@media (max-width: 600px) {
-    .zona-decision {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    .encabezado-pregunta h2 {
-        font-size: 1.4rem;
-    }
-    .nombre-recurso-paso1 {
-        font-size: 1.2rem;
-    }
+.icono-exito {
+    color: var(--color-principal);
 }
 
-
-
-
-
-/* ==========================================================================
-   VISTA: ESTRUCTURA PRINCIPAL DE CREAR RESERVA PASO 2 (RESERVAS.CSS)
-   ========================================================================== */
-
-.contenedor-reserva-universal {
-    width: 100%;
-    margin: 0 auto;
-    padding: 24px;
-    box-sizing: border-box;
-    background-color: var(--color-fondo);
+.icono-error {
+    color: var(--color-estado-dañado);
 }
 
-/* Rejilla Principal de la Página */
-.dashboard-reserva-grid {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 2rem;
-    width: 100%;
-    align-items: start;
-}
-
-/* Tarjetas Principales Blancas con Sombras de Alivio */
-.tarjeta-reserva-siger {
-    background-color: var(--color-fondo);
-    border: 1px solid var(--color-borde);
-    border-radius: 14px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    box-sizing: border-box;
-}
-
-.tarjeta-reserva-siger h3 {
-    font-family: var(--fuente-principal);
-    font-size: 1.35rem;
-    font-weight: 700;
+.radio-contenido strong {
+    display: block;
+    font-size: 0.95rem;
     color: var(--color-texto);
-    margin: 0 0 0.4rem 0;
+    margin-bottom: 0.2rem;
 }
 
-.subtitulo-tarjeta {
-    font-family: var(--fuente-secundaria);
-    font-size: 0.9rem;
-    color: var(--color-texto-secundario);
-    margin: 0 0 1.5rem 0;
+.radio-contenido p {
+    font-size: 0.82rem;
+    color: var(--color-azulado);
+    margin: 0;
 }
 
-/* Rejilla de Inputs (Fechas y Horas) */
-.grid-dos-columnas {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-}
-
-.margin-top-main {
+.contenedor-botones-paso1 {
     margin-top: 1.5rem;
 }
 
-/* INPUTS UNIFICADOS (Evita repetición de código)
-   Aplica para fechas, horas, buscador text y selectores tradicionales
-*/
+.btn-largo {
+    width: 100%;
+    justify-content: center;
+}
+
+
+/* ==========================================================================
+   PASO 2: CONFIGURACIÓN DE FECHA, HORA Y MOTIVO
+   ========================================================================== */
+
+/* Rejilla de Dos Columnas (Formulario vs Resumen Lateral) */
+.dashboard-reserva-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.75rem;
+    align-items: start;
+}
+
+/* Rejilla Interna de Campos de Formulario */
+.grid-dos-columnas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.margin-top-main {
+    margin-top: 1.25rem;
+}
+
+.post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.post-form label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-texto);
+}
+
+.text-danger {
+    color: var(--color-estado-dañado);
+}
+
+/* Entradas del Formulario Paso 2 */
 .formulario-dinamico input[type="date"],
 .formulario-dinamico input[type="time"],
 .formulario-dinamico input[type="text"],
-.formulario-dinamico textarea[type="text"],
 .formulario-dinamico select {
     width: 100%;
-    padding: 0.85rem 1rem;
+    padding: 0.75rem 1rem;
     box-sizing: border-box;
-    background-color: var(--color-fondo) !important;
+    background-color: var(--color-fondo);
     border: 1px solid var(--color-borde);
-    border-radius: 10px;
-    font-family: var(--fuente-secundaria);
+    border-radius: 8px;
+    font-family: var(--fuente-principal);
     color: var(--color-texto);
-    font-size: 0.95rem;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04); /* Sombra interna elegante */
+    font-size: 0.9rem;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Estado Focus Unificado para todos los elementos del formulario */
-.formulario-dinamico input[type="date"]:focus,
-.formulario-dinamico input[type="time"]:focus,
-.formulario-dinamico input[type="text"]:focus,
-.formulario-dinamico textarea[type="text"]:focus,
+.formulario-dinamico input:focus,
+.formulario-dinamico textarea:focus,
 .formulario-dinamico select:focus {
-    border-color: var(--color-principal);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02), 0 0 0 3px rgba(43, 182, 115, 0.1);
+    border-color: var(--color-principal) !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
 }
 
-/* Separación del botón dentro del formulario de configuración */
-.formulario-dinamico .contenedor-botones {
-    margin-top: 2.5rem;
-    padding: 0;
-    display: flex;
-    justify-content: flex-end;
-}
-
-
-/* --- BLOQUE DERECHO: RESUMEN LATERAL --- */
-.resumen-card {
-    border-top: 4px solid var(--color-principal); /* Línea corporativa de SIGER */
-}
-
+/* Tabla de Previsualización en Resumen Lateral */
 .tabla-resumen-siger {
     width: 100%;
     border-collapse: collapse;
-    margin: 2rem 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .tabla-resumen-siger td {
-    padding: 0.9rem 0;
-    font-family: var(--fuente-secundaria);
-    font-size: 0.95rem;
-    color: var(--color-texto);
-    border-bottom: 1px solid var(--color-borde);
+    padding: 0.6rem 0;
+    font-size: 0.88rem;
+    border-bottom: 1px dashed var(--color-borde);
 }
 
-/* Valores del resumen alineados a la derecha */
+.tabla-resumen-siger td:first-child {
+    color: var(--color-azulado);
+    font-weight: 500;
+}
+
 .tabla-resumen-siger td:last-child {
     text-align: right;
     font-weight: 600;
-    color: var(--color-texto-secundario);
+    color: var(--color-texto);
 }
 
-/* Estilo cursiva opaca para "Por completar" */
 .resaltado-amarillo {
-    color: var(--color-texto-secundario) !important;
+    color: var(--color-estado-en-mantenimiento) !important;
     font-style: italic;
-    opacity: 0.6;
+    font-weight: 500 !important;
 }
 
-/* Cuadro de aviso informativo inferior */
+textarea{
+    margin-bottom: 15px;
+}
+
+
+/* ==========================================================================
+   PASO 3: CONFIRMACIÓN FINAL Y ACCIONES DE GUARDADO
+   ========================================================================== */
+
+/* Notificación Informativa del Paso 3 */
 .notificacion-alerta-siger {
-    background-color: var(--color-disponible-pastel);
-    border: 1px solid rgba(43, 182, 115, 0.15);
-    padding: 1rem;
+    background-color: var(--color-en-mantenimiento-pastel);
+    border: 1px solid var(--color-estado-en-mantenimiento);
+    border-left: 5px solid var(--color-estado-en-mantenimiento);
     border-radius: 10px;
-    margin-bottom: 2rem;
+    padding: 0.9rem 1.25rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .notificacion-alerta-siger p {
     margin: 0;
-    font-family: var(--fuente-secundaria);
-    font-size: 0.85rem;
-    color: var(--color-principal);
-    font-weight: 600;
-}
-
-/* Separación vertical de los botones de acción en el resumen */
-.columna-resumen .contenedor-botones {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 0;
-    margin-top: 1rem;
-}
-
-
-/* ==========================================================================
-   COMPORTAMIENTO DESPLEGABLE (MÓVIL / TABLET) & ANIMACIONES
-   ========================================================================== */
-
-/* Comportamiento por defecto en Escritorio (Bloque estático y expandido) */
-.acordeon-reserva summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    list-style: none;
-    pointer-events: none; /* Bloquea el cierre accidental en computadoras */
-}
-
-.acordeon-reserva summary::-webkit-details-marker {
-    display: none;
-}
-
-.acordeon-reserva .icono-flecha {
-    display: none;
-}
-
-/* Estilo y animación del contenedor interno al desplegarse */
-.acordeon-reserva .contenido-desplegable {
-    animation: aparecerSuave 0.25s ease-out;
-}
-
-@keyframes aparecerSuave {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-
-/* ==========================================================================
-   MEDIA QUERIES (RESPONSIVO OPTIMIZADO)
-   ========================================================================== */
-
-/* --- TABLETS (Mantiene las columnas laterales pero activa el acordeón) --- */
-@media (max-width: 1024px) {
-    .acordeon-reserva summary {
-        pointer-events: auto; /* Permite abrir y cerrar con un toque */
-        cursor: pointer;
-    }
-
-    .acordeon-reserva .icono-flecha {
-        display: block;
-        font-size: 0.9rem;
-        color: var(--color-principal);
-        transition: transform 0.3s ease;
-    }
-
-    /* Rotación fluida de la flecha del acordeón */
-    .acordeon-reserva[open] summary .icono-flecha {
-        transform: rotate(180deg);
-    }
-
-    .acordeon-reserva .contenido-desplegable {
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--color-borde);
-    }
-}
-
-/* Balanceo de columnas en tamaños intermedios (laptops pequeñas / tablets horizontales) */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .dashboard-reserva-grid {
-        grid-template-columns: 1.3fr 1fr;
-        gap: 1.25rem;
-    }
-}
-
-/* --- MÓVILES (Aquí la estructura colapsa a una sola columna vertical) --- */
-@media (max-width: 768px) {
-    .contenedor-reserva-universal {
-        padding: 12px;
-    }
-    
-    .dashboard-reserva-grid {
-        grid-template-columns: 1fr !important; /* El resumen se acomoda abajo */
-        gap: 1.5rem;
-    }
-    
-    .grid-dos-columnas {
-        grid-template-columns: 1fr !important; /* Las fechas y horas se apilan en vertical */
-        gap: 1.25rem;
-    }
-
-    .tarjeta-reserva-siger {
-        padding: 1.25rem;
-    }
-}
-
-
-/* ==========================================================================
-   ESTILOS ESPECÍFICOS PARA EL PASO 3 (RESUMEN FINAL CONSOLIDADO)
-   ========================================================================== */
-
-.tarjeta-confirmacion-paso3 {
-    max-width: 850px;
-    margin: 0 auto 2rem auto;
-}
-
-.encabezado-resumen-final h2 {
-    font-family: var(--fuente-principal);
-    font-size: 1.6rem;
-    font-weight: 800;
+    font-size: 0.88rem;
+    font-weight: 500;
     color: var(--color-texto);
-    margin: 0 0 0.5rem 0;
-}
-
-.text-verde {
-    color: var(--color-principal);
-}
-
-/* Grilla del Resumen */
-.grid-resumen-bloques {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.bloque-resumen-interno {
-    background-color: var(--color-fondo);
-    border: 1px solid var(--color-borde);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.bloque-resumen-interno h3 {
-    font-family: var(--fuente-principal);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--color-texto);
-    margin: 0 0 1rem 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    border-bottom: 1px solid var(--color-borde);
-    padding-bottom: 0.5rem;
 }
 
-.bloque-resumen-interno h3 i {
-    color: var(--color-texto-secundario);
-}
-
-.contenido-resumen-item p {
-    font-family: var(--fuente-secundaria);
-    font-size: 0.95rem;
-    color: var(--color-texto);
-    margin: 0 0 0.6rem 0;
-}
-
-.contenido-resumen-item p:last-child {
-    margin-bottom: 0;
-}
-
-/* Forzar que bloques grandes ocupen ambas columnas */
-.grid-ancho-completo {
-    grid-column: span 2;
-}
-
-/* Flexbox para los Horarios Pareados */
-.grid-tiempos-paso3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-.tiempo-caja {
-    background-color: #ffffff;
-    border: 1px solid var(--color-borde);
-    border-radius: 8px;
-    padding: 1rem;
-}
-
-.tiempo-titulo {
-    display: block;
-    font-family: var(--fuente-principal);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    color: var(--color-texto-secundario);
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.5px;
-}
-
-.tiempo-caja p {
-    margin: 0 0 0.4rem 0;
-    font-family: var(--fuente-secundaria);
-    font-size: 0.95rem;
-}
-
-.tiempo-caja p i {
-    color: var(--color-principal);
-    margin-right: 0.25rem;
-}
-
-/* Caja de Ubicación Especial */
-.bloque-ubicacion-paso3 {
-    border-left: 4px solid var(--color-estado-en-mantenimiento); /* Color de advertencia o transición de movimiento */
-}
-
-.badge-aula-uso {
-    display: inline-block;
-    background-color: var(--color-disponible-pastel);
-    color: var(--color-principal);
-    padding: 0.25rem 0.75rem;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border: 1px solid rgba(43, 182, 115, 0.15);
-}
-
-/* Botonera inferior */
+/* Contenedor de Botones Alineados del Paso 3 */
 .contenedor-botones-paso3 {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    border-top: 1px solid var(--color-borde);
     gap: 1rem;
-    padding-top: 1.5rem;
-    margin-top: 1.5rem;
+    margin-top: 1.75rem;
+    padding: 0 0.25rem;
 }
 
-/* Contenedor del Grid Principal */
-.dashboard-reservas-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-    margin-top: 20px;
-    align-items: start;
-}
-
-/* Forzar que las tarjetas se apilen verticalmente en su columna */
-.container-tarjetas-vertical {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-}
-
-/* Caja de la Agenda Lateral */
-.card-calendario-fijo {
-    background-color: var(--color-fondo);
-    border: 1px solid var(--color-borde);
-    border-radius: var(--borde-radio, 8px);
-    padding: 20px;
-    position: sticky;
-    top: 20px; /* Se queda fija al hacer scroll si la lista es larga */
-}
-
-.agenda-header-siger {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--color-borde);
-    padding-bottom: 12px;
-    margin-bottom: 16px;
-}
-
-.agenda-header-siger h4 {
-    margin: 0;
-    color: var(--color-texto);
-    font-size: 1rem;
+.contenedor-botones-paso3 .btn-siger-accion {
+    width: auto !important;
+    min-width: 180px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
     font-weight: 600;
-}
-
-.badge-agenda-hoy {
-    font-size: 0.75rem;
-    background-color: var(--color-fondo-secundario, #f3f4f6);
-    color: var(--color-texto);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 700;
-}
-
-.placeholder-agenda-render {
-    min-height: 380px;
-    display: flex;
-    flex-direction: column;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    display: inline-flex;
     justify-content: center;
     align-items: center;
-    text-align: center;
-    border: 2px dashed var(--color-borde);
-    border-radius: 6px;
-    padding: 16px;
-    color: var(--color-texto-secundario);
+    cursor: pointer;
 }
 
-/* ==========================================
-   RESPONSIVE PARA PANTALLAS GRANDES
-   ========================================== */
-@media (min-width: 992px) {
-    .dashboard-reservas-grid {
-        grid-template-columns: 60% 40%; /* División perfecta */
+
+/* ==========================================================================
+   ADAPTATIVIDAD Y RESPONSIVIDAD
+   ========================================================================== */
+
+/* TABLET */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .dashboard-reserva-grid,
+    .grid-dos-columnas, 
+    .zona-decision {
+        grid-template-columns: 1fr;
     }
 }
 
-/* Responsivo para el Paso 3 */
+/* MÓVIL */
 @media (max-width: 768px) {
-    .grid-resumen-bloques {
+    .dashboard-reserva-grid,
+    .grid-dos-columnas, 
+    .zona-decision {
         grid-template-columns: 1fr;
     }
-    .grid-ancho-completo {
-        grid-column: span 1;
-    }
-    .grid-tiempos-paso3 {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
+
     .contenedor-botones-paso3 {
         flex-direction: column-reverse;
-        gap: 1rem;
-        width: 100%;
+        gap: 0.75rem;
     }
-    .contenedor-botones-paso3 button {
-        width: 100%;
+
+    .contenedor-botones-paso3 .btn-siger-accion {
+        width: 100% !important;
     }
 }

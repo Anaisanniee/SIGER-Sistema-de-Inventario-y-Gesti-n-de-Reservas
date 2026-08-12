@@ -70,6 +70,7 @@
 .icono-kpi.azul { background-color: var(--color-reservado-pastel); color: var(--color-estado-reservado); }
 .icono-kpi.verde { background-color: var(--color-disponible-pastel); color: var(--color-estado-disponible); }
 .icono-kpi.rojo { background-color: var(--color-dañado-pastel); color: var(--color-estado-dañado); }
+.icono-kpi.amarillo { background-color: var(--color-en-mantenimiento-pastel); color: var(--color-estado-en-mantenimiento); }
 
 .datos-kpi {
     display: flex;

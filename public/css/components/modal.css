@@ -44,7 +44,7 @@
 
 /* Icono integrado de manera sutil */
 .modal-header .modal-title::before {
-    content: "📦";
+    content: "";
     font-size: 1.3rem;
 }
 
@@ -124,7 +124,7 @@
 @media (max-width: 768px) {
     .modal-dialog {
         max-width: 92%; 
-        margin: 1.5rem auto;
+        margin: 1.8rem auto;
     }
 
     .modal-header {

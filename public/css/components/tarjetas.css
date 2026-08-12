@@ -11,6 +11,77 @@
     margin-top: 20px;
 }
 
+.tarjeta-recurso {
+    position: relative; /* Indispensable para que la esquina funcione */
+}
+
+.estado-esquina-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+}
+
+.cuerpo-tarjeta{
+
+}
+
+.indicador-punto {
+    font-size: 0.45rem;
+    margin-right: 3px;
+}
+
+/* Badge Base */
+.badge-siger-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.indicador-punto {
+    font-size: 0.4rem;
+}
+
+/* Verde - Disponible / Activo */
+.badge-disponible {
+    background-color: var(--color-disponible-pastel);
+    color: var(--color-estado-disponible);
+    border: 1px solid var(--color-borde-disponible);
+}
+
+/* Amarillo - Mantenimiento / En reparación */
+.badge-mantenimiento {
+    background-color: var(--color-en-mantenimiento-pastel);
+    color: var(--color-estado-en-mantenimiento);
+    border: 1px solid #facc15;
+}
+
+/* Rojo - Dañado / Ocupado / Inactivo */
+.badge-danado {
+    background-color: var(--color-dañado-pastel);
+    color: var(--color-estado-dañado);
+    border: 1px solid #f87171;
+}
+
+/* Azul - Reservado / Prestado */
+.badge-reservado {
+    background-color: var(--color-reservado-pastel);
+    color: var(--color-estado-reservado);
+    border: 1px solid #81d4fa;
+}
+
+/* Gris por defecto si no coincide */
+.badge-defecto {
+    background-color: var(--color-fondo);
+    color: var(--color-texto-secundario);
+    border: 1px solid #d1d5db;
+}
+
 /* --- DISEÑO PARA MÓVIL (Hasta 768px) --- */
 @media (max-width: 768px) {
     .container-tarjetas {
@@ -52,7 +123,7 @@
         margin: 0 0 5px 0;
     }
 
-    .estado {
+    .estado-tarjeta {
         font-family: var(--fuente-secundaria);
         font-size: 0.85rem;
         color: var(--color-texto-secundario);
@@ -98,7 +169,7 @@
     .tarjeta-recurso {
         background-color: var(--color-fondo);
         border: 1px solid var(--color-borde);
-        max-height: 18.5rem; /* Ajustado */
+        max-height: 18.9rem; /* Ajustado */
         width: 18rem;
         height: auto;
         border-radius: 4px; 
@@ -123,16 +194,16 @@
     }
 
     .card-title {
-        font-size: 1.1rem;
+        font-size: 1.5rem;
         font-weight: 700;
         font-family: var(--fuente-principal);
         color: var(--color-texto);
         margin: 0 0 5px 0;
     }
 
-    .estado {
+    .estado-tarjeta {
         font-family: var(--fuente-secundaria);
-        font-size: 0.85rem;
+        font-size: 0.90rem;
         color: var(--color-texto-secundario);
         margin-bottom: 12px;
     }
@@ -197,9 +268,13 @@
         justify-content: space-between; 
     }
 
+    .cuerpo-tarjeta{
+        margin-bottom: 0;
+    }
+
     .card-title {
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 1.5rem;
         font-family: var(--fuente-principal);
         color: var(--color-texto);
         margin: 0 0 5px 0;
@@ -210,9 +285,9 @@
         overflow: hidden;
     }
 
-    .estado {
+    .estado-tarjeta {
         font-family: var(--fuente-secundaria);
-        font-size: 0.88rem;
+        font-size: 0.95rem;
         color: var(--color-texto-secundario);
         margin: 0 0 15px 0;
     }
