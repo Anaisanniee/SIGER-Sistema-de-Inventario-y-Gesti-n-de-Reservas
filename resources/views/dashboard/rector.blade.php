@@ -20,7 +20,7 @@
         <h3 class="dashboard-subtitulo">Módulos Disponibles</h3>
         <div class="contenedor-accesos">
                 <x-tarjetas.tarjeta-acceso-rapido 
-                    :href="route('informes.inventario')"
+                    href="#"
                     icono="fas fa-boxes"
                     claseAcceso="acceso-inventario"
                     titulo="Informes Inventario"
@@ -28,7 +28,7 @@
                 />
 
                 <x-tarjetas.tarjeta-acceso-rapido 
-                    :href="route('informes.reservas')"
+                    href="#"
                     icono="fas fa-calendar-alt"
                     claseAcceso="acceso-reservas"
                     titulo="Informes Reservas"
@@ -97,7 +97,7 @@
                     'nombre' => $recurso->act_nombre,
                     'etiqueta' => 'Serial',
                     'valor' => $recurso->act_serial,
-                    estado' => $recurso->act_estado ?? 'Desconocido',
+                    'estado' => $recurso->act_estado ?? 'Desconocido',
                     'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
                     'recurso' => $recurso
                 ])
