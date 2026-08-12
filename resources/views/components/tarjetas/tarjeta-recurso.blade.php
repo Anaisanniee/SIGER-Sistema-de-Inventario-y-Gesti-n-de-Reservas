@@ -14,9 +14,47 @@
 
     // Construimos la URL limpia
     $urlReserva = $idRecurso ? route('reservas.paso1', ['id' => $idRecurso]) . '?tipo=' . $tipoStr : '#';
+
+
+ // PARA MOSTARA EL COLOR DEL ESTADO EN LA ESQUINA DE LA TARJETA, USAMOS EL ESTADO REAL DEL RECURSO (AULA O ACTIVO) Y NO EL VALOR DE LA ETIQUETA SECUNDARIA
+    // Extraemos el ESTADO REAL directamente desde el objeto $recurso
+    $estadoReal = $recurso->aula_estado 
+        ?? $recurso->act_estado_fisico 
+        ?? $recurso->estado 
+        ?? '';
+
+    $estadoLimpio = strtolower(trim($estadoReal));
+
+    // Evaluamos el color para la lucecita/badge según el estado real
+    $claseEstado = match (true) {
+        str_contains($estadoLimpio, 'manten') || 
+        str_contains($estadoLimpio, 'amnten') || 
+        str_contains($estadoLimpio, 'repara')  => 'badge-mantenimiento',
+
+        str_contains($estadoLimpio, 'daña') || 
+        str_contains($estadoLimpio, 'malo') || 
+        str_contains($estadoLimpio, 'inactiv') => 'badge-danado',
+
+        str_contains($estadoLimpio, 'buen') || 
+        str_contains($estadoLimpio, 'bun') => 'badge-reservado',
+
+        str_contains($estadoLimpio, 'disponibl') || 
+        str_contains($estadoLimpio, 'activ')   => 'badge-disponible',
+
+        default => 'badge-disponible',
+    };
+
 @endphp
 
 <div class="tarjeta-recurso">
+    
+   {{-- ETIQUETA / LUCECITA EN LA ESQUINA SUPERIOR DERECHA --}}
+    <div class="estado-esquina-container">
+        <span class="badge-siger-estado {{ $claseEstado }}">
+            <i class="fas fa-circle indicador-punto"></i> 
+            {{ $recurso->aula_estado ?? $recurso->act_estado_fisico ?? 'Disponible' }}
+        </span>
+    </div>
 
     <img
         src="{{ $foto }}"

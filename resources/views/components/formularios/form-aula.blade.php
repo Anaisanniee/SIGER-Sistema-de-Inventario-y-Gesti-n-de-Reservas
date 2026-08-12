@@ -2,15 +2,6 @@
     $esEdicion = request()->is('*editar*') || isset($aula->aula_id);
 @endphp
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
 
 <form action="{{ $esEdicion ? route('aulas.update', $aula->aula_id) : route('aulas.store') }}" 
       method="POST" 
@@ -23,7 +14,7 @@
 
     {{-- NOMBRE DEL AULA --}}
     <div class="post-form">
-        <label for="aula_nombre">Nombre del Aula / Espacio *</label>
+        <label for="aula_nombre">Nombre del Aula / Espacio <span class="text-danger">*</span></label>
         <input type="text" id="aula_nombre" name="aula_nombre"
                value="{{ old('aula_nombre', $aula->aula_nombre ?? '') }}"
                placeholder="Ej. Laboratorio A, Aula 102">
@@ -31,7 +22,7 @@
 
     {{-- TIPO DE AULA (Llave foránea mapeada de la BD) --}}
     <div class="post-form">
-        <label for="tip_aula_id">Categoría / Tipo de Aula *</label>
+        <label for="tip_aula_id">Tipo de Aula <span class="text-danger">*</span></label>
         <select name="tip_aula_id" id="tip_aula_id">
             @foreach($tipos as $tipo)
                 <option value="{{ $tipo->tip_aula_id }}" 
@@ -44,7 +35,7 @@
 
     {{-- CAPACIDAD --}}
     <div class="post-form">
-        <label for="aula_capacidad">Capacidad (Personas) *</label>
+        <label for="aula_capacidad">Capacidad (Personas) <span class="text-danger">*</span></label>
         <input type="number" id="aula_capacidad" name="aula_capacidad"
                value="{{ old('aula_capacidad', $aula->aula_capacidad ?? '') }}"
                placeholder="Ej. 30">
@@ -55,15 +46,16 @@
         <label for="aula_foto">Fotografía del Aula / Espacio</label>
         <input type="file" id="aula_foto" name="aula_foto" accept="image/*">
         @if($esEdicion && isset($aula->aula_foto))
-            <small class="texto-aviso-foto">
-                📸 Ya hay una foto registrada. Selecciona otra solo si deseas cambiarla.
-            </small>
+            <x-alertas.notificacion
+                tipo="info"
+                mensaje="Ya hay una foto registrada. Selecciona otra solo si deseas cambiarla."
+            />
         @endif
     </div>
 
     {{-- ESTADO --}}
     <div class="post-form">
-        <label for="aula_estado">Estado Inicial *</label>
+        <label for="aula_estado">Estado Inicial <span class="text-danger">*</span></label>
         <select name="aula_estado" id="aula_estado">
             <option value="Disponible" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Disponible' ? 'selected' : '' }}>Disponible</option>
             <option value="Mantenimiento" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Mantenimiento' ? 'selected' : '' }}>En Mantenimiento</option>
@@ -73,7 +65,7 @@
     <div class="post-form-switch" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
     
         <!-- Texto a la izquierda -->
-        <span class="label-switch">¿Está disponible para reservas?</span>
+        <span class="label-switch">¿Está disponible para reservas? <span class="text-danger">*</span></span>
         
         <!-- Switch a la derecha -->
         <label class="switch-contenedor" for="aula_reservable" style="margin-bottom: 0;">
@@ -86,11 +78,11 @@
     {{-- BOTONES DE ACCIÓN --}}
 
     <div class="contenedor-botones">
-        <x-botones.boton type="button" class="btn-siger-accion btn-rojo" onclick="window.location.href='{{ url('/inventario') }}'">
+        <x-botones.boton type="button" class="btn-siger-accion btn btn-rojo" onclick="window.location.href='{{ url('/inventario') }}'">
             Cancelar
         </x-botones.boton>
 
-        <x-botones.boton type="submit" class="btn-siger-accion btn-verde">
+        <x-botones.boton type="submit" class="btn-siger-accion btn">
             {{ $esEdicion ? 'Guardar Cambios' : 'Registrar Aula' }}
         </x-botones.boton>
     </div>

@@ -3,11 +3,39 @@
 @section('content')
 @section('mostrarRegresar', 'false')
 @section('mostrarBusqueda', 'true')
+@php
+    // Por  si el usuario es rol 'secretario' o 'admin'
+    $esAdmin = Auth::check() && in_array(Auth::user()->rol, ['admin', 'secretario', 'secretaria']);
+@endphp
+<link rel="stylesheet" href="{{ asset('css/pages/dashboard-secretario.css') }}">
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-'titulo' => 'Bienvenida Rectora'
+'titulo' => 'Bienvenido Rector',
+'descripcion' => 'Consulta informes de invertario y reservas de la Institucion Educativa Bohórquez aquí'
 ])
+
+<!-- Acceso a Inventario -->
+ <div class="dashboard-columna">
+        <h3 class="dashboard-subtitulo">Módulos Disponibles</h3>
+        <div class="contenedor-accesos">
+                <x-tarjetas.tarjeta-acceso-rapido 
+                    :href="route('informes.inventario')"
+                    icono="fas fa-boxes"
+                    claseAcceso="acceso-inventario"
+                    titulo="Informes Inventario"
+                    descripcion="Consulta y genera informes detallados sobre el inventario."
+                />
+
+                <x-tarjetas.tarjeta-acceso-rapido 
+                    :href="route('informes.reservas')"
+                    icono="fas fa-calendar-alt"
+                    claseAcceso="acceso-reservas"
+                    titulo="Informes Reservas"
+                    descripcion="Consulta y genera informes detallados sobre las reservas."
+                />
+        </div>
+</div>
 
 <div class="contenedor-kpis">
     @component('components.filtros.kpi-selector', [
@@ -69,6 +97,7 @@
                     'nombre' => $recurso->act_nombre,
                     'etiqueta' => 'Serial',
                     'valor' => $recurso->act_serial,
+                    estado' => $recurso->act_estado ?? 'Desconocido',
                     'categoria' => $recurso->categoria ? $recurso->categoria->cate_nombre : 'Sin categoría',
                     'recurso' => $recurso
                 ])
@@ -107,6 +136,7 @@
                     'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
                     'nombre' => $recurso->aula_nombre,
                     'etiqueta' => 'Capacidad',
+                    'estado' => $recurso->aula_estado ?? 'Desconocido',
                     'valor' => $recurso->aula_capacidad,
                     'recurso' => $recurso
                 ])
@@ -122,8 +152,8 @@
         @include('components.fichas.ficha-tecnica-universal')
     </x-modal>
 </div>
-
 <x-reservas.carrito-flotante/>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -153,62 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
-        button.addEventListener('click', function() {
-            // Elementos
-            const contenedor = document.getElementById('contenedor-activos-dinamicos');
-            const conteoBadge = document.getElementById('ficha-conteo-activos');
-            const fichaCategoria = document.getElementById('ficha-categoria');
-            const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
-            
-            // 1. Asignar categorías (mantenemos tu lógica que ya sirve)
-            const categoriaGenerica = this.getAttribute('data-categoria');
-            const tipoAulaEspecifico = this.getAttribute('data-tipo-aula');
-            const tipoRecurso = this.getAttribute('data-tipo');
-            
-            if (fichaCategoria) fichaCategoria.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
-            if (fichaTipoAula) fichaTipoAula.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
-            
-            // 2. Lógica de Activos
-            contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
-            
-            let activos = [];
-            try {
-                const data = this.getAttribute('data-activos');
-                if (data) activos = JSON.parse(data);
-            } catch (e) {
-                activos = [];
-            }
-
-            conteoBadge.textContent = activos.length;
-            contenedor.innerHTML = '';
-            
-            if (Array.isArray(activos) && activos.length > 0) {
-                activos.forEach(item => {
-                    const li = document.createElement('li');
-                    li.className = 'activo-item'; // Mantenemos la clase de tu estructura
-                    // Estructura idéntica a tu diseño de ficha-tecnica-universal
-                    li.innerHTML = `
-                        <div class="activo-card-siger" style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
-                            <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
-                            <div>
-                                <strong>${item.act_nombre}</strong><br>
-                                <small class="text-muted">: ${item.act_serial}</small>
-                            </div>
-                        </div>
-                    `;
-                    contenedor.appendChild(li);
-                });
-            } else {
-                contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
-            }
-        });
-    });
-});
-</script>
-
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 
 @endsection

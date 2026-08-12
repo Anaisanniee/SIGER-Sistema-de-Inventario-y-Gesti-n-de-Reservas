@@ -194,7 +194,7 @@ class ActivosControllers extends Controller
             }
 
             $activo->save();
-            return redirect()->route('inventario.index')->with('mensaje', 'Activo creado con éxito.');
+            return redirect()->route('inventario.index')->with('exito', 'Activo creado con éxito.');
         
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Error técnico: ' . $e->getMessage());

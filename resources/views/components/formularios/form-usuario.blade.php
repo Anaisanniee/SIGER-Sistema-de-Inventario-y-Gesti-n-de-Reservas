@@ -1,7 +1,7 @@
 {{-- ROL: Solo se muestra si estamos CREANDO un usuario (cuando no hay ID de usuario existente) --}}
 @if(!request()->is('*perfil*'))
     <div class="post-form">
-        <label for="rol">Rol</label>
+        <label for="rol">Rol <span class="text-danger">*</span></label>
         <select name="rol" id="rol">
             <option value="">--Selecciona--</option>
             <option value="2" {{ old('rol', $usuario->rol ?? '') == '2' ? 'selected' : '' }}>Docente</option>
@@ -12,7 +12,7 @@
 
 {{-- PRIMER NOMBRE --}}
 <div class="post-form">
-    <label for="name">Primer Nombre</label>
+    <label for="name">Primer Nombre <span class="text-danger">*</span></label>
     <input type="text" id="name" name="name" required 
            value="{{ old('name', $usuario->name ?? '') }}">
 </div>
@@ -26,7 +26,7 @@
 
 {{-- PRIMER APELLIDO --}}
 <div class="post-form">
-    <label for="lastname">Primer Apellido</label>
+    <label for="lastname">Primer Apellido <span class="text-danger">*</span></label>
     <input type="text" id="lastname" name="lastname" required 
            value="{{ old('lastname', $usuario->lastname ?? '') }}">
 </div>
@@ -40,23 +40,23 @@
 
 {{-- CÉDULA --}}
 <div class="post-form">
-    <label for="identificacion">Cédula</label>
-    <input type="text" id="identificacion" name="identificacion" 
+    <label for="identificacion">Cédula <span class="text-danger">*</span></label>
+    <input type="text" id="identificacion" name="identificacion" required
            value="{{ old('identificacion', $usuario->identificacion ?? '') }}"
            {{ isset($usuario->id) ? 'readonly' : '' }}>
 </div>
 
 {{-- CORREO --}}
 <div class="post-form">
-    <label for="correo">Correo</label>
-    <input type="email" id="correo" name="correo" 
+    <label for="correo">Correo <span class="text-danger">*</span></label>
+    <input type="email" id="correo" name="correo" required
            value="{{ old('correo', $usuario->correo ?? '') }}">
 </div>
 
 {{-- CONDICIONAL CONTRASEÑA: Solo si se está CREANDO un usuario (sin ID en BD) --}}
 @if(!request()->is('*perfil*'))
     <div class="post-form">
-        <label for="password">Contraseña Inicial *</label>
+        <label for="password">Contraseña Inicial <span class="text-danger">*</span></label>
         <input type="password" id="password" name="password" required 
                autocomplete="new-password" placeholder="Asigna una clave temporal">
     </div>
