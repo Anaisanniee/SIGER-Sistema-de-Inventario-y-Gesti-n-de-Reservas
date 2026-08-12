@@ -1,19 +1,113 @@
 @props([
-    'nombre',          {{-- Ej: Computador Dell Inspiron o Laboratorio 1 --}}
-    'detalle',         {{-- Ej: #EQ-01 --- Windows 11 o Capacidad: 25 --}}
-    'estado' => null   {{-- Opcional, Ej: Disponible --}}
+    'tipoRecurso'   => 'activo',
+    'recursoNombre' => 'Laboratorio de Sistemas A',
+    'capacidad'     => '35 Estudiantes',
+    'serial'        => 'DELL-5420-X92',
+    'marca'         => 'Dell Inspiron',
+    'activos'       => [],
+    'recursos'      => []
 ])
 
+@php
+    // Soportamos que la lista llegue por $recursos o por $activos
+    $coleccionRecursos = !empty($recursos) ? $recursos : $activos;
+    $esMultiple = !empty($coleccionRecursos) && count($coleccionRecursos) > 1;
+@endphp
 
-<div class="info-item-seleccionado">
-    <div class="detalles-equipo">
-        <strong>{{ $nombre ?? $recurso->act_nombre ?? $recurso->aula_nombre ?? 'Recurso' }}</strong>
-        <span>{{ $detalle ?? $recurso->act_serial ?? $recurso->aula_codigo ?? 'Sin detalle' }}</span>
-    </div>
-    
-    @if($estado)
-        <span class="tag-disponibilidad">
-            {{ $estado }}
-        </span>
+<div class="contenedor-detalle-recurso">
+
+    @if($esMultiple)
+        {{-- CONDICIÓN A: MÚLTIPLES RECURSOS (Acordeón desplegable) --}}
+        <details class="acordeon-reserva mt-2">
+            <summary>
+                <span class="resumen-acordeon-info">
+                    <i class="bi bi-box-seam text-verde"></i>
+                    <span class="resumen-acordeon-texto">Lista de recursos ({{ count($coleccionRecursos) }})</span>
+                </span>
+                <i class="bi bi-chevron-down icono-flecha"></i>
+            </summary>
+
+            <div class="contenido-desplegable mt-2">
+                <ul class="resumen-lista-activos">
+                    @foreach($coleccionRecursos as $item)
+                        @php
+                            // Extraemos las propiedades soportando tanto objetos ($item->campo) como arreglos ($item['campo'])
+                            $tipoItem = is_object($item) 
+                                ? ($item->tipo ?? 'activo') 
+                                : (is_array($item) ? ($item['tipo'] ?? 'activo') : 'activo');
+
+                            $nombreItem = is_object($item) 
+                                ? ($item->nombre ?? $item->nombres ?? 'Recurso') 
+                                : (is_array($item) ? ($item['nombre'] ?? $item['nombres'] ?? 'Recurso') : $item);
+
+                            $serialItem = is_object($item) 
+                                ? ($item->serial ?? null) 
+                                : (is_array($item) ? ($item['serial'] ?? null) : null);
+
+                            $marcaItem = is_object($item) 
+                                ? ($item->marca ?? null) 
+                                : (is_array($item) ? ($item['marca'] ?? null) : null);
+
+                            $capacidadItem = is_object($item) 
+                                ? ($item->capacidad ?? null) 
+                                : (is_array($item) ? ($item['capacidad'] ?? null) : null);
+                        @endphp
+
+                        <li class="resumen-activo-item">
+                            <i class="bi {{ $tipoItem === 'aula' ? 'bi-door-open-fill text-verde me-2' : 'bi-check-circle-fill text-verde me-2' }}"></i>
+                            <div>
+                                <strong>{{ $nombreItem }}</strong>
+                                
+                                @if($tipoItem === 'aula' || $capacidadItem)
+                                    @if($capacidadItem)
+                                        <small class="d-block text-muted">Capacidad: {{ $capacidadItem }}</small>
+                                    @endif
+                                @else
+                                    @if($serialItem)
+                                        <small class="d-block text-muted">Serial: {{ $serialItem }}</small>
+                                    @endif
+                                    @if($marcaItem)
+                                        <small class="d-block text-muted">Marca: {{ $marcaItem }}</small>
+                                    @endif
+                                @endif
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </details>
+
+    @else
+        {{-- CONDICIÓN B: UN SOLO RECURSO (Ficha/Tarjeta detallada del Paso 1) --}}
+        <div class="ficha-tecnica-recurso {{ $tipoRecurso === 'aula' ? 'borde-aula' : 'borde-activo' }}">
+            <div class="info-principal-paso1">
+                <div class="icono-recurso-grande">
+                    <i class="bi {{ $tipoRecurso === 'aula' ? 'bi-door-open-fill' : 'bi-laptop-fill' }}"></i>
+                </div>
+                <div>
+                    <span class="etiqueta-tipo-recurso">{{ $tipoRecurso === 'aula' ? 'Aula / Salón' : 'Activo Tecnológico' }}</span>
+                    <h4 class="nombre-recurso-paso1">{{ $recursoNombre }}</h4>
+                </div>
+            </div>
+
+            <div class="grid-atributos-paso1">
+                @if($tipoRecurso === 'aula')
+                    <div class="item-atributo">
+                        <span class="label-atributo">Capacidad Máxima:</span>
+                        <span class="valor-atributo">{{ $capacidad }}</span>
+                    </div>
+                @else
+                    <div class="item-atributo">
+                        <span class="label-atributo">Serial:</span>
+                        <span class="valor-atributo font-mono">{{ $serial }}</span>
+                    </div>
+                    <div class="item-atributo">
+                        <span class="label-atributo">Marca:</span>
+                        <span class="valor-atributo">{{ $marca }}</span>
+                    </div>
+                @endif
+            </div>
+        </div>
     @endif
+
 </div>
