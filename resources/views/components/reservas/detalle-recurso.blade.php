@@ -31,26 +31,26 @@
                 <ul class="resumen-lista-activos">
                     @foreach($coleccionRecursos as $item)
                         @php
-                            // Extraemos las propiedades soportando tanto objetos ($item->campo) como arreglos ($item['campo'])
+                            // Adaptado para leer tanto propiedades genéricas como los nombres reales de tus tablas (act_nombre, aula_nombre, etc.)
                             $tipoItem = is_object($item) 
-                                ? ($item->tipo ?? 'activo') 
+                                ? ($item->tipo ?? $item->tipo_recurso ?? 'activo') 
                                 : (is_array($item) ? ($item['tipo'] ?? 'activo') : 'activo');
 
                             $nombreItem = is_object($item) 
-                                ? ($item->nombre ?? $item->nombres ?? 'Recurso') 
-                                : (is_array($item) ? ($item['nombre'] ?? $item['nombres'] ?? 'Recurso') : $item);
+                                ? ($item->nombre ?? $item->nombres ?? $item->act_nombre ?? $item->aula_nombre ?? 'Recurso') 
+                                : (is_array($item) ? ($item['nombre'] ?? $item['nombres'] ?? $item['act_nombre'] ?? $item['aula_nombre'] ?? 'Recurso') : $item);
 
                             $serialItem = is_object($item) 
-                                ? ($item->serial ?? null) 
-                                : (is_array($item) ? ($item['serial'] ?? null) : null);
+                                ? ($item->serial ?? $item->act_serial ?? $item->aula_codigo ?? null) 
+                                : (is_array($item) ? ($item['serial'] ?? $item['act_serial'] ?? $item['aula_codigo'] ?? null) : null);
 
                             $marcaItem = is_object($item) 
-                                ? ($item->marca ?? null) 
-                                : (is_array($item) ? ($item['marca'] ?? null) : null);
+                                ? ($item->marca ?? $item->act_marca ?? null) 
+                                : (is_array($item) ? ($item['marca'] ?? $item['act_marca'] ?? null) : null);
 
                             $capacidadItem = is_object($item) 
-                                ? ($item->capacidad ?? null) 
-                                : (is_array($item) ? ($item['capacidad'] ?? null) : null);
+                                ? ($item->capacidad ?? $item->aula_capacidad ?? null) 
+                                : (is_array($item) ? ($item['capacidad'] ?? $item['aula_capacidad'] ?? null) : null);
                         @endphp
 
                         <li class="resumen-activo-item">

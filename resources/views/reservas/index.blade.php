@@ -11,63 +11,6 @@
 
 @php
     $esAdmin = Auth::user()->esAdmin ?? true; 
-
-    $reservasSimuladas = [
-        (object)[
-            'id' => 1,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Computador Dell Inspiron',
-            'estado' => 'pendiente',
-            'usuario_nombre' => 'Docente Carlos Mendoza',
-            'identificacion' => '1.004.234.111',
-            'email' => 'carlos.mendoza@colegio.edu.co',
-            'motivo' => 'Clase de programación orientada a objetos.',
-            'fecha_inicio' => '2026-07-12',
-            'fecha_fin' => '2026-07-12',
-            'hora_inicio' => '08:00 AM',
-            'hora_fin' => '10:00 AM',
-            'ubicacion' => 'Aula 101',
-            'tipo_recurso' => 'activo',
-            'es_multiple' => false,
-            'recursos_lista' => []
-        ],
-        (object)[
-            'id' => 2,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Videobeam Epson X41',
-            'estado' => 'aprobada',
-            'usuario_nombre' => 'Docente María Alejandra',
-            'identificacion' => '1.004.234.222',
-            'email' => 'maria.alejandra@colegio.edu.co',
-            'motivo' => 'Presentación de proyectos finales de historia.',
-            'fecha_inicio' => '2026-07-13',
-            'fecha_fin' => '2026-07-13',
-            'hora_inicio' => '10:00 AM',
-            'hora_fin' => '12:00 PM',
-            'ubicacion' => 'Laboratorio de Sistemas',
-            'tipo_recurso' => 'activo',
-            'es_multiple' => false,
-            'recursos_lista' => []
-        ],
-        (object)[
-            'id' => 3,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Auditorio Central',
-            'estado' => 'rechazada',
-            'usuario_nombre' => 'Ing. Ricardo Torres',
-            'identificacion' => '1.004.234.333',
-            'email' => 'ricardo.torres@colegio.edu.co',
-            'motivo' => 'Conferencia institucional sobre desarrollo de software.',
-            'fecha_inicio' => '2026-07-15',
-            'fecha_fin' => '2026-07-15',
-            'hora_inicio' => '02:00 PM',
-            'hora_fin' => '06:00 PM',
-            'ubicacion' => 'Bloque B',
-            'tipo_recurso' => 'aula',
-            'es_multiple' => false,
-            'recursos_lista' => []
-        ]
-    ];
 @endphp
 
 <div class="panel-administracion-contenedor">
@@ -90,7 +33,7 @@
     <div class="contenedor-kpis">
         @component('components.filtros.kpi-selector', [
             'kpis' => [
-                ['filtro' => 'pendiente',  'color' => 'amarillo','icono' => 'fas fa-clock',       'titulo' => 'Pendientes',  'subtitulo' => 'Por revisar'],
+                ['filtro' => 'pendiente',  'color' => 'amarillo','icono' => 'fas fa-clock',      'titulo' => 'Pendientes',  'subtitulo' => 'Por revisar'],
                 ['filtro' => 'aprobada',   'color' => 'verde',  'icono' => 'fas fa-check-circle','titulo' => 'Aprobadas',   'subtitulo' => 'Listas'],
                 ['filtro' => 'rechazada',  'color' => 'rojo',   'icono' => 'fas fa-times-circle','titulo' => 'Rechazadas',  'subtitulo' => 'Denegadas']
             ]
@@ -104,57 +47,128 @@
         <!-- COLUMNA IZQUIERDA: LISTADO DE TARJETAS -->
         <div class="columna-solicitudes">
             <div class="container-tarjetas-vertical">
-                @foreach($reservasSimuladas as $reserva)
+                @forelse($reservas as $reserva)
                     @php
-                        $tagsReserva = ['reserva', strtolower($reserva->estado)];
+                        $tagsReserva = ['reserva', strtolower($reserva->res_estado ?? $reserva->estado ?? 'pendiente')];
                         $strTagsReserva = implode(' ', $tagsReserva);
+                        
+                        $totalDetalles = $reserva->detalles->count();
+                        $esMultiple = $totalDetalles > 1;
+
+                        // Determinar nombre del recurso principal o si es múltiple
+                        $primerDetalle = $reserva->detalles->first();
+                        if ($esMultiple) {
+                            $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
+                        } else {
+                            $nombreRecurso = 'Recurso General';
+                            if ($primerDetalle) {
+                                if ($primerDetalle->activo) {
+                                    $nombreRecurso = $primerDetalle->activo->act_nombre ?? 'Activo sin nombre';
+                                } elseif ($primerDetalle->aula) {
+                                    $nombreRecurso = $primerDetalle->aula->aula_nombre ?? 'Aula sin nombre';
+                                }
+                            }
+                        }
+
+                        // Ubicación y datos del solicitante
+                        $ubicacion = $primerDetalle->aula->aula_nombre ?? 'N/A';
+                        $nombreUsuario = $reserva->usuario->nombres ?? ($reserva->usuario->name ?? 'Usuario');
+                        $estadoReserva = $reserva->res_estado ?? ($reserva->estado ?? 'pendiente');
+
+                        // Fechas y horas extraídas de los detalles de la reserva
+                        $fechaIni = optional($primerDetalle)->det_re_fecha_ini;
+                        $fechaFin = optional($primerDetalle)->det_re_fecha_fin;
+
+                        // Mapeo seguro de la lista de recursos para la tarjeta múltiple y el modal
+                        $listaRecursosMultiples = $reserva->detalles->map(function($det) {
+                            return (object)[
+                                'nombre' => $det->activo->act_nombre ?? ($det->aula->aula_nombre ?? 'Elemento reservado'),
+                                'serial' => $det->activo->act_serial ?? 'N/A',
+                                'marca'  => $det->activo->act_marca ?? 'N/A'
+                            ];
+                        })->toArray();
+
+                        // Estructura limpia para el JSON del modal
+                        $datosReservaModal = [
+                            "id" => $reserva->res_id ?? $reserva->id,
+                            "estado" => $estadoReserva,
+                            "titulo" => "Detalle de Reserva #" . ($reserva->res_id ?? $reserva->id),
+                            "solicitante" => $nombreUsuario,
+                            "identificacion" => $reserva->usuario->identificacion ?? ($reserva->usuario->cedula ?? "N/A"),
+                            "email" => $reserva->usuario->email ?? "No disponible",
+                            "motivo" => $reserva->res_motivo ?? ($reserva->motivo ?? "Sin motivo especificado."),
+                            "fechaInicio" => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format("Y-m-d") : "N/A",
+                            "horaInicio" => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format("h:i A") : "N/A",
+                            "fechaFin" => $fechaFin ? \Carbon\Carbon::parse($fechaFin)->format("Y-m-d") : "N/A",
+                            "horaFin" => $fechaFin ? \Carbon\Carbon::parse($fechaFin)->format("h:i A") : "N/A",
+                            "aula" => $ubicacion,
+                            "recursos" => $listaRecursosMultiples
+                        ];
                     @endphp
                     
-                    <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsReserva }}">
+                    <div class="tarjeta-wrapper recurso-item" 
+                        data-tags="{{ $strTagsReserva }}"
+                        style="cursor: pointer;"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#modalgeneral"
+                        data-reserva="{{ json_encode($datosReservaModal) }}"
+                        onclick="cargarDatosModalReserva(this)">
+                        
                         @component('components.tarjetas.tarjeta-reserva', [
-                            'id'          => $reserva->id,
+                            'id'          => $reserva->res_id ?? $reserva->id,
                             'foto'        => asset('storage/images/activos/default.jpeg'),
-                            'nombre'      => $reserva->recurso_nombre,
-                            'estado'      => $reserva->estado,
-                            'solicitante' => $reserva->usuario_nombre,
-                            'fecha'       => \Carbon\Carbon::parse($reserva->fecha_inicio)->format('d \d\e F Y'),
-                            'horaInicio'  => $reserva->hora_inicio,
-                            'horaFin'     => $reserva->hora_fin,
-                            'ubicacion'   => $reserva->ubicacion,
+                            'nombre'      => $nombreRecurso,
+                            'estado'      => $estadoReserva,
+                            'solicitante' => $nombreUsuario,
+                            'fecha'       => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format('d \d\e F Y') : 'N/A',
+                            'horaInicio'  => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format('H:i') : '08:00 AM',
+                            'horaFin'     => $fechaFin ? \Carbon\Carbon::parse($fechaFin)->format('H:i') : '10:00 AM',
+                            'ubicacion'   => $ubicacion,
                             'urlGestion'  => '#',
-                            'esMultiple'  => $reserva->es_multiple ?? false,
-                            'recursos'    => $reserva->recursos_lista ?? []
+                            'esMultiple'  => $esMultiple,
+                            'recursos'    => $listaRecursosMultiples
                         ])
                         @endcomponent
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-center text-muted" style="padding: 20px;">No hay solicitudes de reservas registradas.</p>
+                @endforelse
             </div>
         </div>
 
-        <!-- COLUMNA DERECHA: AGENDA PERMANENTE -->
+        <!-- COLUMNA DERECHA: AGENDA PERMANENTE (DINÁMICA) -->
         <div class="columna-agenda-permanente">
-        <x-agendas.agenda :eventos="[
-                [
-                    'title' => 'Computador Dell - Prof. Carlos',
-                    'start' => '2026-08-12T08:00:00',
-                    'end' => '2026-08-12T10:00:00',
-                    'extendedProps' => [
-                        'recurso' => 'Computador Dell Inspiron',
-                        'usuario' => 'Carlos Mendoza (Docente)',
-                        'estado' => 'Aprobado'
-                    ]
-                ],
-                [
-                    'title' => 'Reserva Aula 101',
-                    'start' => '2026-08-15T10:00:00',
-                    'end' => '2026-08-15T12:00:00',
-                    'extendedProps' => [
-                        'recurso' => 'Aula 101 (Audiovisuales)',
-                        'usuario' => 'María Pérez (Docente)',
-                        'estado' => 'Aprobado'
-                    ]
-                ]
-            ]" />
+            @php
+                $eventosCalendario = $reservas->map(function($reserva) {
+                    $totalDetalles = $reserva->detalles->count();
+                    $primerDetalle = $reserva->detalles->first();
+                    
+                    if ($totalDetalles > 1) {
+                        $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
+                    } else {
+                        $nombreRecurso = 'Recurso';
+                        if ($primerDetalle) {
+                            $nombreRecurso = $primerDetalle->activo->act_nombre ?? ($primerDetalle->aula->aula_nombre ?? 'Recurso');
+                        }
+                    }
+                    
+                    $nombreUsuario = $reserva->usuario->nombres ?? ($reserva->usuario->name ?? 'Usuario');
+                    $estado = ucfirst($reserva->res_estado ?? ($reserva->estado ?? 'pendiente'));
+
+                    return [
+                        'title' => $nombreRecurso . ' - ' . $nombreUsuario,
+                        'start' => optional($primerDetalle)->det_re_fecha_ini ?? $reserva->res_fecha_inicio,
+                        'end'   => optional($primerDetalle)->det_re_fecha_fin ?? ($reserva->res_fecha_fin ?? optional($primerDetalle)->det_re_fecha_ini),
+                        'extendedProps' => [
+                            'recurso' => $nombreRecurso,
+                            'usuario' => $nombreUsuario,
+                            'estado'  => $estado
+                        ]
+                    ];
+                })->toArray();
+            @endphp
+
+            <x-agendas.agenda :eventos="$eventosCalendario" />
         </div>
 
     </div>
@@ -165,4 +179,86 @@
 </div>
 
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
+
+<script>
+    // Función global única para evitar errores de referencia
+    function cargarDatosModalReserva(elemento) {
+        try {
+            // Obtenemos los datos del atributo data-reserva
+            const rawData = elemento.getAttribute('data-reserva');
+            if (!rawData) return;
+            
+            const datos = JSON.parse(rawData);
+            console.log("Datos cargados correctamente:", datos);
+
+            // 1. Título del modal
+            const tituloEl = document.getElementById('modalgeneral-titulo');
+            if (tituloEl) tituloEl.innerText = datos.titulo;
+
+            // 2. Función auxiliar segura para inyectar textos
+            const setearTexto = (id, valor) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.innerText = (valor !== null && valor !== undefined && valor !== '') ? valor : 'N/A';
+                }
+            };
+
+            setearTexto('resumen-solicitante', datos.solicitante);
+            setearTexto('resumen-identificacion', datos.identificacion);
+            setearTexto('resumen-email', datos.email);
+            setearTexto('resumen-motivo', datos.motivo);
+            setearTexto('resumen-fecha-inicio', datos.fechaInicio);
+            setearTexto('resumen-hora-inicio', datos.horaInicio);
+            setearTexto('resumen-fecha-fin', datos.fechaFin);
+            setearTexto('resumen-hora-fin', datos.horaFin);
+            setearTexto('resumen-aula-uso', datos.aula);
+
+            // 3. Renderizar la lista de recursos múltiples
+            const contenedorRecursos = document.getElementById('resumen-bloque-recurso');
+            if (contenedorRecursos && datos.recursos) {
+                let htmlRecursos = `<h3 class="mb-3"><i class="bi bi-boxes"></i> Recursos Seleccionados (${datos.recursos.length})</h3>`;
+                
+                datos.recursos.forEach(rec => {
+                    htmlRecursos += `
+                        <div class="detalle-recurso-item border p-2 mb-2 rounded bg-light">
+                            <p class="mb-1"><strong>Recurso:</strong> ${rec.nombre}</p>
+                            <p class="mb-1"><strong>Serial:</strong> ${rec.serial}</p>
+                            <p class="mb-0"><strong>Marca:</strong> ${rec.marca}</p>
+                        </div>
+                    `;
+                });
+                contenedorRecursos.innerHTML = htmlRecursos;
+            }
+
+            // 4. Actualizar rutas de los formularios de acción
+            const formRechazar = document.getElementById('formRechazarReserva');
+            const formAprobar = document.getElementById('formAprobarReserva');
+            const formRevertir = document.getElementById('formRevertirReserva');
+
+            if (formRechazar) formRechazar.action = `/reservas/${datos.id}/rechazar`;
+            if (formAprobar) formAprobar.action = `/reservas/${datos.id}/aprobar`;
+            if (formRevertir) formRevertir.action = `/reservas/${datos.id}/revertir`;
+
+            // 5. Control de visibilidad de botones según el estado
+            const bloquePendiente = document.getElementById('bloque-acciones-pendiente');
+            const bloqueRevertir = document.getElementById('bloque-acciones-revertir');
+
+            if (bloquePendiente && bloqueRevertir) {
+                bloquePendiente.style.setProperty('display', 'none', 'important');
+                bloqueRevertir.style.setProperty('display', 'none', 'important');
+
+                const estadoRes = (datos.estado || '').toLowerCase().trim();
+                if (estadoRes === 'pendiente') {
+                    bloquePendiente.style.setProperty('display', 'flex', 'important');
+                } else if (['aprobada', 'rechazada', 'aprobado', 'rechazado'].includes(estadoRes)) {
+                    bloqueRevertir.style.setProperty('display', 'flex', 'important');
+                }
+            }
+
+        } catch (error) {
+            console.error("Error al procesar los datos del modal:", error);
+        }
+    }
+</script>
+
 @endsection

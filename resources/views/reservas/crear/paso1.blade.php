@@ -8,6 +8,9 @@
     // Confiamos en el $tipoRecurso y en la colección de recursos que vienen seguros del controlador
     $tipoRecurso = $tipoRecurso ?? 'activo';
     $recursos = $recursos ?? collect();
+
+    // Obtenemos el primer recurso de manera segura para las propiedades individuales (si solo es 1)
+    $primerRecurso = $recursos->first();
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -28,35 +31,18 @@
                 <h3 class="fw-bold">Recursos Seleccionados</h3>
                 <p class="subtitulo-tarjeta text-muted">Puedes volver atrás para cambiar los elementos</p>
 
-                {{-- Lista de recursos seleccionados --}}
-                <div class="lista-recursos-seleccionados mt-3">
-                    @foreach($recursos as $recurso)
-                        <div class="tarjeta-item-recurso mb-3 p-3 border rounded shadow-sm bg-light">
-                            <div class="d-flex align-items-center">
-                                <div class="icono-recurso me-3 text-primary fs-3">
-                                    @if($tipoRecurso === 'aula')
-                                        <i class="bi bi-door-open-fill"></i>
-                                    @else
-                                        <i class="bi bi-laptop"></i>
-                                    @endif
-                                </div>
-                                <div>
-                                    <span class="badge bg-secondary mb-1">{{ ucfirst($tipoRecurso) }}</span>
-                                    <h5 class="mb-1 fw-bold">
-                                        {{ $recurso->act_nombre ?? $recurso->aula_nombre ?? 'Sin nombre' }}
-                                    </h5>
-                                    <p class="text-muted mb-0 small">
-                                        <strong>Serial / Código:</strong> {{ $recurso->act_serial ?? $recurso->aula_codigo ?? 'N/A' }} | 
-                                        <strong>Marca:</strong> {{ $recurso->act_marca ?? 'N/A' }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                {{-- COMPONENTE UNIFICADO DE TU COMPAÑERA: Maneja automáticamente 1 recurso o el acordeón múltiple --}}
+                <x-reservas.detalle-recurso 
+                    :tipoRecurso="$tipoRecurso"
+                    :recursoNombre="$primerRecurso->act_nombre ?? $primerRecurso->aula_nombre ?? 'Recurso'"
+                    :serial="$primerRecurso->act_serial ?? $primerRecurso->aula_codigo ?? 'Sin Serial'"
+                    :marca="$primerRecurso->act_marca ?? 'N/A'"
+                    :capacidad="$primerRecurso->aula_capacidad ?? 'N/A'"
+                    :recursos="$recursos" 
+                />
             </div>
 
-            {{-- Opciones de Decisión y Formulario apuntando a la ruta limpia --}}
+            {{-- Opciones de Decisión y Formulario apuntando a tu ruta de lógica --}}
             <form action="{{ route('reservas.paso1.post') }}" method="POST" class="formulario-paso1">
                 @csrf
                 

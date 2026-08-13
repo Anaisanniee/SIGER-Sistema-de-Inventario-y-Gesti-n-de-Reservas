@@ -61,7 +61,6 @@
     $userName = $user->nombres ?? ($user->name ?? 'Docente Solicitante');
     $userCedula = $user->cedula ?? ($user->identificacion ?? ($user->id ?? 'Por completar'));
 @endphp
-
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
@@ -71,7 +70,7 @@
     {{-- 1. COMPONENTE STEPPER (Barra de Progreso en Paso 2) --}}
     <x-reservas.stepper paso="2" />
 
-    {{-- 2. FORMULARIO GLOBAL QUE ENVÍA TODO AL CONTROLADOR (guardarPaso2) --}}
+    {{-- 2. FORMULARIO GLOBAL QUE ENVÍA TODO AL CONTROLADOR (Paso 2 -> Paso 3) --}}
     <form action="{{ route('reservas.paso2.post') }}" method="POST" class="formulario-dinamico" id="form-reserva-paso2">
         @csrf
         
@@ -83,23 +82,25 @@
                  ========================================== --}}
             <div class="columna-formulario">
                 
-                {{-- Bloque Informativo de Recursos Seleccionados --}}
+                {{-- Bloque Informativo del Recurso --}}
                 <div class="tarjeta-reserva-siger">
-                    <h3>Recursos Seleccionados</h3>
-                    <p class="subtitulo-tarjeta">Puedes volver atrás para cambiar los elementos</p>
+                    <h3>Recurso Seleccionado</h3>
+                    <p class="subtitulo-tarjeta">Puedes volver atrás para cambiar el elemento</p>
                     
-                    @foreach($recursosColeccion as $itemRecurso)
-                        <div style="margin-bottom: 10px;">
-                            <x-reservas.detalle-recurso 
-                                :nombre="$itemRecurso->act_nombre ?? ($itemRecurso->aula_nombre ?? 'Recurso Seleccionado')" 
-                                :detalle="$itemRecurso->act_serial ?? (isset($itemRecurso->aula_capacidad) ? 'Capacidad: ' . $itemRecurso->aula_capacidad : 'Detalle no disponible')" 
-                                estado="Disponible" 
-                            />
-                        </div>
-                    @endforeach
+                    {{-- COMPONENTE: Detalle del Recurso (Con Estado Disponible) --}}
+                    @php
+                        $primerRecurso = $recursosColeccion->first();
+                    @endphp
+                    <x-reservas.detalle-recurso 
+                        :tipoRecurso="$tipoSession ?? 'activo'"
+                        :recursoNombre="$primerRecurso->act_nombre ?? ($primerRecurso->aula_nombre ?? 'Recurso')"
+                        :serial="$primerRecurso->act_serial ?? 'Sin Serial'"
+                        :marca="$primerRecurso->marca ?? 'N/A'"
+                        :recursos="$recursosColeccion" 
+                    />
                 </div>
 
-                {{-- Bloque de Fecha y Horario --}}
+                {{-- Bloque de Fecha y Horario vuelto Desplegable en Móvil --}}
                 <details class="tarjeta-reserva-siger acordeon-reserva" open>
                     <summary>
                         <div>
@@ -110,6 +111,7 @@
                     </summary>
                     
                     <div class="contenido-desplegable">
+                        {{-- Rejilla de fechas responsiva --}}
                         <div class="grid-dos-columnas">
                             <div class="post-form">
                                 <label for="res_fecha_inicio">Fecha de Inicio <span class="text-danger">*</span></label>
@@ -126,6 +128,7 @@
                             </div>
                         </div>
 
+                        {{-- Rango de Horas Manuales Pareado --}}
                         <div class="grid-dos-columnas margin-top-main">
                             <div class="post-form">
                                 <label for="res_hora_inicio">Hora de Inicio <span class="text-danger">*</span></label>
@@ -140,7 +143,7 @@
                             </div>
                         </div>
                         
-                        {{-- Distribución de Motivo y Aula Condicionada --}}
+                        {{-- Lógica Inteligente de Columnas para Motivo y Aula --}}
                         @if($mostrarCampoAula)
                             <div class="grid-dos-columnas margin-top-main">
                                 <div class="post-form">
@@ -187,6 +190,7 @@
                             <input type="hidden" name="aula_uso" value="{{ old('aula_uso', $aulaAutomaticaId) }}">
                         @endif
 
+                        {{-- Mensaje de validación de backend (si existe) --}}
                         @if ($errors->any())
                             <div class="alert alert-danger mt-2">
                                 <ul style="margin: 0; padding-left: 15px;">
@@ -206,19 +210,8 @@
             <div class="columna-resumen">
                 <div class="tarjeta-reserva-siger resumen-card">
                     <h3>Resumen de Reserva</h3>
-                    
-                    <div style="margin-bottom: 15px;">
-                        @foreach($recursosColeccion as $itemRecurso)
-                            <div style="margin-bottom: 8px;">
-                                <x-reservas.detalle-recurso 
-                                    :nombre="$itemRecurso->aula_nombre ?? ($itemRecurso->act_nombre ?? 'Recurso Seleccionado')" 
-                                    :detalle="isset($itemRecurso->aula_capacidad) ? 'Capacidad: ' . $itemRecurso->aula_capacidad : ($itemRecurso->act_serial ?? 'Detalle no disponible')" 
-                                    estado="Disponible" 
-                                />
-                            </div>
-                        @endforeach
-                    </div>
 
+                    {{-- Tabla de Detalles Requeridos --}}
                     <table class="tabla-resumen-siger">
                         <tr>
                             <td>Fecha</td>
@@ -248,19 +241,21 @@
                         @endif
                     </table>
 
+                    {{-- Alerta Informativa sobre la validación del backend --}}
                     <div class="notificacion-alerta-siger">
-                        <p>ℹ️ La reserva pasará al paso de confirmación final.</p>
+                        <p>ℹ️ La reserva quedará pendiente de aprobación por el administrador.</p>
                     </div>
 
-                    <div class="contenedor-botones">               
+                    {{-- Botón de envío modificado a type="submit" para que procese el formulario y avance al paso 3 --}}
+                    <div class="contenedor-botones">            
                         <button type="submit" class="btn-siger-accion btn" style="width: 100%;">
-                            Continuar a Confirmación
+                            Confirmar Reserva
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> {{-- Fin Columna Derecha --}}
 
-        </div>
+        </div> {{-- Fin del Grid --}}
     </form>
 </div>
 

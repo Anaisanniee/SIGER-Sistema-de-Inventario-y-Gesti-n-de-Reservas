@@ -92,24 +92,72 @@
      ========================================================================= -->
 <script>
     function cargarDatosModal(datos) {
+        // Obtenemos y parseamos los datos
+        const datos = JSON.parse(elemento.getAttribute('data-reserva'));
         if (!datos) return;
 
-        // Título del modal
-        const tituloEl = document.getElementById('modalgeneral-titulo');
-        if (tituloEl) tituloEl.innerText = datos.titulo || 'Detalle de Reserva';
+        // VERIFICACIÓN EN CONSOLA (Presiona F12 en tu navegador para ver esto)
+        console.log("Datos recibidos en el modal:", datos);
 
-        // Bloques de botones de acción
+        // 1. Título
+        const tituloEl = document.getElementById('modalgeneral-titulo');
+        if (tituloEl) tituloEl.innerText = datos.titulo;
+
+        // 2. Mapeo seguro de campos
+        const setearTexto = (id, valor) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerText = (valor !== null && valor !== undefined && valor !== '') ? valor : 'N/A';
+            } else {
+                console.warn(`No se encontró el elemento con ID: #${id}`);
+            }
+        };
+
+        setearTexto('resumen-solicitante', datos.solicitante);
+        setearTexto('resumen-identificacion', datos.identificacion);
+        setearTexto('resumen-email', datos.email);
+        setearTexto('resumen-motivo', datos.motivo);
+        setearTexto('resumen-fecha-inicio', datos.fechaInicio);
+        setearTexto('resumen-hora-inicio', datos.horaInicio);
+        setearTexto('resumen-fecha-fin', datos.fechaFin);
+        setearTexto('resumen-hora-fin', datos.horaFin);
+        setearTexto('resumen-aula-uso', datos.aula);
+
+        // 3. Renderizar la lista de recursos
+        const contenedorRecursos = document.getElementById('resumen-bloque-recurso');
+        if (contenedorRecursos && datos.recursos) {
+            let htmlRecursos = `<h3 class="mb-3"><i class="bi bi-boxes"></i> Recursos Seleccionados (${datos.recursos.length})</h3>`;
+            
+            datos.recursos.forEach(rec => {
+                htmlRecursos += `
+                    <div class="detalle-recurso-item border p-2 mb-2 rounded bg-light">
+                        <p class="mb-1"><strong>Recurso:</strong> ${rec.nombre}</p>
+                        <p class="mb-1"><strong>Serial:</strong> ${rec.serial}</p>
+                        <p class="mb-0"><strong>Marca:</strong> ${rec.marca}</p>
+                    </div>
+                `;
+            });
+            contenedorRecursos.innerHTML = htmlRecursos;
+        }
+
+        // 4. Actualizar rutas de formularios
+        const formRechazar = document.getElementById('formRechazarReserva');
+        const formAprobar = document.getElementById('formAprobarReserva');
+        const formRevertir = document.getElementById('formRevertirReserva');
+
+        if (formRechazar) formRechazar.action = `/reservas/${datos.id}/rechazar`;
+        if (formAprobar) formAprobar.action = `/reservas/${datos.id}/aprobar`;
+        if (formRevertir) formRevertir.action = `/reservas/${datos.id}/revertir`;
+
+        // 5. Visibilidad de botones por estado
         const bloquePendiente = document.getElementById('bloque-acciones-pendiente');
         const bloqueRevertir = document.getElementById('bloque-acciones-revertir');
 
         if (bloquePendiente && bloqueRevertir) {
-            const estado = (datos.estado || '').toLowerCase().trim();
-
-            // Reset visibilidad
             bloquePendiente.style.setProperty('display', 'none', 'important');
             bloqueRevertir.style.setProperty('display', 'none', 'important');
 
-            // Mostrar bloque según estado
+            const estado = (datos.estado || '').toLowerCase().trim();
             if (estado === 'pendiente') {
                 bloquePendiente.style.setProperty('display', 'flex', 'important');
             } else if (['aprobada', 'rechazada', 'aprobado', 'rechazado'].includes(estado)) {
