@@ -12,22 +12,6 @@
 
 <div class="contenedor-registro-flexible">
 
-    {{-- Notificaciones de estado o éxito --}}
-    @if (session('status'))
-        <x-alertas.notificacion tipo="exito">
-            {{ session('status') }}
-        </x-alertas.notificacion>
-    @endif
-
-    {{-- Errores de validación --}}
-    @if ($errors->any())
-        @foreach ($errors->all() as $error)
-            <x-alertas.notificacion tipo="error">
-                {{ $error }}
-            </x-alertas.notificacion>
-        @endforeach
-    @endif
-
     {{-- BOTÓN DISPARADOR (Móviles) --}}
     <button class="btn-toggle-formulario" type="button" data-bs-toggle="collapse" data-bs-target="#formularioColapsable" aria-expanded="false" aria-controls="formularioColapsable">
         <span><i class="fas fa-user-plus"></i> Formulario de Registro</span>
