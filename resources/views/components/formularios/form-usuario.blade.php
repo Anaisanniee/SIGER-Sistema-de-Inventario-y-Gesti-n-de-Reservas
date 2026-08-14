@@ -1,7 +1,7 @@
 {{-- ROL: Solo se muestra si estamos CREANDO un usuario (cuando no hay ID de usuario existente) --}}
 @if(!request()->is('*perfil*'))
     <div class="post-form">
-        <label for="rol">Rol <span class="text-danger">*</span></label>
+        <label for="rol">Rol</label>
         <select name="rol" id="rol">
             <option value="">--Selecciona--</option>
             <option value="2" {{ old('rol', $usuario->rol ?? '') == '2' ? 'selected' : '' }}>Docente</option>
@@ -41,7 +41,7 @@
 {{-- CÉDULA --}}
 <div class="post-form">
     <label for="identificacion">Cédula <span class="text-danger">*</span></label>
-    <input type="text" id="identificacion" name="identificacion" required
+    <input type="text" id="identificacion" name="identificacion" 
            value="{{ old('identificacion', $usuario->identificacion ?? '') }}"
            {{ isset($usuario->id) ? 'readonly' : '' }}>
 </div>
@@ -49,7 +49,7 @@
 {{-- CORREO --}}
 <div class="post-form">
     <label for="correo">Correo <span class="text-danger">*</span></label>
-    <input type="email" id="correo" name="correo" required
+    <input type="email" id="correo" name="correo" 
            value="{{ old('correo', $usuario->correo ?? '') }}">
 </div>
 

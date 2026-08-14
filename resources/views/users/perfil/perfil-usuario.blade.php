@@ -19,7 +19,7 @@
 
     <div class="perfil-layout-contenedor">
         
-        {{-- COLUMNA IZQUIERDA: AVATAR Y ACCIONES --}}
+        {{-- COLUMNA IZQUIERDA: AVATAR, DATOS Y ACCIONES --}}
         <aside class="perfil-columna-izquierda">
             <div class="avatar-wrapper">
                 <div class="avatar-circulo">
@@ -49,46 +49,48 @@
                 </div>
             </div>
 
-            <div class="acciones-laterales">
-                {{-- Botón Editar Perfil usando tu componente global --}}
-                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
-                    Editar Perfil
-                </x-botones.boton>
+             <div class="acciones-laterales">
+                    {{-- Botón Editar Perfil --}}
+                    <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
+                        Editar Perfil
+                    </x-botones.boton>
 
-                <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
-                    Historial de reserva
-                </x-botones.boton>
+                    {{-- Historial de reservas --}}
+                    <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
+                        Historial de reserva
+                    </x-botones.boton>
 
-                {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR --}}
-                @auth
-                    @if(Auth::user()->rol === 'rector')
-                        <a href="{{ route('informes.inventario') }}" style="text-decoration: none; width: 100%;">
-                            <x-botones.boton type="button" class="btn-siger-accion btn-azul">
-                                Ver Informes de Inventario
-                            </x-botones.boton>
-                        </a>
-                    @endif
-                @endauth
-            </div>
+            {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR --}}
+            @auth
+                @if(Auth::user()->rol === 'rector')
+                    <a href="{{ route('informes.inventario') }}" style="text-decoration: none; width: 100%;">
+                        <x-botones.boton type="button" class="btn-siger-accion btn-azul">
+                            Ver Informes de Inventario
+                        </x-botones.boton>
+                    </a>
+                @endif
+            @endauth
+
+            {{-- Botón Logout compacto en el mismo grupo --}}
+            <x-botones.boton-logout />
+        </div>
         </aside>
 
         {{-- COLUMNA DERECHA --}}
         <main class="perfil-columna-derecha">
             
-            {{-- SECCIÓN 1: FORMULARIO DE EDICIÓN INCLUIDO COMO COMPONENTE --}}
+            {{-- SECCIÓN 1: FORMULARIO DE EDICIÓN --}}
             <div class="formulario-desplegable" id="contenedor-formulario">
                 <div class="tarjeta-blanca-datos">
                     <div class="titulo-ficha-datos">
                         <span>Información personal</span>
                     </div>
 
-                    {{-- Llamamos a tu archivo de formulario usando la ruta de puntos exacta dentro de usuarios obtiene los dtos del usuario --}}
-                    @include('components.formularios.update_form_datos', ['usuario' => $usuario])
-
+                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
                 </div>
             </div>
 
-            {{-- SECCIÓN 2: MIS RESERVAS (Siempre visible) --}}
+            {{-- SECCIÓN 2: MIS RESERVAS --}}
             <div class="tarjeta-blanca-datos" id="contenedor-reservas">
                 <div class="titulo-ficha-datos">
                     <span>Mis Reservas</span>
