@@ -10,7 +10,7 @@
     @if(!($esSecretaria && $modoDashboard))
         data-bs-toggle="modal" 
         data-bs-target="#modalgeneral"
-        onclick="cargarDatosModal({{ json_encode([
+        onclick="cargarDatosModal(event.currentTarget, {{ json_encode([
             'titulo' => $nombre,
             'subtitulo' => $estado,
             'docente' => $solicitante,

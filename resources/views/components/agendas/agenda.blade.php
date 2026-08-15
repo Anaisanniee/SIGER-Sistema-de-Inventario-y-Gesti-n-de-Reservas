@@ -227,23 +227,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const props = info.event.extendedProps || {};
             
-            const datosParaModal = {
-                id: info.event.id || props.id,
-                titulo: info.event.title,
-                recurso: props.recurso || info.event.title,
-                usuario: props.usuario || 'Docente / Usuario',
-                estado: props.estado || 'Pendiente',
-                inicio: info.event.start ? info.event.start.toLocaleString() : 'N/A',
-                fin: info.event.end ? info.event.end.toLocaleString() : 'N/A'
-            };
+            if (props.modalData) {
+                // Creamos un elemento dummy y le asignamos la data del modal exactamente como lo hacen tus tarjetas
+                const dummyElement = document.createElement('div');
+                
+                // Si modalData ya es un objeto, lo convertimos a JSON string para el atributo
+                const jsonData = typeof props.modalData === 'object' 
+                    ? JSON.stringify(props.modalData) 
+                    : props.modalData;
 
-            if (typeof cargarDatosModal === 'function') {
-                cargarDatosModal(datosParaModal);
+                dummyElement.setAttribute('data-reserva', jsonData);
+
+                if (typeof cargarDatosModalReserva === 'function') {
+                    cargarDatosModalReserva(dummyElement);
+                }
             }
 
+            // Abrimos el modal de Bootstrap
             const modalEl = document.getElementById('modalgeneral');
             if (modalEl) {
-                const modalBs = new bootstrap.Modal(modalEl);
+                const modalBs = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modalBs.show();
             }
         }

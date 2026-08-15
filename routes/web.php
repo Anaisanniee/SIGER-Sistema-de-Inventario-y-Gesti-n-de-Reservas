@@ -98,6 +98,15 @@ Route::get('/reservas/crear/paso3', [ReservasControllers::class, 'paso3'])->name
 // Ruta para guardar o confirmar la reserva final (POST)
 Route::post('/reservas/crear/paso3', [ReservasControllers::class, 'guardarPaso3'])->name('reservas.paso3.post');
 
+// Ruta para aprobar reserva
+Route::patch('/secretaria/reservas/{id}/aprobar', [ReservasControllers::class, 'aprobar'])->name('reservas.aprobar');
+
+// Ruta para rechazar reserva
+Route::patch('/secretaria/reservas/{id}/rechazar', [ReservasControllers::class, 'rechazar'])->name('reservas.rechazar');
+
+// Ruta para revertir reserva
+Route::patch('/secretaria/reservas/{id}/revertir', [ReservasControllers::class, 'revertir'])->name('reservas.revertir');
+
 // ==========================================
 // RUTAS DEL CARRITO
 // ==========================================

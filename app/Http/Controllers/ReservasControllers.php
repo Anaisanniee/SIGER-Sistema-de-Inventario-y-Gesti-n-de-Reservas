@@ -7,6 +7,7 @@ use App\Models\AulasModels;
 use App\Models\ReservasModels;
 use App\Models\DetallesReservasModels;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ReservasControllers extends Controller
@@ -367,6 +368,50 @@ class ReservasControllers extends Controller
             ->orderBy('res_id', 'desc')
             ->get();
 
-        return view('reservas.index', compact('reservas'));
+        // Separamos las colecciones usando el estado exacto de la base de datos
+        $pendientes = $reservas->where('res_estado_reserva', 'Pendiente');
+        $aprobadas  = $reservas->where('res_estado_reserva', 'Aprobada');
+        $rechazadas = $reservas->where('res_estado_reserva', 'Rechazada');
+
+        return view('reservas.index', compact('reservas', 'pendientes', 'aprobadas', 'rechazadas'));
+    }
+
+    public function aprobar($id)
+    {
+        // Cargamos la reserva con sus detalles para verificar fecha y hora exacta
+        $reserva = ReservasModels::with('detalles')->findOrFail($id);
+        
+        // Obtenemos la fecha y hora de fin (o de inicio) del detalle o de la reserva principal
+        $fechaHoraFin = optional($reserva->detalles->first())->det_re_fecha_fin 
+                        ?? optional($reserva->detalles->first())->det_re_fecha_ini 
+                        ?? ($reserva->res_fecha_fin ?? $reserva->res_fecha_inicio);
+
+        // Validamos si la fecha y hora ya pasaron respecto al momento actual (now)
+        if ($fechaHoraFin && Carbon::parse($fechaHoraFin)->lt(Carbon::now()) && strtolower($reserva->res_estado_reserva ?? 'pendiente') === 'pendiente') {
+            return redirect()->back()->with('error', 'No se puede aceptar una reserva cuyo horario ya ha finalizado o transcurrido.');
+        }
+
+        $reserva->res_estado_reserva = 'Aprobada'; 
+        $reserva->save();
+
+        return redirect()->back()->with('success', 'Reserva aprobada exitosamente.');
+    }
+
+    public function rechazar($id)
+    {
+        $reserva = ReservasModels::findOrFail($id);
+        $reserva->res_estado_reserva = 'Rechazada'; // Ajusta al texto que uses (ej: 'Rechazada')
+        $reserva->save();
+
+        return redirect()->back()->with('success', 'Reserva rechazada.');
+    }
+
+    public function revertir($id)
+    {
+        $reserva = ReservasModels::findOrFail($id);
+        $reserva->res_estado_reserva = 'Pendiente';
+        $reserva->save();
+
+        return redirect()->back();
     }
 }
