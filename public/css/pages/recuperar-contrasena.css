@@ -1,0 +1,163 @@
+/* ========================================================
+   ESTILOS EXCLUSIVOS: PÁGINA DE RECUPERACIÓN DE CONTRASEÑA
+   ======================================================== */
+
+/* Contenedor padre: Obliga a centrar la tarjeta vertical y horizontalmente */
+.siger-contenedor-login {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    padding: var(--espaciado) !important;
+    background-color: var(--color-fondo-secundario) !important; 
+    background: linear-gradient(var(--color-borde), var(--color-fondo-secundario)) !important;
+    box-sizing: border-box !important;
+}
+
+/* CORRECCIÓN CRÍTICA: Se fusionan ambas clases para pisar los estilos heredados */
+.tarjeta-blanca-datos.tarjeta-recuperacion {
+    background: #ffffff !important; /* Forzamos fondo blanco limpio */
+    border: 1px solid var(--color-borde) !important;
+    border-radius: 4px !important; /* Estandarizado con Login */
+    padding: calc(var(--espaciado) * 2.5) !important;
+    max-width: 450px !important; /* Ancho controlado de tarjeta */
+    width: 100% !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    height: auto !important; /* Evita que herede alturas fijas */
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.perfil-header-seccion {
+    margin-bottom: calc(var(--espaciado) * 1.5) !important;
+}
+
+.perfil-titulo-principal {
+    font-family: var(--fuente-secundaria);
+    font-size: 1.7rem !important;
+    font-weight: 700 !important;
+    color: var(--color-principal) !important; 
+    margin: 0 0 8px 0 !important;
+}
+
+.perfil-subtitulo {
+    font-family: var(--fuente-principal);
+    font-size: 0.92rem !important;
+    color: var(--color-texto-secundario) !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+/* El círculo contenedor del SVG */
+.tarjeta-recuperacion .avatar-circulo {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(135deg, var(--color-principal), var(--principal-secundario)) !important;
+    border-radius: 50% !important;
+    color: #ffffff !important;
+}
+
+/* Estructura del Formulario */
+.grid-campos-perfil-login {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 15px !important;
+}
+
+.grid-campos-perfil-login .post-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    width: 100% !important;
+}
+
+.grid-campos-perfil-login .post-form label {
+    font-size: 1rem !important;
+    font-family: var(--fuente-secundaria);
+    font-weight: 500 !important;
+    color: var(--color-texto) !important;
+    text-align: left !important;
+}
+
+/* Estilo del Input igual al del Login */
+.grid-campos-perfil-login .post-form input {
+    background-color: var(--color-borde) !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    font-size: 1rem !important;
+    padding: 11px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    transition: border-color 0.2s ease !important;
+}
+
+.grid-campos-perfil-login .post-form input:focus {
+    outline: none !important;
+    border-color: var(--color-principal) !important;
+}
+
+/* --- CONTENEDOR DE BOTONES DEL COMPONENTE --- */
+.botones-accion-final {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+    width: 100% !important;
+}
+
+/* Forzar estilos sobre el componente <x-botones.boton> */
+.botones-accion-final .btn {
+    flex: 1 !important;
+    padding: 11px 15px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    text-decoration: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Botón Volver al Login (Gris / Cancelar) */
+.botones-accion-final .btn.btn-perfil-cancelar {
+    background-color: var(--color-fondo-secundario) !important;
+    color: var(--color-texto) !important;
+    border: 1px solid var(--color-borde) !important;
+}
+.botones-accion-final .btn.btn-perfil-cancelar:hover {
+    background-color: var(--color-borde) !important;
+}
+
+/* Botón Enviar Enlace (Verde / Guardar) */
+.botones-accion-final .btn.btn-perfil-guardar {
+    background-color: var(--color-principal) !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+.botones-accion-final .btn.btn-perfil-guardar:hover {
+    background-color: var(--principal-secundario) !important;
+}
+
+/* Ajustes Responsivos para Móviles */
+@media (max-width: 480px) {
+    .tarjeta-blanca-datos.tarjeta-recuperacion {
+        padding: calc(var(--espaciado) * 1.5) !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important; /* Se integra al fondo plano en celulares */
+    }
+    .botones-accion-final {
+        flex-direction: column-reverse !important; /* Enviar arriba, Volver abajo */
+        gap: 10px !important;
+    }
+    .botones-accion-final .btn {
+        width: 100% !important;
+    }
+}

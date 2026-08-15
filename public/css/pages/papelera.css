@@ -1,0 +1,138 @@
+/* --- ESTILOS PARA EL MÓDULO DE PAPELERA SIGER --- */
+
+/* Contenedor tipo perfil/panel principal */
+.card-siger-papelera {
+    background-color: var(--color-fondo)       ;
+    border-radius: var(--borde-radio);
+    border: 1px solid var(--color-borde);
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+/* Contenedor de las pestañas (Tabs) */
+.tabs-papelera-contenedor {
+    display: flex;
+    gap: 24px;
+    border-bottom: 2px solid var(--color-borde);
+    margin-bottom: 25px;
+}
+
+/* Botón de pestaña individual */
+.btn-tab-siger {
+    border: none;
+    background: none;
+    font-family: var(--fuente-secundaria); /* Poppins para títulos de tabs */
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-azulado);
+    padding-bottom: 12px;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Pestaña activa (Usa el color principal verde de SIGER) */
+.btn-tab-siger.active-tab {
+    color: var(--color-principal);
+    border-bottom: 3px solid var(--color-principal);
+}
+
+/* Tabla responsiva adaptada */
+.tabla-papelera-wrapper {
+    border: 1px dashed var(--color-fondo-secundario);
+    border-radius: var(--borde-radio);
+    padding: 8px;
+    background-color: var(--color-fondo);
+}
+
+.tabla-siger {
+    width: 100%;
+    margin-bottom: 0;
+    font-family: var(--fuente-principal); /* Inter para datos de tablas */
+    color: var(--color-texto);
+}
+
+.tabla-siger thead {
+    background-color: var(--color-borde);
+}
+
+.tabla-siger th {
+    padding: 12px;
+    color: var(--color-texto);
+    font-weight: 700;
+}
+
+.tabla-siger td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+/* Badge del motivo de baja (Usando el tono pastel de mantenimiento o dañado) */
+.badge-motivo-baja {
+    background-color: var(--color-en-mantenimiento-pastel);
+    color: var(--color-texto);
+    padding: 6px 12px;
+    border-radius: var(--borde-radio);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+
+/* ==========================================================================
+   MEDIA QUERIES COMPLEMENTARIOS PARA LA PAPELERA (RESPONSIVE)
+   ========================================================================== */
+
+/* ADAPTACIÓN PARA TABLETS (Hasta 1024px) */
+@media (max-width: 1024px) {
+    .card-siger-papelera {
+        padding: var(--espaciado); /* Reduce el acolchado interno usando tu variable */
+    }
+    
+    .tabs-papelera-contenedor {
+        gap: 16px; /* Junta un poco más las pestañas */
+    }
+}
+
+/* ADAPTACIÓN PARA MÓVILES (Hasta 768px) */
+@media (max-width: 768px) {
+    .tabs-papelera-contenedor {
+        gap: 10px;
+        flex-direction: column; /* Apila las pestañas una arriba de otra */
+        border-bottom: none;
+    }
+
+    .btn-tab-siger {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--borde-radio);
+        background-color: var(--color-fondo);
+    }
+
+    .btn-tab-siger.active-tab {
+        border: 1px solid var(--color-principal);
+        background-color: var(--color-verde-pastel); /* Tu tono pastel para resaltar la activa */
+        color: var(--color-texto);
+    }
+
+    /* El truco maestro para que la tabla no rompa la pantalla del celular:
+       Permite scroll horizontal suave SOLO dentro del recuadro de la tabla */
+    .tabla-papelera-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+    }
+
+    .tabla-siger th, 
+    .tabla-siger td {
+        padding: 8px; /* Hace las celdas más compactas en celular */
+        font-size: 0.9rem;
+    }
+    
+    /* Hace que los botones de acción se organicen mejor verticalmente si el espacio es muy crítico */
+    .tabla-siger .d-flex {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

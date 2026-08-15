@@ -9,7 +9,7 @@ use App\Models\User;
 class AuthController extends Controller
 {
     /**
-     * Muestra la vista del formulario de Login (la que te pasa Ana)
+     * Muestra la vista del formulario de Login
      */
     public function showLogin()
     {
@@ -17,17 +17,17 @@ class AuthController extends Controller
     }
 
     /**
-     * Procesa el intento de autenticación
+     * Procesa el intento de autenticación y redirige según el Rol
      */
     public function login(Request $request)
     {
-        // 1. Validamos los datos que llegan del formulario de Ana
+        // 1. Validaciones
         $credentials = $request->validate([
-            'USU_CORREO' => 'required|email',
+            'USU_CORREO'     => 'required|email',
             'USU_CONTRASEÑA' => 'required|string',
         ]);
 
-        // 2. Buscamos primero al usuario para verificar su estado (Regla de negocio)
+        // 2. Verificar existencia del usuario
         $user = User::where('USU_CORREO', $credentials['USU_CORREO'])->first();
 
         if (!$user) {
@@ -36,44 +36,40 @@ class AuthController extends Controller
             ])->onlyInput('USU_CORREO');
         }
 
-        // 3. Si el usuario fue dado de baja (Inactivo), bloqueamos el acceso de inmediato
+        // 3. Regla de negocio: Estado Inactivo
         if ($user->USU_ESTADO === 'Inactivo') {
             return back()->withErrors([
                 'USU_CORREO' => 'Tu cuenta se encuentra desactivada. Contacta al administrador.',
             ])->onlyInput('USU_CORREO');
         }
 
-        // 4. Intentamos autenticar con Laravel Auth
-        // Nota: Laravel por defecto usa 'password', asegúrate de que en tu modelo User 
-        // esté el método getAuthPassword() retornando 'USU_CONTRASEÑA' si cambiaste el nombre en la BD.
+        // 4. Intento de autenticación
         if (Auth::attempt(['USU_CORREO' => $credentials['USU_CORREO'], 'password' => $credentials['USU_CONTRASEÑA']])) {
             
             $request->session()->regenerate();
 
-            // 5. Ojo AQUÍ: Redirección automática según el Rol del usuario
-            // Suponiendo que tienes una relación 'role' o el campo directo 'ROL_NOMBRE'/'ROL_ID'
-            $rol = strtolower($user->role->name ?? ''); // Convertimos a minúsculas para evitar fallos de escritura
+            // 5. Redirección por NOMBRE del Rol (string, sin IDs numéricos)
+            $rol = strtolower($user->role->name ?? '');
 
-            if ($rol === 'rectora') {
+            if ($rol === 'rectora' || $rol === 'rector') {
                 return redirect()->intended('/dashboard/rectora');
-            } elseif ($rol === 'secretaria') {
+            } elseif ($rol === 'secretaria' || $rol === 'secretario') {
                 return redirect()->intended('/dashboard/secretaria');
             } elseif ($rol === 'docente') {
                 return redirect()->intended('/dashboard/docente');
             }
 
-            // Redirección por defecto si no tiene un rol claro
             return redirect()->intended('/dashboard');
         }
 
-        // Si la contraseña no coincide
+        // 6. Contraseña incorrecta
         return back()->withErrors([
             'USU_CORREO' => 'La contraseña ingresada es incorrecta.',
         ])->onlyInput('USU_CORREO');
     }
 
     /**
-     * Cierra la sesión de forma segura
+     * Cierra la sesión
      */
     public function logout(Request $request)
     {

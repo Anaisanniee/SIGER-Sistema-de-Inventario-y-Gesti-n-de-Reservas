@@ -1,0 +1,91 @@
+/* ==========================================================================
+   COMPONENTE: RESUMEN DE RESERVA (PASO 3)
+   ========================================================================== */
+
+.tarjeta-confirmacion-paso3 {
+    border-top: 5px solid var(--color-principal);
+}
+
+.encabezado-resumen-final h2 {
+    font-family: var(--fuente-secundaria);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin-bottom: 0.4rem;
+}
+
+.grid-resumen-bloques {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.bloque-resumen-interno {
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.bloque-resumen-interno h3 {
+    font-family: var(--fuente-secundaria);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.grid-ancho-completo {
+    grid-column: span 2;
+}
+
+/* Cajas de Horarios y Fechas */
+.grid-tiempos-paso3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.tiempo-caja {
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-borde);
+}
+
+.tiempo-titulo {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-azulado);
+    margin-bottom: 0.5rem;
+}
+
+.badge-aula-uso {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: var(--color-reservado-pastel);
+    color: var(--color-estado-reservado);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .grid-resumen-bloques {
+        grid-template-columns: 1fr;
+    }
+    .grid-ancho-completo {
+        grid-column: span 1;
+    }
+    .grid-tiempos-paso3 {
+        grid-template-columns: 1fr;
+    }
+}

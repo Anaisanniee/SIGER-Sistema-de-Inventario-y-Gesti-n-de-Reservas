@@ -5,51 +5,46 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     /**
-     * Muestra la lista de usuarios (Docentes, Secretaria, etc.)
-     * URL: GET /usuarios (Ruta: usuarios.index)
+     * Listado general de usuarios (Exclusivo Secretaría)
      */
     public function index()
     {
-        $users = User::with('role')->get();
-        return view('users.index', compact('users')); // O el string que tenías mientras tanto
+        $usuarios = User::with('role')->get();
+
+        return view('users.index', compact('usuarios'));
     }
 
     /**
-     * Muestra el formulario de registro que hizo Anaís
-     * URL: GET /usuarios/create (Ruta: usuarios.create)
+     * Muestra el formulario para crear un usuario (Exclusivo Secretaría)
      */
     public function create()
     {
-        // Traemos los roles para cargarlos en el select del formulario
         $roles = Role::all();
-        
-        // NOTA: Ajusta 'users.create' según la carpeta real donde Anaís guardó el Blade
-        return view('users.create', compact('roles'));
+
+        return view('users.crear-usuario', compact('roles')); 
     }
 
     /**
-     * Guarda un nuevo miembro en la base de datos (Ejecutado por la Secretaria)
-     * URL: POST /usuarios (Ruta: usuarios.store)
+     * Guarda el nuevo usuario (Exclusivo Secretaría)
      */
     public function store(Request $request)
     {
-        // 1. Validamos usando los campos reales de la base de datos de SIGER
         $request->validate([
-            'USU_CEDULA'           => 'required|string|unique:usuarios,USU_CEDULA',
-            'USU_PRIMER_NOMBRE'    => 'required|string|max:50',
-            'USU_SEGUNDO_NOMBRE'   => 'nullable|string|max:50',
-            'USU_PRIMER_APELLIDO'  => 'required|string|max:50',
-            'USU_SEGUNDO_APELLIDO' => 'nullable|string|max:50',
-            'USU_CORREO'           => 'required|string|email|max:255|unique:usuarios,USU_CORREO',
-            'USU_CONTRASEÑA'       => 'required|string|min:6',
-            'ROL_ID'               => 'required|exists:roles,id',
+            'USU_CEDULA'          => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA',
+            'USU_PRIMER_NOMBRE'   => 'required|string|max:50',
+            'USU_SEGUNDO_NOMBRE'  => 'nullable|string|max:50',
+            'USU_PRIMER_APELLIDO' => 'required|string|max:50',
+            'USU_SEGUNDO_APELLIDO'=> 'nullable|string|max:50',
+            'USU_CORREO'          => 'required|email|unique:users,USU_CORREO',
+            'USU_CONTRASEÑA'      => 'required|string|min:6',
+            'ROL_ID'              => 'required|exists:roles,id',
         ]);
 
-        // 2. Creamos el registro (tu modelo User encripta la contraseña solo)
         User::create([
             'USU_CEDULA'           => $request->USU_CEDULA,
             'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
@@ -57,50 +52,71 @@ class UserController extends Controller
             'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
             'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
             'USU_CORREO'           => $request->USU_CORREO,
-            'USU_CONTRASEÑA'       => $request->USU_CONTRASEÑA,
-            'USU_ESTADO'           => 'Activo',
+            'USU_CONTRASEÑA'       => Hash::make($request->USU_CONTRASEÑA),
             'ROL_ID'               => $request->ROL_ID,
+            'USU_ESTADO'           => 'Activo',
         ]);
 
-        return redirect()->route('usuarios.create')->with('success', 'Personal registrado correctamente.');
+        return redirect()->route('usuarios.index')->with('success', '¡Usuario creado exitosamente!');
     }
 
     /**
-     * Actualiza la información de un usuario
-     * URL: PUT/PATCH /usuarios/{id} (Ruta: usuarios.update)
+     * Muestra el formulario de edición (Secretaría, Rectora y Docente)
+     */
+    public function edit($id)
+    {
+        $usuario = User::findOrFail($id);
+        $roles = Role::all();
+
+        return view('users.editar-usuario', compact('usuario', 'roles'));
+    }
+
+    /**
+     * Actualiza la información del usuario (Secretaría, Rectora y Docente)
      */
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $usuario = User::findOrFail($id);
 
         $request->validate([
             'USU_PRIMER_NOMBRE'   => 'required|string|max:50',
+            'USU_SEGUNDO_NOMBRE'  => 'nullable|string|max:50',
             'USU_PRIMER_APELLIDO' => 'required|string|max:50',
-            'USU_CORREO'          => 'required|email|unique:usuarios,USU_CORREO,'.$id.',id', // Evita choque con el mismo registro
+            'USU_SEGUNDO_APELLIDO'=> 'nullable|string|max:50',
+            'USU_CORREO'          => 'required|email|unique:users,USU_CORREO,' . $usuario->id,
             'ROL_ID'              => 'required|exists:roles,id',
         ]);
 
-        $user->update([
+        $data = [
             'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
             'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
             'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
             'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
             'USU_CORREO'           => $request->USU_CORREO,
             'ROL_ID'               => $request->ROL_ID,
-        ]);
+        ];
 
-        return redirect()->back()->with('success', 'Personal actualizado correctamente.');
+        if ($request->filled('USU_CONTRASEÑA')) {
+            $data['USU_CONTRASEÑA'] = Hash::make($request->USU_CONTRASEÑA);
+        }
+
+        $usuario->update($data);
+
+        return redirect()->route('usuarios.index')->with('success', '¡Usuario actualizado correctamente!');
     }
 
     /**
-     * Elimina a un usuario del sistema
-     * URL: DELETE /usuarios/{id} (Ruta: usuarios.destroy)
+     * Alterna el estado del usuario (Exclusivo Secretaría)
      */
-    public function destroy($id)
+    public function darDeBaja($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $usuario = User::findOrFail($id);
+        $nuevoEstado = ($usuario->USU_ESTADO === 'Activo') ? 'Inactivo' : 'Activo';
+        
+        $usuario->update([
+            'USU_ESTADO' => $nuevoEstado
+        ]);
 
-        return redirect()->back()->with('success', 'Usuario eliminado con éxito.');
+        return redirect()->back()->with('success', "Estado del usuario cambiado a {$nuevoEstado}.");
     }
 }

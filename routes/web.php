@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 
-// Ruta de bienvenida por defecto
+// Ruta de bienvenida pública
 Route::get('/', function () {
     return view('welcome');
 });
@@ -15,34 +15,55 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// 🚪 Ruta para cerrar sesión (Solo usuarios logueados)
+// 🚪 Cerrar sesión (Solo usuarios autenticados)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 
-// ==========================================
-// 🛡️ ZONA PROTEGIDA (DASHBOARDS Y PERMISOS)
-// ==========================================
+// =========================================================
+// 🛡️ ZONA PROTEGIDA (REQUERIDO LOGIN Y AUTORIZACIÓN)
+// =========================================================
 Route::middleware('auth')->group(function () {
 
-    // 1. Bloque exclusivo para la Secretaria
+    // -----------------------------------------------------
+    // 🔒 EXCLUSIVO SECRETARÍA (Creación, Listado y Baja)
+    // -----------------------------------------------------
     Route::middleware('role:Secretaria')->group(function () {
-        // El CRUD completo de usuarios (Lista, Registro, etc.)
-        Route::resource('usuarios', UserController::class);
-        
-        // El Dashboard de la Secretaria
+        // Listado general de usuarios
+        Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.index');
+
+        // Formulario y guardado exclusivo de usuarios
+        Route::get('/usuarios/create', [UserController::class, 'create'])->name('usuarios.create');
+        Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
+
+        // Cambiar estado de usuario (Activo / Inactivo)
+        Route::patch('/usuarios/{id}/dar-de-baja', [UserController::class, 'darDeBaja'])->name('usuarios.baja');
+
+        // Dashboard Secretaría
         Route::get('/dashboard/secretaria', function () {
             return view('dashboards.secretaria');
         })->name('dashboard.secretaria');
     });
 
-    // 2. Bloque exclusivo para la Rectora
+    // -----------------------------------------------------
+    // 🔓 EDICIÓN DE USUARIOS (Secretaría, Rectora y Docente)
+    // -----------------------------------------------------
+    Route::middleware('role:Secretaria,Rectora,Docente')->group(function () {
+        Route::get('/usuarios/{id}/edit', [UserController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
+    });
+
+    // -----------------------------------------------------
+    // 👑 DASHBOARD RECTORA
+    // -----------------------------------------------------
     Route::middleware('role:Rectora')->group(function () {
         Route::get('/dashboard/rectora', function () {
             return view('dashboards.rectora');
         })->name('dashboard.rectora');
     });
 
-    // 3. Bloque exclusivo para el Docente
+    // -----------------------------------------------------
+    // 👨‍🏫 DASHBOARD DOCENTE
+    // -----------------------------------------------------
     Route::middleware('role:Docente')->group(function () {
         Route::get('/dashboard/docente', function () {
             return view('dashboards.docente');
