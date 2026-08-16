@@ -51,6 +51,82 @@
     </div>
 </div>
 
+<style>
+/* ========================================== */
+/* RESPONSIVE: TABLETS Y SMARTPHONES          */
+/* ========================================== */
+
+/* Dispositivos medianos (Tablets, menos de 768px) */
+@media (max-width: 768px) {
+    /* Ajuste de posición y margen del carrito flotante */
+    #contenedor-carrito-flotante {
+        margin: 1.25rem !important;
+    }
+
+    #btn-ver-carrito {
+        width: 52px !important;
+        height: 52px !important;
+        padding: 0 !important;
+    }
+
+    /* Modal adaptado a la pantalla */
+    #modalCarrito .modal-dialog {
+        margin: 0.75rem;
+    }
+
+    #modalCarrito .modal-body {
+        padding: 1rem !important;
+    }
+
+    #modalCarrito .modal-footer {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    #modalCarrito .modal-footer > * {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+}
+
+/* Dispositivos pequeños (Celulares, menos de 576px) */
+@media (max-width: 576px) {
+    /* Posicionamiento flotante más cómodo para el pulgar */
+    #contenedor-carrito-flotante {
+        margin: 0.85rem !important;
+        bottom: 10px !important;
+        right: 10px !important;
+    }
+
+    #btn-ver-carrito {
+        width: 48px !important;
+        height: 48px !important;
+    }
+
+    #btn-ver-carrito i {
+        font-size: 1.1rem;
+    }
+
+    /* Ajustes para la lista de elementos dentro del modal */
+    #lista-recursos-carrito .list-group-item {
+        padding: 0.75rem 0.5rem !important;
+    }
+
+    #lista-recursos-carrito h6 {
+        font-size: 0.875rem;
+        word-break: break-word;
+    }
+
+    #lista-recursos-carrito small {
+        font-size: 0.75rem;
+    }
+
+    #modalCarrito .modal-title {
+        font-size: 1.05rem;
+    }
+}
+</style>
+
 <!-- ========================================== -->
 <!-- 3. SCRIPT GESTOR GLOBAL DEL CARRITO        -->
 <!-- ========================================== -->

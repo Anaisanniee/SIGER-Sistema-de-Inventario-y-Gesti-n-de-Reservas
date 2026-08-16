@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="{{ asset('css/components/ficha.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/components/carrito-reserva.css') }}">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>siger</title>
  </head>
