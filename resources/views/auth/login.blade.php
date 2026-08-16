@@ -60,7 +60,7 @@
 
                 <label for="username">Usuario:</label>
 
-                <input type="text" id="username" name="USU_CORREO" required autocomplete="current-USU_CORREO" value="{{ old('USU_CORREO') }}">
+                <input type="text" id="username" name="USU_CEDULA" required autocomplete="current-USU_CEDULA" value="{{ old('USU_CEDULA') }}">
 
 
             </div>
