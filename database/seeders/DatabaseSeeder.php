@@ -33,40 +33,40 @@ class DatabaseSeeder extends Seeder
 
         // 2. Crear Usuario: Secretaría
         User::firstOrCreate(
-            ['USU_CORREO' => 'secretaria@siger.com'],
+            ['USU_CEDULA' => '1000000001'],
             [
-                'USU_CEDULA'           => '1000000001',
-                'USU_PRIMER_NOMBRE'    => 'Ana',
-                'USU_PRIMER_APELLIDO'  => 'Secretaria',
-                'USU_CONTRASEÑA'       => Hash::make('123456'),
-                'ROL_ID'               => $rolSecretaria->id,
-                'USU_ESTADO'           => 'Activo',
+                'USU_CORREO'          => 'secretaria@siger.com',
+                'USU_PRIMER_NOMBRE'   => 'Ana',
+                'USU_PRIMER_APELLIDO' => 'Secretaria',
+                'USU_CONTRASEÑA'      => Hash::make('123456'),
+                'ROL_ID'              => $rolSecretaria->id,
+                'USU_ESTADO'          => 'Activo',
             ]
         );
 
         // 3. Crear Usuario: Rectora
         User::firstOrCreate(
-            ['USU_CORREO' => 'rectora@siger.com'],
+            ['USU_CEDULA' => '1000000002'],
             [
-                'USU_CEDULA'           => '1000000002',
-                'USU_PRIMER_NOMBRE'    => 'Maria',
-                'USU_PRIMER_APELLIDO'  => 'Rectora',
-                'USU_CONTRASEÑA'       => Hash::make('123456'),
-                'ROL_ID'               => $rolRectora->id,
-                'USU_ESTADO'           => 'Activo',
+                'USU_CORREO'          => 'rectora@siger.com',
+                'USU_PRIMER_NOMBRE'   => 'Maria',
+                'USU_PRIMER_APELLIDO' => 'Rectora',
+                'USU_CONTRASEÑA'      => Hash::make('123456'),
+                'ROL_ID'              => $rolRectora->id,
+                'USU_ESTADO'          => 'Activo',
             ]
         );
 
         // 4. Crear Usuario: Docente
         User::firstOrCreate(
-            ['USU_CORREO' => 'docente@siger.com'],
+            ['USU_CEDULA' => '1000000003'],
             [
-                'USU_CEDULA'           => '1000000003',
-                'USU_PRIMER_NOMBRE'    => 'Carlos',
-                'USU_PRIMER_APELLIDO'  => 'Docente',
-                'USU_CONTRASEÑA'       => Hash::make('123456'),
-                'ROL_ID'               => $rolDocente->id,
-                'USU_ESTADO'           => 'Activo',
+                'USU_CORREO'          => 'docente@siger.com',
+                'USU_PRIMER_NOMBRE'   => 'Carlos',
+                'USU_PRIMER_APELLIDO' => 'Docente',
+                'USU_CONTRASEÑA'      => Hash::make('123456'),
+                'ROL_ID'              => $rolDocente->id,
+                'USU_ESTADO'          => 'Activo',
             ]
         );
     }

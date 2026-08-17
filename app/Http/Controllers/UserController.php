@@ -35,14 +35,14 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'USU_CEDULA'          => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA',
-            'USU_PRIMER_NOMBRE'   => 'required|string|max:50',
-            'USU_SEGUNDO_NOMBRE'  => 'nullable|string|max:50',
-            'USU_PRIMER_APELLIDO' => 'required|string|max:50',
-            'USU_SEGUNDO_APELLIDO'=> 'nullable|string|max:50',
-            'USU_CORREO'          => 'required|email|unique:users,USU_CORREO',
-            'USU_CONTRASEÑA'      => 'required|string|min:6',
-            'ROL_ID'              => 'required|exists:roles,id',
+            'USU_CEDULA'           => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA',
+            'USU_PRIMER_NOMBRE'    => 'required|string|max:50',
+            'USU_SEGUNDO_NOMBRE'   => 'nullable|string|max:50',
+            'USU_PRIMER_APELLIDO'  => 'required|string|max:50',
+            'USU_SEGUNDO_APELLIDO' => 'nullable|string|max:50',
+            'USU_CORREO'           => 'required|email|unique:users,USU_CORREO',
+            'USU_CONTRASEÑA'       => 'required|string|min:6',
+            'ROL_ID'               => 'required|exists:roles,id',
         ]);
 
         User::create([
@@ -79,15 +79,17 @@ class UserController extends Controller
         $usuario = User::findOrFail($id);
 
         $request->validate([
-            'USU_PRIMER_NOMBRE'   => 'required|string|max:50',
-            'USU_SEGUNDO_NOMBRE'  => 'nullable|string|max:50',
-            'USU_PRIMER_APELLIDO' => 'required|string|max:50',
-            'USU_SEGUNDO_APELLIDO'=> 'nullable|string|max:50',
-            'USU_CORREO'          => 'required|email|unique:users,USU_CORREO,' . $usuario->id,
-            'ROL_ID'              => 'required|exists:roles,id',
+            'USU_CEDULA'           => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA,' . $usuario->USU_ID . ',USU_ID',
+            'USU_PRIMER_NOMBRE'    => 'required|string|max:50',
+            'USU_SEGUNDO_NOMBRE'   => 'nullable|string|max:50',
+            'USU_PRIMER_APELLIDO'  => 'required|string|max:50',
+            'USU_SEGUNDO_APELLIDO' => 'nullable|string|max:50',
+            'USU_CORREO'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
+            'ROL_ID'               => 'required|exists:roles,id',
         ]);
 
         $data = [
+            'USU_CEDULA'           => $request->USU_CEDULA,
             'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
             'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
             'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
@@ -96,6 +98,7 @@ class UserController extends Controller
             'ROL_ID'               => $request->ROL_ID,
         ];
 
+        // Solo si se ingresó una nueva contraseña se encripta y actualiza
         if ($request->filled('USU_CONTRASEÑA')) {
             $data['USU_CONTRASEÑA'] = Hash::make($request->USU_CONTRASEÑA);
         }

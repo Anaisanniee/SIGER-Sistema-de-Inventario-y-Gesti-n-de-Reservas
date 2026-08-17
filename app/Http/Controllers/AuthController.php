@@ -17,38 +17,41 @@ class AuthController extends Controller
     }
 
     /**
-     * Procesa el intento de autenticación y redirige según el Rol
+     * Procesa el intento de autenticación por Cédula/Documento y redirige según el Rol
      */
     public function login(Request $request)
     {
         // 1. Validaciones
         $credentials = $request->validate([
-            'USU_CORREO'     => 'required|email',
+            'USU_CEDULA'     => 'required|string',
             'USU_CONTRASEÑA' => 'required|string',
+        ], [
+            'USU_CEDULA.required'     => 'El número de documento es obligatorio.',
+            'USU_CONTRASEÑA.required' => 'La contraseña es obligatoria.',
         ]);
 
-        // 2. Verificar existencia del usuario
-        $user = User::where('USU_CORREO', $credentials['USU_CORREO'])->first();
+        // 2. Verificar existencia del usuario por número de Cédula/Documento
+        $user = User::where('USU_CEDULA', $credentials['USU_CEDULA'])->first();
 
         if (!$user) {
             return back()->withErrors([
-                'USU_CORREO' => 'Las credenciales no coinciden con nuestros registros.',
-            ])->onlyInput('USU_CORREO');
+                'USU_CEDULA' => 'Las credenciales no coinciden con nuestros registros.',
+            ])->onlyInput('USU_CEDULA');
         }
 
         // 3. Regla de negocio: Estado Inactivo
         if ($user->USU_ESTADO === 'Inactivo') {
             return back()->withErrors([
-                'USU_CORREO' => 'Tu cuenta se encuentra desactivada. Contacta al administrador.',
-            ])->onlyInput('USU_CORREO');
+                'USU_CEDULA' => 'Tu cuenta se encuentra desactivada. Contacta al administrador.',
+            ])->onlyInput('USU_CEDULA');
         }
 
-        // 4. Intento de autenticación
-        if (Auth::attempt(['USU_CORREO' => $credentials['USU_CORREO'], 'password' => $credentials['USU_CONTRASEÑA']])) {
+        // 4. Intento de autenticación con USU_CEDULA
+        if (Auth::attempt(['USU_CEDULA' => $credentials['USU_CEDULA'], 'password' => $credentials['USU_CONTRASEÑA']])) {
             
             $request->session()->regenerate();
 
-            // 5. Redirección por NOMBRE del Rol (string, sin IDs numéricos)
+            // 5. Redirección por NOMBRE del Rol
             $rol = strtolower($user->role->name ?? '');
 
             if ($rol === 'rectora' || $rol === 'rector') {
@@ -64,8 +67,8 @@ class AuthController extends Controller
 
         // 6. Contraseña incorrecta
         return back()->withErrors([
-            'USU_CORREO' => 'La contraseña ingresada es incorrecta.',
-        ])->onlyInput('USU_CORREO');
+            'USU_CEDULA' => 'La contraseña ingresada es incorrecta.',
+        ])->onlyInput('USU_CEDULA');
     }
 
     /**
