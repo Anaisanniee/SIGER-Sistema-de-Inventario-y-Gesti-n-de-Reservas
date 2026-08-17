@@ -35,8 +35,13 @@ class DashboardController extends Controller
 
     public function indexSecretario()
     {
-        
-        // Lógica para el secretario
-        return view('dashboard.secretario');
+        // Consultamos todas las reservas con sus relaciones necesarias (detalles, activos, aulas y usuario)
+        // Esto es vital para que la función de mapeo no falle al buscar los nombres y fotos
+        $reservas = \App\Models\ReservasModels::with(['detalles.activo', 'detalles.aula', 'usuario'])
+                        ->orderBy('res_id', 'desc')
+                        ->get();
+
+        // Pasamos la variable $reservas a la vista
+        return view('dashboard.secretario', compact('reservas'));
     }
 }

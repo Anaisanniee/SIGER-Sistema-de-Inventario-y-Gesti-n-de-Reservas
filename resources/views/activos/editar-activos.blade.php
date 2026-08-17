@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/aulas'))
+@section('rutaRegresar', url('/inventario'))
 
 @section('content')
     {{-- hoja de estilos para la creación/edición de formularios --}}

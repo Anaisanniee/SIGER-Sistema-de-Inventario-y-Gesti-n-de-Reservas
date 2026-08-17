@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/activos'))
+@section('rutaRegresar', url('/inventario'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">

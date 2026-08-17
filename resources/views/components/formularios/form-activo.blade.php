@@ -2,7 +2,6 @@
     $esEdicion = request()->is('*editar*') || isset($activo->act_id);
 @endphp
 
-
 <form action="{{ $esEdicion ? route('activos.update', $activo->act_id) : route('activos.store') }}" 
       method="POST" 
       enctype="multipart/form-data" 
@@ -56,7 +55,7 @@
                placeholder="Ej: Dell, HP, Epson">
     </div>
 
-    {{-- PRECIO --}}
+    {{-- PRECIO (Siempre visible) --}}
     <div class="post-form">
         <label for="his_pre_valor">Precio <span class="text-danger">*</span></label>
         <input type="number" 
@@ -64,11 +63,27 @@
             min="0" 
             id="his_pre_valor" 
             name="his_pre_valor" 
-            maxlength="50"
-            value="{{ old('his_pre_valor', $activo->his_pre_valor ?? '') }}"
+            value="{{ old('his_pre_valor', isset($activo) ? optional($activo->historialPrecios->sortByDesc('his_pre_fecha_cambio')->first())->his_pre_valor : '') }}"
             class="@error('his_pre_valor') is-invalid @enderror"
             placeholder="Ej: 1500000">
     </div>
+
+    {{-- MOTIVO (Solo visible en edición) --}}
+    @if($esEdicion)
+    <div class="post-form">
+        <label for="his_pre_motivo">Motivo del Cambio de Precio <span class="text-danger">*</span></label>
+        <input type="text" 
+            id="his_pre_motivo" 
+            name="his_pre_motivo" 
+            value="{{ old('his_pre_motivo') }}"
+            class="@error('his_pre_motivo') is-invalid @enderror"
+            placeholder="Ej: Mantenimiento, reavalúo, error de registro..." 
+            >
+        @error('his_pre_motivo') 
+            <div class="text-danger small">{{ $message }}</div> 
+        @enderror
+    </div>
+    @endif
 
     {{-- ESTADO FÍSICO --}}
     <div class="post-form">
@@ -108,7 +123,7 @@
 
     <div class="col-md-6">
         <label for="act_fecha_ingreso">Fecha de Ingreso <span class="text-danger">*</span></label>
-        <input type="date" name="act_fecha_ingreso" value="{{ old('act_fecha_ingreso', date('Y-m-d')) }}" class="form-control bg-light border-0 py-2 px-3 rounded-pill" required>
+        <input type="date" name="act_fecha_ingreso" value="{{ old('act_fecha_ingreso', $activo->act_fecha_ingreso ?? date('Y-m-d')) }}" class="form-control bg-light border-0 py-2 px-3 rounded-pill" required>
     </div>
 
     <div class="post-form-switch">
@@ -122,7 +137,6 @@
     </div>
 
     {{-- BOTONES DE ACCIÓN --}}
-
     <div class="contenedor-botones">
         <x-botones.boton type="button" class="btn-siger-accion btn btn-rojo" onclick="window.location.href='{{ url('/inventario') }}'">
             Cancelar

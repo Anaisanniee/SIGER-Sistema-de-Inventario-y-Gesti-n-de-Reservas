@@ -53,4 +53,19 @@ class ActivosModels extends Model
     {
         return $this->belongsTo(CategoriasModels::class, 'cate_id', 'cate_id');
     }
+
+    public function historialPrecios()
+    {
+        // Usamos latest() para que el primero siempre sea el más nuevo
+        return $this->hasMany(HistorialPreciosModels::class, 'act_id', 'act_id')
+                    ->latest('his_pre_fecha_cambio');
+    }
+
+    /**
+     * Relación directa para obtener únicamente el precio más actual (el último registrado)
+     */
+    public function precioActual()
+    {
+        return $this->hasOne(HistorialPreciosModels::class, 'act_id', 'act_id')->latest('his_pre_fecha_cambio');
+    }
 }

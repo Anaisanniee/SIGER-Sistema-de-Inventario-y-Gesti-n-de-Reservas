@@ -53,7 +53,7 @@
 
                         // Mapeo independiente por cada detalle priorizando el Activo si existe
                         $listaRecursosMultiples = $reserva->detalles->map(function($det) {
-                            
+    
                             // 1. SI TIENE ACT_ID, EL RECURSO ES UN ACTIVO
                             if (!empty($det->act_id)) {
                                 $activoObj = $det->activo ?? \App\Models\ActivosModels::find($det->act_id);
@@ -64,6 +64,7 @@
                                         : asset('storage/images/activos/default.jpeg');
 
                                     return (object)[
+                                        'es_aula' => false,
                                         'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
                                         'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
                                         'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
@@ -81,17 +82,21 @@
                                         ? (str_starts_with($rutaBdAula, 'http') ? $rutaBdAula : (str_starts_with($rutaBdAula, 'storage/') ? asset($rutaBdAula) : asset('storage/' . $rutaBdAula)))
                                         : asset('storage/images/aulas/default.jpeg');
 
+                                    $capacidad = $aulaObj->aula_capacidad ?? $aulaObj->capacidad ?? 'N/A';
+
                                     return (object)[
+                                        'es_aula' => true,
                                         'nombre' => $aulaObj->aula_nombre ?? $aulaObj->nombre ?? 'Aula sin nombre',
-                                        'serial' => 'Capacidad: ' . ($aulaObj->aula_capacidad ?? $aulaObj->capacidad ?? 'N/A') . ' personas',
+                                        'serial' => $capacidad,
                                         'marca'  => 'Salón / Aula',
                                         'foto'   => $fotoAula
                                     ];
                                 }
                             }
 
-                            // 3. RESPALDO POR SI AMBOS ESTÁN VACÍOS
+                            // 3. RESPALDO
                             return (object)[
+                                'es_aula' => false,
                                 'nombre' => 'Recurso General',
                                 'serial' => 'N/A',
                                 'marca'  => 'N/A',
@@ -279,7 +284,6 @@
 <script>
     function cargarDatosModalReserva(elemento) {
         try {
-            // Asegurar que se obtenga el elemento DOM correcto incluso si se pasa un evento o sub-elemento
             const targetEl = elemento && typeof elemento.getAttribute === 'function' 
                 ? elemento 
                 : (elemento && elemento.currentTarget ? elemento.currentTarget : null);
@@ -310,24 +314,15 @@
             setearTexto('resumen-hora-fin', datos.horaFin);
             setearTexto('resumen-aula-uso', datos.aula);
 
-            // 3. Renderizado de recursos con imagen y efecto hover dentro del acordeón
+            // 3. Renderizado de recursos
             const contenedorRecursos = document.getElementById('resumen-bloque-recurso');
             if (contenedorRecursos && datos.recursos) {
                 let htmlRecursos = `
                     <style>
-                        .item-recurso-hover {
-                            background-color: #ffffff;
-                            border-color: #dee2e6 !important;
-                            transition: background-color 0.2s ease, border-color 0.2s ease;
-                        }
-                        .item-recurso-hover:hover {
-                            background-color: #d1e7dd !important;
-                            border-color: #badbcc !important;
-                        }
+                        .item-recurso-hover { background-color: #ffffff; border-color: #dee2e6 !important; transition: background-color 0.2s ease, border-color 0.2s ease; }
+                        .item-recurso-hover:hover { background-color: #d1e7dd !important; border-color: #badbcc !important; }
                     </style>
-                    <h3 class="mb-3" style="font-size: 1.1rem; font-weight: 600; color: #212529;">
-                        Recursos Seleccionados (${datos.recursos.length})
-                    </h3>
+                    <h3 class="mb-3" style="font-size: 1.1rem; font-weight: 600; color: #212529;">Recursos Seleccionados (${datos.recursos.length})</h3>
                     <div id="contenedor-acordeon-recursos" class="border rounded p-3" style="border-color: #dee2e6 !important; transition: border-color 0.2s ease;">
                         <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleAcordeonRecursos()">
                             <span style="font-weight: 600; color: #212529;">Lista de recursos (${datos.recursos.length})</span>
@@ -337,13 +332,26 @@
                 `;
                 
                 datos.recursos.forEach(rec => {
+                    // Lógica corregida: diferencia entre Aula y Activo
+                    let detallesHTML = '';
+                    if (rec.es_aula === true) {
+                        detallesHTML = `
+                            <p class="mb-1 text-muted" style="font-size: 0.9rem;">Capacidad: ${rec.serial} personas</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">${rec.marca}</p>
+                        `;
+                    } else {
+                        detallesHTML = `
+                            <p class="mb-1 text-muted" style="font-size: 0.9rem;">Número de serie: ${rec.serial}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">Marca: ${rec.marca}</p>
+                        `;
+                    }
+
                     htmlRecursos += `
                         <div class="border p-3 mb-2 rounded item-recurso-hover d-flex align-items-center gap-3" style="cursor: default;">
                             <img src="${rec.foto}" alt="Foto recurso" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
                             <div>
                                 <p class="mb-1" style="font-weight: 600; color: #212529;">${rec.nombre}</p>
-                                <p class="mb-1 text-muted" style="font-size: 0.9rem;">Número de serie: ${rec.serial}</p>
-                                <p class="mb-0 text-muted" style="font-size: 0.9rem;">Marca: ${rec.marca}</p>
+                                ${detallesHTML}
                             </div>
                         </div>
                     `;
@@ -353,16 +361,15 @@
                 contenedorRecursos.innerHTML = htmlRecursos;
             }
 
-            // 4. Actualizar rutas de formularios con los IDs correctos y prefijo /secretaria/
+            // 4. Actualizar rutas de formularios
             const formRechazar = document.getElementById('formRechazar');
             const formAprobar = document.getElementById('formAprobar');
             const formRevertir = document.getElementById('formRevertir');
-
             if (formRechazar) formRechazar.action = `/secretaria/reservas/${datos.id}/rechazar`;
             if (formAprobar) formAprobar.action = `/secretaria/reservas/${datos.id}/aprobar`;
             if (formRevertir) formRevertir.action = `/secretaria/reservas/${datos.id}/revertir`;
 
-            // 5. Visibilidad de bloques de acciones según estado
+            // 5. Visibilidad de bloques de acciones
             const bloquePendiente = document.getElementById('bloque-acciones-pendiente');
             const bloqueRevertir = document.getElementById('bloque-acciones-revertir');
             const estadoRes = (datos.estado || '').toLowerCase().trim();
@@ -370,7 +377,6 @@
             if (bloquePendiente && bloqueRevertir) {
                 bloquePendiente.style.setProperty('display', 'none', 'important');
                 bloqueRevertir.style.setProperty('display', 'none', 'important');
-
                 if (estadoRes === 'pendiente') {
                     bloquePendiente.style.setProperty('display', 'flex', 'important');
                 } else if (['aprobada', 'rechazada', 'aprobado', 'rechazado'].includes(estadoRes)) {
@@ -382,7 +388,6 @@
         }
     }
 
-    // 6. Control del acordeon de recursos interno del componente
     window.toggleAcordeonRecursos = function() {
         const body = document.getElementById('acordeon-recursos-body');
         const flecha = document.getElementById('icono-acordeon-flecha');

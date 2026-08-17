@@ -224,53 +224,99 @@ function prepararEliminacion(id, tipo, nombre, caracteristica) {
 </script>
 
 <script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscador-recursos');
+
+    // 1. Lógica del buscador en la secretaría
+    if (buscador) {
+        buscador.addEventListener('keyup', function() {
+            let filtro = this.value.toLowerCase();
+            let tarjetas = document.querySelectorAll('.recurso-item');
+            
+            tarjetas.forEach(function(tarjeta) {
+                let nombre = tarjeta.innerText.toLowerCase();
+                tarjeta.style.display = nombre.includes(filtro) ? "" : "none";
+            });
+        });
+
+        buscador.closest('form').addEventListener('submit', function(e) {
+            if (document.querySelector('.container-tarjetas')) {
+                e.preventDefault(); 
+                return false;
+            }
+        });
+    }
+
+    // 2. Lógica del modal (idéntica a la de tu index)
     document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
         button.addEventListener('click', function() {
-            // 1. Obtener los elementos del modal
             const contenedor = document.getElementById('contenedor-activos-dinamicos');
             const conteoBadge = document.getElementById('ficha-conteo-activos');
             const fichaCategoria = document.getElementById('ficha-categoria');
             const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
+            const fichaPrecio = document.getElementById('ficha-precio');
+            const fichaPrecioMotivo = document.getElementById('ficha-precio-motivo');
             
-            // 2. Obtener el dato desde el botón
             const categoria = this.getAttribute('data-categoria') || 'Sin categoría';
             
-            // 3. Asignar los valores a la ficha
             if (fichaCategoria) fichaCategoria.textContent = categoria;
             if (fichaTipoAula) fichaTipoAula.textContent = categoria;
             
-            // 4. Lógica de Activos (JSON)
-            contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
-            
-            let activos = [];
-            try {
-                const data = this.getAttribute('data-activos');
-                if (data) activos = JSON.parse(data);
-            } catch (e) {
-                activos = [];
+            // Asignar el Precio Actual formateado en pesos colombianos
+            const precioActual = this.getAttribute('data-act_precio_actual');
+            if (fichaPrecio) {
+                if (precioActual && !isNaN(precioActual) && precioActual !== '' && precioActual !== 'null') {
+                    const numeroLimpio = parseFloat(precioActual);
+                    // Lo formateamos como número puro (con puntos de miles) y le anteponemos el símbolo $
+                    fichaPrecio.textContent = '$ ' + numeroLimpio.toLocaleString('es-CO', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    });
+                } else {
+                    fichaPrecio.textContent = 'No registra';
+                }
             }
 
-            conteoBadge.textContent = activos.length;
-            contenedor.innerHTML = '';
+            // Asignar el Motivo del Cambio de Precio
+            const motivoPrecio = this.getAttribute('data-act_precio_motivo');
+            if (fichaPrecioMotivo) {
+                fichaPrecioMotivo.textContent = (motivoPrecio && motivoPrecio !== '' && motivoPrecio !== 'null' && motivoPrecio !== 'undefined') ? motivoPrecio : 'Sin motivo registrado';
+            }
             
-            if (Array.isArray(activos) && activos.length > 0) {
-                activos.forEach(item => {
-                    const li = document.createElement('li');
-                    li.className = 'activo-item text-center py-2';
-                    li.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
-                            <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
-                            <div>
-                                <strong>${item.act_nombre}</strong><br>
-                                <small class="text-muted">Serial: ${item.act_serial}</small>
+            // Lógica de Activos (JSON)
+            if (contenedor) {
+                contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
+                
+                let activos = [];
+                try {
+                    const data = this.getAttribute('data-activos');
+                    if (data) activos = JSON.parse(data);
+                } catch (e) {
+                    activos = [];
+                }
+
+                if (conteoBadge) conteoBadge.textContent = activos.length;
+                contenedor.innerHTML = '';
+                
+                if (Array.isArray(activos) && activos.length > 0) {
+                    activos.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'activo-item text-center py-2';
+                        li.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
+                                <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                <div>
+                                    <strong>${item.act_nombre}</strong><br>
+                                    <small class="text-muted">Serial: ${item.act_serial}</small>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                    contenedor.appendChild(li);
-                });
-            } else {
-                contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
+                        `;
+                        contenedor.appendChild(li);
+                    });
+                } else {
+                    contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
+                }
             }
         });
     });

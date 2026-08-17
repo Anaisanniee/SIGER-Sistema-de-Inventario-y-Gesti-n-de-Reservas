@@ -1,25 +1,25 @@
+{{-- resources/views/components/botones/boton.blade.php --}}
 @props([
     'class' => 'btn',
     'target' => 'null',
     'type' => 'button',
-    'url' => null // Agregamos la propiedad URL
+    'url' => null
 ])
 
 @if($url)
     {{-- Si hay una URL, renderizamos un enlace --}}
-    <a href="{{ $url }}" class="{{ $class }} {{ $attributes->get('class') }}" {{ $attributes->whereDoesntStartWith(['type', 'url']) }}>
+    <a href="{{ $url }}" {{ $attributes->merge(['class' => $class]) }}>
         {{ $slot }}
     </a>
 @else
-    {{-- Si no hay URL, seguimos usando el botón (para modales) --}}
+    {{-- Si no hay URL, renderizamos un botón normal o para modales --}}
     <button 
-        type="{{$type}}"
-        class="{{ $class }} {{ $attributes->get('class') }}"
+        type="{{ $type }}"
         @if($target && $target != 'null')
             data-bs-toggle="modal"
             data-bs-target="#{{ $target }}"
         @endif
-        {{ $attributes->whereDoesntStartWith(['type', 'url']) }}
+        {{ $attributes->merge(['class' => $class]) }}
     >
         {{ $slot }}
     </button>

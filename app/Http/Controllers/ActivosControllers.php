@@ -17,7 +17,7 @@ class ActivosControllers extends Controller
         $categorias = CategoriasModels::all();
 
         // --- LÓGICA DE ACTIVOS ---
-        $query = ActivosModels::with(['aula', 'categoria']);
+        $query = ActivosModels::with(['aula', 'categoria', 'precioActual', 'historialPrecios']);
 
         if ($buscar) {
             $query->where(function($q) use ($buscar) {
@@ -32,24 +32,29 @@ class ActivosControllers extends Controller
 
         $activos = $query->orderBy('act_id', 'desc')->get()->map(function($activo) {
             $activo->tipo_recurso = 'activo'; 
+            
+            // Obtenemos el último historial de precios de forma segura
+            $ultimoHistorial = $activo->historialPrecios->sortByDesc('his_pre_fecha_cambio')->first();
+
+            // Aseguramos que tome el precio del historial o de la relación precioActual
+            $activo->act_precio_actual = $ultimoHistorial ? $ultimoHistorial->his_pre_valor : ($activo->precioActual->his_pre_valor ?? null);
+            $activo->act_precio_motivo = $ultimoHistorial ? $ultimoHistorial->his_pre_motivo : ($activo->precioActual->his_pre_motivo ?? 'Sin motivo registrado');
+
             return $activo;
         });
 
         // --- LÓGICA DE AULAS ---
-        // 1. Añadimos 'activos' a la carga ansiosa (with)
         $queryAulas = AulasModels::with(['tipoAula', 'activos.categoria']);
 
         if ($buscar) {
             $queryAulas->where('aula_nombre', 'LIKE', '%' . $buscar . '%');
         }
 
-        // 2. Ejecutamos el map sobre la consulta
         $aulas = $queryAulas->get()->map(function($aula) {
             $aula->tipo_recurso = 'aula';
 
             $aula->activos_json = $aula->activos->map(function($activo) {
                 return [
-                    // Asegúrate de que estos nombres coincidan con las columnas de tu BD
                     'act_nombre' => $activo->act_nombre, 
                     'act_serial' => $activo->act_serial ?? 'Sin Serial',
                     'act_foto' => $activo->act_foto ? asset('storage/' . $activo->act_foto) : asset('img/default-activo.png'),
@@ -57,14 +62,10 @@ class ActivosControllers extends Controller
                 ];
             })->toJson();
             
-            // Extracción segura solo para Tipo Aula
             $nombre = $aula->tipoAula ? $aula->tipoAula->tip_aula_nombre : 'Sin tipo';
             $aula->nombre_tipo_aula_legible = (empty($nombre) || is_numeric($nombre)) ? 'No especificado' : $nombre;
-            
-            // La categoría ya no existe, la dejamos como 'N/A'
             $aula->nombre_categoria_legible = 'N/A'; 
             
-            // Nota: Laravel ahora tiene $aula->activos disponible automáticamente
             return $aula;
         });
 
@@ -79,7 +80,11 @@ class ActivosControllers extends Controller
 
     public function show($id)
     {
-        $activo = ActivosModels::with('categoria')->findOrFail($id);
+        $activo = ActivosModels::with(['categoria', 'aula', 'precioActual'])->findOrFail($id);
+        
+        // Si necesitas pasarlo listo como propiedad en show:
+        $activo->act_precio_actual = $activo->precioActual ? $activo->precioActual->his_pre_valor : null;
+
         return view('activos.show', compact('activo'));
     }
 
@@ -110,7 +115,9 @@ class ActivosControllers extends Controller
 
     public function edit($id)
     {
-        $activo = ActivosModels::findOrFail($id);
+        $activo = ActivosModels::with('precioActual')->findOrFail($id);
+        $activo->act_precio_actual = $activo->precioActual ? $activo->precioActual->his_pre_valor : null;
+
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
         return view('activos.editar-activos', compact('activo', 'aulas', 'categorias'));
@@ -129,6 +136,8 @@ class ActivosControllers extends Controller
             'act_estado_fisico' => 'required|string|max:50',
             'act_reservable'    => 'required|boolean',
             'act_fecha_ingreso' => 'required|date',
+            'his_pre_valor'     => 'nullable|numeric|min:0',
+            'his_pre_motivo'    => 'nullable|string|max:255', // Ahora es totalmente opcional
         ], [
             'act_nombre.min'      => 'El nombre debe tener al menos 3 letras.',
             'act_nombre.required' => 'Escribe el nombre del activo.',
@@ -151,8 +160,27 @@ class ActivosControllers extends Controller
         $activo->act_estado_fisico = $request->act_estado_fisico;
         $activo->act_reservable    = $request->act_reservable;
         $activo->act_fecha_ingreso = $request->act_fecha_ingreso;
-    
+
         $activo->save(); 
+
+        // Gestionamos el precio SOLO si se ingresó un valor y un motivo válido
+        if ($request->filled('his_pre_valor') && $request->filled('his_pre_motivo')) {
+            
+            $precioActual = \App\Models\HistorialPreciosModels::where('act_id', $activo->act_id)
+                                                        ->orderBy('his_pre_fecha_cambio', 'desc')
+                                                        ->first();
+
+            // Si no existe un registro previo O el valor nuevo es diferente al anterior:
+            if (!$precioActual || $precioActual->his_pre_valor != $request->his_pre_valor) {
+                
+                \App\Models\HistorialPreciosModels::create([
+                    'act_id'               => $activo->act_id,
+                    'his_pre_valor'        => $request->his_pre_valor,
+                    'his_pre_fecha_cambio' => now(),
+                    'his_pre_motivo'       => $request->his_pre_motivo
+                ]);
+            }
+        }
 
         return redirect()->route('inventario.index')->with('mensaje', 'Activo actualizado correctamente');
     }
@@ -168,14 +196,15 @@ class ActivosControllers extends Controller
             'act_estado_fisico' => 'required|string|max:50',
             'act_reservable'    => 'required|boolean',
             'act_fecha_ingreso' => 'required|date',
+            'act_precio_actual' => 'nullable|numeric|min:0', // <--- Agregamos validación opcional para el precio
             'act_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
-            'act_nombre.min'             => 'El nombre debe tener al menos 3 letras.',
-            'act_nombre.required'        => 'Escribe el nombre del activo.',
-            'act_serial.unique'          => 'Este serial ya existe en el sistema.',
-            'aula_id.exists'             => 'El aula seleccionada no existe.',
-            'cate_id.exists'             => 'La categoría seleccionada no existe.',
-            'act_estado_fisico.required' => 'Seleccione el estado físico del activo.',
+            'act_nombre.min'            => 'El nombre debe tener al menos 3 letras.',
+            'act_nombre.required'       => 'Escribe el nombre del activo.',
+            'act_serial.unique'         => 'Este serial ya existe en el sistema.',
+            'aula_id.exists'            => 'El aula seleccionada no existe.',
+            'cate_id.exists'            => 'La categoría seleccionada no existe.',
+            'act_estado_fisico.required'=> 'Seleccione el estado físico del activo.',
         ]);
 
         try {
@@ -194,6 +223,16 @@ class ActivosControllers extends Controller
             }
 
             $activo->save();
+
+            // --- REGISTRO DEL PRECIO INICIAL EN EL HISTORIAL ---
+            if ($request->filled('act_precio_actual') && $request->act_precio_actual > 0) {
+                $activo->historialPrecios()->create([
+                    'his_pre_valor'        => $request->act_precio_actual,
+                    'his_pre_motivo'       => 'Precio inicial de registro',
+                    'his_pre_fecha_cambio' => now(),
+                ]);
+            }
+
             return redirect()->route('inventario.index')->with('exito', 'Activo creado con éxito.');
         
         } catch (\Exception $e) {

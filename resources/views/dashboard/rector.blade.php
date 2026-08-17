@@ -159,8 +159,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const buscador = document.getElementById('buscador-recursos');
 
+    // 1. Lógica del buscador en la secretaría
     if (buscador) {
-        // Lógica de filtrado en tiempo real (al escribir)
         buscador.addEventListener('keyup', function() {
             let filtro = this.value.toLowerCase();
             let tarjetas = document.querySelectorAll('.recurso-item');
@@ -171,16 +171,86 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Interceptar el "Enter" para evitar recargas en los Dashboards
         buscador.closest('form').addEventListener('submit', function(e) {
-            // Si existe el contenedor de tarjetas, bloqueamos el envío (filtrado local)
             if (document.querySelector('.container-tarjetas')) {
                 e.preventDefault(); 
                 return false;
             }
-            // Si NO estamos en un dashboard, el formulario se envía normal (búsqueda en BD)
         });
     }
+
+    // 2. Lógica del modal unificada (Precio, Motivo y Activos)
+    document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const contenedor = document.getElementById('contenedor-activos-dinamicos');
+            const conteoBadge = document.getElementById('ficha-conteo-activos');
+            const fichaCategoria = document.getElementById('ficha-categoria');
+            const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
+            const fichaPrecio = document.getElementById('ficha-precio');
+            const fichaPrecioMotivo = document.getElementById('ficha-precio-motivo');
+            
+            const categoriaGenerica = this.getAttribute('data-categoria');
+            const tipoAulaEspecifico = this.getAttribute('data-tipo-aula');
+            const tipoRecurso = this.getAttribute('data-tipo');
+            
+            if (fichaCategoria) fichaCategoria.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
+            if (fichaTipoAula) fichaTipoAula.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
+            
+            // Precio Actual formateado en pesos colombianos
+            const precioActual = this.getAttribute('data-act_precio_actual');
+            if (fichaPrecio) {
+                if (precioActual && !isNaN(precioActual) && precioActual !== '' && precioActual !== 'null') {
+                    fichaPrecio.textContent = Number(precioActual).toLocaleString('es-CO', {
+                        style: 'currency',
+                        currency: 'COP'
+                    });
+                } else {
+                    fichaPrecio.textContent = 'No registra';
+                }
+            }
+
+            // Motivo del Cambio de Precio
+            const motivoPrecio = this.getAttribute('data-act_precio_motivo');
+            if (fichaPrecioMotivo) {
+                fichaPrecioMotivo.textContent = (motivoPrecio && motivoPrecio.trim() !== '' && motivoPrecio !== 'null' && motivoPrecio !== 'undefined') ? motivoPrecio : 'Sin motivo registrado';
+            }
+            
+            // Lógica de Activos Asignados
+            if (contenedor) {
+                contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
+                
+                let activos = [];
+                try {
+                    const data = this.getAttribute('data-activos');
+                    if (data) activos = JSON.parse(data);
+                } catch (e) {
+                    activos = [];
+                }
+
+                if (conteoBadge) conteoBadge.textContent = activos.length;
+                contenedor.innerHTML = '';
+                
+                if (Array.isArray(activos) && activos.length > 0) {
+                    activos.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'activo-item';
+                        li.innerHTML = `
+                            <div class="activo-card-siger" style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
+                                <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                                <div>
+                                    <strong>${item.act_nombre}</strong><br>
+                                    <small class="text-muted">Serial: ${item.act_serial}</small>
+                                </div>
+                            </div>
+                        `;
+                        contenedor.appendChild(li);
+                    });
+                } else {
+                    contenedor.innerHTML = '<li class="text-center py-2 text-muted">No hay activos asignados.</li>';
+                }
+            }
+        });
+    });
 });
 </script>
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>

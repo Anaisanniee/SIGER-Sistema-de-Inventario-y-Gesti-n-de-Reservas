@@ -163,8 +163,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const conteoBadge = document.getElementById('ficha-conteo-activos');
             const fichaCategoria = document.getElementById('ficha-categoria');
             const fichaTipoAula = document.getElementById('ficha-tipo-aula'); 
+            const fichaPrecio = document.getElementById('ficha-precio');
+            const fichaPrecioMotivo = document.getElementById('ficha-precio-motivo'); // Elemento para el motivo
             
-            // 1. Asignar categorías (mantenemos tu lógica que ya sirve)
+            // 1. Asignar categorías
             const categoriaGenerica = this.getAttribute('data-categoria');
             const tipoAulaEspecifico = this.getAttribute('data-tipo-aula');
             const tipoRecurso = this.getAttribute('data-tipo');
@@ -172,7 +174,28 @@ document.addEventListener('DOMContentLoaded', function() {
             if (fichaCategoria) fichaCategoria.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
             if (fichaTipoAula) fichaTipoAula.textContent = (tipoRecurso === 'aula') ? (tipoAulaEspecifico || 'Sin categoría') : (categoriaGenerica || 'Sin categoría');
             
-            // 2. Lógica de Activos
+            // 2. Asignar el Precio Actual formateado en pesos colombianos
+            const precioActual = this.getAttribute('data-act_precio_actual');
+            if (fichaPrecio) {
+                if (precioActual && !isNaN(precioActual) && precioActual !== '' && precioActual !== 'null') {
+                    fichaPrecio.textContent = Number(precioActual).toLocaleString('es-CO', {
+                        style: 'currency',
+                        currency: 'COP'
+                    });
+                } else {
+                    fichaPrecio.textContent = 'No registra';
+                }
+            }
+
+            // 2.1. Asignar el Motivo del Cambio de Precio
+            const motivoPrecio = this.getAttribute('data-act_precio_motivo');
+            console.log("Motivo leído del botón:", motivoPrecio); // <--- Abre la consola de tu navegador (F12) y mira qué sale aquí al hacer clic
+
+            if (fichaPrecioMotivo) {
+                fichaPrecioMotivo.textContent = (motivoPrecio && motivoPrecio.trim() !== '' && motivoPrecio !== 'null' && motivoPrecio !== 'undefined') ? motivoPrecio : 'Sin motivo registrado';
+            }
+
+            // 3. Lógica de Activos Asignados
             contenedor.innerHTML = '<li class="text-center py-2">Cargando...</li>';
             
             let activos = [];
@@ -189,8 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (Array.isArray(activos) && activos.length > 0) {
                 activos.forEach(item => {
                     const li = document.createElement('li');
-                    li.className = 'activo-item'; // Mantenemos la clase de tu estructura
-                    // Estructura idéntica a tu diseño de ficha-tecnica-universal
+                    li.className = 'activo-item';
                     li.innerHTML = `
                         <div class="activo-card-siger" style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
                             <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">

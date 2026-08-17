@@ -4,7 +4,6 @@
     $esAdmin = isset($esAdmin) ? $esAdmin : false; 
 
     // Identificamos con precisión quirúrgica el ID y el Tipo exacto
-    // Si el objeto tiene un identificador de activo o serial, es ACTIVO. Si tiene capacidad o aula_id, es AULA.
     $esActivo = isset($recurso->act_id) || isset($recurso->act_serial) || isset($recurso->act_marca);
     
     $tipoStr = $esActivo ? 'activo' : 'aula';
@@ -15,12 +14,10 @@
     // Construimos la URL limpia
     $urlReserva = $idRecurso ? route('reservas.paso1', ['id' => $idRecurso]) . '?tipo=' . $tipoStr : '#';
 
-
- // PARA MOSTARA EL COLOR DEL ESTADO EN LA ESQUINA DE LA TARJETA, USAMOS EL ESTADO REAL DEL RECURSO (AULA O ACTIVO) Y NO EL VALOR DE LA ETIQUETA SECUNDARIA
     // Extraemos el ESTADO REAL directamente desde el objeto $recurso
     $estadoReal = $recurso->aula_estado 
         ?? $recurso->act_estado_fisico 
-        ?? $recurso->estado 
+         ?? $recurso->estado 
         ?? '';
 
     $estadoLimpio = strtolower(trim($estadoReal));
@@ -43,6 +40,10 @@
 
         default => 'badge-disponible',
     };
+
+    // Determinamos si el estado actual bloquea la reserva
+    $estadosBloqueados = ['malo', 'mantenimiento', 'en mantenimiento', 'dañado', 'inactivo'];
+    $estaBloqueado = in_array($estadoLimpio, $estadosBloqueados);
 
 @endphp
 
@@ -84,7 +85,6 @@
                 {{-- HEADER --}}
                 data-nombre="{{ $nombre }}"
                 data-categoria="{{ $recurso->categoria->cate_nombre ?? ($recurso->nombre_tipo_aula_legible ?? 'Sin categoría') }}"
-                {{-- AGREGADO: Nuevo atributo exclusivo para aulas que no rompe la lógica actual --}}
                 data-tipo-aula="{{ $recurso->categoria->tip_aula_nombre ?? 'Sin categoría' }}"
                 data-aula-ubicacion="{{ $recurso->aula->aula_nombre ?? ($recurso->tipo_recurso == 'aula' ? $recurso->aula_nombre : 'No asignado') }}"
 
@@ -98,7 +98,7 @@
                 data-act_fecha_ingreso="{{ $recurso->act_fecha_ingreso ?? '' }}"
                 data-cate_id="{{ $recurso->cate_id ?? '' }}"
                 data-aula_nombre="{{ $recurso->aula_nombre ?? 'No asignada' }}"
-                data-act_precio_actual="{{ $recurso->act_precio_actual ?? 'No registra' }}"
+                data-act_precio_actual="{{ $recurso->precioActual->his_pre_valor ?? $recurso->act_precio_actual ?? '' }}"
 
                 {{-- AULAS --}}
                 data-aula_id="{{ $recurso->aula_id ?? '' }}"
@@ -106,9 +106,11 @@
                 data-aula_estado="{{ $recurso->aula_estado ?? '' }}"
                 data-aula_reservable="{{ ($recurso->aula_reservable ?? false) ? 'Sí' : 'No' }}"
                 data-activos="{{ isset($recurso->activos) ? json_encode($recurso->activos) : ($recurso->activos_json ?? '[]') }}"
-            >Ver ficha</x-botones.boton>
+            >
+                Ver ficha
+            </x-botones.boton>
 
-                        {{-- BOTONES ADMINISTRATIVOS --}}
+            {{-- BOTONES ADMINISTRATIVOS --}}
             <div class="botones-admin">
 
                 {{-- BOTÓN DINÁMICO (EDITAR O RESERVAR) --}}
@@ -125,7 +127,6 @@
                     </x-botones.boton>
                 @else
                     @php
-                        // Verificamos de forma estricta qué ID tiene contenido real
                         if (isset($recurso->act_id) && !empty($recurso->act_id)) {
                             $idReserva = $recurso->act_id;
                             $tipoReserva = 'activo';
@@ -135,21 +136,28 @@
                         }
                     @endphp
 
-                    <x-botones.boton 
-                        class="btn btn-primary" 
-                        type="button"
-                        onclick="window.CarritoReservas.agregar({
-                            id: '{{ $idReserva }}',
-                            nombre: '{{ addslashes($nombre) }}',
-                            secundario: '{{ addslashes($valor) }}',
-                            foto: '{{ $foto }}',
-                            tipo: '{{ $tipoReserva }}'
-                        })">
-                        <i class="bi bi-calendar-check"></i> Reservar
-                    </x-botones.boton>
+                    @if($estaBloqueado)
+                        {{-- Botón bloqueado nativo para evitar conflictos con el componente --}}
+                        <button type="button" class="btn btn-secondary" disabled>
+                            <i class="bi bi-x-circle"></i> No disponible
+                        </button>
+                    @else
+                        <x-botones.boton 
+                            class="btn btn-primary" 
+                            type="button"
+                            onclick="window.CarritoReservas.agregar({
+                                id: '{{ $idReserva ?? '' }}',
+                                nombre: '{{ addslashes($nombre) }}',
+                                secundario: '{{ addslashes($valor) }}',
+                                foto: '{{ $foto }}',
+                                tipo: '{{ $tipoReserva ?? '' }}'
+                            })">
+                            <i class="bi bi-calendar-check"></i> Reservar
+                        </x-botones.boton>
+                    @endif
                 @endif
 
-                {{-- BOTÓN ELIMINAR editar cuando haya controllers--}}
+                {{-- BOTÓN ELIMINAR --}}
                 @if($esAdmin)
                     <x-botones.boton 
                         class="btn btn-rojo" 
@@ -162,7 +170,6 @@
                 @endif
 
             </div>
-            
 
         </div>
         
