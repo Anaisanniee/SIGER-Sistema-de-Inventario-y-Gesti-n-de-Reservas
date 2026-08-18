@@ -46,10 +46,9 @@
         <label for="aula_foto">Fotografía del Aula / Espacio</label>
         <input type="file" id="aula_foto" name="aula_foto" accept="image/*">
         @if($esEdicion && isset($aula->aula_foto))
-            <x-alertas.notificacion
+           <x-alertas.notificacion
                 tipo="info"
-                mensaje="Ya hay una foto registrada. Selecciona otra solo si deseas cambiarla."
-            />
+            >Ya se encuentra una foto registrada. Selecciona otra solo si deseas cambiarla.</x-alertas.notificacion>
         @endif
     </div>
 

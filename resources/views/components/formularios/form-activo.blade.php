@@ -40,9 +40,9 @@
         <label for="act_foto">Fotografía del Activo</label>
         <input type="file" id="act_foto" name="act_foto" accept="image/*">
         @if($esEdicion && isset($activo->act_foto))
-            <small class="texto-aviso-foto">
-                📸 Ya hay una foto registrada. Selecciona otra solo si deseas cambiarla.
-            </small>
+              <x-alertas.notificacion
+                tipo="info"
+            >Ya se encuentra una foto registrada. Selecciona otra solo si deseas cambiarla.</x-alertas.notificacion>
         @endif
     </div>
 
