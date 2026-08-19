@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/dashboard')) {{-- O la ruta de retorno segura --}}
+@section('rutaRegresar', url('/dashboard'))
 @section('mostrarPerfil', 'false')
 @section('content')
 
@@ -23,24 +23,24 @@
             <div class="avatar-wrapper">
                 <div class="avatar-circulo" style="background-color: var(--color-azulado);">
                     @auth
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1) . substr(Auth::user()->lastname ?? 'S', 0, 1)) }}
+                        {{ strtoupper(substr($usuario->USU_PRIMER_NOMBRE, 0, 1) . substr($usuario->USU_PRIMER_APELLIDO ?? 'S', 0, 1)) }}
                     @else
                         SE
                     @endauth
                 </div>
             </div>
             
-            <h3 class="docente-nombre">{{ Auth::user()->name ?? 'Secretaria' }} {{ Auth::user()->lastname ?? '' }}</h3>
-            <p class="docente-email">{{ Auth::user()->email ?? 'secretaria@ejemplo.com' }}</p>
+            <h3 class="docente-nombre">{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}</h3>
+            <p class="docente-email">{{ $usuario->USU_CORREO }}</p>
 
             <div class="informacion-lateral-lista">
                 <div class="item-lateral">
                     <span class="item-titulo">Estado</span>
-                    <span class="item-valor">Activo</span>
+                    <span class="item-valor">{{ $usuario->USU_ESTADO ?? 'Activo' }}</span>
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Rol</span>
-                    <span class="item-valor" style="text-transform: capitalize;">{{ Auth::user()->rol ?? 'Secretaria' }}</span>
+                    <span class="item-valor" style="text-transform: capitalize;">{{ $usuario->role->name ?? 'Secretaría' }}</span>
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Pendientes</span>
@@ -56,7 +56,7 @@
                 <x-botones.boton id="btn-cambiar-contraseña" type="button" class="btn-siger-accion btn-verde-siger">
                     Cambiar contraseña
                 </x-botones.boton>
-                <a href="" style="text-decoration: none; width: 100%;">
+                <a href="{{ route('usuarios.index') }}" style="text-decoration: none; width: 100%;">
                     <x-botones.boton type="button" class="btn-siger-accion btn-azul">
                         Gestionar Usuarios
                     </x-botones.boton>
@@ -65,7 +65,7 @@
             </div>
         </aside>
 
-       {{-- COLUMNA DERECHA --}}
+        {{-- COLUMNA DERECHA --}}
         <main class="perfil-columna-derecha">
             
             {{-- SECCIÓN 1: FORMULARIO DE EDICIÓN DESPLEGABLE --}}
@@ -75,10 +75,9 @@
                         <span>Actualizar Mis Datos</span>
                     </div>
 
-                    {{-- Llamamos el formulario--}}
-                        @include('components.formularios.form-usuario', [
-                            'usuario' => $usuario ?? auth()->user()
-                        ])                </div>
+                    {{-- Llamamos el formulario pasándole el usuario actual --}}
+                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
+                </div>
             </div>
 
             {{-- SECCIÓN 2: CONTROL CENTRAL (Pestañas de Gestión de Reservas) --}}

@@ -26,6 +26,9 @@ Route::get('/logout-dev', [AuthController::class, 'logout']);
 // 🛡️ ZONA PROTEGIDA (REQUERIDO LOGIN Y AUTORIZACIÓN)
 // =========================================================
 Route::middleware('auth')->group(function () {
+    
+    // 👤 PERFIL DE USUARIO (Accesible para cualquier usuario autenticado)
+    Route::get('/perfil', [UserController::class, 'perfil'])->name('perfil');
 
     // -----------------------------------------------------
     // 🔒 EXCLUSIVO SECRETARÍA
@@ -70,4 +73,4 @@ Route::middleware('auth')->group(function () {
         })->name('dashboard.docente');
     });
 
-}); // <- Esta llave final era la que faltaba por cerrar
+});

@@ -3,7 +3,6 @@
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', url('/dashboard'))
-
 @section('mostrarPerfil', 'false')
 @section('content')
 
@@ -24,24 +23,24 @@
             <div class="avatar-wrapper">
                 <div class="avatar-circulo">
                     @auth
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1) . substr(Auth::user()->lastname ?? 'U', 0, 1)) }}
+                        {{ strtoupper(substr($usuario->USU_PRIMER_NOMBRE, 0, 1) . substr($usuario->USU_PRIMER_APELLIDO ?? 'U', 0, 1)) }}
                     @else
                         US
                     @endauth
                 </div>
             </div>
             
-            <h3 class="docente-nombre">{{ Auth::user()->name ?? 'Usuario' }} {{ Auth::user()->lastname ?? '' }}</h3>
-            <p class="docente-email">{{ Auth::user()->email ?? 'correo@ejemplo.com' }}</p>
+            <h3 class="docente-nombre">{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}</h3>
+            <p class="docente-email">{{ $usuario->USU_CORREO }}</p>
 
             <div class="informacion-lateral-lista">
                 <div class="item-lateral">
                     <span class="item-titulo">Estado</span>
-                    <span class="item-valor">Activo</span>
+                    <span class="item-valor">{{ $usuario->USU_ESTADO ?? 'Activo' }}</span>
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Rol</span>
-                    <span class="item-valor" style="text-transform: capitalize;">{{ Auth::user()->rol ?? 'Docente' }}</span>
+                    <span class="item-valor" style="text-transform: capitalize;">{{ $usuario->role->name ?? 'Sin Rol' }}</span>
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Reservas activas</span>
@@ -49,31 +48,31 @@
                 </div>
             </div>
 
-             <div class="acciones-laterales">
-                    {{-- Botón Editar Perfil --}}
-                    <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
-                        Editar Perfil
-                    </x-botones.boton>
+            <div class="acciones-laterales">
+                {{-- Botón Editar Perfil --}}
+                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
+                    Editar Perfil
+                </x-botones.boton>
 
-                    {{-- Historial de reservas --}}
-                    <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
-                        Historial de reserva
-                    </x-botones.boton>
+                {{-- Historial de reservas --}}
+                <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
+                    Historial de reserva
+                </x-botones.boton>
 
-            {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR --}}
-            @auth
-                @if(Auth::user()->rol === 'rector')
-                    <a href="{{ route('informes.inventario') }}" style="text-decoration: none; width: 100%;">
-                        <x-botones.boton type="button" class="btn-siger-accion btn-azul">
-                            Ver Informes de Inventario
-                        </x-botones.boton>
-                    </a>
-                @endif
-            @endauth
+                {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR/RECTORA --}}
+                @auth
+                    @if(in_array(strtolower($usuario->role->name ?? ''), ['rector', 'rectora']))
+                        <a href="{{ Route::has('informes.inventario') ? route('informes.inventario') : '#' }}" style="text-decoration: none; width: 100%;">
+                            <x-botones.boton type="button" class="btn-siger-accion btn-azul">
+                                Ver Informes de Inventario
+                            </x-botones.boton>
+                        </a>
+                    @endif
+                @endauth
 
-            {{-- Botón Logout compacto en el mismo grupo --}}
-            <x-botones.boton-logout />
-        </div>
+                {{-- Botón Logout compacto --}}
+                <x-botones.boton-logout />
+            </div>
         </aside>
 
         {{-- COLUMNA DERECHA --}}

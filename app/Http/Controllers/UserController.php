@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -61,6 +62,32 @@ class UserController extends Controller
     }
 
     /**
+     * Muestra la vista del perfil adaptada según el rol del usuario autenticado
+     */
+  public function perfil()
+{
+    $usuario = auth()->user();
+    $rol = strtolower($usuario->role->name ?? '');
+
+    // Secretaría
+    if (in_array($rol, ['secretario', 'secretaria', 'secretaria general'])) {
+        return view('users.perfil.secretario', compact('usuario'));
+    }
+
+    // Rector / Rectora (Busca 'rectora', luego 'rector', o usa la vista por defecto)
+    if (in_array($rol, ['rector', 'rectora'])) {
+        if (view()->exists('users.perfil.rectora')) {
+            return view('users.perfil.rectora', compact('usuario'));
+        }
+        if (view()->exists('users.perfil.rector')) {
+            return view('users.perfil.rector', compact('usuario'));
+        }
+    }
+
+    // Vista general para Docente o cualquier otro rol
+    return view('users.perfil.perfil-usuario', compact('usuario'));
+}
+    /**
      * Muestra el formulario de edición (Secretaría, Rectora y Docente)
      */
     public function edit($id)
@@ -105,7 +132,7 @@ class UserController extends Controller
 
         $usuario->update($data);
 
-        return redirect()->route('usuarios.index')->with('success', '¡Usuario actualizado correctamente!');
+        return redirect()->back()->with('success', '¡Información actualizada correctamente!');
     }
 
     /**
