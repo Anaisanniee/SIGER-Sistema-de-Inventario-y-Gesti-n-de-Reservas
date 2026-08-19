@@ -182,7 +182,7 @@ class ActivosControllers extends Controller
             }
         }
 
-        return redirect()->route('inventario.index')->with('mensaje', 'Activo actualizado correctamente');
+        return redirect()->route('inventario.index')->with('exito', 'Activo actualizado correctamente');
     }
 
     public function store(Request $request)
@@ -258,7 +258,7 @@ class ActivosControllers extends Controller
     {
         $activo = ActivosModels::onlyTrashed()->findOrFail($id);
         $activo->restore();
-        return redirect()->route('inventario.index')->with('mensaje', 'Activo restaurado con éxito.');
+        return redirect()->route('inventario.index')->with('exito', 'Activo restaurado con éxito.');
     }
 
     public function forceDelete($id)
@@ -268,6 +268,6 @@ class ActivosControllers extends Controller
             Storage::disk('public')->delete($activo->act_foto);
         }
         $activo->forceDelete();
-        return redirect()->back()->with('mensaje', 'Activo eliminado permanentemente.');
+        return redirect()->back()->with('exito', 'Activo eliminado permanentemente.');
     }
 }
