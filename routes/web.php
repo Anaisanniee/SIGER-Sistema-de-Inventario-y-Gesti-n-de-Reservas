@@ -109,7 +109,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // RUTAS DE PRUEBA (NO TOCAR)
 // ==========================================
 Route::get('/prueba', function () {
-    return view('users.perfil.secretario', [
+    return view('users.index', [
         'usuario' => auth()->user() ?? new \App\Models\User()
     ]);
 });
+
+
+
+// Si quieres usar la ruta /prueba temporalmente:
+Route::get('/pruebas', [UserController::class, 'index']);
+
+// O la ruta definitiva para el módulo de usuarios:
+Route::get('/usuarios', [UserController::class, 'index'])->name('users.index');
