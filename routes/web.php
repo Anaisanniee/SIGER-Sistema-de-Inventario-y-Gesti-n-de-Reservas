@@ -9,14 +9,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// 🔑 Rutas de Autenticación (Públicas / Solo para invitados)
+// 🔑 Rutas de Autenticación (Públicas)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// 🚪 Cerrar sesión (Solo usuarios autenticados)
+// 🚪 Cerrar sesión oficial (POST)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// 🚪 Ruta rápida por GET para cerrar sesión desde la URL (solo para pruebas)
+Route::get('/logout-dev', [AuthController::class, 'logout']);
 
 
 // =========================================================
@@ -25,39 +28,35 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::middleware('auth')->group(function () {
 
     // -----------------------------------------------------
-    // 🔒 EXCLUSIVO SECRETARÍA (Creación, Listado y Baja)
+    // 🔒 EXCLUSIVO SECRETARÍA
     // -----------------------------------------------------
-    Route::middleware('role:Secretaria')->group(function () {
-        // Listado general de usuarios
+    Route::middleware('role:Secretaria,Secretario')->group(function () {
         Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.index');
-
-        // Formulario y guardado exclusivo de usuarios
         Route::get('/usuarios/create', [UserController::class, 'create'])->name('usuarios.create');
         Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
-
-        // Cambiar estado de usuario (Activo / Inactivo)
         Route::patch('/usuarios/{id}/dar-de-baja', [UserController::class, 'darDeBaja'])->name('usuarios.baja');
 
         // Dashboard Secretaría
         Route::get('/dashboard/secretaria', function () {
-            return view('dashboards.secretaria');
+            return view('dashboard.secretario');
         })->name('dashboard.secretaria');
     });
 
     // -----------------------------------------------------
-    // 🔓 EDICIÓN DE USUARIOS (Secretaría, Rectora y Docente)
+    // 🔓 EDICIÓN DE USUARIOS
     // -----------------------------------------------------
-    Route::middleware('role:Secretaria,Rectora,Docente')->group(function () {
+    Route::middleware('role:Secretaria,Secretario,Rectora,Rector,Docente')->group(function () {
         Route::get('/usuarios/{id}/edit', [UserController::class, 'edit'])->name('usuarios.edit');
         Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
     });
 
     // -----------------------------------------------------
-    // 👑 DASHBOARD RECTORA
+    // 👑 DASHBOARD RECTORA / RECTOR
     // -----------------------------------------------------
-    Route::middleware('role:Rectora')->group(function () {
+    Route::middleware('role:Rectora,Rector')->group(function () {
         Route::get('/dashboard/rectora', function () {
-            return view('dashboards.rectora');
+            $recursos = []; 
+            return view('dashboard.rector', compact('recursos'));
         })->name('dashboard.rectora');
     });
 
@@ -66,8 +65,9 @@ Route::middleware('auth')->group(function () {
     // -----------------------------------------------------
     Route::middleware('role:Docente')->group(function () {
         Route::get('/dashboard/docente', function () {
-            return view('dashboards.docente');
+            $recursos = []; 
+            return view('dashboard.docente', compact('recursos'));
         })->name('dashboard.docente');
     });
 
-});
+}); // <- Esta llave final era la que faltaba por cerrar

@@ -52,20 +52,21 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // 5. Redirección por NOMBRE del Rol
-            $rol = strtolower($user->role->name ?? '');
+            $userAuthenticated = Auth::user();
+            $rol = strtolower($userAuthenticated->role->name ?? '');
 
-            if ($rol === 'rectora' || $rol === 'rector') {
-                return redirect()->intended('/dashboard/rectora');
-            } elseif ($rol === 'secretaria' || $rol === 'secretario') {
-                return redirect()->intended('/dashboard/secretaria');
+            if (in_array($rol, ['rectora', 'rector'])) {
+                return redirect()->intended(route('dashboard.rectora'));
+            } elseif (in_array($rol, ['secretaria', 'secretario'])) {
+                return redirect()->intended(route('dashboard.secretaria'));
             } elseif ($rol === 'docente') {
-                return redirect()->intended('/dashboard/docente');
+                return redirect()->intended(route('dashboard.docente'));
             }
 
-            return redirect()->intended('/dashboard');
-        }
+            return redirect()->intended('/');
+        } // <- Se cierra el bloque de autenticación exitosa
 
-        // 6. Contraseña incorrecta
+        // 6. Si Auth::attempt falla, la contraseña es incorrecta
         return back()->withErrors([
             'USU_CEDULA' => 'La contraseña ingresada es incorrecta.',
         ])->onlyInput('USU_CEDULA');
