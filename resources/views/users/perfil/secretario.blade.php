@@ -51,7 +51,7 @@
             <div class="acciones-laterales">
                 {{-- Botones editar, cambiar clave y gestionar usuarios --}}
                 <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
-                    Editar Mis Datos
+                    Editar Perfil
                 </x-botones.boton>
                 <x-botones.boton id="btn-cambiar-contraseña" type="button" class="btn-siger-accion btn-verde-siger">
                     Cambiar contraseña

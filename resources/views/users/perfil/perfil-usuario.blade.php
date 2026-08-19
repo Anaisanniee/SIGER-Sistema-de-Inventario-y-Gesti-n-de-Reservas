@@ -7,6 +7,9 @@
 @section('mostrarPerfil', 'false')
 @section('content')
 
+{{-- VARIABLE TEMPORAL DE PRUEBA: Cambia a 'rector' o 'docente' para probar --}}
+@php $rolPrueba = 'rector'; @endphp
+
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
 
 <div class="siger-modulo-perfil">
@@ -41,7 +44,7 @@
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Rol</span>
-                    <span class="item-valor" style="text-transform: capitalize;">{{ Auth::user()->rol ?? 'Docente' }}</span>
+                    <span class="item-valor" style="text-transform: capitalize;">{{ $rolPrueba ?? Auth::user()->rol ?? 'Docente' }}</span>
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Reservas activas</span>
@@ -49,31 +52,29 @@
                 </div>
             </div>
 
-             <div class="acciones-laterales">
-                    {{-- Botón Editar Perfil --}}
-                    <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
-                        Editar Perfil
-                    </x-botones.boton>
+            <div class="acciones-laterales">
+                {{-- Botón Editar Perfil --}}
+                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
+                    Editar Perfil
+                </x-botones.boton>
 
-                    {{-- Historial de reservas --}}
-                    <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
-                        Historial de reserva
-                    </x-botones.boton>
+                {{-- Historial de reservas --}}
+                <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
+                    Historial de reserva
+                </x-botones.boton>
 
-            {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR --}}
-            @auth
-                @if(Auth::user()->rol === 'rector')
-                    <a href="{{ route('informes.inventario') }}" style="text-decoration: none; width: 100%;">
+                {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR (Evaluando rol manual de prueba) --}}
+                @if(($rolPrueba ?? Auth::user()->rol ?? '') === 'rector')
+                    <a href="" style="text-decoration: none; width: 100%;">
                         <x-botones.boton type="button" class="btn-siger-accion btn-azul">
                             Ver Informes de Inventario
                         </x-botones.boton>
                     </a>
                 @endif
-            @endauth
 
-            {{-- Botón Logout compacto en el mismo grupo --}}
-            <x-botones.boton-logout />
-        </div>
+                {{-- Botón Logout compacto en el mismo grupo --}}
+                <x-botones.boton-logout />
+            </div>
         </aside>
 
         {{-- COLUMNA DERECHA --}}
