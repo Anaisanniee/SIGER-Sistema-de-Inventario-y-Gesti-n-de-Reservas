@@ -35,8 +35,8 @@ class DetallesReservasModels extends Model
 
     // Relación con el aula
     public function aula()
-{
-    // Forzamos a que use la columna de destino del activo y la llave primaria 'aula_id'
-    return $this->belongsTo(AulasModels::class, 'det_re_aula_destino_act', 'aula_id');
-}
+    {
+        // Forzamos a que use la columna de destino del activo y la llave primaria 'aula_id'
+        return $this->belongsTo(AulasModels::class, 'det_re_aula_destino_act', 'aula_id');
+    }
 }
