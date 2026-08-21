@@ -85,8 +85,11 @@
                         <span>Información personal</span>
                     </div>
 
-                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
-                </div>
+                     @include('components.formularios.form-usuario', [   
+                        'usuario' => $usuario,
+                        'modo' => 'perfil'
+                    ])                
+                    </div>
             </div>
 
             {{-- SECCIÓN 2: MIS RESERVAS --}}

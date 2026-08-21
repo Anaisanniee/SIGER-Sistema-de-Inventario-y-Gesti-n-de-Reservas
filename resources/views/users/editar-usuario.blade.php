@@ -24,7 +24,7 @@
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--color-principal);">Editar Usuario</h3>
 
             {{--Inyectamos formulario modular reutilizable --}}
-            @include('components.formularios.form-usuario', ['usuario' => $usuario])
+            @include('components.formularios.form-usuario', ['usuario' => $usuario, 'modo' => 'editar-admin'])
         </div>
     </div>
 

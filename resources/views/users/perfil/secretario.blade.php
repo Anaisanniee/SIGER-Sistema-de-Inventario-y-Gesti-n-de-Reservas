@@ -13,7 +13,7 @@
     {{-- BARRA SUPERIOR DE CONTEXTO --}}
     <div class="perfil-header-seccion">
         <h2 class="perfil-titulo-principal">Panel de Gestión - Secretaría</h2>
-        <p class="perfil-subtitulo">Control, revisión y aprobación de reservas del sistema SIGER</p>
+        <p class="perfil-subtitulo">Control, revisión y aprobación del sistema SIGER</p>
     </div>
 
     <div class="perfil-layout-contenedor">
@@ -76,7 +76,10 @@
                     </div>
 
                     {{-- Llamamos el formulario pasándole el usuario actual --}}
-                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
+                    @include('components.formularios.form-usuario', [   
+                        'usuario' => $usuario,
+                        'modo' => 'perfil'
+                    ])
                 </div>
             </div>
 
