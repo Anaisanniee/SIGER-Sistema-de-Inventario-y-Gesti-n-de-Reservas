@@ -1,0 +1,228 @@
+/* ===========================
+   DISEÑO MÓVIL
+=========================== */
+
+@media (max-width: 768px) {
+
+    .navbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+        background-color: var(--color-fondo);
+        width: 100%;
+        color: var(--color-texto);
+        min-height: 60px;
+        overflow: hidden;
+        border-radius: 0;
+        padding: 8px 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+        order: 1;
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--color-principal);
+        background: linear-gradient(
+            90deg,
+            var(--principal-secundario),
+            var(--color-principal)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent !important;
+        display: inline-block;
+    }
+
+    .form-control {
+        background-color: var(--color-fondo-secundario);
+        width: 100%;
+        padding: 10px 20px 10px 15px;
+        font-family: Inter, sans-serif !important;
+        font-weight: 400 !important;
+        font-size: 15px !important;
+        color: var(--color-texto) !important;
+        height: 30px;
+        border: 1px solid var(--color-borde);
+        border-radius: 25px;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .buscador-container {
+        order: 3;
+        position: relative;
+        width: 100%;
+    }
+
+    ::placeholder {
+        color: var(--color-texto-secundario) !important;
+        font-family: var(--fuente-secundaria);
+        font-weight: 400;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-texto-secundario) !important;
+        z-index: 10;
+    }
+
+    .d-flex {
+        order: 2;
+        display: flex;
+        align-items: center;
+    }
+
+    .d-flex a {
+        color: var(--color-principal) !important;
+        font-size: 30px;
+        margin-right: 15px;
+    }
+}
+
+
+/* ===========================
+   TABLET
+=========================== */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+    .navbar {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        background-color: #555;
+        color: #fff;
+        padding: 15px 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--color-principal);
+        background: linear-gradient(
+            90deg,
+            var(--principal-secundario),
+            var(--color-principal)
+        );
+        -webkit-background-clip: text;
+        display: inline-block;
+    }
+
+    .buscador-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        width: 60%;
+    }
+
+    .form-control {
+        background-color: var(--color-fondo-secundario);
+        width: 100%;
+        font-family: Inter, sans-serif !important;
+        font-size: 14px !important;
+        color: var(--color-texto) !important;
+        height: 40px;
+        border: 1px solid var(--color-borde);
+        border-radius: 25px;
+        padding: 0 40px 0 15px;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-texto-secundario) !important;
+    }
+
+    .d-flex {
+        display: flex;
+        align-items: center;
+    }
+
+    .d-flex a {
+        color: var(--color-principal) !important;
+        font-size: 35px;
+        margin-right: 15px;
+    }
+}
+
+
+/* ===========================
+   PC
+=========================== */
+
+@media (min-width: 1025px) {
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        background-color: #555;
+        color: #fff;
+        padding: 15px 40px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+        font-size: 35px;
+        font-weight: bold;
+        color: var(--color-principal);
+        background: linear-gradient(
+            90deg,
+            var(--principal-secundario),
+            var(--color-principal)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .buscador-container {
+        position: relative;
+        width: 50%;
+    }
+
+    .form-control {
+        background-color: var(--color-fondo-secundario);
+        width: 100%;
+        height: 45px;
+        font-size: 15px !important;
+        color: var(--color-texto) !important;
+        border: 1px solid var(--color-borde);
+        border-radius: 25px;
+        padding: 0 40px 0 15px;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-texto-secundario) !important;
+    }
+
+    .d-flex {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .d-flex a {
+        color: var(--color-principal) !important;
+        font-size: 40px;
+        margin-right: 20px;
+    }
+}

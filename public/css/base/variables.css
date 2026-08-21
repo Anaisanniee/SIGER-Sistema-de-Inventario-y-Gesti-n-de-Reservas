@@ -35,16 +35,18 @@
          url('/fonts/Poppins/Poppins-Regular.ttf') format('ttf');
     font-weight: 400;
     font-style: normal;
+    background-clip: text;
+    -webkit-background-clip: text;
 }
 /* Definición de variables y estilos globales */
 :root {
   /* Variables de colores */
   --color-principal: #10b981;
-  --principal-secundario: #1c7202;
+  --principal-secundario: #34811ddc;
   --color-fondo: #f9fbf9;
   --color-fondo-secundario: #d1d5db;
   --color-texto: #444444;
-  --color-texto-secundario: #9794948f;
+  --color-texto-secundario: #8a87878f;
   --color-borde: #e5e7eb;
 
   /* Fuentes */
@@ -61,6 +63,14 @@
 --color-estado-reservado: #2563eb;
 --color-estado-en-mantenimiento: #facc15;
 --color-estado-dañado: #dc2626;
+--color-verde-pastel: #bbf7d0;
+--color-azulado: #64748b;
+
+/*COLOR DE LOS BOTONES en pasteles*/
+--color-disponible-pastel: #bbf7d0;
+--color-reservado-pastel: #dbeafe;
+--color-en-mantenimiento-pastel: #fef3c7;
+--color-dañado-pastel: #fee2e2;
 
 
   /* Fondo y color de texto por defecto */

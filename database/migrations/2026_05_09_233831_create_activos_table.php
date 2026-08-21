@@ -12,19 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('activos', function (Blueprint $table) {
-            $table->id('act_id');
-            $table->string('act_foto', 255)->nullable();
-            $table->string('act_nombre', 50);
-            $table->string('act_serial', 255)->unique();
-            $table->string('act_marca', 50)->nullable();
-            $table->string('act_estado_fisico', 50);
-            $table->boolean('act_reservable');
-            $table->date('act_fecha_ingreso');
-            $table->unsignedBigInteger('aula_id');
+            $table->id('act_id'); 
+            $table->string('act_foto', 255)->nullable(); 
+            $table->string('act_nombre', 50); 
+            $table->string('act_serial', 255)->unique(); 
+            $table->string('act_marca', 50)->nullable(); 
+            $table->string('act_estado_fisico', 50); 
+            $table->boolean('act_reservable'); 
+            $table->date('act_fecha_ingreso'); 
+            
+            $table->softDeletes();
+            $table->string('act_motivo_baja', 255)->nullable(); 
+
+            
+            $table->unsignedBigInteger('aula_id'); 
             $table->unsignedBigInteger('cate_id');
-            $table->foreign('aula_id')->references('aula_id')->on('aulas');
-            $table->foreign('cate_id')->references('cate_id')->on('categorias');
-            $table->timestamps();
+
+            // Restricciones de Integridad Referencial (FOREIGN KEY)
+            $table->foreign('aula_id')->references('aula_id')->on('aulas')->onDelete('cascade');
+            $table->foreign('cate_id')->references('cate_id')->on('categorias')->onDelete('cascade');
+            
+            $table->timestamps(); 
         });
     }
 

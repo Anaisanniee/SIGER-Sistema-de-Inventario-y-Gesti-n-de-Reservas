@@ -1,0 +1,126 @@
+/* ==========================================================================
+   COMPONENTE: STEPPER CON TEXTOS INFRAESTRUCTURALES
+   ========================================================================== */
+
+.contenedor-stepper-bloque {
+    max-width: 650px;
+    margin: 0 auto 3rem auto;
+    width: 100%;
+}
+
+.contenedor-stepper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinea los ítems arriba para que los textos cuelguen parejos */
+    position: relative;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Líneas de progreso (bajan un poco para quedar centradas con el círculo) */
+.linea-progreso-fondo {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    height: 4px;
+    background-color: var(--color-borde);
+    width: 100%;
+    z-index: 1;
+}
+
+.linea-progreso-activa {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    height: 4px;
+    background-color: var(--color-principal);
+    z-index: 2;
+    transition: width 0.5s ease-out;
+    animation: animarLinea 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes animarLinea {
+    from { width: 0%; }
+    to { width: var(--ancho-final); }
+}
+
+/* Contenedor individual de cada paso (Círculo + Texto) */
+.paso-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 3;
+    width: 100px; /* Ancho fijo para centrar el texto perfectamente */
+    text-align: center;
+}
+
+/* Círculos de los Pasos */
+.paso-circulo {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--color-fondo);
+    border: 2px solid var(--color-borde);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--fuente-principal);
+    font-weight: 700;
+    color: var(--color-texto-secundario);
+    transition: all 0.4s ease;
+    margin-bottom: 0.5rem; /* Separación entre círculo y texto */
+    box-sizing: border-box;
+}
+
+.paso-circulo i {
+    font-size: 1.35rem;
+}
+
+/* Estados */
+.paso-item.actual .paso-circulo,
+.paso-item.completado .paso-circulo {
+    border-color: var(--color-principal);
+    background-color: var(--color-principal);
+    color: var(--color-fondo) !important;
+}
+
+.paso-item.actual .paso-circulo {
+    box-shadow: 0 0 0 4px var(--color-disponible-pastel);
+    animation: pulsarCirculo 0.5s ease-out 0.6s both;
+}
+
+@keyframes pulsarCirculo {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Texto debajo del paso */
+.paso-texto {
+    font-family: var(--fuente-secundaria);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--color-fondo-secundario);
+    transition: color 0.3s ease;
+}
+
+.paso-item.actual .paso-texto,
+.paso-item.completado .paso-texto {
+    color: var(--color-principal);
+    /* Aumenta un poco el peso de la fuente para resaltar el paso actual o completado */
+    /*para mostar el chulo de completado, se puede usar un icono de checkmark en lugar de cambiar el color del texto*/
+    
+    font-weight: 600;
+}
+
+/* Ajuste Responsivo para pantallas pequeñas */
+@media (max-width: 480px) {
+    .paso-texto {
+        font-size: 0.75rem;
+    }
+    .paso-item {
+        width: 80px;
+    }
+}

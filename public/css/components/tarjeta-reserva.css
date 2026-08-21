@@ -1,0 +1,197 @@
+/* ==========================================
+   ESTILOS COMPONENTE: TARJETA RESERVA SIGER
+   ========================================== */
+
+/* Contenedor Base Adaptable (soporta <button> y <a> sin romper diseño) */
+.tarjeta-reserva-siger {
+    background-color: var(--color-fondo); /* Fondo blanco para contraste */
+    border: 1px solid var(--color-borde);
+    border-radius: var(--borde-radio, 8px);
+    padding: var(--espaciado);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: var(--fuente-principal);
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efecto hover general al pasar el cursor por la tarjeta */
+.tarjeta-reserva-siger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilo indicador izquierdo para la vista rápida de la secretaria */
+.tarjeta-enlace {
+    border-left: 4px solid var(--color-principal) !important;
+}
+
+.tarjeta-contenido {
+    display: flex;
+    gap: var(--espaciado);
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+}
+
+.tarjeta-imagen-contenedor {
+    flex-shrink: 0;
+}
+
+.recurso-foto-min {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: calc(var(--borde-radio) - 2px);
+    border: 1px solid var(--color-borde);
+}
+
+.icono-recurso-reemplazo {
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: calc(var(--borde-radio) - 2px);
+    color: var(--color-azulado);
+}
+
+.tarjeta-detalles {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.tarjeta-fila-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 12px;
+}
+
+.recurso-titulo {
+    font-family: var(--fuente-secundaria);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
+/* Badges de estados según tus variables pastel */
+.badge-estado-siger {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+.badge-estado-siger.pendiente { 
+    color: var(--color-estado-en-mantenimiento); 
+    background-color: var(--color-en-mantenimiento-pastel); 
+}
+
+.badge-estado-siger.aprobada { 
+    color: var(--color-estado-disponible); 
+    background-color: var(--color-disponible-pastel); 
+}
+
+.badge-estado-siger.rechazada { 
+    color: var(--color-estado-dañado); 
+    background-color: var(--color-dañado-pastel); 
+}
+
+/* Info secundaria del recurso */
+.tarjeta-info-secundaria {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-texto-secundario);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info-item i {
+    color: var(--color-fondo-secundario);
+}
+
+/* Icono/Flecha a la derecha que simula la acción */
+.tarjeta-flecha-indicador {
+    color: var(--color-fondo-secundario);
+    padding-left: 8px;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+}
+
+.tarjeta-reserva-siger:hover .tarjeta-flecha-indicador {
+    color: var(--color-texto);
+}
+
+/* Botonera inferior para la vista operativa de Gestión */
+.tarjeta-acciones-siger {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid var(--color-borde);
+    padding-top: 12px;
+    justify-content: flex-start;
+}
+
+.btn-siger-accion {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: calc(var(--borde-radio) - 4px);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-detalles-siger { 
+    background-color: var(--color-fondo); 
+    color: var(--color-texto); 
+}
+
+.btn-aprobar-siger { 
+    background-color: var(--color-estado-disponible); 
+    color: var(--color-fondo); 
+}
+
+.btn-rechazar-siger { 
+    background-color: var(--color-estado-dañado); 
+    color: var(--color-fondo); 
+}
+
+/* Adaptación Mobile interna del componente */
+@media (max-width: 768px) {
+    .tarjeta-fila-superior {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    .tarjeta-acciones-siger {
+        justify-content: space-between;
+    }
+    .btn-siger-accion {
+        flex: 1;
+        text-align: center;
+    }
+}

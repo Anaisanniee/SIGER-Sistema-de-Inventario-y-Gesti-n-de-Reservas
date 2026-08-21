@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('aulas', function (Blueprint $table) {
             $table->id('aula_id');
+            $table->string('aula_foto', 255)->nullable(); 
             $table->string('aula_nombre', 25);
             $table->integer('aula_capacidad');
             $table->string('aula_estado', 25);
             $table->boolean('aula_reservable');
+            $table->softDeletes();
+            $table->string('aula_motivo_baja', 255)->nullable();
             $table->unsignedBigInteger('tip_aula_id');
             $table->foreign('tip_aula_id')->references('tip_aula_id')->on('tipos_aulas');
             $table->timestamps();

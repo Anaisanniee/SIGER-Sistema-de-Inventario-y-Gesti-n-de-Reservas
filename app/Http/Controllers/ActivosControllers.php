@@ -10,45 +10,76 @@ use Illuminate\Support\Facades\Storage;
 
 class ActivosControllers extends Controller
 {
-    public function index(Request $request)
+    public function indexUnificado(Request $request)
     {
-    // 1. Obtenemos los parámetros de búsqueda y filtro
-    $buscar = trim($request->get('buscar'));
-    $filtroCategoria = $request->get('categoria');
+        $buscar = trim($request->get('buscar'));
+        $filtroCategoria = $request->get('categoria');
+        $categorias = CategoriasModels::all();
 
-    // 2. Cargamos todas las categorías para el menú desplegable
-    $categorias = CategoriasModels::all();
+        // --- LÓGICA DE ACTIVOS ---
+        $query = ActivosModels::with(['aula', 'categoria']);
 
-    // 3. Iniciamos la consulta con sus relaciones (Eager Loading)
-    $query = ActivosModels::with(['aula', 'categoria']);
-
-    // 4. Filtro por nombre o serial
-    if ($buscar) {
-        $query->where(function($q) use ($buscar) {
-            $q->where('act_nombre', 'LIKE', '%' . $buscar . '%')
+        if ($buscar) {
+            $query->where(function($q) use ($buscar) {
+                $q->where('act_nombre', 'LIKE', '%' . $buscar . '%')
                 ->orWhere('act_serial', 'LIKE', '%' . $buscar . '%');
+            });
+        }
+
+        if ($filtroCategoria) {
+            $query->where('cate_id', $filtroCategoria);
+        }
+
+        $activos = $query->orderBy('act_id', 'desc')->get()->map(function($activo) {
+            $activo->tipo_recurso = 'activo'; 
+            return $activo;
         });
-    }
 
-    // 5. NUEVO: Aplicar el filtro de categoría a la consulta
-    if ($filtroCategoria) {
-        $query->where('cate_id', $filtroCategoria);
-    }
+        // --- LÓGICA DE AULAS ---
+        // 1. Añadimos 'activos' a la carga ansiosa (with)
+        $queryAulas = AulasModels::with(['tipoAula', 'activos.categoria']);
 
-    // 6. Ejecutamos la consulta
-    $activos = $query->orderBy('act_id', 'desc')->get();
+        if ($buscar) {
+            $queryAulas->where('aula_nombre', 'LIKE', '%' . $buscar . '%');
+        }
 
-    // 7. Contamos los resultados para el contador de la vista
-    $total = $activos->count();
+        // 2. Ejecutamos el map sobre la consulta
+        $aulas = $queryAulas->get()->map(function($aula) {
+            $aula->tipo_recurso = 'aula';
 
-    // 8. RETORNO: Es vital incluir 'categorias', 'total' y 'buscar' en el compact
-    return view('activos.index', compact('activos', 'categorias', 'total', 'buscar'));
+            $aula->activos_json = $aula->activos->map(function($activo) {
+                return [
+                    // Asegúrate de que estos nombres coincidan con las columnas de tu BD
+                    'act_nombre' => $activo->act_nombre, 
+                    'act_serial' => $activo->act_serial ?? 'Sin Serial',
+                    'act_foto' => $activo->act_foto ? asset('storage/' . $activo->act_foto) : asset('img/default-activo.png'),
+                    'act_categoria' => $activo->categoria ? $activo->categoria->cate_nombre : 'Sin categoría'
+                ];
+            })->toJson();
+            
+            // Extracción segura solo para Tipo Aula
+            $nombre = $aula->tipoAula ? $aula->tipoAula->tip_aula_nombre : 'Sin tipo';
+            $aula->nombre_tipo_aula_legible = (empty($nombre) || is_numeric($nombre)) ? 'No especificado' : $nombre;
+            
+            // La categoría ya no existe, la dejamos como 'N/A'
+            $aula->nombre_categoria_legible = 'N/A'; 
+            
+            // Nota: Laravel ahora tiene $aula->activos disponible automáticamente
+            return $aula;
+        });
+
+        // --- UNIFICACIÓN ---
+        $recursos = $activos->concat($aulas)->shuffle(); 
+        return view('inventario.index', compact(
+            'recursos', 
+            'categorias', 
+            'buscar'
+        ));
     }
 
     public function show($id)
     {
-    // El 'with' trae la información del aula de una vez
-        $activo = ActivosModels::with('aula')->findOrFail($id);
+        $activo = ActivosModels::with('categoria')->findOrFail($id);
         return view('activos.show', compact('activo'));
     }
 
@@ -56,20 +87,25 @@ class ActivosControllers extends Controller
     {
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
-    
-        return view('activos.crear', compact('aulas', 'categorias'));
+        return view('activos.crear-activo', compact('aulas', 'categorias'));
     }
 
-    public function destroy($id)
+    // ====================================================================
+    // MÉTODO DESTROY (Guarda el motivo ANTES de aplicar el SoftDelete)
+    // ====================================================================
+    public function destroy(Request $request, $id)
     {
-        // Buscar el activo por su ID
         $activo = ActivosModels::findOrFail($id);
 
-        // Eliminar el registro de la base de datos
+        // Usamos update para forzar la escritura del campo
+        $activo->update([
+            'act_motivo_baja' => $request->input('motivo_baja') // Asegúrate que el name en HTML sea 'motivo_baja'
+        ]);
+        
+        // Luego borramos
         $activo->delete();
 
-        // Redireccionar con un mensaje de éxito
-        return redirect()->back()->with('success', 'Activo eliminado correctamente.');
+        return redirect()->back()->with('mensaje', 'Activo enviado a la papelera.');
     }
 
     public function edit($id)
@@ -77,76 +113,122 @@ class ActivosControllers extends Controller
         $activo = ActivosModels::findOrFail($id);
         $aulas = AulasModels::all();
         $categorias = CategoriasModels::all();
-    
-        return view('activos.editar', compact('activo', 'aulas', 'categorias'));
+        return view('activos.editar-activos', compact('activo', 'aulas', 'categorias'));
     }
 
     public function update(Request $request, $id)
     {
-        // 1. Buscar el registro
         $activo = ActivosModels::findOrFail($id);
 
-    // 2. Validar (Ajusta los nombres según tu base de datos)
         $request->validate([
-            'act_nombre' => 'required|string|min:3|max:255',
-            'act_serial' => 'required|unique:activos,act_serial,' . $id . ',act_id',
-            'aula_id'    => 'required',
-            'cate_id'    => 'required',
+            'act_nombre'        => 'required|string|min:3|max:50',
+            'act_serial'        => 'required|string|unique:activos,act_serial,' . $id . ',act_id',
+            'act_marca'         => 'nullable|string|max:50',
+            'aula_id'           => 'required|exists:aulas,aula_id',
+            'cate_id'           => 'required|exists:categorias,cate_id',
+            'act_estado_fisico' => 'required|string|max:50',
+            'act_reservable'    => 'required|boolean',
+            'act_fecha_ingreso' => 'required|date',
         ], [
             'act_nombre.min'      => 'El nombre debe tener al menos 3 letras.',
             'act_nombre.required' => 'Escribe el nombre del activo.',
+            'act_serial.unique'   => 'Este serial ya pertenece a otro activo registrado.',
+            'act_serial.required' => 'Escribe el serial del activo.',
         ]);
 
-    // 3. Procesar la foto (opcional)
         if ($request->hasFile('act_foto')) {
+            if ($activo->act_foto) {
+                Storage::disk('public')->delete($activo->act_foto);
+            }
             $activo->act_foto = $request->file('act_foto')->store('activos', 'public');
         }
 
-    // 4. Actualizar todos los campos
-        $activo->act_nombre = $request->act_nombre;
-        $activo->act_serial = $request->act_serial;
-        $activo->aula_id = $request->aula_id;
-        $activo->cate_id = $request->cate_id;
+        $activo->act_nombre        = $request->act_nombre;
+        $activo->act_serial        = $request->act_serial;
+        $activo->act_marca         = $request->act_marca; 
+        $activo->aula_id           = $request->aula_id;
+        $activo->cate_id           = $request->cate_id;
+        $activo->act_estado_fisico = $request->act_estado_fisico;
+        $activo->act_reservable    = $request->act_reservable;
+        $activo->act_fecha_ingreso = $request->act_fecha_ingreso;
     
-        $activo->save(); // <-- ¡IMPORTANTE! Si no llamas a save(), no se guarda nada.
+        $activo->save(); 
 
-        return redirect()->route('activos.index')->with('success', 'Activo actualizado correctamente');
+        return redirect()->route('inventario.index')->with('mensaje', 'Activo actualizado correctamente');
     }
 
     public function store(Request $request)
     {
-        // Definición de reglas
         $request->validate([
             'act_nombre'        => 'required|string|min:3|max:50',
             'act_serial'        => 'required|string|unique:activos,act_serial', 
-            'aula_id'           => 'required|exists:aulas,AULA_ID',
-            'cate_id'           => 'required|exists:categorias,CATE_ID',
-            'act_estado_fisico' => 'required|in:Nuevo,Bueno,Regular,Malo',
+            'act_marca'         => 'nullable|string|max:50',
+            'aula_id'           => 'required|exists:aulas,aula_id',        
+            'cate_id'           => 'required|exists:categorias,cate_id',   
+            'act_estado_fisico' => 'required|string|max:50',
+            'act_reservable'    => 'required|boolean',
+            'act_fecha_ingreso' => 'required|date',
+            'act_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
-            'act_nombre.min'      => 'El nombre debe tener al menos 3 letras.',
-            'act_nombre.required' => 'Escribe el nombre del activo.',
-            'act_serial.unique'   => 'Este serial ya existe.',
-            'act_serial.string'   => 'El serial debe ser un texto válido.', // Traducción por si acaso
-            'aula_id.exists'      => 'Ese ID de aula no existe en el sistema.',
-            'cate_id.exists'      => 'Ese ID de categoría no existe en el sistema.',
+            'act_nombre.min'             => 'El nombre debe tener al menos 3 letras.',
+            'act_nombre.required'        => 'Escribe el nombre del activo.',
+            'act_serial.unique'          => 'Este serial ya existe en el sistema.',
+            'aula_id.exists'             => 'El aula seleccionada no existe.',
+            'cate_id.exists'             => 'La categoría seleccionada no existe.',
+            'act_estado_fisico.required' => 'Seleccione el estado físico del activo.',
         ]);
 
         try {
-            $datos = $request->all();
-        
+            $activo = new ActivosModels();
+            $activo->act_nombre        = $request->act_nombre;
+            $activo->act_serial        = $request->act_serial;
+            $activo->act_marca         = $request->act_marca;
+            $activo->aula_id           = $request->aula_id;
+            $activo->cate_id           = $request->cate_id;
+            $activo->act_estado_fisico = $request->act_estado_fisico;
+            $activo->act_reservable    = $request->act_reservable;
+            $activo->act_fecha_ingreso = $request->act_fecha_ingreso;
+
             if ($request->hasFile('act_foto')) {
-                $datos['act_foto'] = $request->file('act_foto')->store('activos', 'public');
+                $activo->act_foto = $request->file('act_foto')->store('activos', 'public');
             }
 
-            $datos['act_fecha_ingreso'] = now();
-            $datos['act_reservable'] = $request->act_reservable ?? 1;
-
-            ActivosModels::create($datos);
-
-            return redirect()->route('activos.index')->with('mensaje', 'Activo creado con éxito.');
+            $activo->save();
+            return redirect()->route('inventario.index')->with('mensaje', 'Activo creado con éxito.');
         
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Error técnico: ' . $e->getMessage());
         }
+    }
+
+    // Métodos de la papelera
+    public function trashed()
+    {
+        $activos = ActivosModels::onlyTrashed()->with(['aula', 'categoria'])->orderBy('deleted_at', 'desc')->get();
+        $aulas = AulasModels::onlyTrashed()->orderBy('deleted_at', 'desc')->get();
+        
+        // El 'total' que tenías antes era solo de activos. 
+        // Si quieres el total de ambos, puedes sumarlos:
+        $total = $activos->count() + $aulas->count(); 
+
+        // AQUÍ ES DONDE DEBES AGREGAR '$aulas'
+        return view('inventario.papelera', compact('activos', 'aulas', 'total'));
+    }
+
+    public function restore($id)
+    {
+        $activo = ActivosModels::onlyTrashed()->findOrFail($id);
+        $activo->restore();
+        return redirect()->route('inventario.index')->with('mensaje', 'Activo restaurado con éxito.');
+    }
+
+    public function forceDelete($id)
+    {
+        $activo = ActivosModels::onlyTrashed()->findOrFail($id);
+        if ($activo->act_foto) {
+            Storage::disk('public')->delete($activo->act_foto);
+        }
+        $activo->forceDelete();
+        return redirect()->back()->with('mensaje', 'Activo eliminado permanentemente.');
     }
 }

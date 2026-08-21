@@ -3,27 +3,45 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TiposAulasModels;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AulasModels extends Model
 {
+    use SoftDeletes;
 
-    protected $table = 'AULAS'; 
+    protected $table = 'aulas';
+    protected $primaryKey = 'aula_id';
 
-    // 1. Nombre de la llave primaria
-    protected $primaryKey = 'AULA_ID';
-
-    // 2. Campos que se pueden llenar (Mass Assignment)
     protected $fillable = [
-        'AULA_NOMBRE',
-        'AULA_CAPACIDAD',
-        'AULA_ESTADO',
-        'AULA_RESERVABLE',
-        'TIP_AULA_ID'
+        'aula_foto',
+        'aula_nombre',
+        'aula_capacidad',
+        'aula_estado',
+        'aula_reservable',
+        'tip_aula_id',
+        'aula_motivo_baja'
     ];
 
-    // Relación inversa: Un aula tiene muchos activos
+    /**
+     * Relación con TiposAulasModels.
+     * Aunque el modelo sea plural, el método se llama en singular 
+     * porque un aula solo pertenece a UN tipo de aula.
+     */
+    public function tipoAula()
+    {
+        return $this->belongsTo(TiposAulasModels::class, 'tip_aula_id', 'tip_aula_id');
+    }
+
     public function activos()
     {
-        return $this->hasMany(ActivosModels::class, 'aula_id', 'AULA_ID');
+        // Asegúrate de que 'aula_id' es el nombre real de la columna en tu tabla 'activos'
+        return $this->hasMany(ActivosModels::class, 'aula_id', 'aula_id');
+    }
+
+    public function categoria()
+    {
+        // Ajusta 'categoria_id' y 'Categoria' si tus nombres reales son distintos
+        return $this->belongsTo(TiposAulasModels::class, 'tip_aula_id');
     }
 }

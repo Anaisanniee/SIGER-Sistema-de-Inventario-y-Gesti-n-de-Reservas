@@ -1,0 +1,70 @@
+.carrito-reserva-contenedor {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 420px;
+    width: calc(100% - 40px);
+    transition: all 0.3s ease;
+}
+
+.carrito-reserva-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--color-borde, #e0e0e0);
+    overflow: hidden;
+}
+
+.carrito-header {
+    background: var(--color-principal, #1e293b);
+    color: #ffffff;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.badge-contador {
+    background: var(--color-primario, #2563eb);
+    color: white;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-left: 6px;
+}
+
+.carrito-cuerpo {
+    max-height: 320px;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+}
+
+.lista-items-scroll {
+    overflow-y: auto;
+    max-height: 220px;
+    padding: 10px;
+}
+
+.item-carrito-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.carrito-footer {
+    padding: 12px;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
