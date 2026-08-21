@@ -77,7 +77,7 @@
 
                     {{-- Llamamos el formulario--}}
                         @include('components.formularios.form-usuario', [
-                            'usuario' => $usuario ?? auth()->user()
+                            'modo' => 'perfil'
                         ])                </div>
             </div>
 

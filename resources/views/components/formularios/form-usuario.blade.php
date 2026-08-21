@@ -1,5 +1,11 @@
-{{-- ROL: Solo se muestra si estamos CREANDO un usuario (cuando no hay ID de usuario existente) --}}
-@if(!request()->is('*perfil*'))
+@props([
+    'modo' => 'crear',
+    'usuario' => null
+])
+
+
+@if('crear' === $modo || 'editar-admin' === $modo)
+    {{-- ROL: Solo visible para crear o editar --}} 
     <div class="post-form">
         <label for="rol">Rol</label>
         <select name="rol" id="rol">
@@ -38,13 +44,28 @@
            value="{{ old('second-last-name', $usuario->second_last_name ?? '') }}">
 </div>
 
-{{-- CÉDULA --}}
-<div class="post-form">
-    <label for="identificacion">Cédula <span class="text-danger">*</span></label>
-    <input type="text" id="identificacion" name="identificacion" 
-           value="{{ old('identificacion', $usuario->identificacion ?? '') }}"
-           {{ isset($usuario->id) ? 'readonly' : '' }}>
-</div>
+@if('crear' === $modo || 'editar-admin' === $modo)
+    {{-- ESTADO: Solo visible para crear o editar --}}
+    <div class="post-form">
+        <label for="estado">Estado</label>
+        <select name="estado" id="estado">
+            <option value="">--Selecciona--</option>
+            <option value="Activo" {{ old('estado', $usuario->estado ?? '') == 'Activo' ? 'selected' : '' }}>Activo</option>
+            <option value="Inactivo" {{ old('estado', $usuario->estado ?? '') == 'Inactivo' ? 'selected' : '' }}>Inactivo</option>
+        </select>
+    </div>
+@endif
+
+@if('crear' === $modo || 'editar-admin' === $modo)
+    {{-- CÉDULA --}}
+    <div class="post-form">
+        <label for="identificacion">Cédula <span class="text-danger">*</span></label>
+        <input type="text" id="identificacion" name="identificacion" 
+               value="{{ old('identificacion', $usuario->identificacion ?? '') }}"
+               {{ isset($usuario->id) ? 'readonly' : '' }}>
+    </div>
+@endif
+
 
 {{-- CORREO --}}
 <div class="post-form">
@@ -53,8 +74,8 @@
            value="{{ old('correo', $usuario->correo ?? '') }}">
 </div>
 
-{{-- CONDICIONAL CONTRASEÑA: Solo si se está CREANDO un usuario (sin ID en BD) --}}
-@if(!request()->is('*perfil*'))
+{{-- CONDICIONAL CONTRASEÑA: Solo si se está CREANDO un usuario --}}
+@if('crear' === $modo || 'editar-admin' === $modo)
     <div class="post-form">
         <label for="password">Contraseña Inicial <span class="text-danger">*</span></label>
         <input type="password" id="password" name="password" required 
@@ -71,7 +92,7 @@
     </x-botones.boton>
 
     <x-botones.boton class="btn btn-verde" type="submit">
-        @if(request()->is('*perfil*')|| request()->is('*editar*'))
+        @if('perfil' === $modo || 'editar-admin' === $modo  || 'editar' === $modo)
             Guardar Cambios {{-- Si la URL es de perfil o editar, muestra esto --}}
         @else
             Registrar {{-- Para cualquier otra vista (Crear), muestra esto --}}
@@ -109,6 +130,57 @@ function ejecutarCierreUniversal(boton) {
         if (window.innerWidth <= 768) {
             contenedor.style.display = 'none';
         }
+    }
+}
+
+if(modo=== 'perfil'){
+    // Deshabilitar campos de edición en modo perfil
+    let inputRol = document.getElementById('rol');
+    let inputEstado = document.getElementById('estado');
+    let inputIdentificacion = document.getElementById('identificacion');
+    inputRol.disabled = true;
+    inputEstado.disabled = true;
+    inputIdentificacion.disabled = true;
+}
+
+//Al hacer sumit del formulario, deshabilitar el botón para evitar múltiples envíos
+let form = document.querySelector('form');
+if(form){
+    form.addEventListener('submit', function() {
+        let submitButton = form.querySelector('button[type="submit"]');
+        if(submitButton){
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Procesando...';
+        }
+    });
+}
+
+// Función para manejar el envío del formulario según el modo
+function handlerSubmit() {
+    // Function implementation
+    if(modo === 'crear' ) {
+       api.crearUsuarios(
+            document.getElementById('name').value,
+            document.getElementById('second-name').value,
+            document.getElementById('lastname').value,
+            document.getElementById('second-last-name').value,
+            document.getElementById('identificacion').value,
+            document.getElementById('correo').value,
+            document.getElementById('rol').value,
+            document.getElementById('estado').value,
+            document.getElementById('password').value
+        );
+    }else if(modo === 'editar' || modo === 'editar-admin') {
+        api.editarUsuarios(
+            document.getElementById('name').value,
+            document.getElementById('second-name').value,
+            document.getElementById('lastname').value,
+            document.getElementById('second-last-name').value,
+            document.getElementById('identificacion').value,
+            document.getElementById('correo').value,
+            document.getElementById('rol') ? document.getElementById('rol').value : null,
+            document.getElementById('estado') ? document.getElementById('estado').value : null
+        );
     }
 }
 </script>
