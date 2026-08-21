@@ -75,11 +75,15 @@
                         <span>Actualizar Mis Datos</span>
                     </div>
 
-                    {{-- Llamamos el formulario pasándole el usuario actual --}}
-                    @include('components.formularios.form-usuario', [   
-                        'usuario' => $usuario,
-                        'modo' => 'perfil'
-                    ])
+                    {{-- Formulario envuelto con su ruta de actualización --}}
+                    <form action="{{ route('perfil.actualizar') }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        @include('components.formularios.form-usuario', [   
+                            'usuario' => $usuario,
+                            'modo' => 'perfil'
+                        ])
+                    </form>
                 </div>
             </div>
 
@@ -123,19 +127,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Control de apertura/cierre del formulario de edición
         const btnEditar = document.getElementById('btn-editar-perfil');
-        const btnCancelar = document.getElementById('btn-perfil-cancelar');
         const contenedorForm = document.getElementById('contenedor-formulario');
 
         if(btnEditar && contenedorForm) {
             btnEditar.addEventListener('click', function() {
                 contenedorForm.classList.toggle('activo');
-            });
-        }
-
-        if(btnCancelar && contenedorForm) {
-            btnCancelar.addEventListener('click', function(e) {
-                e.preventDefault();
-                contenedorForm.classList.remove('activo');
             });
         }
 

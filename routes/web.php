@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
     
     // 👤 PERFIL DE USUARIO (Accesible para cualquier usuario autenticado)
     Route::get('/perfil', [UserController::class, 'perfil'])->name('perfil');
+    
+    // 🛡️ CAPA 2 DE SEGURIDAD: Ruta exclusiva para actualizar datos propios del perfil
+    Route::put('/perfil/actualizar', [UserController::class, 'updatePerfil'])->name('perfil.actualizar');
 
     // -----------------------------------------------------
     // 🔒 EXCLUSIVO SECRETARÍA
@@ -46,7 +49,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // -----------------------------------------------------
-    // 🔓 EDICIÓN DE USUARIOS
+    // 🔓 EDICIÓN DE USUARIOS (Administrativo)
     // -----------------------------------------------------
     Route::middleware('role:Secretaria,Secretario,Rectora,Rector,Docente')->group(function () {
         Route::get('/usuarios/{id}/edit', [UserController::class, 'edit'])->name('usuarios.edit');

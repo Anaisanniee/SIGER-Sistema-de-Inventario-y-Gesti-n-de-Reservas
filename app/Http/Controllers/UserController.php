@@ -36,25 +36,25 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'USU_CEDULA'           => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA',
-            'USU_PRIMER_NOMBRE'    => 'required|string|max:50',
-            'USU_SEGUNDO_NOMBRE'   => 'nullable|string|max:50',
-            'USU_PRIMER_APELLIDO'  => 'required|string|max:50',
-            'USU_SEGUNDO_APELLIDO' => 'nullable|string|max:50',
-            'USU_CORREO'           => 'required|email|unique:users,USU_CORREO',
-            'USU_CONTRASEÑA'       => 'required|string|min:6',
-            'ROL_ID'               => 'required|exists:roles,id',
+            'identificacion'   => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA',
+            'name'             => 'required|string|max:50',
+            'second-name'      => 'nullable|string|max:50',
+            'lastname'         => 'required|string|max:50',
+            'second-last-name' => 'nullable|string|max:50',
+            'correo'           => 'required|email|unique:users,USU_CORREO',
+            'password'         => 'required|string|min:6',
+            'rol'              => 'required|exists:roles,id',
         ]);
 
         User::create([
-            'USU_CEDULA'           => $request->USU_CEDULA,
-            'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
-            'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
-            'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
-            'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
-            'USU_CORREO'           => $request->USU_CORREO,
-            'USU_CONTRASEÑA'       => Hash::make($request->USU_CONTRASEÑA),
-            'ROL_ID'               => $request->ROL_ID,
+            'USU_CEDULA'           => $request->input('identificacion'),
+            'USU_PRIMER_NOMBRE'    => $request->input('name'),
+            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
+            'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
+            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
+            'USU_CORREO'          => $request->input('correo'),
+            'USU_CONTRASEÑA'       => Hash::make($request->input('password')),
+            'ROL_ID'               => $request->input('rol'),
             'USU_ESTADO'           => 'Activo',
         ]);
 
@@ -64,31 +64,64 @@ class UserController extends Controller
     /**
      * Muestra la vista del perfil adaptada según el rol del usuario autenticado
      */
-  public function perfil()
-{
-    $usuario = auth()->user();
-    $rol = strtolower($usuario->role->name ?? '');
+    public function perfil()
+    {
+        $usuario = auth()->user();
+        $rol = strtolower($usuario->role->name ?? '');
 
-    // Secretaría
-    if (in_array($rol, ['secretario', 'secretaria', 'secretaria general'])) {
-        return view('users.perfil.secretario', compact('usuario'));
+        // Secretaría
+        if (in_array($rol, ['secretario', 'secretaria', 'secretaria general'])) {
+            return view('users.perfil.secretario', compact('usuario'));
+        }
+
+        // Rector / Rectora
+        if (in_array($rol, ['rector', 'rectora'])) {
+            if (view()->exists('users.perfil.rectora')) {
+                return view('users.perfil.rectora', compact('usuario'));
+            }
+            if (view()->exists('users.perfil.rector')) {
+                return view('users.perfil.rector', compact('usuario'));
+            }
+        }
+
+        // Vista general para Docente o cualquier otro rol
+        return view('users.perfil.perfil-usuario', compact('usuario'));
     }
 
-    // Rector / Rectora (Busca 'rectora', luego 'rector', o usa la vista por defecto)
-    if (in_array($rol, ['rector', 'rectora'])) {
-        if (view()->exists('users.perfil.rectora')) {
-            return view('users.perfil.rectora', compact('usuario'));
-        }
-        if (view()->exists('users.perfil.rector')) {
-            return view('users.perfil.rector', compact('usuario'));
-        }
-    }
-
-    // Vista general para Docente o cualquier otro rol
-    return view('users.perfil.perfil-usuario', compact('usuario'));
-}
     /**
-     * Muestra el formulario de edición (Secretaría, Rectora y Docente)
+     * 🛡️ CAPA 2 DE SEGURIDAD: Actualiza de forma estricta los datos propios del perfil.
+     * Solo permite la edición de nombres, apellidos y correo del usuario autenticado.
+     */
+    public function updatePerfil(Request $request)
+    {
+        $usuario = Auth::user();
+
+        // 1. Validar únicamente los campos autorizados para el perfil
+        $request->validate([
+            'name'             => 'required|string|max:50',
+            'second-name'      => 'nullable|string|max:50',
+            'lastname'         => 'required|string|max:50',
+            'second-last-name' => 'nullable|string|max:50',
+            'correo'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
+        ]);
+
+        // 2. Extraer de forma estricta solo los inputs permitidos (Se ignoran 'rol', 'estado' o 'identificacion')
+        $datosFiltrados = [
+            'USU_PRIMER_NOMBRE'    => $request->input('name'),
+            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
+            'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
+            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
+            'USU_CORREO'          => $request->input('correo'),
+        ];
+
+        // 3. Actualizar únicamente el registro del usuario autenticado
+        $usuario->update($datosFiltrados);
+
+        return redirect()->back()->with('success', '¡Perfil actualizado correctamente!');
+    }
+
+    /**
+     * Muestra el formulario de edición administrativa (Secretaría, Rectora y Docente)
      */
     public function edit($id)
     {
@@ -99,35 +132,39 @@ class UserController extends Controller
     }
 
     /**
-     * Actualiza la información del usuario (Secretaría, Rectora y Docente)
+     * Actualiza la información administrativa del usuario
      */
     public function update(Request $request, $id)
     {
         $usuario = User::findOrFail($id);
 
         $request->validate([
-            'USU_CEDULA'           => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA,' . $usuario->USU_ID . ',USU_ID',
-            'USU_PRIMER_NOMBRE'    => 'required|string|max:50',
-            'USU_SEGUNDO_NOMBRE'   => 'nullable|string|max:50',
-            'USU_PRIMER_APELLIDO'  => 'required|string|max:50',
-            'USU_SEGUNDO_APELLIDO' => 'nullable|string|max:50',
-            'USU_CORREO'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
-            'ROL_ID'               => 'required|exists:roles,id',
+            'identificacion'   => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA,' . $usuario->USU_ID . ',USU_ID',
+            'name'             => 'required|string|max:50',
+            'second-name'      => 'nullable|string|max:50',
+            'lastname'         => 'required|string|max:50',
+            'second-last-name' => 'nullable|string|max:50',
+            'correo'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
+            'rol'              => 'required|exists:roles,id',
+            'estado'           => 'nullable|string',
         ]);
 
         $data = [
-            'USU_CEDULA'           => $request->USU_CEDULA,
-            'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
-            'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
-            'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
-            'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
-            'USU_CORREO'           => $request->USU_CORREO,
-            'ROL_ID'               => $request->ROL_ID,
+            'USU_CEDULA'           => $request->input('identificacion'),
+            'USU_PRIMER_NOMBRE'    => $request->input('name'),
+            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
+            'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
+            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
+            'USU_CORREO'          => $request->input('correo'),
+            'ROL_ID'               => $request->input('rol'),
         ];
 
-        // Solo si se ingresó una nueva contraseña se encripta y actualiza
-        if ($request->filled('USU_CONTRASEÑA')) {
-            $data['USU_CONTRASEÑA'] = Hash::make($request->USU_CONTRASEÑA);
+        if ($request->has('estado')) {
+            $data['USU_ESTADO'] = $request->input('estado');
+        }
+
+        if ($request->filled('password')) {
+            $data['USU_CONTRASEÑA'] = Hash::make($request->input('password'));
         }
 
         $usuario->update($data);
