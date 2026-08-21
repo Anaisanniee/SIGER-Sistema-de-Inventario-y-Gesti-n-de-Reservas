@@ -77,6 +77,7 @@
 
                     {{-- Llamamos el formulario--}}
                         @include('components.formularios.form-usuario', [
+                            'usuario' => $usuario,
                             'modo' => 'perfil'
                         ])                </div>
             </div>

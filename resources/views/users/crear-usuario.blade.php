@@ -26,7 +26,7 @@
             <h3>Registrar nuevo usuario</h3>
 
             {{-- INYECCIÓN DEL COMPONENTE PARCIAL --}}
-            @include('components.formularios.form-usuario')
+            @include('components.formularios.form-usuario' , ['modo' => 'crear'])
   
         </form>
     </div>

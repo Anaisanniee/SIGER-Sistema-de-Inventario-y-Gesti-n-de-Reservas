@@ -87,7 +87,7 @@
                         <span>Información personal</span>
                     </div>
 
-                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
+                    @include('components.formularios.form-usuario', ['usuario' => $usuario, 'modo' => 'perfil'])
                 </div>
             </div>
 
