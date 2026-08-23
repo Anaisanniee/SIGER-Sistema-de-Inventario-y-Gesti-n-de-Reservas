@@ -16,19 +16,23 @@ class UserController extends Controller
     public function index()
     {
         $usuarios = User::with('role')->get();
+        // Definimos $users para garantizar total compatibilidad con la vista index.blade.php
+        $users = $usuarios; 
 
-        return view('users.index', compact('usuarios'));
+        return view('users.index', compact('usuarios', 'users'));
     }
 
     /**
      * Muestra el formulario para crear un usuario (Exclusivo Secretaría)
      */
     public function create()
-    {
-        $roles = Role::all();
+{
+    $roles = Role::all();
+    $registrados = User::count();
+    $activos = User::where('USU_ESTADO', 'Activo')->count();
 
-        return view('users.crear-usuario', compact('roles')); 
-    }
+    return view('users.crear-usuario', compact('roles', 'registrados', 'activos')); 
+}
 
     /**
      * Guarda el nuevo usuario (Exclusivo Secretaría)
@@ -120,47 +124,51 @@ class UserController extends Controller
         return redirect()->back()->with('success', '¡Perfil actualizado correctamente!');
     }
 
-    /**
-     * Muestra el formulario de edición administrativa (Secretaría, Rectora y Docente)
-     */
+   /**
+ * Muestra el formulario de edición administrativa (Exclusivo Secretaría)
+ */
     public function edit($id)
     {
-        $usuario = User::findOrFail($id);
-        $roles = Role::all();
+       $usuario = User::findOrFail($id);
+       $roles = Role::all();
 
-        return view('users.editar-usuario', compact('usuario', 'roles'));
+      // Contadores dinámicos para la tarjeta lateral
+       $registrados = User::count();
+       $activos = User::where('USU_ESTADO', 'Activo')->count();
+
+       return view('users.editar-usuario', compact('usuario', 'roles', 'registrados', 'activos'));
     }
-
     /**
-     * Actualiza la información administrativa del usuario
+     * Actualiza la información administrativa del usuario (Exclusivo Secretaría)
      */
     public function update(Request $request, $id)
     {
         $usuario = User::findOrFail($id);
 
         $request->validate([
-            'identificacion'   => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA,' . $usuario->USU_ID . ',USU_ID',
             'name'             => 'required|string|max:50',
             'second-name'      => 'nullable|string|max:50',
             'lastname'         => 'required|string|max:50',
             'second-last-name' => 'nullable|string|max:50',
             'correo'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
-            'rol'              => 'required|exists:roles,id',
-            'estado'           => 'nullable|string',
+            'rol'              => 'nullable|exists:roles,id',
+            'USU_ESTADO'       => 'nullable|string',
         ]);
 
         $data = [
-            'USU_CEDULA'           => $request->input('identificacion'),
-            'USU_PRIMER_NOMBRE'    => $request->input('name'),
-            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
-            'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
-            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
-            'USU_CORREO'          => $request->input('correo'),
-            'ROL_ID'               => $request->input('rol'),
+            'USU_PRIMER_NOMBRE'    => $request->input('name', $usuario->USU_PRIMER_NOMBRE),
+            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name', $usuario->USU_SEGUNDO_NOMBRE),
+            'USU_PRIMER_APELLIDO'  => $request->input('lastname', $usuario->USU_PRIMER_APELLIDO),
+            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name', $usuario->USU_SEGUNDO_APELLIDO),
+            'USU_CORREO'          => $request->input('correo', $usuario->USU_CORREO),
         ];
 
-        if ($request->has('estado')) {
-            $data['USU_ESTADO'] = $request->input('estado');
+        if ($request->filled('rol')) {
+            $data['ROL_ID'] = $request->input('rol');
+        }
+
+        if ($request->filled('USU_ESTADO')) {
+            $data['USU_ESTADO'] = $request->input('USU_ESTADO');
         }
 
         if ($request->filled('password')) {
@@ -169,7 +177,7 @@ class UserController extends Controller
 
         $usuario->update($data);
 
-        return redirect()->back()->with('success', '¡Información actualizada correctamente!');
+        return redirect()->route('usuarios.index')->with('success', '¡Información del usuario actualizada correctamente!');
     }
 
     /**
@@ -185,5 +193,16 @@ class UserController extends Controller
         ]);
 
         return redirect()->back()->with('success', "Estado del usuario cambiado a {$nuevoEstado}.");
+    }
+
+    /**
+     * Elimina definitivamente un usuario (Exclusivo Secretaría)
+     */
+    public function destroy($id)
+    {
+        $usuario = User::findOrFail($id);
+        $usuario->delete();
+
+        return redirect()->route('usuarios.index')->with('success', '¡Usuario eliminado definitivamente de SIGER!');
     }
 }

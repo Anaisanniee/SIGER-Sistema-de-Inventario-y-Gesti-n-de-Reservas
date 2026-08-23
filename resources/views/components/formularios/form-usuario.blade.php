@@ -1,16 +1,29 @@
 @props([
     'modo' => 'crear',
-    'usuario' => null
+    'usuario' => null,
+    'roles' => []
 ])
 
 @if('crear' === $modo || 'editar-admin' === $modo)
-    {{-- ROL: Solo visible para crear o editar --}} 
+    {{-- ROL: Dinámico desde la base de datos --}} 
     <div class="post-form">
-        <label for="rol">Rol</label>
-        <select name="rol" id="rol">
-            <option value="">--Selecciona--</option>
-            <option value="2" {{ old('rol', $usuario->ROL_ID ?? '') == '2' ? 'selected' : '' }}>Docente</option>
-            <option value="3" {{ old('rol', $usuario->ROL_ID ?? '') == '3' ? 'selected' : '' }}>Rector(a)</option>
+        <label for="rol">Rol del Usuario <span class="text-danger">*</span></label>
+        <select name="rol" id="rol" required>
+            <option value="">-- Selecciona un Rol --</option>
+            {{-- Si la variable $roles viene desde el controlador, la iteramos dinámicamente --}}
+            @if(isset($roles) && count($roles) > 0)
+                @foreach($roles as $r)
+                    <option value="{{ $r->ROL_ID ?? $r->id }}" 
+                        {{ (old('rol', $usuario->ROL_ID ?? '') == ($r->ROL_ID ?? $r->id)) ? 'selected' : '' }}>
+                        {{ $r->ROL_NOMBRE ?? $r->name }}
+                    </option>
+                @endforeach
+            @else
+                {{-- Opciones de respaldo en caso de que no se pase la variable $roles --}}
+                <option value="1" {{ old('rol', $usuario->ROL_ID ?? '') == '1' ? 'selected' : '' }}>Secretaría</option>
+                <option value="2" {{ old('rol', $usuario->ROL_ID ?? '') == '2' ? 'selected' : '' }}>Rector(a)</option>
+                <option value="3" {{ old('rol', $usuario->ROL_ID ?? '') == '3' ? 'selected' : '' }}>Docente</option>
+            @endif
         </select>
     </div>
 @endif
@@ -48,8 +61,7 @@
     <div class="post-form">
         <label for="estado">Estado</label>
         <select name="estado" id="estado">
-            <option value="">--Selecciona--</option>
-            <option value="Activo" {{ old('estado', $usuario->USU_ESTADO ?? '') == 'Activo' ? 'selected' : '' }}>Activo</option>
+            <option value="Activo" {{ old('estado', $usuario->USU_ESTADO ?? 'Activo') == 'Activo' ? 'selected' : '' }}>Activo</option>
             <option value="Inactivo" {{ old('estado', $usuario->USU_ESTADO ?? '') == 'Inactivo' ? 'selected' : '' }}>Inactivo</option>
         </select>
     </div>
@@ -58,8 +70,8 @@
 @if('crear' === $modo || 'editar-admin' === $modo)
     {{-- CÉDULA --}}
     <div class="post-form">
-        <label for="identificacion">Cédula <span class="text-danger">*</span></label>
-        <input type="text" id="identificacion" name="identificacion" 
+        <label for="identificacion">Cédula / Documento <span class="text-danger">*</span></label>
+        <input type="text" id="identificacion" name="identificacion" required
                value="{{ old('identificacion', $usuario->USU_CEDULA ?? '') }}"
                {{ isset($usuario->USU_ID) ? 'readonly' : '' }}>
     </div>
@@ -67,7 +79,7 @@
 
 {{-- CORREO --}}
 <div class="post-form">
-    <label for="correo">Correo <span class="text-danger">*</span></label>
+    <label for="correo">Correo Electrónico <span class="text-danger">*</span></label>
     <input type="email" id="correo" name="correo" required
            value="{{ old('correo', $usuario->USU_CORREO ?? '') }}">
 </div>
@@ -81,7 +93,7 @@
     </div>
 @endif
 
-<div class="contenedor-botones">
+<div class="contenedor-botones" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
     <x-botones.boton 
         class="btn btn-rojo" 
         type="button" 
@@ -123,16 +135,4 @@ function ejecutarCierreUniversal(boton) {
         }
     }
 }
-
-// Al hacer submit del formulario, deshabilitar el botón para evitar múltiples envíos
-let form = document.querySelector('form');
-if(form){
-    form.addEventListener('submit', function() {
-        let submitButton = form.querySelector('button[type="submit"]');
-        if(submitButton){
-            submitButton.disabled = true;
-            submitButton.innerHTML = 'Procesando...';
-        }
-    });
-}
-</script>
+</script>   

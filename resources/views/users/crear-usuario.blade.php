@@ -2,10 +2,10 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/usuarios'))
+@section('rutaRegresar', route('usuarios.index'))
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
+    <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">   
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
     <h2 class="titulo-pagina"><i class="fas fa-user-plus"></i> Crear Usuario</h2>
@@ -20,13 +20,30 @@
 
     {{-- CONTENEDOR COLAPSABLE --}}
     <div class="collapse dont-collapse-md" id="formularioColapsable">
-        <form class="form-registrar" action="{{ route('usuarios.store') }}" method="PUT">
+        
+        {{-- ALERTA DE ERRORES DE VALIDACIÓN --}}
+        @if ($errors->any())
+            <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
+                <strong>¡Atención! No se pudo crear el usuario:</strong>
+                <ul style="margin-bottom: 0; padding-left: 1.2rem; margin-top: 0.5rem;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        {{-- FORMULARIO CORREGIDO A MÉTODO POST --}}
+        <form class="form-registrar" action="{{ route('usuarios.store') }}" method="POST">
             @csrf
 
             <h3>Registrar nuevo usuario</h3>
 
             {{-- INYECCIÓN DEL COMPONENTE PARCIAL --}}
-            @include('components.formularios.form-usuario', ['modo' => 'crear'])
+            @include('components.formularios.form-usuario', [
+                'modo' => 'crear',
+                'roles' => $roles ?? []
+            ])
   
         </form>
     </div>
@@ -40,11 +57,11 @@
             
             <div class="grid-contadores">
                 <div class="tarjeta-contador">
-                    <span class="numero-contador">48</span>
+                    <span class="numero-contador">{{ $registrados ?? 0 }}</span>
                     <span class="etiqueta-contador">Registrados</span>
                 </div>
                 <div class="tarjeta-contador">
-                    <span class="numero-contador">12</span>
+                    <span class="numero-contador">{{ $activos ?? 0 }}</span>
                     <span class="etiqueta-contador">Activos</span>
                 </div>
             </div>
@@ -74,7 +91,7 @@
                 </li>
                 <li>
                     <strong>Seguridad inicial:</strong> 
-                    La contraseñase inicial se recomienda que sea igual al número de documento del usuario, para facilitar el primer acceso.
+                    La contraseña inicial se recomienda que sea igual al número de documento del usuario para facilitar su primer acceso.
                 </li>
             </ul>
         </div>

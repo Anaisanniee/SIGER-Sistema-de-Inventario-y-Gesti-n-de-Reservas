@@ -34,26 +34,26 @@ Route::middleware('auth')->group(function () {
     Route::put('/perfil/actualizar', [UserController::class, 'updatePerfil'])->name('perfil.actualizar');
 
     // -----------------------------------------------------
-    // 🔒 EXCLUSIVO SECRETARÍA
+    // 🔒 EXCLUSIVO SECRETARÍA (Gestión Total de Usuarios)
     // -----------------------------------------------------
     Route::middleware('role:Secretaria,Secretario')->group(function () {
+        // Listado general y creación
         Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.index');
         Route::get('/usuarios/create', [UserController::class, 'create'])->name('usuarios.create');
         Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
+        
+        // Edición administrativa exclusiva
+        Route::get('/usuarios/{id}/edit', [UserController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
+        
+        // Acciones de estado y borrado
         Route::patch('/usuarios/{id}/dar-de-baja', [UserController::class, 'darDeBaja'])->name('usuarios.baja');
+        Route::delete('/usuarios/{id}', [UserController::class, 'destroy'])->name('usuarios.destroy');
 
         // Dashboard Secretaría
         Route::get('/dashboard/secretaria', function () {
             return view('dashboard.secretario');
         })->name('dashboard.secretaria');
-    });
-
-    // -----------------------------------------------------
-    // 🔓 EDICIÓN DE USUARIOS (Administrativo)
-    // -----------------------------------------------------
-    Route::middleware('role:Secretaria,Secretario,Rectora,Rector,Docente')->group(function () {
-        Route::get('/usuarios/{id}/edit', [UserController::class, 'edit'])->name('usuarios.edit');
-        Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
     });
 
     // -----------------------------------------------------
