@@ -17,14 +17,20 @@ class ReservasControllers extends Controller
         $idsActivos = [];
         $idsAulas = [];
 
-        // Si el carrito envió los items estructurados por tipo (lo ideal)
+        // Si el carrito envió los items estructurados por tipo
         if (isset($reservaTemp['items']) && is_array($reservaTemp['items'])) {
             foreach ($reservaTemp['items'] as $item) {
-                if (isset($item['tipo']) && isset($item['id'])) {
-                    if ($item['tipo'] === 'activo') {
-                        $idsActivos[] = $item['id'];
-                    } elseif ($item['tipo'] === 'aula') {
-                        $idsAulas[] = $item['id'];
+                $tipoItem = $item['tipo'] ?? null;
+                
+                if ($tipoItem === 'aula') {
+                    $idItem = $item['aula_id'] ?? $item['id'] ?? null;
+                    if ($idItem !== null) {
+                        $idsAulas[] = $idItem;
+                    }
+                } else {
+                    $idItem = $item['act_id'] ?? $item['id'] ?? null;
+                    if ($idItem !== null) {
+                        $idsActivos[] = $idItem;
                     }
                 }
             }
@@ -32,12 +38,11 @@ class ReservasControllers extends Controller
             // Compatibilidad por si usa el formato antiguo de IDs planos
             $ids = $reservaTemp['ids'] ?? [];
             $idsActivos = $ids;
-            $idsAulas = $ids; // Fallback por seguridad
         }
 
         return [
-            'activos' => array_unique($idsActivos),
-            'aulas' => array_unique($idsAulas)
+            'activos' => array_unique(array_filter($idsActivos)),
+            'aulas' => array_unique(array_filter($idsAulas))
         ];
     }
 
@@ -222,6 +227,19 @@ class ReservasControllers extends Controller
         $fechaHoraInicio = $request->res_fecha_inicio . ' ' . $horaInicio;
         $fechaHoraFin    = $request->res_fecha_fin . ' ' . $horaFin;
 
+        // --- SOLUCIÓN: Obtener el nombre real del aula usando 'aula_id' ---
+        $nombreAulaUso = null;
+        if ($request->filled('aula_uso')) {
+            $aulaInput = $request->aula_uso;
+            if (is_numeric($aulaInput)) {
+                $aulaObj = \App\Models\AulasModels::where('aula_id', $aulaInput)->first();
+                $nombreAulaUso = $aulaObj ? $aulaObj->aula_nombre : $aulaInput;
+            } else {
+                $nombreAulaUso = $aulaInput;
+            }
+        }
+        // -----------------------------------------------------------------
+
         session([
             'reserva.res_fecha_inicio' => $fechaHoraInicio,
             'reserva.res_fecha_fin'    => $fechaHoraFin,
@@ -247,14 +265,34 @@ class ReservasControllers extends Controller
         $idsActivos = $datosReserva['ids_activos'] ?? [];
         $idsAulas = $datosReserva['ids_aulas'] ?? [];
 
+        // Rescate inteligente si el aula viene en 'aula_uso' o en los objetos
+        if (empty($idsAulas)) {
+            if (!empty($datosReserva['aula_uso'])) {
+                $aulaUsoInput = $datosReserva['aula_uso'];
+                if (is_numeric($aulaUsoInput)) {
+                    $idsAulas[] = (int) $aulaUsoInput;
+                } else {
+                    $aulaObj = AulasModels::where('aula_nombre', 'LIKE', '%' . trim($aulaUsoInput) . '%')->first();
+                    if ($aulaObj) {
+                        $idsAulas[] = $aulaObj->aula_id;
+                    }
+                }
+            } elseif (isset($datosReserva['recursos_objetos'])) {
+                foreach ($datosReserva['recursos_objetos'] as $rec) {
+                    if (isset($rec->tipo_recurso_real) && $rec->tipo_recurso_real === 'aula') {
+                        $idsAulas[] = $rec->aula_id;
+                    }
+                }
+            }
+        }
+
+        $idsAulas = array_unique(array_filter($idsAulas));
+
         if (empty($datosReserva) || (empty($idsActivos) && empty($idsAulas))) {
             return redirect()->route('dashboard.docente')->with('error', 'No hay datos de reserva en proceso. Por favor, comience de nuevo.');
         }
 
-        // Determinación robusta y segura del aula de destino para los activos:
-        // Si la reserva incluye un aula en los IDs, esa es obligatoriamente el aula de destino.
         $aulaIdReal = null;
-
         if (!empty($idsAulas)) {
             $aulaIdReal = $idsAulas[0];
         } else {
@@ -275,7 +313,6 @@ class ReservasControllers extends Controller
             }
         }
 
-        // Fallback de seguridad estricto consultando la primera aula real disponible
         if (!$aulaIdReal) {
             $primeraAula = AulasModels::first();
             $aulaIdReal = $primeraAula ? $primeraAula->aula_id : 3;
@@ -298,27 +335,58 @@ class ReservasControllers extends Controller
             $fechaFin .= ':00';
         }
 
-        // Validación de cruce separada por tipo e ID exacto
-        $conflicto = DetallesReservasModels::whereHas('reserva', function($query) {
-                $query->whereIn('res_estado_reserva', ['Pendiente', 'Aprobada', 'pendiente', 'aprobada']);
-            })
-            ->where(function($query) use ($idsActivos, $idsAulas) {
-                if (!empty($idsActivos)) {
-                    $query->orWhereIn('act_id', $idsActivos);
-                }
-                if (!empty($idsAulas)) {
-                    $query->orWhereIn('aula_id', $idsAulas);
-                }
-            })
-            ->where(function($query) use ($fechaInicio, $fechaFin) {
-                $query->where('det_re_fecha_ini', '<', $fechaFin)
-                      ->where('det_re_fecha_fin', '>', $fechaInicio);
-            })
-            ->exists();
+        $recursosOcupadosNombres = [];
 
-        if ($conflicto) {
+        // 1. Revisar conflictos en activos
+        if (!empty($idsActivos)) {
+            $conflictosActivos = DetallesReservasModels::whereHas('reserva', function($query) {
+                    $query->whereIn('res_estado_reserva', ['Pendiente', 'Aprobada', 'pendiente', 'aprobada']);
+                })
+                ->whereIn('act_id', $idsActivos)
+                ->where('det_re_fecha_ini', '<', $fechaFin)
+                ->where('det_re_fecha_fin', '>', $fechaInicio)
+                ->with('activo')
+                ->get();
+
+            foreach ($conflictosActivos as $detalle) {
+                if ($detalle->activo) {
+                    $recursosOcupadosNombres[] = $detalle->activo->act_nombre;
+                }
+            }
+        }
+
+        // 2. Revisar conflictos en aulas (Buscando tanto en aula_id como en det_re_aula_destino_act)
+        if (!empty($idsAulas)) {
+            $conflictosAulas = DetallesReservasModels::whereHas('reserva', function($query) {
+                    $query->whereIn('res_estado_reserva', ['Pendiente', 'Aprobada', 'pendiente', 'aprobada']);
+                })
+                ->where(function($q) use ($idsAulas) {
+                    $q->whereIn('aula_id', $idsAulas)
+                      ->orWhereIn('det_re_aula_destino_act', $idsAulas);
+                })
+                ->where('det_re_fecha_ini', '<', $fechaFin)
+                ->where('det_re_fecha_fin', '>', $fechaInicio)
+                ->get();
+
+            foreach ($conflictosAulas as $detalle) {
+                $idAulaEncontrada = $detalle->aula_id ?? $detalle->det_re_aula_destino_act;
+                if ($idAulaEncontrada) {
+                    $aulaObj = AulasModels::where('aula_id', $idAulaEncontrada)->first();
+                    if ($aulaObj) {
+                        $recursosOcupadosNombres[] = $aulaObj->aula_nombre;
+                    }
+                }
+            }
+        }
+
+        // 3. Si hay conflictos, mostrar los nombres combinados en el mensaje de error
+        if (!empty($recursosOcupadosNombres)) {
+            $listaNombres = implode(', ', array_unique($recursosOcupadosNombres));
+
             return redirect()->route('reservas.paso2')
-                ->withErrors(['res_hora_inicio' => '¡Uno o más recursos seleccionados ya se encuentran reservados en ese intervalo de horario! Por favor seleccione otra hora.'])
+                ->withErrors([
+                    'res_hora_inicio' => "⚠️ Los siguientes recursos o aulas ya se encuentran reservados en ese horario: {$listaNombres}. Por favor seleccione otra hora."
+                ])
                 ->withInput();
         }
 
@@ -329,19 +397,17 @@ class ReservasControllers extends Controller
             'res_motivo'         => $datosReserva['res_motivo'] ?? 'Sin motivo especificado',
         ]);
 
-        // Registrar detalles independientes para activos
         foreach ($idsActivos as $idActivo) {
             DetallesReservasModels::create([
                 'res_id'                    => $reserva->res_id,
                 'act_id'                    => $idActivo, 
                 'det_re_fecha_ini'          => $fechaInicio, 
                 'det_re_fecha_fin'          => $fechaFin,      
-                'det_re_aula_destino_act'   => $aulaIdReal, // Asigna de forma blindada el ID correcto de la tabla aulas
+                'det_re_aula_destino_act'   => $aulaIdReal, 
                 'aula_id'                   => null,   
             ]);
         }
 
-        // Registrar detalles independientes para aulas
         foreach ($idsAulas as $idAula) {
             DetallesReservasModels::create([
                 'res_id'                    => $reserva->res_id,
