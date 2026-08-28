@@ -59,7 +59,7 @@
 @if('crear' === $modo || 'editar-admin' === $modo)
     {{-- ESTADO: Solo visible para crear o editar --}}
     <div class="post-form">
-        <label for="estado">Estado</label>
+        <label for="estado">Estado <span class="text-danger">*</span></label>
         <select name="estado" id="estado">
             <option value="Activo" {{ old('estado', $usuario->USU_ESTADO ?? 'Activo') == 'Activo' ? 'selected' : '' }}>Activo</option>
             <option value="Inactivo" {{ old('estado', $usuario->USU_ESTADO ?? '') == 'Inactivo' ? 'selected' : '' }}>Inactivo</option>

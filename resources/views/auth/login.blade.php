@@ -78,8 +78,6 @@
 
 
 
-            <a href="recuperar-contrasena">¿Olvidaste tu contraseña?</a>
-
 
 
             {{----$_COOKIE['user_id'/rol]----}}

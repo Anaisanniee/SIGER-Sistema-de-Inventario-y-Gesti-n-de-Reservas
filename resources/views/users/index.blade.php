@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/perfil/secretario'))
+@section('rutaRegresar', route('perfil'))
 @section('mostrarPerfil', 'false')
 
 @section('content')
@@ -13,13 +13,13 @@
     {{-- ENCABEZADO PRINCIPAL CON BOTÓN DE CREAR USUARIO --}}
     <div class="perfil-header-seccion" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
-            <h2 class="perfil-titulo-principal">Gestión de Usuarios</h2>
+            <h2 class="perfil-titulo-principal" style="color: var(--color-principal);">Gestión de Usuarios</h2>
             <p class="perfil-subtitulo">Supervisa, activa, desactiva o elimina las cuentas del personal de la institución.</p>
         </div>
 
         {{-- Botón de acceso directo a Registro --}}
         <a href="{{ route('usuarios.create') }}" style="text-decoration: none;">
-            <x-botones.boton type="button" class="btn-siger-accion btn-verde-siger" style="width: auto; padding: 10px 20px;">
+            <x-botones.boton type="button" class="btn btn-siger-accion  btn-verde-siger" style="width: auto; padding: 10px 20px;">
                 <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Crear Nuevo Usuario
             </x-botones.boton>
         </a>
@@ -33,7 +33,7 @@
             <button class="tab-btn activo" data-tab="tab-activos" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid var(--color-principal); color: var(--color-texto);">
                 Usuarios Activos
             </button>
-            <button class="tab-btn" data-tab="tab-inactivos" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; color: var(--color-principal);">
+            <button class="tab-btn" data-tab="tab-inactivos" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; color: var(--color-texto);">
                 Usuarios Inactivos
             </button>
         </div>
@@ -78,7 +78,7 @@
                                     {{-- Botón Editar --}}
                                     <x-botones.boton 
                                         type="button" 
-                                        class="btn-siger-accion btn-azul" 
+                                        class="btn-siger-accion btn btn-azul" 
                                         style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
                                         onclick="window.location.href='{{ route('usuarios.edit', $usuario->USU_ID) }}'">
                                         Editar
@@ -87,7 +87,7 @@
                                     {{-- Botón Gestionar Modal --}}
                                     <x-botones.boton 
                                         type="button" 
-                                        class="btn-siger-accion btn-rojo" 
+                                        class="btn-siger-accion btn btn-rojo" 
                                         style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#modalGestionUsuario"
@@ -146,21 +146,20 @@
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 0.5rem; justify-content: center;">
                                     {{-- Botón Activar Directo (Corregido a PATCH/usuarios.baja) --}}
-                                    <form action="{{ route('usuarios.baja', $usuario->USU_ID) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <x-botones.boton 
-                                            type="submit" 
-                                            class="btn-siger-accion btn-verde-siger" 
-                                            style="padding: 6px 16px; font-size: 0.85rem; width: auto;">
-                                            Activar
-                                        </x-botones.boton>
+                                    <form action="{{ route('usuarios.baja', $usuario->USU_ID) }}" method="POST" style="display: inline-flex; margin: 0;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <x-botones.boton
+                                                type="submit"
+                                                class="btn-siger-accion btn btn-verde-siger"
+                                                style="padding: 6px 16px; font-size: 0.85rem; width: auto;">
+                                                Activar
+                                            </x-botones.boton>
                                     </form>
-
                                     {{-- Botón Gestionar Modal (Inactivo) --}}
                                     <x-botones.boton 
                                         type="button" 
-                                        class="btn-siger-accion btn-rojo" 
+                                        class="btn-siger-accion btn btn-rojo" 
                                         style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#modalGestionUsuario"
@@ -218,7 +217,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContenidos = document.querySelectorAll('.tab-contenido');
-
+//hace que al hacer clic en una pestaña, se muestre su contenido y se oculte el de las demás
         tabBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 tabBtns.forEach(b => {
@@ -228,7 +227,7 @@
                 });
 
                 tabContenidos.forEach(c => c.style.display = 'none');
-
+// hace que el botón clickeado se vea activo y muestre su contenido correspondiente
                 this.classList.add('activo');
                 this.style.borderBottom = '3px solid var(--color-principal)';
                 this.style.color = 'var(--color-texto)';

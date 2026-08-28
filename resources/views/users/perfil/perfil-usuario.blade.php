@@ -2,8 +2,9 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/dashboard'))
-@section('mostrarPerfil', 'false')
+@section('rutaRegresar', auth()->user()->role === 'docente' 
+    ? route('dashboard.docente', ['id' => auth()->id()]) 
+    : route('dashboard.rectora', ['id' => auth()->id()]))@section('mostrarPerfil', 'false')
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
@@ -12,8 +13,8 @@
     
     {{-- BARRA SUPERIOR DE CONTEXTO --}}
     <div class="perfil-header-seccion">
-        <h2 class="perfil-titulo-principal">Mi perfil</h2>
-        <p class="perfil-subtitulo">Gestiona tu cuenta e información personal en SIGER</p>
+        <h2 class="perfil-titulo-principal" style="color: var(--color-principal);">Mi Perfil</h2>
+
     </div>
 
     <div class="perfil-layout-contenedor">

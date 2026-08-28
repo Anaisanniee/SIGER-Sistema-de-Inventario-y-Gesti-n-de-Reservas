@@ -24,8 +24,11 @@
     @endif
 
     <div class="d-flex">
-        @if($mostrarRegresar ?? true)
-            <a href="@yield('rutaRegresar', url()->previous())" class="btn-back-nav" title="Volver">
+       @if($mostrarRegresar ?? true)
+            <a href="{{ $rutaRegresar ?? 'javascript:history.back()' }}" 
+            onclick="if (!'{{ $rutaRegresar ?? '' }}') { event.preventDefault(); window.history.back(); }" 
+            class="btn-back-nav" 
+            title="Volver">
                 <i class="fas fa-arrow-left"></i>
             </a>
         @endif

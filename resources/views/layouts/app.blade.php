@@ -19,12 +19,13 @@
  </head>
  <body>
         <header>
-            @include ('components.navbar' , [
-                'mostrarBusqueda' => $__env->yieldContent('mostrarBusqueda') !== 'false', 
-                'mostrarRegresar' => $__env->yieldContent('mostrarRegresar') !== 'false', 
-                'mostrarPerfil' => $__env->yieldContent('mostrarPerfil') !== 'false',
-                'rutaBusqueda' => $__env->yieldContent('rutaBusqueda', '#')
-            ])
+          @include('components.navbar', [
+            'mostrarBusqueda' => $__env->yieldContent('mostrarBusqueda') !== 'false', 
+            'mostrarRegresar' => $__env->yieldContent('mostrarRegresar') !== 'false', 
+            'mostrarPerfil'   => $__env->yieldContent('mostrarPerfil') !== 'false',
+            'rutaBusqueda'   => $__env->yieldContent('rutaBusqueda', '#'),
+            'rutaRegresar'   => $__env->yieldContent('rutaRegresar', '')
+        ])
         </header>
 
          <x-alertas.alertas-flotantes />

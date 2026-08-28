@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/dashboard'))
+@section('rutaRegresar', route('dashboard.secretaria'))
 @section('mostrarPerfil', 'false')
 @section('content')
 
@@ -12,8 +12,8 @@
     
     {{-- BARRA SUPERIOR DE CONTEXTO --}}
     <div class="perfil-header-seccion">
-        <h2 class="perfil-titulo-principal">Panel de Gestión - Secretaría</h2>
-        <p class="perfil-subtitulo">Control, revisión y aprobación del sistema SIGER</p>
+        <h2 class="perfil-titulo-principal" style="color: var(--color-principal);">Mi Perfil</h2>
+
     </div>
 
     <div class="perfil-layout-contenedor">
@@ -50,18 +50,15 @@
 
             <div class="acciones-laterales">
                 {{-- Botones editar, cambiar clave y gestionar usuarios --}}
-                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
+                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn btn-verde-siger">
                     Editar Mis Datos
                 </x-botones.boton>
-                <x-botones.boton id="btn-cambiar-contraseña" type="button" class="btn-siger-accion btn-verde-siger">
-                    Cambiar contraseña
-                </x-botones.boton>
                 <a href="{{ route('usuarios.index') }}" style="text-decoration: none; width: 100%;">
-                    <x-botones.boton type="button" class="btn-siger-accion btn-azul">
+                    <x-botones.boton type="button" class="btn-siger-accion btn btn-azul">
                         Gestionar Usuarios
                     </x-botones.boton>
                 </a>
-                <x-botones.boton-logout />
+                <x-botones.boton-logout class="btn-siger-accion btn btn-rojo"/>
             </div>
         </aside>
 
