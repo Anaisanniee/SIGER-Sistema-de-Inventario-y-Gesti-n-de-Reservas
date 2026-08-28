@@ -2,16 +2,42 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
+<<<<<<< HEAD
 @section('rutaRegresar', route('usuarios.index'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">   
+=======
+@section('rutaRegresar', url('/usuarios'))
+
+@section('content')
+    <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
+>>>>>>> origin/backend-Elias
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
     <h2 class="titulo-pagina"><i class="fas fa-user-plus"></i> Crear Usuario</h2>
 
 <div class="contenedor-registro-flexible">
 
+<<<<<<< HEAD
+=======
+    {{-- Notificaciones de estado o éxito --}}
+    @if (session('status'))
+        <x-alertas.notificacion tipo="exito">
+            {{ session('status') }}
+        </x-alertas.notificacion>
+    @endif
+
+    {{-- Errores de validación --}}
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            <x-alertas.notificacion tipo="error">
+                {{ $error }}
+            </x-alertas.notificacion>
+        @endforeach
+    @endif
+
+>>>>>>> origin/backend-Elias
     {{-- BOTÓN DISPARADOR (Móviles) --}}
     <button class="btn-toggle-formulario" type="button" data-bs-toggle="collapse" data-bs-target="#formularioColapsable" aria-expanded="false" aria-controls="formularioColapsable">
         <span><i class="fas fa-user-plus"></i> Formulario de Registro</span>
@@ -20,6 +46,7 @@
 
     {{-- CONTENEDOR COLAPSABLE --}}
     <div class="collapse dont-collapse-md" id="formularioColapsable">
+<<<<<<< HEAD
         
         {{-- ALERTA DE ERRORES DE VALIDACIÓN --}}
         @if ($errors->any())
@@ -35,15 +62,22 @@
 
         {{-- FORMULARIO CORREGIDO A MÉTODO POST --}}
         <form class="form-registrar" action="{{ route('usuarios.store') }}" method="POST">
+=======
+        <form class="form-registrar" action="{{ route('usuarios.store') }}" method="PUT">
+>>>>>>> origin/backend-Elias
             @csrf
 
             <h3>Registrar nuevo usuario</h3>
 
             {{-- INYECCIÓN DEL COMPONENTE PARCIAL --}}
+<<<<<<< HEAD
             @include('components.formularios.form-usuario', [
                 'modo' => 'crear',
                 'roles' => $roles ?? []
             ])
+=======
+            @include('components.formularios.form-usuario')
+>>>>>>> origin/backend-Elias
   
         </form>
     </div>
@@ -57,11 +91,19 @@
             
             <div class="grid-contadores">
                 <div class="tarjeta-contador">
+<<<<<<< HEAD
                     <span class="numero-contador">{{ $registrados ?? 0 }}</span>
                     <span class="etiqueta-contador">Registrados</span>
                 </div>
                 <div class="tarjeta-contador">
                     <span class="numero-contador">{{ $activos ?? 0 }}</span>
+=======
+                    <span class="numero-contador">48</span>
+                    <span class="etiqueta-contador">Registrados</span>
+                </div>
+                <div class="tarjeta-contador">
+                    <span class="numero-contador">12</span>
+>>>>>>> origin/backend-Elias
                     <span class="etiqueta-contador">Activos</span>
                 </div>
             </div>
@@ -91,7 +133,11 @@
                 </li>
                 <li>
                     <strong>Seguridad inicial:</strong> 
+<<<<<<< HEAD
                     La contraseña inicial se recomienda que sea igual al número de documento del usuario para facilitar su primer acceso.
+=======
+                    La contraseñase inicial se recomienda que sea igual al número de documento del usuario, para facilitar el primer acceso.
+>>>>>>> origin/backend-Elias
                 </li>
             </ul>
         </div>

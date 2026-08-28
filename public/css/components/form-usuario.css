@@ -17,6 +17,7 @@
     transform: none !important;
     display: none; /* Oculto en móvil por defecto para el colapso */
     flex-direction: column;
+<<<<<<< HEAD
     padding: 24px;
     background-color: var(--color-fondo, #ffffff);
     margin: 0;
@@ -28,6 +29,20 @@
     font-family: var(--fuente-principal);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e3e6f0;
+=======
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: var(--color-fondo);
+    margin: 0 auto 20px auto;
+    min-height: 27rem;
+    width: 100% !important;
+    box-sizing: border-box;
+    border-radius: 4px;
+    color: var(--color-texto);
+    font-family: var(--fuente-principal);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+>>>>>>> origin/backend-Elias
 }
 
 /* Control del colapso de Bootstrap en móvil */
@@ -44,10 +59,16 @@ h3 {
 }
 
 .post-form {
+<<<<<<< HEAD
     margin: 3px 0;
     width: 100%;
     padding: 1px;
     box-sizing: border-box;
+=======
+    margin: 3px;
+    width: 100%;
+    padding: 1px;
+>>>>>>> origin/backend-Elias
 }
 
 label {
@@ -55,7 +76,10 @@ label {
     margin-bottom: 7px;
     font-family: var(--fuente-secundaria);
     font-weight: 500;
+<<<<<<< HEAD
     display: block;
+=======
+>>>>>>> origin/backend-Elias
 }
 
 input, select {
@@ -67,12 +91,15 @@ input, select {
     border-radius: 4px;
     font-size: 1rem;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+<<<<<<< HEAD
     box-sizing: border-box;
 }
 
 input:focus, select:focus {
     outline: none;
     border-color: var(--color-principal);
+=======
+>>>>>>> origin/backend-Elias
 }
 
 option {
@@ -86,7 +113,10 @@ option {
     justify-content: space-between;
     width: 100%;
     gap: 10px;
+<<<<<<< HEAD
     margin-top: 15px;
+=======
+>>>>>>> origin/backend-Elias
 }
 
 /* BOTÓN DISPARADOR (Móvil) */
@@ -289,7 +319,11 @@ option {
 
 
 /* ==========================================================================
+<<<<<<< HEAD
    3. ADAPTACIÓN RESPONSIVA
+=======
+   3. ADAPTACIÓN RESPONSIVA (Solo lo que cambia)
+>>>>>>> origin/backend-Elias
    ========================================================================== */
 
 /* 📑 TABLET (769px a 1023px) */
@@ -302,7 +336,10 @@ option {
         display: block !important;
         height: auto !important;
         visibility: visible !important;
+<<<<<<< HEAD
         width: 100%;
+=======
+>>>>>>> origin/backend-Elias
     }
 
     .contenedor-registro-flexible {
@@ -315,12 +352,21 @@ option {
     }
 
     .form-registrar {
+<<<<<<< HEAD
         display: flex !important; 
         max-width: 100%;
         margin: 0;
         height: auto;
         padding: 30px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+=======
+        display: flex; 
+        max-width: 450px;
+        margin: 0 auto;
+        height: auto;
+        padding: 30px 40px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+>>>>>>> origin/backend-Elias
     }
 
     h3 {
@@ -329,8 +375,13 @@ option {
     }
 
     .post-form {
+<<<<<<< HEAD
         margin: 5px 0;
         padding: 3px 0;
+=======
+        margin: 5px;
+        padding: 3px;
+>>>>>>> origin/backend-Elias
     }
 
     input, select {
@@ -350,8 +401,13 @@ option {
     }
 
     .form-registrar {
+<<<<<<< HEAD
         max-height: none;
         min-width: 0;
+=======
+        max-height: 800px;
+        min-width: 400px;
+>>>>>>> origin/backend-Elias
     }
 
     .form-registrar h3 {
@@ -360,7 +416,11 @@ option {
     }
 
     .post-form {
+<<<<<<< HEAD
         margin: 2px 0;
+=======
+        margin: 2px;
+>>>>>>> origin/backend-Elias
     }
 
     input, select {

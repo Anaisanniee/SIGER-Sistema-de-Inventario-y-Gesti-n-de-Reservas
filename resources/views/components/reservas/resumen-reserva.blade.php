@@ -1,5 +1,6 @@
 {{-- resources/views/components/reservas/resumen-reserva.blade.php --}}
 @props([
+<<<<<<< HEAD
     'tipoRecurso'      => 'activo',
     'solicitante'      => Auth::user()->nombres ?? 'Docente Solicitante',
     'identificacion'   => Auth::user()->identificacion ?? '1.004.234.XXX',
@@ -17,6 +18,58 @@
     'recursos'          => [] // Array de recursos si son múltiples
 ])
 
+=======
+    'reserva' => null, 
+    'mostrarSubtitulo' => true
+])
+
+@php
+    // Blindaje: Si $reserva llega nula, creamos un objeto vacío o valores por defecto para evitar el error 500
+    $reservaValida = $reserva ?? new \stdClass();
+
+    // Extraer datos reales de la relación con el usuario de forma segura
+    $usuario = $reservaValida->usuario ?? null;
+    $nombreSolicitante = $usuario->nombres ?? ($usuario->name ?? 'Docente Solicitante');
+    $identificacionUsuario = $usuario->identificacion ?? ($usuario->cedula ?? 'N/A');
+    $emailUsuario = $usuario->email ?? 'correo@colegio.edu.co';
+
+    // Fechas y horas reales con validación de existencia
+    $fechaInicio = !empty($reservaValida->res_fecha_inicio) ? \Carbon\Carbon::parse($reservaValida->res_fecha_inicio)->format('Y-m-d') : 'N/A';
+    $horaInicio = !empty($reservaValida->res_fecha_inicio) ? \Carbon\Carbon::parse($reservaValida->res_fecha_inicio)->format('h:i A') : 'N/A';
+    
+    $fechaFin = !empty($reservaValida->res_fecha_fin) ? \Carbon\Carbon::parse($reservaValida->res_fecha_fin)->format('Y-m-d') : $fechaInicio;
+    $horaFin = !empty($reservaValida->res_fecha_fin) ? \Carbon\Carbon::parse($reservaValida->res_fecha_fin)->format('h:i A') : 'N/A';
+
+    // Motivo
+    $motivoReserva = $reservaValida->res_motivo ?? ($reservaValida->motivo ?? 'Desarrollo de clase práctica y actividades pedagógicas programadas.');
+
+    // Detalles / Recursos asociados de forma segura
+    $detalles = isset($reservaValida->detalles) ? $reservaValida->detalles : collect();
+    $esMultiple = $detalles->count() > 1;
+    
+    // Ubicación (Aula destino si la hay)
+    $primerDetalle = $detalles->first() ?? null;
+    $aulaUso = 'N/A';
+    if ($primerDetalle) {
+        if (isset($primerDetalle->aula) && $primerDetalle->aula) {
+            $aulaUso = $primerDetalle->aula->aula_nombre;
+        } elseif (!empty($primerDetalle->det_re_aula_destino_act)) {
+            $aulaUso = $primerDetalle->det_re_aula_destino_act;
+        }
+    }
+
+    // Mapear recursos para el componente de detalle
+    $listaRecursos = $detalles->map(function($det) {
+        return (object)[
+            'tipo'   => !empty($det->act_id) ? 'activo' : 'aula',
+            'nombre' => $det->activo->act_nombre ?? ($det->aula->aula_nombre ?? 'Recurso General'),
+            'serial' => $det->activo->act_serial ?? 'Sin Serial',
+            'marca'  => $det->activo->act_marca ?? 'N/A'
+        ];
+    })->toArray();
+@endphp
+
+>>>>>>> origin/backend-Elias
 <div class="tarjeta-reserva-siger tarjeta-confirmacion-paso3">
         
     <div class="encabezado-resumen-final">
@@ -32,24 +85,37 @@
         <div class="bloque-resumen-interno">
             <h3><i class="bi bi-person-vcard"></i> Datos del Solicitante</h3>
             <div class="contenido-resumen-item">
+<<<<<<< HEAD
                 <p><strong>Nombre:</strong> <span id="resumen-solicitante">{{ $solicitante }}</span></p>
                 <p><strong>Identificación:</strong> <span id="resumen-identificacion">{{ $identificacion }}</span></p>
                 <p><strong>Correo Electrónico:</strong> <span id="resumen-email">{{ $email }}</span></p>
+=======
+                <p><strong>Nombre:</strong> <span id="resumen-solicitante">{{ $nombreSolicitante }}</span></p>
+                <p><strong>Identificación:</strong> <span id="resumen-identificacion">{{ $identificacionUsuario }}</span></p>
+                <p><strong>Correo Electrónico:</strong> <span id="resumen-email">{{ $emailUsuario }}</span></p>
+>>>>>>> origin/backend-Elias
             </div>
         </div>
 
         {{-- Bloque 2: COMPONENTE DETALLE RECURSO (Maneja 1 o Varios dinámicamente) --}}
         <div class="bloque-resumen-interno" id="resumen-bloque-recurso">
             <h3>
+<<<<<<< HEAD
                 @if(!empty($activos) && count($activos) > 1)
                     <i class="bi bi-boxes"></i> Recursos Seleccionados
                 @elseif($tipoRecurso === 'aula')
+=======
+                @if($esMultiple)
+                    <i class="bi bi-boxes"></i> Recursos Seleccionados ({{ $detalles->count() }})
+                @elseif($primerDetalle && $primerDetalle->aula)
+>>>>>>> origin/backend-Elias
                     <i class="bi bi-door-open"></i> Datos del Salón
                 @else
                     <i class="bi bi-laptop"></i> Datos del Recurso
                 @endif
             </h3>
 
+<<<<<<< HEAD
             {{-- Invocamos el componente reutilizable en el resumen --}}
             <x-reservas.detalle-recurso 
                     :tipoRecurso="$recursos[0]->tipo ?? 'activo'"
@@ -58,6 +124,16 @@
                     :marca="$recursos[0]->marca ?? 'N/A'"
                     :activos="$recursos" 
                 />
+=======
+            {{-- Invocamos el componente reutilizable pasándole la data real --}}
+            <x-reservas.detalle-recurso 
+                :tipoRecurso="$listaRecursos[0]->tipo ?? 'activo'"
+                :recursoNombre="$listaRecursos[0]->nombre ?? 'Recurso'"
+                :serial="$listaRecursos[0]->serial ?? 'Sin Serial'"
+                :marca="$listaRecursos[0]->marca ?? 'N/A'"
+                :activos="$listaRecursos" 
+            />
+>>>>>>> origin/backend-Elias
         </div>
 
         {{-- Bloque: Motivo de la Reserva --}}
@@ -65,9 +141,13 @@
             <h3><i class="bi bi-chat-left-text-fill"></i> Motivo de la Solicitud</h3>
             <div class="contenido-resumen-item">
                 <p class="motivo-texto-siger">
+<<<<<<< HEAD
                     <span id="resumen-motivo">
                         {{ $motivo ?? session('res_motivo') ?? 'Desarrollo de clase práctica y actividades pedagógicas programadas.' }}
                     </span>
+=======
+                    <span id="resumen-motivo">{{ $motivoReserva }}</span>
+>>>>>>> origin/backend-Elias
                 </p>
             </div>
         </div>
@@ -89,8 +169,13 @@
             </div>
         </div>
 
+<<<<<<< HEAD
         {{-- Bloque 4: Destino del Traslado (Solo para Activos) --}}
         @if($tipoRecurso !== 'aula')
+=======
+        {{-- Bloque 4: Destino del Traslado (Solo si aplica) --}}
+        @if($aulaUso !== 'N/A')
+>>>>>>> origin/backend-Elias
             <div class="bloque-resumen-interno grid-ancho-completo bloque-ubicacion-paso3" id="resumen-bloque-ubicacion">
                 <h3><i class="bi bi-geo-alt-fill"></i> Ubicación de Destino Asignada</h3>
                 <div class="contenido-resumen-item">

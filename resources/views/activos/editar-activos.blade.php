@@ -1,8 +1,13 @@
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
+<<<<<<< HEAD
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', url('/aulas'))
+=======
+@section('rutaRegresar', route('inventario.index'))
+@section('rutaRegresar', url('/inventario'))
+>>>>>>> origin/backend-Elias
 
 @section('content')
     {{-- hoja de estilos para la creación/edición de formularios --}}

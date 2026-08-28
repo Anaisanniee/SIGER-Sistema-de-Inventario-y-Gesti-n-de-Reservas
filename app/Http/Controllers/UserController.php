@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+=======
+>>>>>>> origin/backend-Elias
 
 class UserController extends Controller
 {
     /**
+<<<<<<< HEAD
      * Listado general de usuarios (Exclusivo Secretaría)
      */
     public function index()
@@ -36,10 +40,39 @@ class UserController extends Controller
 
     /**
      * Guarda el nuevo usuario (Exclusivo Secretaría)
+=======
+     * Muestra la lista de usuarios (Docentes, Secretaria, etc.)
+     * URL: GET /usuarios (Ruta: usuarios.index)
+     */
+    public function index()
+    {
+        $users = User::with('role')->get();
+        return view('users.index', compact('users')); // O el string que tenías mientras tanto
+    }
+
+    /**
+     * Muestra el formulario de registro que hizo Anaís
+     * URL: GET /usuarios/create (Ruta: usuarios.create)
+     */
+    public function create()
+    {
+        // Traemos los roles para cargarlos en el select del formulario
+        $roles = Role::all();
+        
+        // NOTA: Ajusta 'users.create' según la carpeta real donde Anaís guardó el Blade
+        return view('users.create', compact('roles'));
+    }
+
+    /**
+     * Guarda un nuevo miembro en la base de datos (Ejecutado por la Secretaria)
+     * URL: POST /usuarios (Ruta: usuarios.store)
+>>>>>>> origin/backend-Elias
      */
     public function store(Request $request)
     {
+        // 1. Validamos usando los campos reales de la base de datos de SIGER
         $request->validate([
+<<<<<<< HEAD
             'identificacion'   => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA',
             'name'             => 'required|string|max:50',
             'second-name'      => 'nullable|string|max:50',
@@ -48,9 +81,21 @@ class UserController extends Controller
             'correo'           => 'required|email|unique:users,USU_CORREO',
             'password'         => 'required|string|min:6',
             'rol'              => 'required|exists:roles,id',
+=======
+            'USU_CEDULA'           => 'required|string|unique:usuarios,USU_CEDULA',
+            'USU_PRIMER_NOMBRE'    => 'required|string|max:50',
+            'USU_SEGUNDO_NOMBRE'   => 'nullable|string|max:50',
+            'USU_PRIMER_APELLIDO'  => 'required|string|max:50',
+            'USU_SEGUNDO_APELLIDO' => 'nullable|string|max:50',
+            'USU_CORREO'           => 'required|string|email|max:255|unique:usuarios,USU_CORREO',
+            'USU_CONTRASEÑA'       => 'required|string|min:6',
+            'ROL_ID'               => 'required|exists:roles,id',
+>>>>>>> origin/backend-Elias
         ]);
 
+        // 2. Creamos el registro (tu modelo User encripta la contraseña solo)
         User::create([
+<<<<<<< HEAD
             'USU_CEDULA'           => $request->input('identificacion'),
             'USU_PRIMER_NOMBRE'    => $request->input('name'),
             'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
@@ -140,12 +185,32 @@ class UserController extends Controller
     }
     /**
      * Actualiza la información administrativa del usuario (Exclusivo Secretaría)
+=======
+            'USU_CEDULA'           => $request->USU_CEDULA,
+            'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
+            'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
+            'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
+            'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
+            'USU_CORREO'           => $request->USU_CORREO,
+            'USU_CONTRASEÑA'       => $request->USU_CONTRASEÑA,
+            'USU_ESTADO'           => 'Activo',
+            'ROL_ID'               => $request->ROL_ID,
+        ]);
+
+        return redirect()->route('usuarios.create')->with('success', 'Personal registrado correctamente.');
+    }
+
+    /**
+     * Actualiza la información de un usuario
+     * URL: PUT/PATCH /usuarios/{id} (Ruta: usuarios.update)
+>>>>>>> origin/backend-Elias
      */
     public function update(Request $request, $id)
     {
         $usuario = User::findOrFail($id);
 
         $request->validate([
+<<<<<<< HEAD
             'name'             => 'required|string|max:50',
             'second-name'      => 'nullable|string|max:50',
             'lastname'         => 'required|string|max:50',
@@ -162,6 +227,22 @@ class UserController extends Controller
             'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name', $usuario->USU_SEGUNDO_APELLIDO),
             'USU_CORREO'          => $request->input('correo', $usuario->USU_CORREO),
         ];
+=======
+            'USU_PRIMER_NOMBRE'   => 'required|string|max:50',
+            'USU_PRIMER_APELLIDO' => 'required|string|max:50',
+            'USU_CORREO'          => 'required|email|unique:usuarios,USU_CORREO,'.$id.',id', // Evita choque con el mismo registro
+            'ROL_ID'              => 'required|exists:roles,id',
+        ]);
+
+        $user->update([
+            'USU_PRIMER_NOMBRE'    => $request->USU_PRIMER_NOMBRE,
+            'USU_SEGUNDO_NOMBRE'   => $request->USU_SEGUNDO_NOMBRE,
+            'USU_PRIMER_APELLIDO'  => $request->USU_PRIMER_APELLIDO,
+            'USU_SEGUNDO_APELLIDO' => $request->USU_SEGUNDO_APELLIDO,
+            'USU_CORREO'           => $request->USU_CORREO,
+            'ROL_ID'               => $request->ROL_ID,
+        ]);
+>>>>>>> origin/backend-Elias
 
         if ($request->filled('rol')) {
             $data['ROL_ID'] = $request->input('rol');
@@ -181,6 +262,7 @@ class UserController extends Controller
     }
 
     /**
+<<<<<<< HEAD
      * Alterna el estado del usuario (Exclusivo Secretaría)
      */
     public function darDeBaja($id)
@@ -197,6 +279,10 @@ class UserController extends Controller
 
     /**
      * Elimina definitivamente un usuario (Exclusivo Secretaría)
+=======
+     * Elimina a un usuario del sistema
+     * URL: DELETE /usuarios/{id} (Ruta: usuarios.destroy)
+>>>>>>> origin/backend-Elias
      */
     public function destroy($id)
     {

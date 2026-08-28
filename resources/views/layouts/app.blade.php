@@ -14,11 +14,17 @@
     <link rel="stylesheet" href="{{ asset('css/components/ficha.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/dashboard.css') }}">
+<<<<<<< HEAD
+=======
+    <link rel="stylesheet" href="{{ asset('css/components/carrito-reserva.css') }}">
+
+>>>>>>> origin/backend-Elias
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>siger</title>
  </head>
  <body>
         <header>
+<<<<<<< HEAD
           @include('components.navbar', [
             'mostrarBusqueda' => $__env->yieldContent('mostrarBusqueda') !== 'false', 
             'mostrarRegresar' => $__env->yieldContent('mostrarRegresar') !== 'false', 
@@ -26,6 +32,15 @@
             'rutaBusqueda'   => $__env->yieldContent('rutaBusqueda', '#'),
             'rutaRegresar'   => $__env->yieldContent('rutaRegresar', '')
         ])
+=======
+            @include ('components.navbar', [
+                'mostrarBusqueda' => $__env->yieldContent('mostrarBusqueda') !== 'false', 
+                'mostrarRegresar' => $__env->yieldContent('mostrarRegresar') !== 'false', 
+                'mostrarPerfil' => $__env->yieldContent('mostrarPerfil') !== 'false',
+                'rutaBusqueda' => $__env->yieldContent('rutaBusqueda', '#'),
+                'rutaRegresar' => $__env->yieldContent('rutaRegresar', url('/inventario'))
+            ])
+>>>>>>> origin/backend-Elias
         </header>
 
          <x-alertas.alertas-flotantes />

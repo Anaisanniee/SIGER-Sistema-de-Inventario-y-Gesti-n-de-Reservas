@@ -1,4 +1,5 @@
 @props([
+<<<<<<< HEAD
     'id', 
     'nombre', 
     'estado', 
@@ -46,19 +47,62 @@
             @else
                 <div class="icono-recurso-reemplazo">
                     <i class="fas {{ $esMultiple ? 'fa-layer-group' : 'fa-desktop' }}"></i>
+=======
+    'id', 'nombre', 'estado', 'foto' => null, 'solicitante', 'fecha', 'horaInicio', 'horaFin', 'ubicacion', 'urlGestion',
+    'esSecretaria' => false,
+    'modoDashboard' => false
+])
+
+<!-- Si es secretaria y está en el dashboard, la tarjeta es un enlace index de gestión. Si es docente, es un botón de modal -->
+<{!! $esSecretaria && $modoDashboard ? "a href='$urlGestion'" : "button type='button'" !!} 
+    class="tarjeta-reserva-siger {{ strtolower($estado) }} {{ $esSecretaria && $modoDashboard ? 'tarjeta-enlace' : '' }}"
+    @if(!($esSecretaria && $modoDashboard))
+        data-bs-toggle="modal" 
+        data-bs-target="#modalgeneral"
+        onclick="cargarDatosModal(event.currentTarget, {{ json_encode([
+            'titulo' => $nombre,
+            'subtitulo' => $estado,
+            'docente' => $solicitante,
+            'fecha' => $fecha,
+            'hora' => "$horaInicio - $horaFin",
+            'ubicacion' => $ubicacion
+        ]) }})"
+    @endif
+>
+    <div class="tarjeta-contenido">
+        
+        <!-- Imagen/Icono -->
+        <div class="tarjeta-imagen-contenedor">
+            @if($foto)
+                <img src="{{ $foto }}" alt="{{ $nombre }}" class="recurso-foto-min">
+            @else
+                <div class="icono-recurso-reemplazo">
+                    <i class="fas fa-desktop"></i>
+>>>>>>> origin/backend-Elias
                 </div>
             @endif
         </div>
 
+<<<<<<< HEAD
         <div class="tarjeta-detalles">
             <div class="tarjeta-fila-superior">
                 <h4 class="recurso-titulo">{{ $tituloMostrar }}</h4>
+=======
+        <!-- Información Detallada -->
+        <div class="tarjeta-detalles">
+            <div class="tarjeta-fila-superior">
+                <h4 class="recurso-titulo">{{ $nombre }}</h4>
+>>>>>>> origin/backend-Elias
                 <span class="badge-estado-siger {{ strtolower($estado) }}">
                     ● {{ ucfirst($estado) }}
                 </span>
             </div>
 
             <div class="tarjeta-info-secundaria">
+<<<<<<< HEAD
+=======
+                <!-- Si está en el dashboard, ocultamos el solicitante y la fecha para hacerla más compacta -->
+>>>>>>> origin/backend-Elias
                 @if(!$modoDashboard)
                     <p class="info-item"><i class="fas fa-user"></i> <span>{{ $solicitante }}</span></p>
                     <p class="info-item"><i class="fas fa-calendar-day"></i> <span>{{ $fecha }}</span></p>
@@ -69,10 +113,15 @@
             </div>
         </div>
 
+<<<<<<< HEAD
+=======
+        <!-- Pequeño indicador visual de acción si es interactiva -->
+>>>>>>> origin/backend-Elias
         <div class="tarjeta-flecha-indicador">
             <i class="fas {{ $esSecretaria && $modoDashboard ? 'fa-chevron-right' : 'fa-eye' }}"></i>
         </div>
     </div>
+<<<<<<< HEAD
 </{!! $esSecretaria && $modoDashboard ? 'a' : 'button' !!}>
 
 @once
@@ -99,3 +148,6 @@
     }
 </script>
 @endonce
+=======
+</{!! $esSecretaria && $modoDashboard ? 'a' : 'button' !!}>
+>>>>>>> origin/backend-Elias

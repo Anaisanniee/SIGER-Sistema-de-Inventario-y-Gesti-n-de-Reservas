@@ -227,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const props = info.event.extendedProps || {};
             
+<<<<<<< HEAD
             const datosParaModal = {
                 id: info.event.id || props.id,
                 titulo: info.event.title,
@@ -244,6 +245,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const modalEl = document.getElementById('modalgeneral');
             if (modalEl) {
                 const modalBs = new bootstrap.Modal(modalEl);
+=======
+            if (props.modalData) {
+                // Creamos un elemento dummy y le asignamos la data del modal exactamente como lo hacen tus tarjetas
+                const dummyElement = document.createElement('div');
+                
+                // Si modalData ya es un objeto, lo convertimos a JSON string para el atributo
+                const jsonData = typeof props.modalData === 'object' 
+                    ? JSON.stringify(props.modalData) 
+                    : props.modalData;
+
+                dummyElement.setAttribute('data-reserva', jsonData);
+
+                if (typeof cargarDatosModalReserva === 'function') {
+                    cargarDatosModalReserva(dummyElement);
+                }
+            }
+
+            // Abrimos el modal de Bootstrap
+            const modalEl = document.getElementById('modalgeneral');
+            if (modalEl) {
+                const modalBs = bootstrap.Modal.getOrCreateInstance(modalEl);
+>>>>>>> origin/backend-Elias
                 modalBs.show();
             }
         }

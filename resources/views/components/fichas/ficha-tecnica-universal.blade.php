@@ -78,7 +78,11 @@
         <div class="accordion-item-siger">
                 <button class="accordion-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#colapsoActivos" aria-expanded="false" aria-controls="colapsoActivos">
                     <span class="trigger-content">
+<<<<<<< HEAD
                         <span class="icon-box"></span>
+=======
+                        <span class="icon">📦</span>
+>>>>>>> origin/backend-Elias
                         <span class="text">Ver activos asignados a esta aula</span>
                     </span>
                     <span class="badge-conteo" id="ficha-conteo-activos">0</span>

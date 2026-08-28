@@ -55,8 +55,12 @@
     </x-modal>
 </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
 @endsection
 
+=======
+@endsection
+>>>>>>> origin/backend-Elias
 =======
 @endsection
 >>>>>>> origin/backend-Elias

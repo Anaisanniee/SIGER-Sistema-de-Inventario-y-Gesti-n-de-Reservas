@@ -43,14 +43,21 @@
                 <x-botones.boton type="button" class="btn btn-rojo btn-outline-danger" onclick="window.CarritoReservas.limpiar()">
                     <i class="fas fa-trash-alt me-1"></i> Vaciar lista
                 </x-botones.boton>
+<<<<<<< HEAD
                 <x-botones.boton type="button" class="btn btn-azul btn-success px-4" id="btn-confirmar-solicitud">
                     <i class="fas fa-paper-plane me-1"></i> Procesar Solicitud
                 </x-botones.boton>
+=======
+                <button type="button" class="btn btn-success px-4" id="btn-confirmar-solicitud" onclick="window.CarritoReservas.procesarSolicitud()" style="background-color: #2563eb; border-color: #2563eb;">
+                    <i class="fas fa-paper-plane me-1"></i> Procesar Solicitud
+                </button>
+>>>>>>> origin/backend-Elias
             </div>
         </div>
     </div>
 </div>
 
+<<<<<<< HEAD
 <!-- ========================================== -->
 <!-- 3. SCRIPT GESTOR GLOBAL DEL CARRITO         -->
 <!-- ========================================== -->
@@ -65,6 +72,95 @@
     window.CarritoReservas = {
         items: [],
         claveStorage: `siger_carrito_reservas_usr_${usuarioId}`,
+=======
+<style>
+/* ========================================== */
+/* RESPONSIVE: TABLETS Y SMARTPHONES          */
+/* ========================================== */
+
+/* Dispositivos medianos (Tablets, menos de 768px) */
+@media (max-width: 768px) {
+    /* Ajuste de posición y margen del carrito flotante */
+    #contenedor-carrito-flotante {
+        margin: 1.25rem !important;
+    }
+
+    #btn-ver-carrito {
+        width: 52px !important;
+        height: 52px !important;
+        padding: 0 !important;
+    }
+
+    /* Modal adaptado a la pantalla */
+    #modalCarrito .modal-dialog {
+        margin: 0.75rem;
+    }
+
+    #modalCarrito .modal-body {
+        padding: 1rem !important;
+    }
+
+    #modalCarrito .modal-footer {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    #modalCarrito .modal-footer > * {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+}
+
+/* Dispositivos pequeños (Celulares, menos de 576px) */
+@media (max-width: 576px) {
+    /* Posicionamiento flotante más cómodo para el pulgar */
+    #contenedor-carrito-flotante {
+        margin: 0.85rem !important;
+        bottom: 10px !important;
+        right: 10px !important;
+    }
+
+    #btn-ver-carrito {
+        width: 48px !important;
+        height: 48px !important;
+    }
+
+    #btn-ver-carrito i {
+        font-size: 1.1rem;
+    }
+
+    /* Ajustes para la lista de elementos dentro del modal */
+    #lista-recursos-carrito .list-group-item {
+        padding: 0.75rem 0.5rem !important;
+    }
+
+    #lista-recursos-carrito h6 {
+        font-size: 0.875rem;
+        word-break: break-word;
+    }
+
+    #lista-recursos-carrito small {
+        font-size: 0.75rem;
+    }
+
+    #modalCarrito .modal-title {
+        font-size: 1.05rem;
+    }
+}
+</style>
+
+<!-- ========================================== -->
+<!-- 3. SCRIPT GESTOR GLOBAL DEL CARRITO        -->
+<!-- ========================================== -->
+<script>
+    // Identificador único por usuario y ruta para evitar mezclas o datos fantasma
+    const contextoRuta = window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
+    const usuarioId = "{{ auth()->check() ? auth()->id() : 'invitado' }}";
+
+    window.CarritoReservas = {
+        items: [],
+        claveStorage: `siger_carrito_${usuarioId}_${contextoRuta}`,
+>>>>>>> origin/backend-Elias
 
         init() {
             const guardado = localStorage.getItem(this.claveStorage);
@@ -82,12 +178,33 @@
             document.getElementById('btn-ver-carrito')?.addEventListener('click', () => {
                 this.abrirModalResumen();
             });
+<<<<<<< HEAD
         },
 
         agregar(recurso) {
             if (!recurso || !recurso.id) return;
 
             // Validamos por ID y TIPO (evita colisión entre Aula 1 y Activo 1)
+=======
+
+            document.getElementById('btn-confirmar-solicitud')?.addEventListener('click', () => {
+                this.procesarSolicitud();
+            });
+        },
+
+        agregar(recurso) {
+            if (!recurso || !recurso.id || !recurso.tipo) return;
+
+            // REGLA: Si van a agregar un Aula y ya hay un aula en el carrito, impedirlo de frente en el cliente
+            if (recurso.tipo === 'aula') {
+                const yaHayAula = this.items.some(item => item.tipo === 'aula');
+                if (yaHayAula) {
+                    alert('Solo puedes seleccionar máximo un aula por reserva.');
+                    return;
+                }
+            }
+
+>>>>>>> origin/backend-Elias
             const existe = this.items.some(item => 
                 String(item.id) === String(recurso.id) && item.tipo === recurso.tipo
             );
@@ -110,7 +227,10 @@
             if (this.items.length > 0) {
                 this.renderizarListaModal();
             } else {
+<<<<<<< HEAD
                 // Si borra todos los items, cierra el modal
+=======
+>>>>>>> origin/backend-Elias
                 const modalEl = document.getElementById('modalCarrito');
                 if (modalEl) {
                     const bsModal = bootstrap.Modal.getInstance(modalEl);
@@ -135,6 +255,40 @@
             localStorage.setItem(this.claveStorage, JSON.stringify(this.items));
         },
 
+<<<<<<< HEAD
+=======
+        procesarSolicitud() {
+            if (this.items.length === 0) {
+                alert('No hay recursos seleccionados en el carrito.');
+                return;
+            }
+
+            fetch('/reservas/guardar-seleccion-temporal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({ 
+                    items: this.items,
+                    ids: this.items.map(i => i.id) // Enviamos ambos para compatibilidad total con el controlador nuevo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/reservas/crear/paso1';
+                } else {
+                    alert(data.message || 'Hubo un error al procesar la selección.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error de red al intentar procesar la solicitud.');
+            });
+        },
+
+>>>>>>> origin/backend-Elias
         actualizarInterfaz() {
             const contenedor = document.getElementById('contenedor-carrito-flotante');
             const contador = document.getElementById('contador-carrito');
@@ -147,11 +301,16 @@
 
         abrirModalResumen() {
             if (this.items.length === 0) return;
+<<<<<<< HEAD
 
             // 1. Renderiza los elementos en el HTML del modal
             this.renderizarListaModal();
 
             // 2. Muestra el modal #modalCarrito
+=======
+            this.renderizarListaModal();
+
+>>>>>>> origin/backend-Elias
             const modalEl = document.getElementById('modalCarrito');
             if (modalEl) {
                 const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);

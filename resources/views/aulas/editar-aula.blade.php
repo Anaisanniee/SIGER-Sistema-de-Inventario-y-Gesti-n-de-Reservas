@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
+<<<<<<< HEAD
 @section('mostrarRegresar', 'true')
+=======
+@section('rutaRegresar', route('inventario.index'))
+>>>>>>> origin/backend-Elias
 @section('rutaRegresar', url('/aulas'))
 
 @section('content')

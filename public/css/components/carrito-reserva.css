@@ -9,7 +9,11 @@
 }
 
 .carrito-reserva-card {
+<<<<<<< HEAD
     background: #ffffff;
+=======
+    background: var(--color-fondo, #ffffff);
+>>>>>>> origin/backend-Elias
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     border: 1px solid var(--color-borde, #e0e0e0);
@@ -18,7 +22,11 @@
 
 .carrito-header {
     background: var(--color-principal, #1e293b);
+<<<<<<< HEAD
     color: #ffffff;
+=======
+    color:var(--color-fondo);
+>>>>>>> origin/backend-Elias
     padding: 12px 18px;
     display: flex;
     justify-content: space-between;
@@ -28,7 +36,11 @@
 
 .badge-contador {
     background: var(--color-primario, #2563eb);
+<<<<<<< HEAD
     color: white;
+=======
+    color: var(--color-fondo);
+>>>>>>> origin/backend-Elias
     font-weight: bold;
     padding: 2px 8px;
     border-radius: 12px;
@@ -40,7 +52,11 @@
     max-height: 320px;
     display: flex;
     flex-direction: column;
+<<<<<<< HEAD
     background: #f8fafc;
+=======
+    background: var(--color-fondo, #f9fafb);
+>>>>>>> origin/backend-Elias
 }
 
 .lista-items-scroll {
@@ -53,7 +69,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+<<<<<<< HEAD
     background: white;
+=======
+    background: var(--color-fondo);
+>>>>>>> origin/backend-Elias
     padding: 8px 12px;
     border-radius: 8px;
     margin-bottom: 6px;
@@ -62,9 +82,64 @@
 
 .carrito-footer {
     padding: 12px;
+<<<<<<< HEAD
     background: #ffffff;
+=======
+    background: var(--color-fondo);
+>>>>>>> origin/backend-Elias
     border-top: 1px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+<<<<<<< HEAD
+=======
+}
+
+/* ========================================== */
+/* CORRECCIÓN BOTÓN ELIMINAR (BASURITA)      */
+/* ========================================== */
+
+/* Limpiar estilos estirados en la lista del modal */
+#lista-recursos-carrito .list-group-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px;
+}
+
+/* Forzar que el botón de eliminar sea un círculo discreto */
+#lista-recursos-carrito button,
+#lista-recursos-carrito .btn-outline-danger {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    background-color: transparent !important;
+    color: var(--color-estado-dañado) !important; /* Rojo sutil */
+    border: 1px solid #fee2e2 !important;
+    flex-shrink: 0 !important; /* Evita que Flexbox lo estire */
+    transition: all 0.2s ease-in-out;
+}
+
+/* Efecto Hover elegante */
+#lista-recursos-carrito button:hover,
+#lista-recursos-carrito .btn-outline-danger:hover {
+    background-color: var(--color-estado-dañado) !important;
+    color: var(--color-fondo) !important;
+    border-color: var(--color-estado-dañado) !important;
+}
+
+/* Asegurar que el icono dentro del botón no sufra deformaciones */
+#lista-recursos-carrito button i {
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+>>>>>>> origin/backend-Elias
 }

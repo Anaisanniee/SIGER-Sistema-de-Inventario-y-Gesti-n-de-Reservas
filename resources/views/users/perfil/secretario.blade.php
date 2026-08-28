@@ -2,7 +2,11 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
+<<<<<<< HEAD
 @section('rutaRegresar', route('dashboard.secretaria'))
+=======
+@section('rutaRegresar', url('/dashboard')) {{-- O la ruta de retorno segura --}}
+>>>>>>> origin/backend-Elias
 @section('mostrarPerfil', 'false')
 @section('content')
 
@@ -12,8 +16,13 @@
     
     {{-- BARRA SUPERIOR DE CONTEXTO --}}
     <div class="perfil-header-seccion">
+<<<<<<< HEAD
         <h2 class="perfil-titulo-principal" style="color: var(--color-principal);">Mi Perfil</h2>
 
+=======
+        <h2 class="perfil-titulo-principal">Panel de Gestión - Secretaría</h2>
+        <p class="perfil-subtitulo">Control, revisión y aprobación de reservas del sistema SIGER</p>
+>>>>>>> origin/backend-Elias
     </div>
 
     <div class="perfil-layout-contenedor">
@@ -23,24 +32,41 @@
             <div class="avatar-wrapper">
                 <div class="avatar-circulo" style="background-color: var(--color-azulado);">
                     @auth
+<<<<<<< HEAD
                         {{ strtoupper(substr($usuario->USU_PRIMER_NOMBRE, 0, 1) . substr($usuario->USU_PRIMER_APELLIDO ?? 'S', 0, 1)) }}
+=======
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1) . substr(Auth::user()->lastname ?? 'S', 0, 1)) }}
+>>>>>>> origin/backend-Elias
                     @else
                         SE
                     @endauth
                 </div>
             </div>
             
+<<<<<<< HEAD
             <h3 class="docente-nombre">{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}</h3>
             <p class="docente-email">{{ $usuario->USU_CORREO }}</p>
+=======
+            <h3 class="docente-nombre">{{ Auth::user()->name ?? 'Secretaria' }} {{ Auth::user()->lastname ?? '' }}</h3>
+            <p class="docente-email">{{ Auth::user()->email ?? 'secretaria@ejemplo.com' }}</p>
+>>>>>>> origin/backend-Elias
 
             <div class="informacion-lateral-lista">
                 <div class="item-lateral">
                     <span class="item-titulo">Estado</span>
+<<<<<<< HEAD
                     <span class="item-valor">{{ $usuario->USU_ESTADO ?? 'Activo' }}</span>
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Rol</span>
                     <span class="item-valor" style="text-transform: capitalize;">{{ $usuario->role->name ?? 'Secretaría' }}</span>
+=======
+                    <span class="item-valor">Activo</span>
+                </div>
+                <div class="item-lateral">
+                    <span class="item-titulo">Rol</span>
+                    <span class="item-valor" style="text-transform: capitalize;">{{ Auth::user()->rol ?? 'Secretaria' }}</span>
+>>>>>>> origin/backend-Elias
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Pendientes</span>
@@ -50,6 +76,7 @@
 
             <div class="acciones-laterales">
                 {{-- Botones editar, cambiar clave y gestionar usuarios --}}
+<<<<<<< HEAD
                 <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn btn-verde-siger">
                     Editar Mis Datos
                 </x-botones.boton>
@@ -63,6 +90,24 @@
         </aside>
 
         {{-- COLUMNA DERECHA --}}
+=======
+                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
+                    Editar Mis Datos
+                </x-botones.boton>
+                <x-botones.boton id="btn-cambiar-contraseña" type="button" class="btn-siger-accion btn-verde-siger">
+                    Cambiar contraseña
+                </x-botones.boton>
+                <a href="" style="text-decoration: none; width: 100%;">
+                    <x-botones.boton type="button" class="btn-siger-accion btn-azul">
+                        Gestionar Usuarios
+                    </x-botones.boton>
+                </a>
+                <x-botones.boton-logout />
+            </div>
+        </aside>
+
+       {{-- COLUMNA DERECHA --}}
+>>>>>>> origin/backend-Elias
         <main class="perfil-columna-derecha">
             
             {{-- SECCIÓN 1: FORMULARIO DE EDICIÓN DESPLEGABLE --}}
@@ -72,6 +117,7 @@
                         <span>Actualizar Mis Datos</span>
                     </div>
 
+<<<<<<< HEAD
                     {{-- Formulario envuelto con su ruta de actualización --}}
                     <form action="{{ route('perfil.actualizar') }}" method="POST">
                         @csrf
@@ -82,6 +128,12 @@
                         ])
                     </form>
                 </div>
+=======
+                    {{-- Llamamos el formulario--}}
+                        @include('components.formularios.form-usuario', [
+                            'usuario' => $usuario ?? auth()->user()
+                        ])                </div>
+>>>>>>> origin/backend-Elias
             </div>
 
             {{-- SECCIÓN 2: CONTROL CENTRAL (Pestañas de Gestión de Reservas) --}}
@@ -124,6 +176,10 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Control de apertura/cierre del formulario de edición
         const btnEditar = document.getElementById('btn-editar-perfil');
+<<<<<<< HEAD
+=======
+        const btnCancelar = document.getElementById('btn-perfil-cancelar');
+>>>>>>> origin/backend-Elias
         const contenedorForm = document.getElementById('contenedor-formulario');
 
         if(btnEditar && contenedorForm) {
@@ -132,6 +188,16 @@
             });
         }
 
+<<<<<<< HEAD
+=======
+        if(btnCancelar && contenedorForm) {
+            btnCancelar.addEventListener('click', function(e) {
+                e.preventDefault();
+                contenedorForm.classList.remove('activo');
+            });
+        }
+
+>>>>>>> origin/backend-Elias
         // Sistema dinámico de pestañas internas (Tabs)
         const tabs = document.querySelectorAll('.tab-btn');
         const contenidos = document.querySelectorAll('.tab-contenido');

@@ -2,9 +2,15 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
+<<<<<<< HEAD
 @section('rutaRegresar', auth()->user()->role === 'docente' 
     ? route('dashboard.docente', ['id' => auth()->id()]) 
     : route('dashboard.rectora', ['id' => auth()->id()]))@section('mostrarPerfil', 'false')
+=======
+@section('rutaRegresar', url('/dashboard'))
+
+@section('mostrarPerfil', 'false')
+>>>>>>> origin/backend-Elias
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
@@ -13,8 +19,13 @@
     
     {{-- BARRA SUPERIOR DE CONTEXTO --}}
     <div class="perfil-header-seccion">
+<<<<<<< HEAD
         <h2 class="perfil-titulo-principal" style="color: var(--color-principal);">Mi Perfil</h2>
 
+=======
+        <h2 class="perfil-titulo-principal">Mi perfil</h2>
+        <p class="perfil-subtitulo">Gestiona tu cuenta e información personal en SIGER</p>
+>>>>>>> origin/backend-Elias
     </div>
 
     <div class="perfil-layout-contenedor">
@@ -24,24 +35,41 @@
             <div class="avatar-wrapper">
                 <div class="avatar-circulo">
                     @auth
+<<<<<<< HEAD
                         {{ strtoupper(substr($usuario->USU_PRIMER_NOMBRE, 0, 1) . substr($usuario->USU_PRIMER_APELLIDO ?? 'U', 0, 1)) }}
+=======
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1) . substr(Auth::user()->lastname ?? 'U', 0, 1)) }}
+>>>>>>> origin/backend-Elias
                     @else
                         US
                     @endauth
                 </div>
             </div>
             
+<<<<<<< HEAD
             <h3 class="docente-nombre">{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}</h3>
             <p class="docente-email">{{ $usuario->USU_CORREO }}</p>
+=======
+            <h3 class="docente-nombre">{{ Auth::user()->name ?? 'Usuario' }} {{ Auth::user()->lastname ?? '' }}</h3>
+            <p class="docente-email">{{ Auth::user()->email ?? 'correo@ejemplo.com' }}</p>
+>>>>>>> origin/backend-Elias
 
             <div class="informacion-lateral-lista">
                 <div class="item-lateral">
                     <span class="item-titulo">Estado</span>
+<<<<<<< HEAD
                     <span class="item-valor">{{ $usuario->USU_ESTADO ?? 'Activo' }}</span>
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Rol</span>
                     <span class="item-valor" style="text-transform: capitalize;">{{ $usuario->role->name ?? 'Sin Rol' }}</span>
+=======
+                    <span class="item-valor">Activo</span>
+                </div>
+                <div class="item-lateral">
+                    <span class="item-titulo">Rol</span>
+                    <span class="item-valor" style="text-transform: capitalize;">{{ Auth::user()->rol ?? 'Docente' }}</span>
+>>>>>>> origin/backend-Elias
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Reservas activas</span>
@@ -49,6 +77,7 @@
                 </div>
             </div>
 
+<<<<<<< HEAD
             <div class="acciones-laterales">
                 {{-- Botón Editar Perfil --}}
                 <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
@@ -74,6 +103,33 @@
                 {{-- Botón Logout compacto --}}
                 <x-botones.boton-logout />
             </div>
+=======
+             <div class="acciones-laterales">
+                    {{-- Botón Editar Perfil --}}
+                    <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
+                        Editar Perfil
+                    </x-botones.boton>
+
+                    {{-- Historial de reservas --}}
+                    <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
+                        Historial de reserva
+                    </x-botones.boton>
+
+            {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR --}}
+            @auth
+                @if(Auth::user()->rol === 'rector')
+                    <a href="{{ route('informes.inventario') }}" style="text-decoration: none; width: 100%;">
+                        <x-botones.boton type="button" class="btn-siger-accion btn-azul">
+                            Ver Informes de Inventario
+                        </x-botones.boton>
+                    </a>
+                @endif
+            @endauth
+
+            {{-- Botón Logout compacto en el mismo grupo --}}
+            <x-botones.boton-logout />
+        </div>
+>>>>>>> origin/backend-Elias
         </aside>
 
         {{-- COLUMNA DERECHA --}}
@@ -86,6 +142,7 @@
                         <span>Información personal</span>
                     </div>
 
+<<<<<<< HEAD
                     {{-- Formulario envuelto con su ruta de actualización --}}
                     <form action="{{ route('perfil.actualizar') }}" method="POST">
                         @csrf
@@ -95,6 +152,9 @@
                             'modo' => 'perfil'
                         ])
                     </form>
+=======
+                    @include('components.formularios.form-usuario', ['usuario' => $usuario])
+>>>>>>> origin/backend-Elias
                 </div>
             </div>
 
@@ -117,6 +177,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const btnEditar = document.getElementById('btn-editar-perfil');
+<<<<<<< HEAD
+=======
+        const btnCancelar = document.getElementById('btn-perfil-cancelar');
+>>>>>>> origin/backend-Elias
         const contenedorForm = document.getElementById('contenedor-formulario');
 
         if(btnEditar && contenedorForm) {
@@ -124,6 +188,16 @@
                 contenedorForm.classList.toggle('activo');
             });
         }
+<<<<<<< HEAD
+=======
+
+        if(btnCancelar && contenedorForm) {
+            btnCancelar.addEventListener('click', function(e) {
+                e.preventDefault();
+                contenedorForm.classList.remove('activo');
+            });
+        }
+>>>>>>> origin/backend-Elias
     });
 </script>
 

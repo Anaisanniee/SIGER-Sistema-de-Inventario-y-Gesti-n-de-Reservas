@@ -1,13 +1,22 @@
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
+<<<<<<< HEAD
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', url('/activos'))
+=======
+@section('rutaRegresar', route('inventario.index'))
+@section('rutaRegresar', url('/inventario'))
+>>>>>>> origin/backend-Elias
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
+<<<<<<< HEAD
     <h2 class="titulo-pagina"><i class="fas fa-box"></i> Gestión de Activos</h2>
+=======
+    <h2 class="titulo-pagina"><i class="fas fa-door-open"></i> Gestión de Activos</h2>
+>>>>>>> origin/backend-Elias
 
 <div class="contenedor-registro-flexible">
 
