@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'true')
-@section('mostrarRegresar', 'true')
+@section('rutaRegresar', route('dashboard.secretario'))
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
@@ -17,13 +17,13 @@
     
     <div class="cabecera-panel">
         <div class="texto-cabecera">
-            <h2 class="titulo-pagina"><i class="fas fa-calendar-alt"></i> Solicitudes de Reservas</h2>
+            <h2 class="titulo-pagina" style="color: var(--color-principal);"><i class="fas fa-calendar-alt"></i> Solicitudes de Reservas</h2>
             <p class="subtitulo-pagina">Consulta el estado detallado y el resumen completo de los recursos solicitados.</p>
         </div>
         
         <div class="acciones-rapidas-panel">
             <x-botones.boton clase="btn-papelera" url="{{ url('/reservas/historial') }}">
-                <i class="fas fa-history"></i> Historial
+                <i class="fas fa-history" style="margin-right: 5px;"></i> Historial
             </x-botones.boton>
         </div>
     </div>

@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@section('rutaRegresar', auth()->user()->role === 'docente' 
+    ? route('dashboard.docente', ['id' => auth()->id()]) 
+    : route('dashboard.rectora', ['id' => auth()->id()]))
 @section('mostrarPerfil', 'false')
 @section('mostrarBusqueda', 'false')
 

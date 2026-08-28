@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
-@section('mostrarRegresar', 'true')
+@section('rutaRegresar', route('inventario.index'))
 @section('rutaRegresar', url('/aulas'))
 
 @section('content')

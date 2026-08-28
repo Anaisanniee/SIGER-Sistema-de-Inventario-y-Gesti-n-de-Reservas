@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
-@section('rutaBusqueda', route('inventario.index'))
+@section('rutaRegresar', route('dashboard.secretario'))
 
 @section('content')
 {{-- Vinculamos los estilos exclusivos de la vista index --}}
@@ -13,21 +13,21 @@
     <!-- CABECERA DEL PANEL -->
     <div class="cabecera-panel">
         <div class="texto-cabecera">
-            <h2 class="titulo-pagina"><i class="fas fa-cubes"></i> Gestión de Inventario</h2>
+            <h2 class="titulo-pagina" style="color: var(--color-principal);"><i class="fas fa-cubes"></i> Gestión de Inventario</h2>
             <p class="subtitulo-pagina">Administra y controla las aulas y activos de la institución en un solo lugar.</p>
         </div>
         <div class="acciones-rapidas-panel">
 
             <x-botones.boton 
                 clase="btn-verde" {{-- Usando tu clase verde de SIGER --}}
-                url="{{ url('/aulas/crear') }}"> {{-- Cambia por la ruta real cuando la tengan --}}
-                <i class="fas fa-plus"></i> Nueva Aula
+                url="{{ url('/aulas/crear') }}">  {{-- Cambia por la ruta real cuando la tengan --}}
+                <i class="fas fa-plus" style="margin-right: 5px;"></i> Nueva Aula
             </x-botones.boton>
 
             <x-botones.boton 
                 clase="btn-verde" {{-- Mantiene la consistencia con el botón de al lado --}}
                 url="{{ url('/activos/crear') }}"> {{-- Cambia por la ruta real cuando la tengan --}}
-                <i class="fas fa-plus"></i> Nuevo Activo
+                <i class="fas fa-plus" style="margin-right: 5px;"></i> Nuevo Activo
             </x-botones.boton>
 
             <x-botones.boton 
@@ -54,7 +54,7 @@
     <!-- 3. COMPONENTE DE FILTRO RÁPIDO (Ubicado justo después de las KPIs) -->
     <div class="contenedor-filtro-rapido-componente">
         @component('components.filtros.filtro-rapido', [
-            'opciones' => ['Disponible', 'en Mantenimiento', 'Reservado'],
+            'opciones' => ['Disponible', 'En Mantenimiento', 'Dañado', 'Bueno'],
             'placeholder' => 'Filtrar por estado...'
         ])
         @endcomponent
@@ -86,8 +86,12 @@
                         $tagsActivo[] = 'en-mantenimiento';
                     }
 
-                    if (isset($recurso->act_estado) && strtolower($recurso->act_estado) == 'reservado') {
-                        $tagsActivo[] = 'reservado';
+                    if (isset($recurso->act_estado) && strtolower($recurso->act_estado) == 'dañado') {
+                        $tagsActivo[] = 'dañado';
+                    }
+
+                     if (isset($recurso->act_estado) && strtolower($recurso->act_estado) == 'malo') {
+                        $tagsActivo[] = 'dañado';
                     }
 
                     $strTagsActivo = implode(' ', $tagsActivo);

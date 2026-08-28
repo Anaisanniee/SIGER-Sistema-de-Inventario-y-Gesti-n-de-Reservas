@@ -1,23 +1,18 @@
 @extends('layouts.app')
-
+@section('rutaRegresar', route('inventario.index'))
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/papelera.css') }}">
 
 <div class="panel-administracion-contenedor" style="padding: 20px;">
     
-    {{-- Botón para regresar al Inventario Principal --}}
-    <div style="margin-bottom: 20px;">
-        <x-botones.boton clase="btn-azulado" url="{{ url('/inventario') }}">
-            <i class="fas fa-arrow-left"></i> Volver a Gestión
-        </x-botones.boton>
-    </div>
+
 
     {{--- 1. CABECERA DEL PANEL ---}}
     <div class="cabecera-panel" style="margin-bottom: 25px;">
         <div class="texto-cabecera">
-            <h2 class="titulo-pagina" style="font-family: var(--fuente-secundaria); font-weight: 700; color: var(--color-texto); margin-bottom: 5px;">
-                <i class="fas fa-trash-alt"></i> Papelera de Recuperación
+            <h2 class="titulo-pagina" style="font-family: var(--fuente-secundaria); font-weight: 700; color: var(--color-principal); margin-bottom: 5px;">
+                <i class="fas fa-trash-alt" style="margin-right: 5px;"></i> Papelera de Recuperación
             </h2>
             <p class="subtitulo-pagina" style="font-family: var(--fuente-principal); color: var(--color-texto-secundario); font-size: 0.95rem;">
                 Consulta, restaura o elimina definitivamente los recursos dados de baja de la institución.
