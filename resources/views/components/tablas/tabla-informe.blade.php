@@ -22,7 +22,7 @@
         justify-content: center;
         gap: 8px;
         background-color: #107c41; /* Verde corporativo de Excel */
-        color: #ffffff !important;
+        color: var(--color-fondo) !important;
         padding: 9px 16px;
         border-radius: 6px;
         text-decoration: none;
