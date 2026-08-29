@@ -13,7 +13,6 @@
     {{-- BARRA SUPERIOR DE CONTEXTO --}}
     <div class="perfil-header-seccion">
         <h2 class="perfil-titulo-principal" style="color: var(--color-principal);">Mi Perfil</h2>
-
     </div>
 
     <div class="perfil-layout-contenedor">
@@ -49,7 +48,6 @@
             </div>
 
             <div class="acciones-laterales">
-                {{-- Botones editar, cambiar clave y gestionar usuarios --}}
                 <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn btn-verde-siger">
                     Editar Mis Datos
                 </x-botones.boton>
@@ -122,7 +120,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Control de apertura/cierre del formulario de edición
         const btnEditar = document.getElementById('btn-editar-perfil');
         const contenedorForm = document.getElementById('contenedor-formulario');
 
@@ -132,28 +129,23 @@
             });
         }
 
-        // Sistema dinámico de pestañas internas (Tabs)
         const tabs = document.querySelectorAll('.tab-btn');
         const contenidos = document.querySelectorAll('.tab-contenido');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', function() {
-                // Desactivar todos los botones de pestañas
                 tabs.forEach(t => {
                     t.classList.remove('activo');
                     t.style.borderBottom = 'none';
                     t.style.color = 'var(--color-azulado)';
                 });
                 
-                // Ocultar todos los bloques de contenido
                 contenidos.forEach(c => c.style.display = 'none');
 
-                // Activar la pestaña cliqueada
                 this.classList.add('activo');
                 this.style.borderBottom = '3px solid var(--color-principal)';
                 this.style.color = 'inherit';
 
-                // Mostrar el panel de datos correspondiente
                 const targetTab = this.getAttribute('data-tab');
                 document.getElementById(targetTab).style.display = 'block';
             });

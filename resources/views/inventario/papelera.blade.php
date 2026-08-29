@@ -1,23 +1,18 @@
 @extends('layouts.app')
 
+@section('rutaRegresar', route('inventario.index'))
+
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/papelera.css') }}">
 
 <div class="panel-administracion-contenedor" style="padding: 20px;">
-    
-    {{-- Botón para regresar al Inventario Principal --}}
-    <div style="margin-bottom: 20px;">
-        <x-botones.boton clase="btn-azulado" url="{{ url('/inventario') }}">
-            <i class="fas fa-arrow-left"></i> Volver a Gestión
-        </x-botones.boton>
-    </div>
 
     {{--- 1. CABECERA DEL PANEL ---}}
     <div class="cabecera-panel" style="margin-bottom: 25px;">
         <div class="texto-cabecera">
-            <h2 class="titulo-pagina" style="font-family: var(--fuente-secundaria); font-weight: 700; color: var(--color-texto); margin-bottom: 5px;">
-                <i class="fas fa-trash-alt"></i> Papelera de Recuperación
+            <h2 class="titulo-pagina" style="font-family: var(--fuente-secundaria); font-weight: 700; color: var(--color-principal); margin-bottom: 5px;">
+                <i class="fas fa-trash-alt" style="margin-right: 5px;"></i> Papelera de Recuperación
             </h2>
             <p class="subtitulo-pagina" style="font-family: var(--fuente-principal); color: var(--color-texto-secundario); font-size: 0.95rem;">
                 Consulta, restaura o elimina definitivamente los recursos dados de baja de la institución.
@@ -25,10 +20,10 @@
         </div>
     </div>
 
-    {{--- 2. CONTENEDOR PRINCIPAL (Misma estructura visual del Perfil/Dashboard) ---}}
+    {{--- 2. CONTENEDOR PRINCIPAL ---}}
     <div class="card-siger-papelera">
         
-        {{-- PESTAÑAS (TABS) SUPERIORES --}}
+        {{-- PESTAÑAS SUPERIORES --}}
         <div class="tabs-papelera-contenedor">
             <button class="btn-tab-siger active-tab" onclick="cambiarTabPapelera('tab-activos', this)">
                 <i class="fas fa-boxes"></i> Activos Eliminados
@@ -41,7 +36,7 @@
         {{--- 3. CONTENIDO DE LAS TABLAS ---}}
         <div class="tab-content-papelera">
 
-            {{-- 🛠️ PANE 1: TABLA DE ACTIVOS ELIMINADOS --}}
+            {{-- PANE 1: TABLA DE ACTIVOS ELIMINADOS --}}
             <div id="tab-activos" class="seccion-papelera-pane">
                 <div class="tabla-papelera-wrapper">
                     <table class="table table-hover align-middle tabla-siger">
@@ -96,7 +91,7 @@
                 </div>
             </div>
 
-            {{-- 🚪 PANE 2: TABLA DE AULAS ELIMINADAS --}}
+            {{-- PANE 2: TABLA DE AULAS ELIMINADAS --}}
             <div id="tab-aulas" class="seccion-papelera-pane" style="display: none;">
                 <div class="tabla-papelera-wrapper">
                     <table class="table table-hover align-middle tabla-siger">
@@ -159,41 +154,30 @@
     </div>
 </div>
 
-{{--- 4. MODAL COMPONENTE REUTILIZADO PARA DETALLES ---}}
+{{--- MODAL REUTILIZADO PARA DETALLES ---}}
 <x-modal titulo="Detalles del Recurso" subtitulo="Especificaciones técnicas y de auditoría interna.">
     <div id="contenedor-detalles-baja" style="font-family: var(--fuente-principal); color: var(--color-texto); line-height: 1.8; padding: 10px 5px;">
-        </div>
+    </div>
 </x-modal>
 
-{{--- 🚀 LOGICA JAVASCRIPT REACTIVA ---}}
 <script>
-// Manejo del cambio de pestañas (Tabs)
 function cambiarTabPapelera(tabId, botonClickado) {
-    // Ocultar todas las tablas
     document.querySelectorAll('.seccion-papelera-pane').forEach(panel => {
         panel.style.display = 'none';
     });
-    // Mostrar la tabla correspondiente
     document.getElementById(tabId).style.display = 'block';
     
-    // Quitar clase activa a todos los botones
     document.querySelectorAll('.btn-tab-siger').forEach(btn => {
         btn.classList.remove('active-tab');
     });
-    // Añadir clase activa al presionado
     botonClickado.classList.add('active-tab');
 }
 
-// Llenar y desplegar el modal general con los campos extras
 function verDetallesPapelera(nombreRecurso, htmlDatosExtra) {
-    // 1. Modificar textos de la cabecera del componente modal
     document.getElementById('modal-titulo-dinamico').textContent = nombreRecurso;
     document.getElementById('modal-sub-dinamico').textContent = "Historial y especificaciones completas";
-    
-    // 2. Inyectar el texto detallado
     document.getElementById('contenedor-detalles-baja').innerHTML = htmlDatosExtra;
     
-    // 3. Invocar al modal general nativo de Bootstrap heredado por el componente
     const modalDetalles = new bootstrap.Modal(document.getElementById('modalgeneral'));
     modalDetalles.show();
 }

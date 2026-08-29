@@ -1,5 +1,4 @@
 <div class="ficha-tecnica-universal p-4">   
-    
     {{-- 1. SECCIÓN IDENTIFICACIÓN --}}
     <div class="seccion-identificacion">
         <h3 style="font-size: 1.25rem; color: #aaa; margin-bottom: 1rem;">Identificación</h3>
@@ -68,17 +67,15 @@
         </div>
     </div>
 
-    {{-- ========================================== --}}
-{{-- 3. SECCIÓN ADICIONAL: INVENTARIO DE ACTIVOS --}}
-{{-- ========================================== --}}
-<div class="seccion-activos-asignados mt-4">
-    <h3 class="modal-title">Inventario del Espacio</h3>
-    
-    <div class="accordion mt-2" id="acordeonInventario">
-        <div class="accordion-item-siger">
+    {{-- 3. SECCIÓN ADICIONAL: INVENTARIO DE ACTIVOS --}}
+    <div class="seccion-activos-asignados mt-4">
+        <h3 class="modal-title">Inventario del Espacio</h3>
+        
+        <div class="accordion mt-2" id="acordeonInventario">
+            <div class="accordion-item-siger">
                 <button class="accordion-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#colapsoActivos" aria-expanded="false" aria-controls="colapsoActivos">
                     <span class="trigger-content">
-                        <span class="icon-box"></span>
+                        <span class="icon">📦</span>
                         <span class="text">Ver activos asignados a esta aula</span>
                     </span>
                     <span class="badge-conteo" id="ficha-conteo-activos">0</span>
@@ -87,14 +84,11 @@
                 <div id="colapsoActivos" class="collapse" data-bs-parent="#acordeonInventario">
                     <div class="accordion-body-siger">
                         <ul class="lista-activos-siger" id="contenedor-activos-dinamicos">
-                            <li class="activo-item text-muted text-center py-2">
-                                
-                            </li>
+                            <li class="activo-item text-muted text-center py-2"></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>

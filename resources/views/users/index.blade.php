@@ -19,7 +19,7 @@
 
         {{-- Botón de acceso directo a Registro --}}
         <a href="{{ route('usuarios.create') }}" style="text-decoration: none;">
-            <x-botones.boton type="button" class="btn btn-siger-accion  btn-verde-siger" style="width: auto; padding: 10px 20px;">
+            <x-botones.boton type="button" class="btn btn-siger-accion btn-verde-siger" style="width: auto; padding: 10px 20px;">
                 <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Crear Nuevo Usuario
             </x-botones.boton>
         </a>
@@ -145,18 +145,19 @@
                             </td>
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                                    {{-- Botón Activar Directo (Corregido a PATCH/usuarios.baja) --}}
+                                    {{-- Botón Activar Directo --}}
                                     <form action="{{ route('usuarios.baja', $usuario->USU_ID) }}" method="POST" style="display: inline-flex; margin: 0;">
-                                            @csrf
-                                            @method('PATCH')
-                                            <x-botones.boton
-                                                type="submit"
-                                                class="btn-siger-accion btn btn-verde-siger"
-                                                style="padding: 6px 16px; font-size: 0.85rem; width: auto;">
-                                                Activar
-                                            </x-botones.boton>
+                                        @csrf
+                                        @method('PATCH')
+                                        <x-botones.boton
+                                            type="submit"
+                                            class="btn-siger-accion btn btn-verde-siger"
+                                            style="padding: 6px 16px; font-size: 0.85rem; width: auto;">
+                                            Activar
+                                        </x-botones.boton>
                                     </form>
-                                    {{-- Botón Gestionar Modal (Inactivo) --}}
+
+                                    {{-- Botón Gestionar Modal --}}
                                     <x-botones.boton 
                                         type="button" 
                                         class="btn-siger-accion btn btn-rojo" 
@@ -217,7 +218,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContenidos = document.querySelectorAll('.tab-contenido');
-//hace que al hacer clic en una pestaña, se muestre su contenido y se oculte el de las demás
+
         tabBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 tabBtns.forEach(b => {
@@ -227,7 +228,7 @@
                 });
 
                 tabContenidos.forEach(c => c.style.display = 'none');
-// hace que el botón clickeado se vea activo y muestre su contenido correspondiente
+
                 this.classList.add('activo');
                 this.style.borderBottom = '3px solid var(--color-principal)';
                 this.style.color = 'var(--color-texto)';

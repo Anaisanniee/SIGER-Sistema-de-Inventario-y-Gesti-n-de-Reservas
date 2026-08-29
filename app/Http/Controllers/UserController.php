@@ -15,32 +15,36 @@ class UserController extends Controller
      */
     public function index()
     {
-        $usuarios = User::with('role')->get();
-        // Definimos $users para garantizar total compatibilidad con la vista index.blade.php
-        $users = $usuarios; 
+        $users = User::with('role')->get();
+        $usuarios = $users; 
 
-        return view('users.index', compact('usuarios', 'users'));
+        return view('users.index', compact('users', 'usuarios'));
     }
 
     /**
-     * Muestra el formulario para crear un usuario (Exclusivo Secretaría)
+     * Muestra el formulario para crear un usuario
      */
     public function create()
-{
-    $roles = Role::all();
-    $registrados = User::count();
-    $activos = User::where('USU_ESTADO', 'Activo')->count();
+    {
+        $roles = Role::all();
+        $registrados = User::count();
+        $activos = User::where('USU_ESTADO', 'Activo')->count();
 
-    return view('users.crear-usuario', compact('roles', 'registrados', 'activos')); 
-}
+        if (view()->exists('users.crear-usuario')) {
+            return view('users.crear-usuario', compact('roles', 'registrados', 'activos'));
+        }
+
+        return view('users.create', compact('roles', 'registrados', 'activos')); 
+    }
 
     /**
-     * Guarda el nuevo usuario (Exclusivo Secretaría)
+     * Guarda el nuevo usuario
      */
     public function store(Request $request)
     {
         $request->validate([
-            'identificacion'   => 'required|numeric|digits_between:7,10|unique:users,USU_CEDULA',
+            'identificacion'   => 'nullable|numeric|digits_between:7,10|unique:users,USU_CEDULA',
+            'USU_CEDULA'       => 'nullable|string|unique:users,USU_CEDULA',
             'name'             => 'required|string|max:50',
             'second-name'      => 'nullable|string|max:50',
             'lastname'         => 'required|string|max:50',
@@ -50,13 +54,15 @@ class UserController extends Controller
             'rol'              => 'required|exists:roles,id',
         ]);
 
+        $cedula = $request->input('identificacion') ?? $request->input('USU_CEDULA');
+
         User::create([
-            'USU_CEDULA'           => $request->input('identificacion'),
+            'USU_CEDULA'           => $cedula,
             'USU_PRIMER_NOMBRE'    => $request->input('name'),
             'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
             'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
             'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
-            'USU_CORREO'          => $request->input('correo'),
+            'USU_CORREO'           => $request->input('correo'),
             'USU_CONTRASEÑA'       => Hash::make($request->input('password')),
             'ROL_ID'               => $request->input('rol'),
             'USU_ESTADO'           => 'Activo',
@@ -66,19 +72,17 @@ class UserController extends Controller
     }
 
     /**
-     * Muestra la vista del perfil adaptada según el rol del usuario autenticado
+     * Muestra la vista del perfil del usuario autenticado
      */
     public function perfil()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         $rol = strtolower($usuario->role->name ?? '');
 
-        // Secretaría
         if (in_array($rol, ['secretario', 'secretaria', 'secretaria general'])) {
             return view('users.perfil.secretario', compact('usuario'));
         }
 
-        // Rector / Rectora
         if (in_array($rol, ['rector', 'rectora'])) {
             if (view()->exists('users.perfil.rectora')) {
                 return view('users.perfil.rectora', compact('usuario'));
@@ -88,19 +92,16 @@ class UserController extends Controller
             }
         }
 
-        // Vista general para Docente o cualquier otro rol
         return view('users.perfil.perfil-usuario', compact('usuario'));
     }
 
     /**
-     * 🛡️ CAPA 2 DE SEGURIDAD: Actualiza de forma estricta los datos propios del perfil.
-     * Solo permite la edición de nombres, apellidos y correo del usuario autenticado.
+     * Actualiza la información del perfil propio
      */
     public function updatePerfil(Request $request)
     {
         $usuario = Auth::user();
 
-        // 1. Validar únicamente los campos autorizados para el perfil
         $request->validate([
             'name'             => 'required|string|max:50',
             'second-name'      => 'nullable|string|max:50',
@@ -109,37 +110,33 @@ class UserController extends Controller
             'correo'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
         ]);
 
-        // 2. Extraer de forma estricta solo los inputs permitidos (Se ignoran 'rol', 'estado' o 'identificacion')
-        $datosFiltrados = [
+        $usuario->update([
             'USU_PRIMER_NOMBRE'    => $request->input('name'),
             'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
             'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
             'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
-            'USU_CORREO'          => $request->input('correo'),
-        ];
-
-        // 3. Actualizar únicamente el registro del usuario autenticado
-        $usuario->update($datosFiltrados);
+            'USU_CORREO'           => $request->input('correo'),
+        ]);
 
         return redirect()->back()->with('success', '¡Perfil actualizado correctamente!');
     }
 
-   /**
- * Muestra el formulario de edición administrativa (Exclusivo Secretaría)
- */
+    /**
+     * Edición administrativa de usuario
+     */
     public function edit($id)
     {
-       $usuario = User::findOrFail($id);
-       $roles = Role::all();
+        $usuario = User::findOrFail($id);
+        $roles = Role::all();
 
-      // Contadores dinámicos para la tarjeta lateral
-       $registrados = User::count();
-       $activos = User::where('USU_ESTADO', 'Activo')->count();
+        $registrados = User::count();
+        $activos = User::where('USU_ESTADO', 'Activo')->count();
 
-       return view('users.editar-usuario', compact('usuario', 'roles', 'registrados', 'activos'));
+        return view('users.editar-usuario', compact('usuario', 'roles', 'registrados', 'activos'));
     }
+
     /**
-     * Actualiza la información administrativa del usuario (Exclusivo Secretaría)
+     * Actualización administrativa del usuario
      */
     public function update(Request $request, $id)
     {
@@ -147,12 +144,9 @@ class UserController extends Controller
 
         $request->validate([
             'name'             => 'required|string|max:50',
-            'second-name'      => 'nullable|string|max:50',
             'lastname'         => 'required|string|max:50',
-            'second-last-name' => 'nullable|string|max:50',
-            'correo'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
+            'correo'           => 'required|email|unique:users,USU_CORREO,' . $id . ',USU_ID',
             'rol'              => 'nullable|exists:roles,id',
-            'USU_ESTADO'       => 'nullable|string',
         ]);
 
         $data = [
@@ -160,15 +154,11 @@ class UserController extends Controller
             'USU_SEGUNDO_NOMBRE'   => $request->input('second-name', $usuario->USU_SEGUNDO_NOMBRE),
             'USU_PRIMER_APELLIDO'  => $request->input('lastname', $usuario->USU_PRIMER_APELLIDO),
             'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name', $usuario->USU_SEGUNDO_APELLIDO),
-            'USU_CORREO'          => $request->input('correo', $usuario->USU_CORREO),
+            'USU_CORREO'           => $request->input('correo', $usuario->USU_CORREO),
         ];
 
         if ($request->filled('rol')) {
             $data['ROL_ID'] = $request->input('rol');
-        }
-
-        if ($request->filled('USU_ESTADO')) {
-            $data['USU_ESTADO'] = $request->input('USU_ESTADO');
         }
 
         if ($request->filled('password')) {
@@ -177,26 +167,24 @@ class UserController extends Controller
 
         $usuario->update($data);
 
-        return redirect()->route('usuarios.index')->with('success', '¡Información del usuario actualizada correctamente!');
+        return redirect()->route('usuarios.index')->with('success', '¡Usuario actualizado correctamente!');
     }
 
     /**
-     * Alterna el estado del usuario (Exclusivo Secretaría)
+     * Alterna el estado Activo/Inactivo
      */
     public function darDeBaja($id)
     {
         $usuario = User::findOrFail($id);
         $nuevoEstado = ($usuario->USU_ESTADO === 'Activo') ? 'Inactivo' : 'Activo';
-        
-        $usuario->update([
-            'USU_ESTADO' => $nuevoEstado
-        ]);
+
+        $usuario->update(['USU_ESTADO' => $nuevoEstado]);
 
         return redirect()->back()->with('success', "Estado del usuario cambiado a {$nuevoEstado}.");
     }
 
     /**
-     * Elimina definitivamente un usuario (Exclusivo Secretaría)
+     * Elimina definitivamente a un usuario
      */
     public function destroy($id)
     {

@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/aulas'))
+@section('rutaRegresar', route('inventario.index'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
@@ -20,7 +20,6 @@
         <div class="tarjeta-blanca-datos" style="background: var(--color-fondo); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--color-principal);">Registrar Nueva Aula</h3>
 
-            {{-- Cargamos el componente sin pasarle variable (Limpio) --}}
             @include('components.formularios.form-aula')
         </div>
     </div>

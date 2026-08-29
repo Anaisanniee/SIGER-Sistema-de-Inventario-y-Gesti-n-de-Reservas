@@ -1,4 +1,3 @@
-{{-- resources/views/users/editar-usuario.blade.php --}}
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'false')
