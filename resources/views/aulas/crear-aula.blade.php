@@ -36,6 +36,10 @@
             <div class="alerta-informativa-azul">
                 <p>Asegúrese de registrar la capacidad real para evitar sobrecupos en las reservas.</p>
             </div>
+
+            <div class="alerta-informativa-amarilla">
+                <p>Verifique que el estado de reservable esté activo o inactivo según corresponda.</p>
+            </div>
         </div>
     </div>
 </div>

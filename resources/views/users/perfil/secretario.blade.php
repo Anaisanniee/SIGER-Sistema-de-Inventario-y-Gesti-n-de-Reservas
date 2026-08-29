@@ -2,7 +2,6 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/dashboard')) {{-- O la ruta de retorno segura --}}
 @section('mostrarPerfil', 'false')
 @section('content')
 

@@ -26,13 +26,13 @@
             <x-botones.boton 
                 clase="btn-verde" {{-- Usando tu clase verde de SIGER --}}
                 url="{{ url('/aulas/crear') }}"> {{-- Cambia por la ruta real cuando la tengan --}}
-                <i class="fas fa-plus"></i> Nueva Aula
+                <i class="fas fa-plus" style="margin-right: 5px;"></i> Nueva Aula
             </x-botones.boton>
 
             <x-botones.boton 
                 clase="btn-verde" {{-- Mantiene la consistencia con el botón de al lado --}}
                 url="{{ url('/activos/crear') }}"> {{-- Cambia por la ruta real cuando la tengan --}}
-                <i class="fas fa-plus"></i> Nuevo Activo
+                <i class="fas fa-plus" style="margin-right: 5px;"></i> Nuevo Activo
             </x-botones.boton>
 
             <x-botones.boton 

@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/usuarios'))
+@section('rutaRegresar', route('usuarios.index'))
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  

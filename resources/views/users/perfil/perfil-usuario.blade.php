@@ -2,7 +2,9 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/dashboard'))
+@section('rutaRegresar', auth()->user()->role === 'docente' 
+    ? route('dashboard.docente', ['id' => auth()->id()]) 
+    : route('dashboard.rectora', ['id' => auth()->id()]))
 
 @section('mostrarPerfil', 'false')
 @section('content')

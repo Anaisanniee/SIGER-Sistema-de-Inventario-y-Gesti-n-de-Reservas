@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/perfil/secretario'))
+@section('rutaRegresar', route('perfil.secretario', ['id' => auth()->id()]))
 @section('mostrarPerfil', 'false')
 
 @section('content')
