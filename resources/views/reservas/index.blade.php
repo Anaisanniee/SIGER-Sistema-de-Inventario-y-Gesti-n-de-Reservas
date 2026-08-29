@@ -1,11 +1,7 @@
 @extends('layouts.app')
 
 @section('mostrarBusqueda', 'true')
-<<<<<<< HEAD
-@section('mostrarRegresar', 'true')
-=======
 @section('rutaRegresar', route('dashboard.secretario'))
->>>>>>> origin/backend-Elias
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
@@ -15,106 +11,27 @@
 
 @php
     $esAdmin = Auth::user()->esAdmin ?? true; 
-<<<<<<< HEAD
-
-    $reservasSimuladas = [
-        (object)[
-            'id' => 1,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Computador Dell Inspiron',
-            'estado' => 'pendiente',
-            'usuario_nombre' => 'Docente Carlos Mendoza',
-            'identificacion' => '1.004.234.111',
-            'email' => 'carlos.mendoza@colegio.edu.co',
-            'motivo' => 'Clase de programación orientada a objetos.',
-            'fecha_inicio' => '2026-07-12',
-            'fecha_fin' => '2026-07-12',
-            'hora_inicio' => '08:00 AM',
-            'hora_fin' => '10:00 AM',
-            'ubicacion' => 'Aula 101',
-            'tipo_recurso' => 'activo',
-            'es_multiple' => false,
-            'recursos_lista' => []
-        ],
-        (object)[
-            'id' => 2,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Videobeam Epson X41',
-            'estado' => 'aprobada',
-            'usuario_nombre' => 'Docente María Alejandra',
-            'identificacion' => '1.004.234.222',
-            'email' => 'maria.alejandra@colegio.edu.co',
-            'motivo' => 'Presentación de proyectos finales de historia.',
-            'fecha_inicio' => '2026-07-13',
-            'fecha_fin' => '2026-07-13',
-            'hora_inicio' => '10:00 AM',
-            'hora_fin' => '12:00 PM',
-            'ubicacion' => 'Laboratorio de Sistemas',
-            'tipo_recurso' => 'activo',
-            'es_multiple' => false,
-            'recursos_lista' => []
-        ],
-        (object)[
-            'id' => 3,
-            'recurso_foto' => null,
-            'recurso_nombre' => 'Auditorio Central',
-            'estado' => 'rechazada',
-            'usuario_nombre' => 'Ing. Ricardo Torres',
-            'identificacion' => '1.004.234.333',
-            'email' => 'ricardo.torres@colegio.edu.co',
-            'motivo' => 'Conferencia institucional sobre desarrollo de software.',
-            'fecha_inicio' => '2026-07-15',
-            'fecha_fin' => '2026-07-15',
-            'hora_inicio' => '02:00 PM',
-            'hora_fin' => '06:00 PM',
-            'ubicacion' => 'Bloque B',
-            'tipo_recurso' => 'aula',
-            'es_multiple' => false,
-            'recursos_lista' => []
-        ]
-    ];
-=======
->>>>>>> origin/backend-Elias
 @endphp
 
 <div class="panel-administracion-contenedor">
     
-<<<<<<< HEAD
-    <!-- CABECERA DEL PANEL -->
-    <div class="cabecera-panel">
-        <div class="texto-cabecera">
-            <h2 class="titulo-pagina"><i class="fas fa-calendar-alt"></i> Solicitudes de Reservas</h2>
-=======
     <div class="cabecera-panel">
         <div class="texto-cabecera">
             <h2 class="titulo-pagina" style="color: var(--color-principal);"><i class="fas fa-calendar-alt"></i> Solicitudes de Reservas</h2>
->>>>>>> origin/backend-Elias
             <p class="subtitulo-pagina">Consulta el estado detallado y el resumen completo de los recursos solicitados.</p>
         </div>
         
         <div class="acciones-rapidas-panel">
             <x-botones.boton clase="btn-papelera" url="{{ url('/reservas/historial') }}">
-<<<<<<< HEAD
-                <i class="fas fa-history"></i> Historial
-=======
                 <i class="fas fa-history" style="margin-right: 5px;"></i> Historial
->>>>>>> origin/backend-Elias
             </x-botones.boton>
         </div>
     </div>
 
-<<<<<<< HEAD
-    <!-- BLOQUE DE MÉTRICAS / KPIs -->
-    <div class="contenedor-kpis">
-        @component('components.filtros.kpi-selector', [
-            'kpis' => [
-                ['filtro' => 'pendiente',  'color' => 'amarillo','icono' => 'fas fa-clock',       'titulo' => 'Pendientes',  'subtitulo' => 'Por revisar'],
-=======
     <div class="contenedor-kpis">
         @component('components.filtros.kpi-selector', [
             'kpis' => [
                 ['filtro' => 'pendiente',  'color' => 'amarillo','icono' => 'fas fa-clock',      'titulo' => 'Pendientes',  'subtitulo' => 'Por revisar'],
->>>>>>> origin/backend-Elias
                 ['filtro' => 'aprobada',   'color' => 'verde',  'icono' => 'fas fa-check-circle','titulo' => 'Aprobadas',   'subtitulo' => 'Listas'],
                 ['filtro' => 'rechazada',  'color' => 'rojo',   'icono' => 'fas fa-times-circle','titulo' => 'Rechazadas',  'subtitulo' => 'Denegadas']
             ]
@@ -122,70 +39,6 @@
         @endcomponent
     </div>
 
-<<<<<<< HEAD
-    <!-- DISTRIBUCIÓN EN DOS COLUMNAS -->
-    <div class="dashboard-reservas-grid">
-        
-        <!-- COLUMNA IZQUIERDA: LISTADO DE TARJETAS -->
-        <div class="columna-solicitudes">
-            <div class="container-tarjetas-vertical">
-                @foreach($reservasSimuladas as $reserva)
-                    @php
-                        $tagsReserva = ['reserva', strtolower($reserva->estado)];
-                        $strTagsReserva = implode(' ', $tagsReserva);
-                    @endphp
-                    
-                    <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsReserva }}">
-                        @component('components.tarjetas.tarjeta-reserva', [
-                            'id'          => $reserva->id,
-                            'foto'        => asset('storage/images/activos/default.jpeg'),
-                            'nombre'      => $reserva->recurso_nombre,
-                            'estado'      => $reserva->estado,
-                            'solicitante' => $reserva->usuario_nombre,
-                            'fecha'       => \Carbon\Carbon::parse($reserva->fecha_inicio)->format('d \d\e F Y'),
-                            'horaInicio'  => $reserva->hora_inicio,
-                            'horaFin'     => $reserva->hora_fin,
-                            'ubicacion'   => $reserva->ubicacion,
-                            'urlGestion'  => '#',
-                            'esMultiple'  => $reserva->es_multiple ?? false,
-                            'recursos'    => $reserva->recursos_lista ?? []
-                        ])
-                        @endcomponent
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- COLUMNA DERECHA: AGENDA PERMANENTE -->
-        <div class="columna-agenda-permanente">
-        <x-agendas.agenda :eventos="[
-                [
-                    'title' => 'Computador Dell - Prof. Carlos',
-                    'start' => '2026-08-12T08:00:00',
-                    'end' => '2026-08-12T10:00:00',
-                    'extendedProps' => [
-                        'recurso' => 'Computador Dell Inspiron',
-                        'usuario' => 'Carlos Mendoza (Docente)',
-                        'estado' => 'Aprobado'
-                    ]
-                ],
-                [
-                    'title' => 'Reserva Aula 101',
-                    'start' => '2026-08-15T10:00:00',
-                    'end' => '2026-08-15T12:00:00',
-                    'extendedProps' => [
-                        'recurso' => 'Aula 101 (Audiovisuales)',
-                        'usuario' => 'María Pérez (Docente)',
-                        'estado' => 'Aprobado'
-                    ]
-                ]
-            ]" />
-        </div>
-
-    </div>
-
-    {{-- COMPONENTE DEL MODAL GENERAL CON SU SCRIPT INCLUIDO --}}
-=======
     <div class="dashboard-reservas-grid">
         
         <div class="columna-solicitudes">
@@ -369,7 +222,7 @@
             </div>
         </div>
 
-    <div class="columna-agenda-permanente">
+        <div class="columna-agenda-permanente">
             @php
                 $reservasCalendario = $reservas->filter(function($reserva) {
                     $estado = strtolower(trim($reserva->res_estado_reserva ?? ''));
@@ -396,7 +249,6 @@
                     $colorFondo = $esAprobada ? '#198754' : '#ffc107'; 
                     $colorTexto = $esAprobada ? '#ffffff' : '#000000';
 
-                    // Generamos los datos del modal para cada reserva
                     $d = $generarHtmlTarjeta($reserva);
                     $fechaInicio = optional($primerDetalle)->det_re_fecha_ini ?? ($reserva->res_fecha_inicio ?? null);
 
@@ -411,7 +263,7 @@
                             'recurso' => $nombreRecurso,
                             'usuario' => $nombreUsuario,
                             'estado'  => ucfirst($estado),
-                            'modalData' => $d['modal'] // <-- Agregado para que el evento abra el modal
+                            'modalData' => $d['modal']
                         ]
                     ];
                 })->filter(fn($evento) => !empty($evento['start']))->values()->toArray();
@@ -422,14 +274,11 @@
     </div>
 
     {{-- Renderizado Único del Componente Modal --}}
->>>>>>> origin/backend-Elias
     <x-reservas.modal-detalle-reserva :esAdmin="$esAdmin" />
 
 </div>
 
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
-<<<<<<< HEAD
-=======
 
 <script>
     function cargarDatosModalReserva(elemento) {
@@ -444,11 +293,9 @@
             if (!rawData) return;
             const datos = JSON.parse(rawData);
 
-            // 1. Título del modal principal
             const tituloEl = document.getElementById('modalgeneral-titulo');
             if (tituloEl) tituloEl.innerText = datos.titulo;
 
-            // 2. Mapeo de campos del resumen
             const setearTexto = (id, valor) => {
                 const el = document.getElementById(id);
                 if (el) el.innerText = (valor !== null && valor !== undefined && valor !== '') ? valor : 'N/A';
@@ -464,7 +311,6 @@
             setearTexto('resumen-hora-fin', datos.horaFin);
             setearTexto('resumen-aula-uso', datos.aula);
 
-            // 3. Renderizado de recursos
             const contenedorRecursos = document.getElementById('resumen-bloque-recurso');
             if (contenedorRecursos && datos.recursos) {
                 let htmlRecursos = `
@@ -482,7 +328,6 @@
                 `;
                 
                 datos.recursos.forEach(rec => {
-                    // Lógica corregida: diferencia entre Aula y Activo
                     let detallesHTML = '';
                     if (rec.es_aula === true) {
                         detallesHTML = `
@@ -511,7 +356,6 @@
                 contenedorRecursos.innerHTML = htmlRecursos;
             }
 
-            // 4. Actualizar rutas de formularios
             const formRechazar = document.getElementById('formRechazar');
             const formAprobar = document.getElementById('formAprobar');
             const formRevertir = document.getElementById('formRevertir');
@@ -519,7 +363,6 @@
             if (formAprobar) formAprobar.action = `/secretaria/reservas/${datos.id}/aprobar`;
             if (formRevertir) formRevertir.action = `/secretaria/reservas/${datos.id}/revertir`;
 
-            // 5. Visibilidad de bloques de acciones
             const bloquePendiente = document.getElementById('bloque-acciones-pendiente');
             const bloqueRevertir = document.getElementById('bloque-acciones-revertir');
             const estadoRes = (datos.estado || '').toLowerCase().trim();
@@ -553,7 +396,6 @@
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Función para cambiar la visibilidad de los contenedores
         window.filtrarPorEstado = function(filtro) {
             const seccionPendiente = document.getElementById('seccion-pendiente');
             const seccionAprobada = document.getElementById('seccion-aprobada');
@@ -569,20 +411,17 @@
             }
         };
 
-        // Captura clics en cualquier elemento del componente de KPIs que tenga un filtro definido
         document.querySelectorAll('[data-filtro], .kpi-card, .tarjeta-kpi').forEach(elemento => {
             elemento.style.cursor = 'pointer';
             elemento.addEventListener('click', function(e) {
-                // Extrae el filtro ya sea del atributo data-filtro o buscando dentro de él
                 const filtro = this.getAttribute('data-filtro') || this.querySelector('[data-filtro]')?.getAttribute('data-filtro');
                 
                 if (filtro) {
-                    e.preventDefault(); // Evita recargas si es un enlace
+                    e.preventDefault();
                     filtrarPorEstado(filtro);
                 }
             });
         });
     });
 </script>
->>>>>>> origin/backend-Elias
 @endsection

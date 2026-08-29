@@ -1,12 +1,13 @@
 @extends('layouts.app') 
 
-@section('content')
 @section('mostrarRegresar', 'false')
 @section('mostrarBusqueda', 'true')
 
+@section('content')
 @php
     $esAdmin = Auth::check() && in_array(Auth::user()->rol, ['admin', 'secretario', 'secretaria']);
 @endphp
+{{-- Resto del código... --}}
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [

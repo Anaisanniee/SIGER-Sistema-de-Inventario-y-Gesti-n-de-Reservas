@@ -1,6 +1,5 @@
 {{-- resources/views/components/tarjetas/tarjeta-recurso.blade.php --}}
 
-<<<<<<< HEAD
 @props([
     'nombre' => 'Recurso',
     'foto' => null,
@@ -15,39 +14,21 @@
 @php
     $esAdmin = isset($esAdmin) ? $esAdmin : false; 
 
-    // Definición segura de la foto (previene error 500 si viene vacía o no existe)
+    // Definición segura de la foto (previene error si viene vacía o no existe)
     $imagenFinal = $foto ?? $fotoRecurso ?? asset('img/default-recurso.png');
 
     // Identificamos con precisión el ID y el Tipo exacto
     $esActivo = isset($recurso->act_id) || isset($recurso->act_serial) || isset($recurso->act_marca);
-=======
-@php
-    $esAdmin = isset($esAdmin) ? $esAdmin : false; 
-
-    // Identificamos con precisión quirúrgica el ID y el Tipo exacto
-    $esActivo = isset($recurso->act_id) || isset($recurso->act_serial) || isset($recurso->act_marca);
     
->>>>>>> origin/backend-Elias
     $tipoStr = $esActivo ? 'activo' : 'aula';
     
     // Obtenemos su ID correspondiente
     $idRecurso = $esActivo ? ($recurso->act_id ?? $recurso->id ?? null) : ($recurso->aula_id ?? $recurso->id ?? null);
 
-    // Construimos la URL limpia
-<<<<<<< HEAD
-@endphp
-
-<div class="tarjeta-recurso">
-
-    <img
-        src="{{ $imagenFinal }}"
-=======
-    $urlReserva = $idRecurso ? route('reservas.paso1', ['id' => $idRecurso]) . '?tipo=' . $tipoStr : '#';
-
     // Extraemos el ESTADO REAL directamente desde el objeto $recurso
     $estadoReal = $recurso->aula_estado 
         ?? $recurso->act_estado_fisico 
-         ?? $recurso->estado 
+          ?? $recurso->estado 
         ?? '';
 
     $estadoLimpio = strtolower(trim($estadoReal));
@@ -74,7 +55,6 @@
     // Determinamos si el estado actual bloquea la reserva
     $estadosBloqueados = ['malo', 'mantenimiento', 'en mantenimiento', 'dañado', 'inactivo'];
     $estaBloqueado = in_array($estadoLimpio, $estadosBloqueados);
-
 @endphp
 
 <div class="tarjeta-recurso">
@@ -88,8 +68,7 @@
     </div>
 
     <img
-        src="{{ $foto }}"
->>>>>>> origin/backend-Elias
+        src="{{ $imagenFinal }}"
         alt="Foto del recurso"
         class="tarjeta-img"
     >
@@ -106,10 +85,6 @@
 
         <div class="botones-container">
 
-<<<<<<< HEAD
-            {{-- BOTÓN VER FICHA (Común para todos) --}}
-=======
->>>>>>> origin/backend-Elias
             <x-botones.boton
                 class="btn btn-azul"
                 target="modalgeneral"
@@ -133,11 +108,7 @@
                 data-act_fecha_ingreso="{{ $recurso->act_fecha_ingreso ?? '' }}"
                 data-cate_id="{{ $recurso->cate_id ?? '' }}"
                 data-aula_nombre="{{ $recurso->aula_nombre ?? 'No asignada' }}"
-<<<<<<< HEAD
-                data-act_precio_actual="{{ $recurso->act_precio_actual ?? 'No registra' }}"
-=======
                 data-act_precio_actual="{{ $recurso->precioActual->his_pre_valor ?? $recurso->act_precio_actual ?? '' }}"
->>>>>>> origin/backend-Elias
 
                 {{-- AULAS --}}
                 data-aula_id="{{ $recurso->aula_id ?? '' }}"
@@ -145,13 +116,6 @@
                 data-aula_estado="{{ $recurso->aula_estado ?? '' }}"
                 data-aula_reservable="{{ ($recurso->aula_reservable ?? false) ? 'Sí' : 'No' }}"
                 data-activos="{{ isset($recurso->activos) ? json_encode($recurso->activos) : ($recurso->activos_json ?? '[]') }}"
-<<<<<<< HEAD
-            >Ver ficha</x-botones.boton>
-
-            {{-- BOTONES ADMINISTRATIVOS Y DE ACCIÓN --}}
-            <div class="botones-admin">
-
-=======
             >
                 Ver ficha
             </x-botones.boton>
@@ -160,7 +124,6 @@
             <div class="botones-admin">
 
                 {{-- BOTÓN DINÁMICO (EDITAR O RESERVAR) --}}
->>>>>>> origin/backend-Elias
                 @if(request()->is('activos*') || request()->is('inventario*'))
                     @php
                         $idEditar = $recurso->act_id ?? $recurso->aula_id ?? null;
@@ -183,24 +146,6 @@
                         }
                     @endphp
 
-<<<<<<< HEAD
-                    {{-- BOTÓN RESERVAR (Agrega directamente al carrito global) --}}
-                    <x-botones.boton 
-                        class="btn btn-primary" 
-                        type="button"
-                        onclick="window.CarritoReservas.agregar({
-                            id: '{{ $idReserva }}',
-                            nombre: '{{ addslashes($nombre) }}',
-                            secundario: '{{ addslashes($valor) }}',
-                            foto: '{{ $imagenFinal }}',
-                            tipo: '{{ $tipoReserva }}'
-                        })">
-                        <i class="bi bi-calendar-check"></i> Reservar
-                    </x-botones.boton>
-                @endif
-
-                {{-- BOTÓN ELIMINAR (Solo para admin/secretario) --}}
-=======
                     @if($estaBloqueado)
                         {{-- Botón bloqueado nativo para evitar conflictos con el componente --}}
                         <button type="button" class="btn btn-secondary" disabled>
@@ -214,7 +159,7 @@
                                 id: '{{ $idReserva ?? '' }}',
                                 nombre: '{{ addslashes($nombre) }}',
                                 secundario: '{{ addslashes($valor) }}',
-                                foto: '{{ $foto }}',
+                                foto: '{{ $imagenFinal }}',
                                 tipo: '{{ $tipoReserva ?? '' }}'
                             })">
                             <i class="bi bi-calendar-check"></i> Reservar
@@ -223,7 +168,6 @@
                 @endif
 
                 {{-- BOTÓN ELIMINAR --}}
->>>>>>> origin/backend-Elias
                 @if($esAdmin)
                     <x-botones.boton 
                         class="btn btn-rojo" 
@@ -236,11 +180,7 @@
                 @endif
 
             </div>
-<<<<<<< HEAD
             
-=======
-
->>>>>>> origin/backend-Elias
         </div>
         
     </div>

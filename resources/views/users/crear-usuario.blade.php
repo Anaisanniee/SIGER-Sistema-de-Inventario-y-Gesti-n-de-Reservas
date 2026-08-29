@@ -12,40 +12,34 @@
 
 <div class="contenedor-registro-flexible">
 
-    {{-- BOTÓN DISPARADOR (Móviles) --}}
-    <button class="btn-toggle-formulario" type="button" data-bs-toggle="collapse" data-bs-target="#formularioColapsable" aria-expanded="false" aria-controls="formularioColapsable">
-        <span><i class="fas fa-user-plus"></i> Formulario de Registro</span>
-        <i class="fas fa-chevron-down"></i>
-    </button>
+    {{-- CONTENEDOR PRINCIPAL CON LA MISMA CLASE DE LA VISTA EDITAR --}}
+    <div id="formularioColapsable">
+        <div class="tarjeta-blanca-datos" style="background: var(--color-fondo); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--color-principal);">Registrar nuevo usuario</h3>
 
-    {{-- CONTENEDOR COLAPSABLE --}}
-    <div class="collapse dont-collapse-md" id="formularioColapsable">
-        
-        {{-- ALERTA DE ERRORES DE VALIDACIÓN --}}
-        @if ($errors->any())
-            <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
-                <strong>¡Atención! No se pudo crear el usuario:</strong>
-                <ul style="margin-bottom: 0; padding-left: 1.2rem; margin-top: 0.5rem;">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+            {{-- ALERTA DE ERRORES DE VALIDACIÓN --}}
+            @if ($errors->any())
+                <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #f5c6cb;">
+                    <strong>¡Atención! No se pudo crear el usuario:</strong>
+                    <ul style="margin-bottom: 0; padding-left: 1.2rem; margin-top: 0.5rem;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-        {{-- FORMULARIO CORREGIDO A MÉTODO POST --}}
-        <form class="form-registrar" action="{{ route('usuarios.store') }}" method="POST">
-            @csrf
+            {{-- FORMULARIO DE CREACIÓN --}}
+            <form action="{{ route('usuarios.store') }}" method="POST">
+                @csrf
 
-            <h3>Registrar nuevo usuario</h3>
-
-            {{-- INYECCIÓN DEL COMPONENTE PARCIAL --}}
-            @include('components.formularios.form-usuario', [
-                'modo' => 'crear',
-                'roles' => $roles ?? []
-            ])
-  
-        </form>
+                {{-- INYECCIÓN DEL COMPONENTE PARCIAL --}}
+                @include('components.formularios.form-usuario', [
+                    'modo' => 'crear',
+                    'roles' => $roles ?? []
+                ])
+            </form>
+        </div>
     </div>
 
     {{-- TARJETA LATERAL ESTADÍSTICAS Y GUÍA --}}
