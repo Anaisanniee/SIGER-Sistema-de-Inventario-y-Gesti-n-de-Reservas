@@ -80,7 +80,7 @@
                                         type="button" 
                                         class="btn-siger-accion btn btn-azul" 
                                         style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
-                                        onclick="window.location.href='{{ route('usuarios.edit', $usuario->USU_ID) }}'">
+                                        onclick="window.location.href='{{ route('usuarios.edit', $usuario->usu_id) }}'">
                                         Editar
                                     </x-botones.boton>
 
@@ -91,7 +91,7 @@
                                         style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#modalGestionUsuario"
-                                        onclick="prepararModal('{{ $usuario->USU_ID }}', '{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}', 'Activo')">
+                                        onclick="prepararModal('{{ $usuario->usu_id }}', '{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}', 'Activo')">
                                         Gestionar
                                     </x-botones.boton>
                                 </div>
@@ -146,7 +146,7 @@
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 0.5rem; justify-content: center;">
                                     {{-- Botón Activar Directo --}}
-                                    <form action="{{ route('usuarios.baja', $usuario->USU_ID) }}" method="POST" style="display: inline-flex; margin: 0;">
+                                    <form action="{{ route('usuarios.baja', $usuario->usu_id) }}" method="POST" style="display: inline-flex; margin: 0;">
                                         @csrf
                                         @method('PATCH')
                                         <x-botones.boton
@@ -164,7 +164,7 @@
                                         style="padding: 6px 16px; font-size: 0.85rem; width: auto;"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#modalGestionUsuario"
-                                        onclick="prepararModal('{{ $usuario->USU_ID }}', '{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}', 'Inactivo')">
+                                        onclick="prepararModal('{{ $usuario->usu_id }}', '{{ $usuario->USU_PRIMER_NOMBRE }} {{ $usuario->USU_PRIMER_APELLIDO }}', 'Inactivo')">
                                         Eliminar
                                     </x-botones.boton>
                                 </div>

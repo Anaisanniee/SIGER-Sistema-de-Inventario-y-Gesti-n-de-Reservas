@@ -57,15 +57,15 @@ class UserController extends Controller
         $cedula = $request->input('identificacion') ?? $request->input('USU_CEDULA');
 
         User::create([
-            'USU_CEDULA'           => $cedula,
-            'USU_PRIMER_NOMBRE'    => $request->input('name'),
-            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
-            'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
-            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
-            'USU_CORREO'           => $request->input('correo'),
-            'USU_CONTRASEÑA'       => Hash::make($request->input('password')),
-            'ROL_ID'               => $request->input('rol'),
-            'USU_ESTADO'           => 'Activo',
+            'USU_CEDULA'          => $cedula,
+            'USU_PRIMER_NOMBRE'   => $request->input('name'),
+            'USU_SEGUNDO_NOMBRE'  => $request->input('second-name'),
+            'USU_PRIMER_APELLIDO' => $request->input('lastname'),
+            'USU_SEGUNDO_APELLIDO'=> $request->input('second-last-name'),
+            'USU_CORREO'          => $request->input('correo'),
+            'USU_CONTRASEÑA'      => Hash::make($request->input('password')),
+            'ROL_ID'              => $request->input('rol'),
+            'USU_ESTADO'          => 'Activo',
         ]);
 
         return redirect()->route('usuarios.index')->with('success', '¡Usuario creado exitosamente!');
@@ -107,15 +107,15 @@ class UserController extends Controller
             'second-name'      => 'nullable|string|max:50',
             'lastname'         => 'required|string|max:50',
             'second-last-name' => 'nullable|string|max:50',
-            'correo'           => 'required|email|unique:users,USU_CORREO,' . $usuario->USU_ID . ',USU_ID',
+            'correo'           => 'required|email|unique:users,USU_CORREO,' . $usuario->usu_id . ',usu_id',
         ]);
 
         $usuario->update([
-            'USU_PRIMER_NOMBRE'    => $request->input('name'),
-            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name'),
-            'USU_PRIMER_APELLIDO'  => $request->input('lastname'),
-            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name'),
-            'USU_CORREO'           => $request->input('correo'),
+            'USU_PRIMER_NOMBRE'   => $request->input('name'),
+            'USU_SEGUNDO_NOMBRE'  => $request->input('second-name'),
+            'USU_PRIMER_APELLIDO' => $request->input('lastname'),
+            'USU_SEGUNDO_APELLIDO'=> $request->input('second-last-name'),
+            'USU_CORREO'          => $request->input('correo'),
         ]);
 
         return redirect()->back()->with('success', '¡Perfil actualizado correctamente!');
@@ -145,16 +145,16 @@ class UserController extends Controller
         $request->validate([
             'name'             => 'required|string|max:50',
             'lastname'         => 'required|string|max:50',
-            'correo'           => 'required|email|unique:users,USU_CORREO,' . $id . ',USU_ID',
+            'correo'           => 'required|email|unique:users,USU_CORREO,' . $id . ',usu_id',
             'rol'              => 'nullable|exists:roles,id',
         ]);
 
         $data = [
-            'USU_PRIMER_NOMBRE'    => $request->input('name', $usuario->USU_PRIMER_NOMBRE),
-            'USU_SEGUNDO_NOMBRE'   => $request->input('second-name', $usuario->USU_SEGUNDO_NOMBRE),
-            'USU_PRIMER_APELLIDO'  => $request->input('lastname', $usuario->USU_PRIMER_APELLIDO),
-            'USU_SEGUNDO_APELLIDO' => $request->input('second-last-name', $usuario->USU_SEGUNDO_APELLIDO),
-            'USU_CORREO'           => $request->input('correo', $usuario->USU_CORREO),
+            'USU_PRIMER_NOMBRE'   => $request->input('name', $usuario->USU_PRIMER_NOMBRE),
+            'USU_SEGUNDO_NOMBRE'  => $request->input('second-name', $usuario->USU_SEGUNDO_NOMBRE),
+            'USU_PRIMER_APELLIDO' => $request->input('lastname', $usuario->USU_PRIMER_APELLIDO),
+            'USU_SEGUNDO_APELLIDO'=> $request->input('second-last-name', $usuario->USU_SEGUNDO_APELLIDO),
+            'USU_CORREO'          => $request->input('correo', $usuario->USU_CORREO),
         ];
 
         if ($request->filled('rol')) {

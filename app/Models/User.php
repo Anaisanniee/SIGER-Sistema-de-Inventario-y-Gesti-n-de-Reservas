@@ -23,31 +23,23 @@ use Illuminate\Notifications\Notifiable;
 #[Hidden(['USU_CONTRASEÑA', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $primaryKey = 'USU_ID';
+    // Ajustado a minúsculas como lo muestra tu base de datos
+    protected $primaryKey = 'usu_id'; 
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'USU_CONTRASEÑA' => 'hashed', 
         ];
     }
-
 
     public function role()
     {
         return $this->belongsTo(Role::class, 'ROL_ID', 'id');
     }
 
-    
     public function getAuthPassword()
     {
         return $this->USU_CONTRASEÑA;
