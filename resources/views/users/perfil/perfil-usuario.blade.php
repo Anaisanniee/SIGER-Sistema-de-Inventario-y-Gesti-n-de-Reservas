@@ -2,17 +2,17 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', auth()->user()->role === 'docente' 
-    ? route('dashboard.docente', ['id' => auth()->id()]) 
-    : route('dashboard.rectora', ['id' => auth()->id()]))
-
 @section('mostrarPerfil', 'false')
+
 @section('content')
 
-{{-- VARIABLE TEMPORAL DE PRUEBA: Cambia a 'rector' o 'docente' para probar --}}
+{{-- VARIABLE TEMPORAL DE PRUEBA: Cambia a 'rector' o 'docente' para verificar la vista --}}
 @php $rolPrueba = 'rector'; @endphp
 
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
+{{-- Estilos necesarios para la maquetación de las tarjetas de reservas --}}
+<link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}">
 
 <div class="siger-modulo-perfil">
     
@@ -50,7 +50,7 @@
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Reservas activas</span>
-                    <span class="item-valor badge-reserva">5</span>
+                    <span class="item-valor badge-reserva">{{ count($misReservas ?? [1, 2]) }}</span>
                 </div>
             </div>
 
@@ -65,16 +65,21 @@
                     Historial de reserva
                 </x-botones.boton>
 
-                {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR (Evaluando rol manual de prueba) --}}
+                {{-- 
+                    ======================================================================
+                    SECCIÓN EXCLUSIVA PARA EL RECTOR:
+                    Redirección condicional cuando el usuario con rol rector visualiza el perfil.
+                    ======================================================================
+                --}}
                 @if(($rolPrueba ?? Auth::user()->rol ?? '') === 'rector')
                     <a href="" style="text-decoration: none; width: 100%;">
                         <x-botones.boton type="button" class="btn-siger-accion btn-azul">
-                            Ver Informes de Inventario
+                            <i class="fas fa-file-alt"></i> Ver Informes de Inventario
                         </x-botones.boton>
                     </a>
                 @endif
 
-                {{-- Botón Logout compacto en el mismo grupo --}}
+                {{-- Botón Logout compacto --}}
                 <x-botones.boton-logout />
             </div>
         </aside>
@@ -89,18 +94,75 @@
                         <span>Información personal</span>
                     </div>
 
-                    @include('components.formularios.form-usuario', ['usuario' => $usuario, 'modo' => 'perfil'])
+                    @include('components.formularios.form-usuario', ['usuario' => $usuario ?? null, 'modo' => 'perfil'])
                 </div>
             </div>
 
-            {{-- SECCIÓN 2: MIS RESERVAS --}}
+            {{-- 
+                ======================================================================
+                SECCIÓN 2: MIS RESERVAS UTILIZANDO EL CONTENEDOR VERTICAL Y @component
+                ======================================================================
+            --}}
             <div class="tarjeta-blanca-datos" id="contenedor-reservas">
                 <div class="titulo-ficha-datos">
                     <span>Mis Reservas</span>
                 </div>
-                <div class="modulo-placeholder">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    <p>Próximamente: Listado y control de reservas asignadas al usuario.</p>
+
+                {{-- Se añade la clase container-tarjetas-vertical para conservar los estilos correctos --}}
+                <div class="container-tarjetas-vertical" style="margin-top: 1.5rem;">
+                    @forelse($misReservas ?? [
+                        (object)[
+                            'id' => 101,
+                            'recurso_nombre' => 'Aula 101 - Sistemas',
+                            'estado' => 'pendiente',
+                            'usuario_nombre' => Auth::user()->name ?? 'Docente',
+                            'fecha_inicio' => '2026-08-30',
+                            'hora_inicio' => '08:00 AM',
+                            'hora_fin' => '10:00 AM',
+                            'ubicacion' => 'Bloque A - Piso 1',
+                            'es_multiple' => false,
+                            'recursos_lista' => []
+                        ],
+                        (object)[
+                            'id' => 102,
+                            'recurso_nombre' => 'Proyector Epson X500',
+                            'estado' => 'aprobada',
+                            'usuario_nombre' => Auth::user()->name ?? 'Docente',
+                            'fecha_inicio' => '2026-09-01',
+                            'hora_inicio' => '10:00 AM',
+                            'hora_fin' => '12:00 PM',
+                            'ubicacion' => 'Sala de Profesores',
+                            'es_multiple' => false,
+                            'recursos_lista' => []
+                        ]
+                    ] as $reserva)
+
+                        {{-- Wrapper individual con tag data para consistencia de maquetación --}}
+                        <div class="tarjeta-wrapper recurso-item">
+                            @component('components.tarjetas.tarjeta-reserva', [
+                                'id'          => $reserva->id,
+                                'foto'        => asset('storage/images/activos/default.jpeg'),
+                                'nombre'      => $reserva->recurso_nombre,
+                                'estado'      => $reserva->estado,
+                                'solicitante' => $reserva->usuario_nombre,
+                                'fecha'       => \Carbon\Carbon::parse($reserva->fecha_inicio)->format('d/m/Y'),
+                                'horaInicio'  => $reserva->hora_inicio,
+                                'horaFin'     => $reserva->hora_fin,
+                                'ubicacion'   => $reserva->ubicacion,
+                                'urlGestion'  => '#',
+                                'esMultiple'  => $reserva->es_multiple ?? false,
+                                'recursos'    => $reserva->recursos_lista ?? []
+                            ])
+                            @endcomponent
+                        </div>
+
+                    @empty
+                        <div class="modulo-placeholder text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h4>Aún no tienes reservas</h4>
+                            <p class="text-muted">Cuando realices reservas, aparecerán aquí para que puedas gestionarlas fácilmente.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
 
