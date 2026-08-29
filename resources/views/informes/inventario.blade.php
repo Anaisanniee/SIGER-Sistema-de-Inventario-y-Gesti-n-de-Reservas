@@ -27,9 +27,19 @@
             'anio_adquisicion' => 2021,
             'precio' => '$800.00'
         ],
+        [
+            'nombre_activo' => 'Laptop Dell XPS 13',
+            'serial' => 'SN123456789',
+            'marca' => 'Dell',
+            'categoria' => 'Computadora portátil',
+            'estado' => 'Disponible',
+            'ubicacion' => 'Oficina Principal',
+            'anio_adquisicion' => 2022,
+            'precio' => '$1,200.00'
+        ],
     ];
 
-    // Datos de prueba para la pestaña 2 (Aulas) - Se agregaron las columnas 'Tipo' y 'Último Mantenimiento'
+    // Datos de prueba para la pestaña 2 (Aulas)
     $aulas = [
         [
             'nombre_aula' => 'Aula 101 - Sistemas',
@@ -53,69 +63,6 @@
 <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
 <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
-{{-- Estilos personalizados y Media Queries explicados --}}
-<style>
-    /* ESTOS SON LOS MEDIA QUERIES Y REGLAS RESPONSIVAS:
-       Sirven para adaptar el diseño en dispositivos móviles y pantallas pequeñas. */
-
-    /* Contenedor flexible para alinear el título y el botón de Excel horizontalmente */
-    .encabezado-tabla-acciones {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        width: 100%;
-        gap: 1rem;
-    }
-
-    /* Estilo estilizado para el botón de Exportar a Excel */
-    .btn-exportar-excel {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        background-color: #107c41; /* Verde corporativo de Excel */
-        color: #ffffff !important;
-        padding: 9px 16px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.88rem;
-        white-space: nowrap;
-        border: none;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        transition: background-color 0.2s ease, transform 0.1s ease;
-    }
-
-    .btn-exportar-excel:hover {
-        background-color: #0b5c30;
-        transform: translateY(-1px);
-    }
-
-    /* MEDIA QUERY: Pantallas menores o iguales a 768px (Tablets y celulares) */
-    @media (max-width: 768px) {
-        /* Cambia las pestañas superiores a disposición vertical en pantallas pequeñas */
-        .tabs-gestion-admin {
-            flex-direction: column;
-            gap: 0.5rem !important;
-        }
-
-        /* Cambia el encabezado para que el botón de Excel baje y se adapte al ancho total */
-        .encabezado-tabla-acciones {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .btn-exportar-excel {
-            width: 100%; /* El botón ocupa todo el ancho en móviles */
-        }
-
-        .seccion-tab {
-            padding: 1rem !important; /* Reduce el relleno interno en celulares */
-        }
-    }
-</style>
-
 <h2 class="titulo-pagina"><i class="fas fa-file-alt"></i> Informes de Inventario</h2>
 
 <div class="tarjeta-blanca-datos">
@@ -134,16 +81,8 @@
         
         {{-- Pestaña 1: Inventario de activos --}}
         <div id="contenido-activos" class="seccion-tab" style="background: var(--color-fondo); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; display: block; text-align: left;">
-            
-            {{-- Encabezado de la tabla con el botón alineado limpiamente a la derecha --}}
-            <div class="encabezado-tabla-acciones">
-                <h3 style="margin: 0; color: var(--color-principal);">Inventario de activos</h3>
-                <a href="#" class="btn-exportar-excel">
-                    <i class="fas fa-file-excel"></i> Exportar a Excel
-                </a>
-            </div>
-
             @include('components.tablas.tabla-informe', [
+                'titulo' => 'Inventario de activos',
                 'columnas' => [
                     ['titulo' => 'Nombre del activo', 'campo' => 'nombre_activo'],
                     ['titulo' => 'Serial', 'campo' => 'serial'],
@@ -160,17 +99,8 @@
 
         {{-- Pestaña 2: Informe de aulas --}}
         <div id="contenido-aulas" class="seccion-tab" style="background: var(--color-fondo); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; display: none; text-align: left;">
-            
-            {{-- Encabezado de la tabla con el botón alineado limpiamente a la derecha --}}
-            <div class="encabezado-tabla-acciones">
-                <h3 style="margin: 0; color: var(--color-principal);">Informe de aulas</h3>
-                <a href="#" class="btn-exportar-excel">
-                    <i class="fas fa-file-excel"></i> Exportar a Excel
-                </a>
-            </div>
-
-            {{-- Componente de la tabla con las 2 nuevas columnas agregadas ('tipo' y 'ultimo_mantenimiento') --}}
             @include('components.tablas.tabla-informe', [
+                'titulo' => 'Informe de aulas',
                 'columnas' => [
                     ['titulo' => 'Nombre del aula', 'campo' => 'nombre_aula'],
                     ['titulo' => 'Tipo de aula', 'campo' => 'tipo'],
