@@ -92,8 +92,8 @@ input:focus, select:focus {
 @media (min-width: 769px) {
     .navbar {
         flex-wrap: nowrap;
-        background-color: #555;
-        color: #fff;
+        background-color: var(--color-texto);
+        color: var(--color-fondo);
         padding: 15px 25px;
     }
 
