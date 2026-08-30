@@ -391,7 +391,7 @@ class ReservasControllers extends Controller
         }
 
         $reserva = ReservasModels::create([
-            'usu_id'             => auth()->id() ?? 1, 
+            'usu_id'             => auth()->id(),       // 👈 Toma directamente el ID del usuario autenticado
             'res_estado_reserva' => 'Pendiente',
             'res_fecha_creacion' => now()->toDateString(),
             'res_motivo'         => $datosReserva['res_motivo'] ?? 'Sin motivo especificado',
@@ -434,10 +434,10 @@ class ReservasControllers extends Controller
             ->orderBy('res_id', 'desc')
             ->get();
 
-        // Separamos las colecciones usando el estado exacto de la base de datos
-        $pendientes = $reservas->where('res_estado_reserva', 'Pendiente');
-        $aprobadas  = $reservas->where('res_estado_reserva', 'Aprobada');
-        $rechazadas = $reservas->where('res_estado_reserva', 'Rechazada');
+        // Usar strtolower y trim para asegurar que coincidan sin importar cómo estén guardadas en la BD
+        $pendientes = $reservas->filter(fn($r) => strtolower(trim($r->res_estado_reserva ?? '')) === 'pendiente');
+        $aprobadas  = $reservas->filter(fn($r) => in_array(strtolower(trim($r->res_estado_reserva ?? '')), ['aprobada', 'aprobado']));
+        $rechazadas = $reservas->filter(fn($r) => in_array(strtolower(trim($r->res_estado_reserva ?? '')), ['rechazada', 'rechazado']));
 
         return view('reservas.index', compact('reservas', 'pendientes', 'aprobadas', 'rechazadas'));
     }

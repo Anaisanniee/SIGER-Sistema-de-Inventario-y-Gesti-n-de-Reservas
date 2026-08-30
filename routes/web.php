@@ -78,7 +78,7 @@ Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show')
 // RUTAS DE RESERVAS
 // ==========================================
 
-Route::get('/secretaria/reservas', [ReservasControllers::class, 'indexSecretaria'])->name('secretaria.reservas');
+
 
 // Ruta para mostrar el paso 1 (Ya no necesita {id?} ni {tipo?})
 Route::get('/reservas/crear/paso1', [ReservasControllers::class, 'paso1'])->name('reservas.paso1');
@@ -174,6 +174,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/usuarios/{id}/dar-de-baja', [UserController::class, 'darDeBaja'])->name('usuarios.baja');
         Route::delete('/usuarios/{id}', [UserController::class, 'destroy'])->name('usuarios.destroy');
 
+        Route::get('/secretaria/reservas', [ReservasControllers::class, 'indexSecretaria'])->name('secretaria.reservas');
+
         // Dashboard Secretaría
         Route::get('/dashboard/secretaria', function () {
             return view('dashboard.secretario');
@@ -183,21 +185,14 @@ Route::middleware('auth')->group(function () {
     // -----------------------------------------------------
     // 👑 DASHBOARD RECTORA / RECTOR
     // -----------------------------------------------------
-    Route::middleware('role:Rectora,Rector')->group(function () {
-        Route::get('/dashboard/rectora', function () {
-            $recursos = []; 
-            return view('dashboard.rector', compact('recursos'));
-        })->name('dashboard.rectora');
+    Route::middleware(['auth', 'role:Rectora,Rector'])->group(function () {
+        Route::get('/dashboard/rector', [DashboardController::class, 'indexRector'])->name('dashboard.rectora');
     });
 
     // -----------------------------------------------------
     // 👨‍🏫 DASHBOARD DOCENTE
     // -----------------------------------------------------
-    Route::middleware('role:Docente')->group(function () {
-        Route::get('/dashboard/docente', function () {
-            $recursos = []; 
-            return view('dashboard.docente', compact('recursos'));
-        })->name('dashboard.docente');
+    Route::middleware(['auth', 'role:Docente'])->group(function () {
+        Route::get('/dashboard/docente', [DashboardController::class, 'indexDocente'])->name('dashboard.docente');
     });
-
 });

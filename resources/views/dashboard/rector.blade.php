@@ -59,16 +59,27 @@
 
         @if(isset($recurso->act_id))
             
-            @php
+           @php
+                // Tag base de tipo
                 $tagsActivo = ['activo'];
+                
+                // Limpieza y normalización de textos para evitar fallos por mayúsculas o espacios extra
                 $estadoActivo = isset($recurso->act_estado_fisico) ? strtolower(trim($recurso->act_estado_fisico)) : '';
                 $reservableActivo = isset($recurso->act_reservable) ? strtolower(trim($recurso->act_reservable)) : '';
 
-                if (in_array($estadoActivo, ['buen estado', 'bueno', 'excelente', 'regular'])) {
+                if ($estadoActivo == 'buen estado' || $estadoActivo == 'bueno') {
+                    $tagsActivo[] = 'bueno'; 
+                } 
+
+                if ($estadoActivo == 'buen estado' || $estadoActivo == 'excelente') {
+                    $tagsActivo[] = 'bueno'; 
+                } 
+
+                if ($estadoActivo == 'buen estado' || $estadoActivo == 'regular') {
                     $tagsActivo[] = 'bueno'; 
                 } 
                 
-                if ($estadoActivo == 'malo') {
+                if ($estadoActivo == 'malo' || $estadoActivo == 'malo') {
                     $tagsActivo[] = 'en-mantenimiento'; 
                 }
 
@@ -96,10 +107,14 @@
         @else
 
             @php
+                // Tag base de tipo
                 $tagsAula = ['aula'];
+                
+                // Limpieza y normalización de textos
                 $estadoAula = isset($recurso->aula_estado) ? strtolower(trim($recurso->aula_estado)) : '';
                 $reservableAula = isset($recurso->aula_reservable) ? strtolower(trim($recurso->aula_reservable)) : '';
 
+                // CORRECCIÓN CLAVE: Ahora evalúa correctamente contra 'disponible' en minúsculas
                 if ($estadoAula == 'disponible' || $estadoAula == 'bueno') {
                     $tagsAula[] = 'bueno';
                 } 

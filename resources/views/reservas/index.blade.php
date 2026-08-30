@@ -53,8 +53,6 @@
 
                         // Mapeo independiente por cada detalle priorizando el Activo si existe
                         $listaRecursosMultiples = $reserva->detalles->map(function($det) {
-    
-                            // 1. SI TIENE ACT_ID, EL RECURSO ES UN ACTIVO
                             if (!empty($det->act_id)) {
                                 $activoObj = $det->activo ?? \App\Models\ActivosModels::find($det->act_id);
                                 if ($activoObj) {
@@ -73,7 +71,6 @@
                                 }
                             }
 
-                            // 2. SI NO TIENE ACT_ID PERO SÍ AULA_ID, EL RECURSO ES EL AULA
                             if (!empty($det->aula_id)) {
                                 $aulaObj = $det->aula ?? \App\Models\AulasModels::find($det->aula_id);
                                 if ($aulaObj) {
@@ -94,7 +91,6 @@
                                 }
                             }
 
-                            // 3. RESPALDO
                             return (object)[
                                 'es_aula' => false,
                                 'nombre' => 'Recurso General',
@@ -104,14 +100,12 @@
                             ];
                         });
 
-                        // Determinar el nombre principal de la tarjeta
                         if ($esMultiple) {
                             $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
                         } else {
                             $nombreRecurso = $listaRecursosMultiples[0]->nombre ?? 'Recurso General';
                         }
 
-                        // Ubicación de la reserva
                         $ubicacion = 'N/A';
                         if ($primerDetalle) {
                             if ($primerDetalle->aula) {
@@ -123,7 +117,23 @@
                         }
 
                         $fotoPrincipal = $esMultiple ? asset('storage/activos/multiple-default.png') : ($listaRecursosMultiples[0]->foto ?? asset('storage/images/activos/default.jpeg'));
-                        $nombreUsuario = $reserva->usuario->nombres ?? ($reserva->usuario->name ?? 'Usuario');
+                        
+                        // Extracción robusta de los datos del usuario / docente
+                        $user = $reserva->usuario;
+                        
+                        // Extracción usando los campos reales de tu modelo User en mayúsculas
+                        $primerNombre = $user->USU_PRIMER_NOMBRE ?? '';
+                        $segundoNombre = $user->USU_SEGUNDO_NOMBRE ?? '';
+                        $primerApellido = $user->USU_PRIMER_APELLIDO ?? '';
+                        $segundoApellido = $user->USU_SEGUNDO_APELLIDO ?? '';
+
+                        // Armamos el nombre completo de manera limpia
+                        $nombreCompleto = trim("{$primerNombre} {$segundoNombre} {$primerApellido} {$segundoApellido}");
+                        $nombreUsuario = !empty($nombreCompleto) ? $nombreCompleto : ($user->name ?? 'Docente / Usuario');
+
+                        $identificacionUsuario = $user->USU_CEDULA ?? 'N/A';
+                        $emailUsuario = $user->USU_CORREO ?? 'No disponible';
+
                         $estadoReserva = $reserva->res_estado_reserva ?? 'pendiente';
                         $fechaIni = optional($primerDetalle)->det_re_fecha_ini;
                         $fechaFin = optional($primerDetalle)->det_re_fecha_fin;
@@ -133,8 +143,8 @@
                             "estado" => $estadoReserva,
                             "titulo" => "Detalle de Reserva #" . ($reserva->res_id ?? $reserva->id),
                             "solicitante" => $nombreUsuario,
-                            "identificacion" => $reserva->usuario->identificacion ?? ($reserva->usuario->cedula ?? "N/A"),
-                            "email" => $reserva->usuario->email ?? "No disponible",
+                            "identificacion" => $identificacionUsuario,
+                            "email" => $emailUsuario,
                             "motivo" => $reserva->res_motivo ?? ($reserva->motivo ?? "Sin motivo especificado."),
                             "fechaInicio" => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format("Y-m-d") : "N/A",
                             "horaInicio" => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format("h:i A") : "N/A",
@@ -165,7 +175,7 @@
                     $rechazadas = $reservas->filter(fn($r) => in_array(strtolower($r->res_estado_reserva ?? ''), ['rechazada', 'rechazado']));
                 @endphp
 
-                {{-- CONTENEDOR 1: PENDIENTES (Visible por defecto) --}}
+                {{-- CONTENEDOR 1: PENDIENTES --}}
                 <div id="seccion-pendiente" class="contenedor-grupo-estado">
                     @forelse($pendientes as $reserva)
                         @php $d = $generarHtmlTarjeta($reserva); @endphp
@@ -183,7 +193,7 @@
                     @endforelse
                 </div>
 
-                {{-- CONTENEDOR 2: APROBADAS (Oculto inicialmente) --}}
+                {{-- CONTENEDOR 2: APROBADAS --}}
                 <div id="seccion-aprobada" class="contenedor-grupo-estado" style="display: none;">
                     @forelse($aprobadas as $reserva)
                         @php $d = $generarHtmlTarjeta($reserva); @endphp
@@ -201,7 +211,7 @@
                     @endforelse
                 </div>
 
-                {{-- CONTENEDOR 3: RECHAZADAS (Oculto inicialmente) --}}
+                {{-- CONTENEDOR 3: RECHAZADAS --}}
                 <div id="seccion-rechazada" class="contenedor-grupo-estado" style="display: none;">
                     @forelse($rechazadas as $reserva)
                         @php $d = $generarHtmlTarjeta($reserva); @endphp
@@ -238,11 +248,15 @@
                     } else {
                         $nombreRecurso = 'Recurso';
                         if ($primerDetalle) {
-                            $nombreRecurso = $primerDetalle->activo->act_nombre ?? ($primerDetalle->aula->aula_nombre ?? 'Recurso');
+                            $nombreRecurso = optional($primerDetalle->activo)->act_nombre ?? 
+                                             (optional($primerDetalle->activo)->nombre ?? 
+                                             (optional($primerDetalle->aula)->aula_nombre ?? 
+                                             (optional($primerDetalle->aula)->nombre ?? 'Recurso')));
                         }
                     }
                     
-                    $nombreUsuario = $reserva->usuario->nombres ?? ($reserva->usuario->name ?? 'Usuario');
+                    $user = $reserva->usuario;
+                    $nombreUsuario = $user->nombres ?? ($user->name ?? ($user->nombre ?? 'Usuario'));
                     $estado = strtolower(trim($reserva->res_estado_reserva ?? 'pendiente'));
 
                     $esAprobada = in_array($estado, ['aprobada', 'aprobado']);
@@ -250,12 +264,26 @@
                     $colorTexto = $esAprobada ? '#ffffff' : '#000000';
 
                     $d = $generarHtmlTarjeta($reserva);
-                    $fechaInicio = optional($primerDetalle)->det_re_fecha_ini ?? ($reserva->res_fecha_inicio ?? null);
+                    
+                    $rawFechaIni = optional($primerDetalle)->det_re_fecha_ini 
+                                ?? optional($primerDetalle)->fecha_inicio 
+                                ?? $reserva->res_fecha_inicio 
+                                ?? $reserva->fecha_inicio 
+                                ?? $reserva->created_at;
+
+                    $rawFechaFin = optional($primerDetalle)->det_re_fecha_fin 
+                                ?? optional($primerDetalle)->fecha_fin 
+                                ?? $reserva->res_fecha_fin 
+                                ?? $reserva->fecha_fin 
+                                ?? $rawFechaIni;
+
+                    $fechaInicio = $rawFechaIni ? \Carbon\Carbon::parse($rawFechaIni)->toIso8601String() : null;
+                    $fechaFin = $rawFechaFin ? \Carbon\Carbon::parse($rawFechaFin)->toIso8601String() : null;
 
                     return [
                         'title' => $nombreRecurso . ' - ' . $nombreUsuario,
                         'start' => $fechaInicio,
-                        'end'   => optional($primerDetalle)->det_re_fecha_fin ?? ($reserva->res_fecha_fin ?? $fechaInicio),
+                        'end'   => $fechaFin,
                         'backgroundColor' => $colorFondo,
                         'borderColor'     => $colorFondo,
                         'textColor'       => $colorTexto,
@@ -269,7 +297,111 @@
                 })->filter(fn($evento) => !empty($evento['start']))->values()->toArray();
             @endphp
 
-            <x-agendas.agenda :eventos="$eventosCalendario" />
+            <style>
+                #calendar {
+                    background: #fff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+                    font-family: inherit;
+                }
+                #calendar .fc-button-primary {
+                    background-color: #198754 !important;
+                    border-color: #198754 !important;
+                    color: #ffffff !important;
+                    border-radius: 6px !important;
+                    box-shadow: none !important;
+                    font-weight: 500;
+                }
+                #calendar .fc-button-primary:hover {
+                    background-color: #157347 !important;
+                    border-color: #146c43 !important;
+                }
+                #calendar .fc-button-active {
+                    background-color: #146c43 !important;
+                    border-color: #13653f !important;
+                }
+                #calendar .fc-today-button {
+                    background-color: #e9ecef !important;
+                    border-color: #ced4da !important;
+                    color: #495057 !important;
+                    border-radius: 6px !important;
+                }
+                #calendar .fc-today-button:hover {
+                    background-color: #dde2e6 !important;
+                    color: #212529 !important;
+                }
+                #calendar .fc-toolbar-title {
+                    color: #333333;
+                    font-size: 1.35rem;
+                    font-weight: 600;
+                    text-transform: capitalize;
+                }
+                #calendar .fc-col-header-cell-cushion {
+                    color: #495057;
+                    font-weight: 600;
+                    text-decoration: none;
+                    text-transform: lowercase;
+                    padding: 8px 0;
+                }
+                #calendar .fc-day-today {
+                    background-color: #d1e7dd !important; 
+                }
+                #calendar .fc-scrollgrid {
+                    border-color: #dee2e6 !important;
+                    border-radius: 6px;
+                }
+                #calendar th, #calendar td {
+                    border-color: #dee2e6 !important;
+                }
+            </style>
+
+            <p class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 500;">Eventos programados</p>
+            <div id="calendar" style="width: 100%; min-height: 550px;"></div>
+
+            <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+            <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var calendarEl = document.getElementById('calendar');
+                    if (calendarEl) {
+                        var calendar = new FullCalendar.Calendar(calendarEl, {
+                            initialView: 'dayGridMonth',
+                            locale: 'es',
+                            firstDay: 1,
+                            headerToolbar: {
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'dayGridMonth,timeGridWeek'
+                            },
+                            buttonText: {
+                                today: 'Hoy',
+                                month: 'Mes',
+                                week: 'Semana',
+                                list: 'Lista'
+                            },
+                            events: @json($eventosCalendario),
+                            eventClick: function(info) {
+                                if (info.event.extendedProps && info.event.extendedProps.modalData) {
+                                    const modalElement = document.getElementById('modalgeneral');
+                                    if (modalElement) {
+                                        const dummyElement = {
+                                            getAttribute: (attr) => attr === 'data-reserva' ? info.event.extendedProps.modalData : null
+                                        };
+                                        if (typeof cargarDatosModalReserva === 'function') {
+                                            cargarDatosModalReserva(dummyElement);
+                                        }
+                                        var bsModal = new bootstrap.Modal(modalElement);
+                                        bsModal.show();
+                                    }
+                                }
+                            }
+                        });
+                        calendar.render();
+                    }
+                });
+            </script>
         </div>
     </div>
 

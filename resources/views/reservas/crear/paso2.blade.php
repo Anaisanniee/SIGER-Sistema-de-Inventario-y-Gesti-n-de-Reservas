@@ -53,8 +53,11 @@
     $valHoraFin     = ($sessionFechaFin && isset(explode(' ', $sessionFechaFin)[1])) ? Str::substr(explode(' ', $sessionFechaFin)[1], 0, 5) : '';
     
     $user = Auth::user();
-    $userName = $user->nombres ?? ($user->name ?? 'Docente Solicitante');
-    $userCedula = $user->cedula ?? ($user->identificacion ?? ($user->id ?? 'Por completar'));
+    $userName = $user ? trim(($user->USU_PRIMER_NOMBRE ?? $user->usu_primer_nombre ?? '') . ' ' . ($user->USU_PRIMER_APELLIDO ?? $user->usu_primer_apellido ?? '')) : 'Docente Solicitante';
+    if(empty($userName)) { $userName = $user->name ?? 'Docente Solicitante'; }
+    
+    $userCedula = $user->USU_CEDULA ?? ($user->usu_cedula ?? ($user->id ?? 'Por completar'));
+    $userCorreo = $user->USU_CORREO ?? ($user->usu_correo ?? ($user->email ?? 'Por completar'));
 @endphp
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
@@ -207,8 +210,16 @@
                             <td id="resumen-identificacion-preview">{{ $userCedula }}</td>
                         </tr>
                         <tr>
+                            <td>Correo</td>
+                            <td>{{ $userCorreo }}</td>
+                        </tr>
+                        <tr>
                             <td>Motivo</td>
-                            <td class="resaltado-amarillo" id="resumen-motivo-preview" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Por completar</td>
+                            <td class="resaltado-amarillo" id="resumen-motivo-preview" 
+                                style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                data-recurso-ids="{{ isset($recursosColeccion) ? $recursosColeccion->pluck('act_id')->implode(',') : '' }}"
+                                data-recurso-nombres="{{ isset($recursosColeccion) ? $recursosColeccion->pluck('act_nombre')->implode(', ') : '' }}"
+                            >Por completar</td>
                         </tr>
                         @if($mostrarCampoAula)
                         <tr>
