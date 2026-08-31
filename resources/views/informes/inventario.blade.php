@@ -1,7 +1,9 @@
 @extends('layouts.app')
+
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'false')
 @section('mostrarPerfil', 'false')
+
 @section('content')
 
 @php
@@ -62,27 +64,28 @@
 
 <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
 <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
+<link rel="stylesheet" href="{{ asset('css/pages/informes-inventario.css') }}">
 
 <h2 class="titulo-pagina"><i class="fas fa-file-alt"></i> Informes de Inventario</h2>
 
 <div class="tarjeta-blanca-datos">
         
     {{-- Navegación de pestañas interna --}}
-    <div class="tabs-gestion-admin" style="display: flex; gap: 1rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem;">
-        <button type="button" class="tab-btn activo" onclick="cambiarTab(event, 'contenido-activos')" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid var(--color-principal); color: var(--color-texto);">
-            Inventario de activos
+    <div class="tabs-gestion-admin">
+        <button type="button" class="tab-btn activo" onclick="cambiarTab(event, 'contenido-activos')">
+            Activos
         </button>
-        <button type="button" class="tab-btn" onclick="cambiarTab(event, 'contenido-aulas')" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; color: var(--color-azulado);">
-            Informe de aulas
+        <button type="button" class="tab-btn" onclick="cambiarTab(event, 'contenido-aulas')">
+            Aulas
         </button>
     </div>
 
-    <div class="modulo-placeholder" style="display: block; padding: 1rem; width: 100%;">
+    <div class="modulo-placeholder">
         
         {{-- Pestaña 1: Inventario de activos --}}
-        <div id="contenido-activos" class="seccion-tab" style="background: var(--color-fondo); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; display: block; text-align: left;">
+        <div id="contenido-activos" class="seccion-tab activa">
             @include('components.tablas.tabla-informe', [
-                'titulo' => 'Inventario de activos',
+                'titulo' => 'Informe de activos',
                 'columnas' => [
                     ['titulo' => 'Nombre del activo', 'campo' => 'nombre_activo'],
                     ['titulo' => 'Serial', 'campo' => 'serial'],
@@ -98,7 +101,7 @@
         </div>
 
         {{-- Pestaña 2: Informe de aulas --}}
-        <div id="contenido-aulas" class="seccion-tab" style="background: var(--color-fondo); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; display: none; text-align: left;">
+        <div id="contenido-aulas" class="seccion-tab">
             @include('components.tablas.tabla-informe', [
                 'titulo' => 'Informe de aulas',
                 'columnas' => [
@@ -120,21 +123,17 @@
 {{-- Script JS encargado de alternar el estado visible/oculto de cada pestaña --}}
 <script>
     function cambiarTab(evt, tabId) {
-        // 1. Ocultar todos los contenedores de secciones
+        // 1. Ocultar todas las secciones
         const secciones = document.querySelectorAll('.seccion-tab');
-        secciones.forEach(sec => sec.style.display = 'none');
+        secciones.forEach(sec => sec.classList.remove('activa'));
 
-        // 2. Desactivar el estado activo visual de los botones de pestañas
+        // 2. Desactivar el estado activo visual de los botones
         const botones = document.querySelectorAll('.tab-btn');
-        botones.forEach(btn => {
-            btn.style.borderBottomColor = 'transparent';
-            btn.style.color = 'var(--color-azulado)';
-        });
+        botones.forEach(btn => btn.classList.remove('activo'));
 
-        // 3. Mostrar la pestaña elegida y aplicar el borde activo
-        document.getElementById(tabId).style.display = 'block';
-        evt.currentTarget.style.borderBottomColor = 'var(--color-principal)';
-        evt.currentTarget.style.color = 'var(--color-texto)';
+        // 3. Mostrar la pestaña elegida y aplicar clase activa al botón
+        document.getElementById(tabId).classList.add('activa');
+        evt.currentTarget.classList.add('activo');
     }
 </script>
 

@@ -60,11 +60,6 @@
                     Editar Perfil
                 </x-botones.boton>
 
-                {{-- Historial de reservas --}}
-                <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
-                    Historial de reserva
-                </x-botones.boton>
-
                 {{-- 
                     ======================================================================
                     SECCIÓN EXCLUSIVA PARA EL RECTOR:
@@ -110,7 +105,8 @@
 
                 {{-- Se añade la clase container-tarjetas-vertical para conservar los estilos correctos --}}
                 <div class="container-tarjetas-vertical" style="margin-top: 1.5rem;">
-                    @forelse($misReservas ?? [
+                   {{-- Se utiliza @forelse para manejar el caso de no tener reservas SON DATOS DE PRUEBA --}}
+                @forelse($misReservas ?? [
                         (object)[
                             'id' => 101,
                             'recurso_nombre' => 'Aula 101 - Sistemas',
@@ -165,7 +161,7 @@
                     @endforelse
                 </div>
             </div>
-
+          
         </main>
 
     </div>
