@@ -24,7 +24,7 @@
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: var(--color-principal);">Editar Usuario</h3>
 
             {{-- FORMULARIO ENVIADO A UPDATE CON MÉTODO PUT --}}
-            <form action="{{ route('usuarios.update', $usuario->USU_ID) }}" method="POST">
+            <form action="{{ route('usuarios.update', $usuario->usu_id) }}" method="POST">
                 @csrf
                 @method('PUT')
 

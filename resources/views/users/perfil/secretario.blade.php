@@ -43,7 +43,7 @@
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Pendientes</span>
-                    <span class="item-valor badge-reserva" style="background-color: #eab308;">4</span>
+                    <span class="item-valor badge-reserva" style="background-color: var(--color-estado-en-mantenimiento);">4</span>
                 </div>
             </div>
 

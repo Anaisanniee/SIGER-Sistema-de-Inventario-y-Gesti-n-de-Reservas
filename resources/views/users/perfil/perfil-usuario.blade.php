@@ -2,9 +2,23 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', auth()->user()->role === 'docente' 
-    ? route('dashboard.docente', ['id' => auth()->id()]) 
-    : route('dashboard.rectora', ['id' => auth()->id()]))
+
+@php
+    $user = auth()->user();
+    
+    // Se obtiene el slug o el id del rol según la estructura del backend
+    $rolSlug = strtolower($user->role->slug ?? $user->rol->slug ?? $user->role ?? $user->rol ?? '');
+    $rolId   = $user->role_id ?? $user->rol_id ?? null;
+
+    // Docente tiene id = 3 o slug = 'docente'
+    $esDocente = ($rolSlug === 'docente' || $rolId == 3);
+
+    $urlRegresar = $esDocente
+        ? route('dashboard.docente', ['id' => $user->id])
+        : route('dashboard.rectora', ['id' => $user->id]);
+@endphp
+
+@section('rutaRegresar', $urlRegresar)
 @section('mostrarPerfil', 'false')
 @section('content')
 
