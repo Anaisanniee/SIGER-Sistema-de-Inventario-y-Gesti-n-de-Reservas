@@ -1,8 +1,146 @@
 {{-- resources/views/components/agendas/agenda.blade.php --}}
 
 @props([
+    'reservas' => collect([]),
     'eventos' => []
 ])
+
+@php
+    // Si se pasa la colección de reservas, procesamos la lógica completa del primer bloque
+    if ($reservas->isNotEmpty()) {
+        $reservasCalendario = $reservas->filter(function($reserva) {
+            $estado = strtolower(trim($reserva->res_estado_reserva ?? ''));
+            return $estado !== 'rechazada' && $estado !== 'rechazado';
+        });
+
+        $eventosCalculados = $reservasCalendario->map(function($reserva) {
+            $totalDetalles = $reserva->detalles->count();
+            $esMultiple = $totalDetalles > 1;
+            $primerDetalle = $reserva->detalles->first();
+
+            // Mapeo independiente por cada detalle priorizando el Activo si existe
+            $listaRecursosMultiples = $reserva->detalles->map(function($det) {
+                if (!empty($det->act_id)) {
+                    $activoObj = $det->activo ?? \App\Models\ActivosModels::find($det->act_id);
+                    if ($activoObj) {
+                        $rutaBdActivo = $activoObj->act_foto ?? $activoObj->foto ?? null;
+                        $fotoActivo = !empty($rutaBdActivo)
+                            ? (str_starts_with($rutaBdActivo, 'http') ? $rutaBdActivo : (str_starts_with($rutaBdActivo, 'storage/') ? asset($rutaBdActivo) : asset('storage/' . $rutaBdActivo)))
+                            : asset('storage/images/activos/default.jpeg');
+
+                        return (object)[
+                            'es_aula' => false,
+                            'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
+                            'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
+                            'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
+                            'foto'   => $fotoActivo
+                        ];
+                    }
+                }
+
+                if (!empty($det->aula_id)) {
+                    $aulaObj = $det->aula ?? \App\Models\AulasModels::find($det->aula_id);
+                    if ($aulaObj) {
+                        $rutaBdAula = $aulaObj->aula_foto ?? $aulaObj->foto ?? null;
+                        $fotoAula = !empty($rutaBdAula) 
+                            ? (str_starts_with($rutaBdAula, 'http') ? $rutaBdAula : (str_starts_with($rutaBdAula, 'storage/') ? asset($rutaBdAula) : asset('storage/' . $rutaBdAula)))
+                            : asset('storage/images/aulas/default.jpeg');
+
+                        $capacidad = $aulaObj->aula_capacidad ?? $aulaObj->capacidad ?? 'N/A';
+
+                        return (object)[
+                            'es_aula' => true,
+                            'nombre' => $aulaObj->aula_nombre ?? $aulaObj->nombre ?? 'Aula sin nombre',
+                            'serial' => $capacidad,
+                            'marca'  => 'Salón / Aula',
+                            'foto'   => $fotoAula
+                        ];
+                    }
+                }
+
+                return (object)[
+                    'es_aula' => false,
+                    'nombre' => 'Recurso General',
+                    'serial' => 'N/A',
+                    'marca'  => 'N/A',
+                    'foto'   => asset('storage/images/activos/default.jpeg')
+                ];
+            });
+
+            if ($esMultiple) {
+                $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
+            } else {
+                $nombreRecurso = $listaRecursosMultiples[0]->nombre ?? 'Recurso General';
+            }
+
+            $ubicacion = 'N/A';
+            if ($primerDetalle) {
+                if ($primerDetalle->aula) {
+                    $ubicacion = $primerDetalle->aula->aula_nombre ?? $primerDetalle->aula->nombre ?? 'N/A';
+                } elseif (!empty($primerDetalle->aula_id)) {
+                    $aulaUbicacion = \App\Models\AulasModels::find($primerDetalle->aula_id);
+                    $ubicacion = $aulaUbicacion->aula_nombre ?? $aulaUbicacion->nombre ?? 'N/A';
+                }
+            }
+
+            // Extracción de datos del usuario
+            $user = $reserva->usuario;
+            $primerNombre = $user->USU_PRIMER_NOMBRE ?? '';
+            $segundoNombre = $user->USU_SEGUNDO_NOMBRE ?? '';
+            $primerApellido = $user->USU_PRIMER_APELLIDO ?? '';
+            $segundoApellido = $user->USU_SEGUNDO_APELLIDO ?? '';
+
+            $nombreCompleto = trim("{$primerNombre} {$segundoNombre} {$primerApellido} {$segundoApellido}");
+            $nombreUsuario = !empty($nombreCompleto) ? $nombreCompleto : ($user->nombres ?? ($user->name ?? ($user->nombre ?? 'Docente / Usuario')));
+
+            $identificacionUsuario = $user->USU_CEDULA ?? 'N/A';
+            $emailUsuario = $user->USU_CORREO ?? 'No disponible';
+
+            $estadoReserva = $reserva->res_estado_reserva ?? 'pendiente';
+            $fechaIni = optional($primerDetalle)->det_re_fecha_ini ?? $reserva->res_fecha_inicio ?? $reserva->fecha_inicio ?? $reserva->created_at;
+            $fechaFin = optional($primerDetalle)->det_re_fecha_fin ?? $reserva->res_fecha_fin ?? $reserva->fecha_fin ?? $fechaIni;
+
+            $datosReservaModal = [
+                "id" => $reserva->res_id ?? $reserva->id,
+                "estado" => $estadoReserva,
+                "titulo" => "Detalle de Reserva #" . ($reserva->res_id ?? $reserva->id),
+                "solicitante" => $nombreUsuario,
+                "identificacion" => $identificacionUsuario,
+                "email" => $emailUsuario,
+                "motivo" => $reserva->res_motivo ?? ($reserva->motivo ?? "Sin motivo especificado."),
+                "fechaInicio" => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format("Y-m-d") : "N/A",
+                "horaInicio" => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format("h:i A") : "N/A",
+                "fechaFin" => $fechaFin ? \Carbon\Carbon::parse($fechaFin)->format("Y-m-d") : "N/A",
+                "horaFin" => $fechaFin ? \Carbon\Carbon::parse($fechaFin)->format("h:i A") : "N/A",
+                "aula" => $ubicacion,
+                "recursos" => $listaRecursosMultiples
+            ];
+
+            $esAprobada = in_array(strtolower(trim($estadoReserva)), ['aprobada', 'aprobado']);
+            $colorFondo = $esAprobada ? '#198754' : '#ffc107'; 
+            $colorTexto = $esAprobada ? '#ffffff' : '#000000';
+
+            return [
+                'title' => $nombreRecurso . ' - ' . $nombreUsuario,
+                'start' => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->toIso8601String() : null,
+                'end'   => $fechaFin ? \Carbon\Carbon::parse($fechaFin)->toIso8601String() : null,
+                'backgroundColor' => $colorFondo,
+                'borderColor'     => $colorFondo,
+                'textColor'       => $colorTexto,
+                'extendedProps' => [
+                    'recurso'   => $nombreRecurso,
+                    'usuario'   => $nombreUsuario,
+                    'estado'    => ucfirst($estadoReserva),
+                    'modalData' => json_encode($datosReservaModal)
+                ]
+            ];
+        })->filter(fn($evento) => !empty($evento['start']))->values()->toArray();
+
+        $eventosFinales = $eventosCalculados;
+    } else {
+        $eventosFinales = $eventos;
+    }
+@endphp
 
 <div class="tarjeta-blanca-datos p-3 shadow-sm rounded-4 w-100">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -164,7 +302,7 @@
     }
 </style>
 
-{{-- CDN corregido de FullCalendar --}}
+{{-- CDN de FullCalendar --}}
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core/locales/es.global.min.js"></script>
 
@@ -173,16 +311,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendario-secretaria');
     if (!calendarEl) return;
 
-    let eventosPhp = @json($eventos);
+    let eventosPhp = @json($eventosFinales);
 
     // Mapeo dinámico de variables CSS
     const rootStyles = getComputedStyle(document.documentElement);
-    const colorDisponible = rootStyles.getPropertyValue('--color-estado-disponible').trim() || '#22c55e';
-    const colorPendiente  = rootStyles.getPropertyValue('--color-estado-en-mantenimiento').trim() || '#e6cc66';
+    const colorDisponible = rootStyles.getPropertyValue('--color-estado-disponible').trim() || '#198754';
+    const colorPendiente  = rootStyles.getPropertyValue('--color-estado-en-mantenimiento').trim() || '#ffc107';
     const colorDanado     = rootStyles.getPropertyValue('--color-estado-dañado').trim() || '#dc2626';
     const colorPrincipal  = rootStyles.getPropertyValue('--color-principal').trim() || '#10b981';
     const colorTexto      = rootStyles.getPropertyValue('--color-texto').trim() || '#444444';
-    const colorFondo      = rootStyles.getPropertyValue('--color-fondo').trim() || '#ffffff';
 
     function obtenerColorEstado(estado) {
         const est = (estado || '').toLowerCase().trim();
@@ -210,13 +347,14 @@ document.addEventListener('DOMContentLoaded', function() {
             ...evt,
             backgroundColor: bg,
             borderColor: bg,
-            textColor: (estado.toLowerCase() === 'pendiente') ? colorTexto : '#ffffff'
+            textColor: evt.textColor || ((estado.toLowerCase() === 'pendiente') ? '#000000' : '#ffffff')
         };
     });
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'es',
+        firstDay: 1,
         height: 'auto',
         handleWindowResize: true,
         eventDisplay: 'block',
@@ -235,40 +373,30 @@ document.addEventListener('DOMContentLoaded', function() {
             info.jsEvent.preventDefault();
 
             const props = info.event.extendedProps || {};
-            let datosParaModal = null;
+            const modalData = props.modalData;
 
-            if (props.modalData) {
-                try {
-                    datosParaModal = typeof props.modalData === 'string' 
-                        ? JSON.parse(props.modalData) 
-                        : props.modalData;
-                } catch (e) {
-                    console.error("Error al parsear modalData en evento del calendario:", e);
-                }
-            }
-
-            if (!datosParaModal) {
-                datosParaModal = {
-                    id: info.event.id || props.id,
-                    titulo: info.event.title,
-                    recurso: props.recurso || info.event.title,
-                    solicitante: props.usuario || 'Docente / Usuario',
-                    estado: props.estado || 'Pendiente',
-                    fechaInicio: info.event.start ? info.event.start.toLocaleDateString() : 'N/A',
-                    horaInicio: info.event.start ? info.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A',
-                    fechaFin: info.event.end ? info.event.end.toLocaleDateString() : 'N/A',
-                    horaFin: info.event.end ? info.event.end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A'
+            if (modalData) {
+                const dummyElement = {
+                    getAttribute: (attr) => attr === 'data-reserva' ? modalData : null
                 };
-            }
 
-            if (typeof cargarDatosModal === 'function') {
-                cargarDatosModal(datosParaModal);
-            }
+                // Llama a la función global para cargar los datos en la vista principal
+                if (typeof cargarDatosModalReserva === 'function') {
+                    cargarDatosModalReserva(dummyElement);
+                } else if (typeof cargarDatosModal === 'function') {
+                    try {
+                        const parsed = typeof modalData === 'string' ? JSON.parse(modalData) : modalData;
+                        cargarDatosModal(parsed);
+                    } catch (e) {
+                        console.error("Error al procesar modalData:", e);
+                    }
+                }
 
-            const modalEl = document.getElementById('modalgeneral');
-            if (modalEl) {
-                const modalBs = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                modalBs.show();
+                const modalEl = document.getElementById('modalgeneral');
+                if (modalEl) {
+                    const modalBs = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modalBs.show();
+                }
             }
         }
     });
