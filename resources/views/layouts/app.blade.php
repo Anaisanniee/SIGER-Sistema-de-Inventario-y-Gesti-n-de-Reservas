@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/carrito-reserva.css') }}">
-
+    @stack('styles')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>SIGER</title>
 </head>

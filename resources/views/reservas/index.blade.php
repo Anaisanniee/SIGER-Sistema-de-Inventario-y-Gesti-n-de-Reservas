@@ -51,6 +51,7 @@
                         $esMultiple = $totalDetalles > 1;
                         $primerDetalle = $reserva->detalles->first();
 
+                        // Mapeo independiente por cada detalle priorizando el Activo si existe
                         $listaRecursosMultiples = $reserva->detalles->map(function($det) {
                             if (!empty($det->act_id)) {
                                 $activoObj = $det->activo ?? \App\Models\ActivosModels::find($det->act_id);
@@ -117,13 +118,16 @@
 
                         $fotoPrincipal = $esMultiple ? asset('storage/activos/multiple-default.png') : ($listaRecursosMultiples[0]->foto ?? asset('storage/images/activos/default.jpeg'));
                         
+                        // Extracción robusta de los datos del usuario / docente
                         $user = $reserva->usuario;
                         
+                        // Extracción usando los campos reales de tu modelo User en mayúsculas
                         $primerNombre = $user->USU_PRIMER_NOMBRE ?? '';
                         $segundoNombre = $user->USU_SEGUNDO_NOMBRE ?? '';
                         $primerApellido = $user->USU_PRIMER_APELLIDO ?? '';
                         $segundoApellido = $user->USU_SEGUNDO_APELLIDO ?? '';
 
+                        // Armamos el nombre completo de manera limpia
                         $nombreCompleto = trim("{$primerNombre} {$segundoNombre} {$primerApellido} {$segundoApellido}");
                         $nombreUsuario = !empty($nombreCompleto) ? $nombreCompleto : ($user->name ?? 'Docente / Usuario');
 
@@ -228,7 +232,6 @@
             </div>
         </div>
 
-        {{-- COLUMNA DERECHA: AGENDA Y CALENDARIO --}}
         <div class="columna-agenda-permanente">
             @php
                 $reservasCalendario = $reservas->filter(function($reserva) {
@@ -257,8 +260,8 @@
                     $estado = strtolower(trim($reserva->res_estado_reserva ?? 'pendiente'));
 
                     $esAprobada = in_array($estado, ['aprobada', 'aprobado']);
-                    $colorFondo = $esAprobada ? '#22c55e' : '#facc15'; 
-                    $colorTexto = $esAprobada ? '#ffffff' : '#444444';
+                    $colorFondo = $esAprobada ? '#198754' : '#ffc107'; 
+                    $colorTexto = $esAprobada ? '#ffffff' : '#000000';
 
                     $d = $generarHtmlTarjeta($reserva);
                     
@@ -291,28 +294,266 @@
                             'modalData' => $d['modal']
                         ]
                     ];
-                })->values();
+                })->filter(fn($evento) => !empty($evento['start']))->values()->toArray();
             @endphp
 
-            {{-- Componente Agenda/Calendario --}}
-            @include('components.agendas.agenda', ['eventos' => $eventosCalendario])
-        </div>
+            <style>
+                #calendar {
+                    background: var(--color-fondo);
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+                    font-family: inherit;
+                }
+                #calendar .fc-button-primary {
+                    background-color: #198754 !important;
+                    border-color: #198754 !important;
+                    color: #ffffff !important;
+                    border-radius: 6px !important;
+                    box-shadow: none !important;
+                    font-weight: 500;
+                }
+                #calendar .fc-button-primary:hover {
+                    background-color: #157347 !important;
+                    border-color: #146c43 !important;
+                }
+                #calendar .fc-button-active {
+                    background-color: #146c43 !important;
+                    border-color: #13653f !important;
+                }
+                #calendar .fc-today-button {
+                    background-color: #e9ecef !important;
+                    border-color: #ced4da !important;
+                    color: #495057 !important;
+                    border-radius: 6px !important;
+                }
+                #calendar .fc-today-button:hover {
+                    background-color: #dde2e6 !important;
+                    color: #212529 !important;
+                }
+                #calendar .fc-toolbar-title {
+                    color: #333333;
+                    font-size: 1.35rem;
+                    font-weight: 600;
+                    text-transform: capitalize;
+                }
+                #calendar .fc-col-header-cell-cushion {
+                    color: #495057;
+                    font-weight: 600;
+                    text-decoration: none;
+                    text-transform: lowercase;
+                    padding: 8px 0;
+                }
+                #calendar .fc-day-today {
+                    background-color: #d1e7dd !important; 
+                }
+                #calendar .fc-scrollgrid {
+                    border-color: #dee2e6 !important;
+                    border-radius: 6px;
+                }
+                #calendar th, #calendar td {
+                    border-color: #dee2e6 !important;
+                }
+            </style>
 
+            <p class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 500;">Eventos programados</p>
+            <div id="calendar" style="width: 100%; min-height: 550px;"></div>
+
+            <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+            <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var calendarEl = document.getElementById('calendar');
+                    if (calendarEl) {
+                        var calendar = new FullCalendar.Calendar(calendarEl, {
+                            initialView: 'dayGridMonth',
+                            locale: 'es',
+                            firstDay: 1,
+                            headerToolbar: {
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'dayGridMonth,timeGridWeek'
+                            },
+                            buttonText: {
+                                today: 'Hoy',
+                                month: 'Mes',
+                                week: 'Semana',
+                                list: 'Lista'
+                            },
+                            events: @json($eventosCalendario),
+                            eventClick: function(info) {
+                                if (info.event.extendedProps && info.event.extendedProps.modalData) {
+                                    const modalElement = document.getElementById('modalgeneral');
+                                    if (modalElement) {
+                                        const dummyElement = {
+                                            getAttribute: (attr) => attr === 'data-reserva' ? info.event.extendedProps.modalData : null
+                                        };
+                                        if (typeof cargarDatosModalReserva === 'function') {
+                                            cargarDatosModalReserva(dummyElement);
+                                        }
+                                        var bsModal = new bootstrap.Modal(modalElement);
+                                        bsModal.show();
+                                    }
+                                }
+                            }
+                        });
+                        calendar.render();
+                    }
+                });
+            </script>
+        </div>
     </div>
+
+    {{-- Renderizado Único del Componente Modal --}}
+    <x-reservas.modal-detalle-reserva :esAdmin="$esAdmin" />
+
 </div>
 
+<script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
+
 <script>
-function cargarDatosModalReserva(elemento) {
-    const jsonStr = elemento.getAttribute('data-reserva');
-    if (!jsonStr) return;
-    try {
-        const data = JSON.parse(jsonStr);
-        if (typeof cargarDatosModal === 'function') {
-            cargarDatosModal(data);
+    function cargarDatosModalReserva(elemento) {
+        try {
+            const targetEl = elemento && typeof elemento.getAttribute === 'function' 
+                ? elemento 
+                : (elemento && elemento.currentTarget ? elemento.currentTarget : null);
+
+            if (!targetEl) return;
+
+            const rawData = targetEl.getAttribute('data-reserva');
+            if (!rawData) return;
+            const datos = JSON.parse(rawData);
+
+            const tituloEl = document.getElementById('modalgeneral-titulo');
+            if (tituloEl) tituloEl.innerText = datos.titulo;
+
+            const setearTexto = (id, valor) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = (valor !== null && valor !== undefined && valor !== '') ? valor : 'N/A';
+            };
+
+            setearTexto('resumen-solicitante', datos.solicitante);
+            setearTexto('resumen-identificacion', datos.identificacion);
+            setearTexto('resumen-email', datos.email);
+            setearTexto('resumen-motivo', datos.motivo);
+            setearTexto('resumen-fecha-inicio', datos.fechaInicio);
+            setearTexto('resumen-hora-inicio', datos.horaInicio);
+            setearTexto('resumen-fecha-fin', datos.fechaFin);
+            setearTexto('resumen-hora-fin', datos.horaFin);
+            setearTexto('resumen-aula-uso', datos.aula);
+
+            const contenedorRecursos = document.getElementById('resumen-bloque-recurso');
+            if (contenedorRecursos && datos.recursos) {
+                let htmlRecursos = `
+                    <style>
+                        .item-recurso-hover { background-color: #ffffff; border-color: #dee2e6 !important; transition: background-color 0.2s ease, border-color 0.2s ease; }
+                        .item-recurso-hover:hover { background-color: #d1e7dd !important; border-color: #badbcc !important; }
+                    </style>
+                    <h3 class="mb-3" style="font-size: 1.1rem; font-weight: 600; color: #212529;">Recursos Seleccionados (${datos.recursos.length})</h3>
+                    <div id="contenedor-acordeon-recursos" class="border rounded p-3" style="border-color: #dee2e6 !important; transition: border-color 0.2s ease;">
+                        <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleAcordeonRecursos()">
+                            <span style="font-weight: 600; color: #212529;">Lista de recursos (${datos.recursos.length})</span>
+                            <i id="icono-acordeon-flecha" class="fas fa-chevron-down" style="transition: transform 0.3s ease;"></i>
+                        </div>
+                        <div id="acordeon-recursos-body" class="mt-3" style="display: none;">
+                `;
+                
+                datos.recursos.forEach(rec => {
+                    let detallesHTML = '';
+                    if (rec.es_aula === true) {
+                        detallesHTML = `
+                            <p class="mb-1 text-muted" style="font-size: 0.9rem;">Capacidad: ${rec.serial} personas</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">${rec.marca}</p>
+                        `;
+                    } else {
+                        detallesHTML = `
+                            <p class="mb-1 text-muted" style="font-size: 0.9rem;">Número de serie: ${rec.serial}</p>
+                            <p class="mb-0 text-muted" style="font-size: 0.9rem;">Marca: ${rec.marca}</p>
+                        `;
+                    }
+
+                    htmlRecursos += `
+                        <div class="border p-3 mb-2 rounded item-recurso-hover d-flex align-items-center gap-3" style="cursor: default;">
+                            <img src="${rec.foto}" alt="Foto recurso" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+                            <div>
+                                <p class="mb-1" style="font-weight: 600; color: #212529;">${rec.nombre}</p>
+                                ${detallesHTML}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                htmlRecursos += `</div></div>`;
+                contenedorRecursos.innerHTML = htmlRecursos;
+            }
+
+            const formRechazar = document.getElementById('formRechazar');
+            const formAprobar = document.getElementById('formAprobar');
+            const formRevertir = document.getElementById('formRevertir');
+            if (formRechazar) formRechazar.action = `/secretaria/reservas/${datos.id}/rechazar`;
+            if (formAprobar) formAprobar.action = `/secretaria/reservas/${datos.id}/aprobar`;
+            if (formRevertir) formRevertir.action = `/secretaria/reservas/${datos.id}/revertir`;
+
+            const bloquePendiente = document.getElementById('bloque-acciones-pendiente');
+            const bloqueRevertir = document.getElementById('bloque-acciones-revertir');
+            const estadoRes = (datos.estado || '').toLowerCase().trim();
+
+            if (bloquePendiente && bloqueRevertir) {
+                bloquePendiente.style.setProperty('display', 'none', 'important');
+                bloqueRevertir.style.setProperty('display', 'none', 'important');
+                if (estadoRes === 'pendiente') {
+                    bloquePendiente.style.setProperty('display', 'flex', 'important');
+                } else if (['aprobada', 'rechazada', 'aprobado', 'rechazado'].includes(estadoRes)) {
+                    bloqueRevertir.style.setProperty('display', 'flex', 'important');
+                }
+            }
+        } catch (error) {
+            console.error("Error al procesar los datos del modal:", error);
         }
-    } catch (e) {
-        console.error("Error interpretando datos del modal:", e);
     }
-}
+
+    window.toggleAcordeonRecursos = function() {
+        const body = document.getElementById('acordeon-recursos-body');
+        const flecha = document.getElementById('icono-acordeon-flecha');
+        const contenedor = document.getElementById('contenedor-acordeon-recursos');
+        
+        if (body) {
+            const isHidden = body.style.display === 'none';
+            body.style.display = isHidden ? 'block' : 'none';
+            if (flecha) flecha.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+            if (contenedor) contenedor.style.setProperty('border-color', isHidden ? '#198754' : '#dee2e6', 'important');
+        }
+    }
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        window.filtrarPorEstado = function(filtro) {
+            const seccionPendiente = document.getElementById('seccion-pendiente');
+            const seccionAprobada = document.getElementById('seccion-aprobada');
+            const seccionRechazada = document.getElementById('seccion-rechazada');
+
+            if (seccionPendiente) seccionPendiente.style.display = 'none';
+            if (seccionAprobada) seccionAprobada.style.display = 'none';
+            if (seccionRechazada) seccionRechazada.style.display = 'none';
+
+            const seccionActiva = document.getElementById('seccion-' + filtro);
+            if (seccionActiva) {
+                seccionActiva.style.display = 'block';
+            }
+        };
+
+        document.querySelectorAll('[data-filtro], .kpi-card, .tarjeta-kpi').forEach(elemento => {
+            elemento.style.cursor = 'pointer';
+            elemento.addEventListener('click', function(e) {
+                const filtro = this.getAttribute('data-filtro') || this.querySelector('[data-filtro]')?.getAttribute('data-filtro');
+                
+                if (filtro) {
+                    e.preventDefault();
+                    filtrarPorEstado(filtro);
+                }
+            });
+        });
+    });
 </script>
 @endsection
