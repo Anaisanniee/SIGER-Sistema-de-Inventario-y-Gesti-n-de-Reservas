@@ -121,7 +121,7 @@
                         // Extracción robusta de los datos del usuario / docente
                         $user = $reserva->usuario;
                         
-                        // Extracción usando los campos reales de tu modelo User en mayúsculas
+                        // Extracción usando los campos reales del modelo User en mayúsculas
                         $primerNombre = $user->USU_PRIMER_NOMBRE ?? '';
                         $segundoNombre = $user->USU_SEGUNDO_NOMBRE ?? '';
                         $primerApellido = $user->USU_PRIMER_APELLIDO ?? '';
@@ -231,179 +231,12 @@
 
             </div>
         </div>
-        //AQUI EMPIEZA LO DE LA AGENDA ----------------------------------------------------
-        <div class="columna-agenda-permanente">
-            @php
-                $reservasCalendario = $reservas->filter(function($reserva) {
-                    $estado = strtolower(trim($reserva->res_estado_reserva ?? ''));
-                    return $estado !== 'rechazada' && $estado !== 'rechazado';
-                });
 
-                $eventosCalendario = $reservasCalendario->map(function($reserva) use ($generarHtmlTarjeta) {
-                    $totalDetalles = $reserva->detalles->count();
-                    $primerDetalle = $reserva->detalles->first();
-                    
-                    if ($totalDetalles > 1) {
-                        $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
-                    } else {
-                        $nombreRecurso = 'Recurso';
-                        if ($primerDetalle) {
-                            $nombreRecurso = optional($primerDetalle->activo)->act_nombre ?? 
-                                             (optional($primerDetalle->activo)->nombre ?? 
-                                             (optional($primerDetalle->aula)->aula_nombre ?? 
-                                             (optional($primerDetalle->aula)->nombre ?? 'Recurso')));
-                        }
-                    }
-                    
-                    $user = $reserva->usuario;
-                    $nombreUsuario = $user->nombres ?? ($user->name ?? ($user->nombre ?? 'Usuario'));
-                    $estado = strtolower(trim($reserva->res_estado_reserva ?? 'pendiente'));
-
-                    $esAprobada = in_array($estado, ['aprobada', 'aprobado']);
-                    $colorFondo = $esAprobada ? '#198754' : '#ffc107'; 
-                    $colorTexto = $esAprobada ? '#ffffff' : '#000000';
-
-                    $d = $generarHtmlTarjeta($reserva);
-                    
-                    $rawFechaIni = optional($primerDetalle)->det_re_fecha_ini 
-                                ?? optional($primerDetalle)->fecha_inicio 
-                                ?? $reserva->res_fecha_inicio 
-                                ?? $reserva->fecha_inicio 
-                                ?? $reserva->created_at;
-
-                    $rawFechaFin = optional($primerDetalle)->det_re_fecha_fin 
-                                ?? optional($primerDetalle)->fecha_fin 
-                                ?? $reserva->res_fecha_fin 
-                                ?? $reserva->fecha_fin 
-                                ?? $rawFechaIni;
-
-                    $fechaInicio = $rawFechaIni ? \Carbon\Carbon::parse($rawFechaIni)->toIso8601String() : null;
-                    $fechaFin = $rawFechaFin ? \Carbon\Carbon::parse($rawFechaFin)->toIso8601String() : null;
-
-                    return [
-                        'title' => $nombreRecurso . ' - ' . $nombreUsuario,
-                        'start' => $fechaInicio,
-                        'end'   => $fechaFin,
-                        'backgroundColor' => $colorFondo,
-                        'borderColor'     => $colorFondo,
-                        'textColor'       => $colorTexto,
-                        'extendedProps' => [
-                            'recurso' => $nombreRecurso,
-                            'usuario' => $nombreUsuario,
-                            'estado'  => ucfirst($estado),
-                            'modalData' => $d['modal']
-                        ]
-                    ];
-                })->filter(fn($evento) => !empty($evento['start']))->values()->toArray();
-            @endphp
-
-            <style>
-                #calendar {
-                    background: var(--color-fondo);
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-                    font-family: inherit;
-                }
-                #calendar .fc-button-primary {
-                    background-color: #198754 !important;
-                    border-color: #198754 !important;
-                    color: #ffffff !important;
-                    border-radius: 6px !important;
-                    box-shadow: none !important;
-                    font-weight: 500;
-                }
-                #calendar .fc-button-primary:hover {
-                    background-color: #157347 !important;
-                    border-color: #146c43 !important;
-                }
-                #calendar .fc-button-active {
-                    background-color: #146c43 !important;
-                    border-color: #13653f !important;
-                }
-                #calendar .fc-today-button {
-                    background-color: #e9ecef !important;
-                    border-color: #ced4da !important;
-                    color: #495057 !important;
-                    border-radius: 6px !important;
-                }
-                #calendar .fc-today-button:hover {
-                    background-color: #dde2e6 !important;
-                    color: #212529 !important;
-                }
-                #calendar .fc-toolbar-title {
-                    color: #333333;
-                    font-size: 1.35rem;
-                    font-weight: 600;
-                    text-transform: capitalize;
-                }
-                #calendar .fc-col-header-cell-cushion {
-                    color: #495057;
-                    font-weight: 600;
-                    text-decoration: none;
-                    text-transform: lowercase;
-                    padding: 8px 0;
-                }
-                #calendar .fc-day-today {
-                    background-color: #d1e7dd !important; 
-                }
-                #calendar .fc-scrollgrid {
-                    border-color: #dee2e6 !important;
-                    border-radius: 6px;
-                }
-                #calendar th, #calendar td {
-                    border-color: #dee2e6 !important;
-                }
-            </style>
-
-            <p class="text-muted mb-2" style="font-size: 0.85rem; font-weight: 500;">Eventos programados</p>
-            <div id="calendar" style="width: 100%; min-height: 550px;"></div>
-
-            <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
-            <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    var calendarEl = document.getElementById('calendar');
-                    if (calendarEl) {
-                        var calendar = new FullCalendar.Calendar(calendarEl, {
-                            initialView: 'dayGridMonth',
-                            locale: 'es',
-                            firstDay: 1,
-                            headerToolbar: {
-                                left: 'prev,next today',
-                                center: 'title',
-                                right: 'dayGridMonth,timeGridWeek'
-                            },
-                            buttonText: {
-                                today: 'Hoy',
-                                month: 'Mes',
-                                week: 'Semana',
-                                list: 'Lista'
-                            },
-                            events: @json($eventosCalendario),
-                            eventClick: function(info) {
-                                if (info.event.extendedProps && info.event.extendedProps.modalData) {
-                                    const modalElement = document.getElementById('modalgeneral');
-                                    if (modalElement) {
-                                        const dummyElement = {
-                                            getAttribute: (attr) => attr === 'data-reserva' ? info.event.extendedProps.modalData : null
-                                        };
-                                        if (typeof cargarDatosModalReserva === 'function') {
-                                            cargarDatosModalReserva(dummyElement);
-                                        }
-                                        var bsModal = new bootstrap.Modal(modalElement);
-                                        bsModal.show();
-                                    }
-                                }
-                            }
-                        });
-                        calendar.render();
-                    }
-                });
-            </script>
-            //HASTA ACA ----------------------------------------------------------------------------------
+        {{-- COLUMNA DE LA AGENDA / CALENDARIO --}}
+        <div class="columna-agenda">
+            <x-agendas.agenda :reservas="$reservas" />
         </div>
+
     </div>
 
     {{-- Renderizado Único del Componente Modal --}}
@@ -424,7 +257,7 @@
 
             const rawData = targetEl.getAttribute('data-reserva');
             if (!rawData) return;
-            const datos = JSON.parse(rawData);
+            const datos = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
 
             const tituloEl = document.getElementById('modalgeneral-titulo');
             if (tituloEl) tituloEl.innerText = datos.titulo;
