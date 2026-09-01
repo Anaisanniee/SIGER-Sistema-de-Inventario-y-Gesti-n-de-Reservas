@@ -100,13 +100,13 @@
                     @endif
 
                     {{-- Visibles únicamente para Secretaría y Rectora --}}
-                    @if($puedeVerInformes)
+                    @if($puedeVerInformes)  
                         <div class="dropdown-divider"></div>
 
                         
                         @php
-                            $routeReservas = Route::has('reportes.reservas') ? route('reportes.reservas') : (Route::has('informes.reservas') ? route('informes.reservas') : null);
-                            $routeInventario = Route::has('inventario.index') ? route('inventario.index') : (Route::has('informes.inventario') ? route('informes.inventario') : null);
+                            $routeReservas = Route::has('secretaria.informe') ? route('secretaria.informe') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
+                            $routeInventario = Route::has('informes.inventario') ? route('informes.inventario') : (Route::has('informes.inventario') ? route('informes.inventario') : null);
                         @endphp
 
                         @if($routeReservas)

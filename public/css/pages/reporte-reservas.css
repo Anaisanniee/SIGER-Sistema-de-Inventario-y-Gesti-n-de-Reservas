@@ -6,6 +6,8 @@
 /* Contenedor principal del módulo */
 .siger-modulo-reporte {
     padding: 1.5rem 2rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Encabezado */
@@ -19,27 +21,27 @@
 }
 
 .reporte-titulo {
-    font-family: var(--fuente-secundaria, 'Inter', sans-serif);
+    font-family: var(--fuente-secundaria, sans-serif);
     font-weight: 700;
-    color: var(--color-texto, #333333);
+    color: var(--color-texto, #444444);
     margin: 0;
     font-size: 1.5rem;
 }
 
 .reporte-subtitulo {
-    font-family: var(--fuente-principal, 'Inter', sans-serif);
+    font-family: var(--fuente-principal, sans-serif);
     color: var(--color-azulado, #64748b);
     margin: 0;
     font-size: 0.9rem;
 }
 
-/* Botón de impresión */
+/* Botón de impresión/exportación */
 .btn-siger-imprimir {
-    background-color: var(--color-principal, #10b981);
-    color: var(--color-fondo);
-    border: none;
+    background-color: var(--color-principal, #10b981) !important;
+    color: var(--color-fondo, #ffffff) !important;
+    border: none !important;
     padding: 0.6rem 1.2rem;
-    border-radius: var(--borde-radio, 6px);
+    border-radius: var(--borde-radio, 8px);
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
@@ -58,13 +60,13 @@
     background: var(--color-fondo, #ffffff);
     padding: 1.5rem;
     border-radius: var(--borde-radio, 8px);
-    border: 1px solid var(--color-borde, #e2e8f0);
+    border: 1px solid var(--color-borde, #e5e7eb);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 /* Barra informativa superior del listado */
 .reporte-barra-info {
-    border-bottom: 1px solid var(--color-borde, #e2e8f0);
+    border-bottom: 1px solid var(--color-borde, #e5e7eb);
     padding-bottom: 0.5rem;
     margin-bottom: 1.25rem;
     display: flex;
@@ -74,7 +76,7 @@
 
 .reporte-conteo-registros {
     font-weight: 700;
-    color: var(--color-texto, #333333);
+    color: var(--color-texto, #444444);
     font-size: 0.95rem;
 }
 
@@ -94,7 +96,7 @@
 }
 
 .reporte-vacio .titulo-vacio {
-    color: var(--color-texto, #333333);
+    color: var(--color-texto, #444444);
 }
 
 .reporte-vacio .subtitulo-vacio {
