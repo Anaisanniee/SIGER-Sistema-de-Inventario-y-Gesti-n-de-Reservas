@@ -147,3 +147,40 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/docente', [DashboardController::class, 'indexDocente'])->name('dashboard.docente');
     });
 });
+
+
+// Ruta de prueba para visualizar la lista de notificaciones
+Route::get('dashboard/notificaciones', function () {
+    // Datos simulados para probar la interfaz
+    $notificaciones = [
+        [
+            'id' => 1,
+            'titulo' => 'Reserva Aprobada',
+            'mensaje' => 'Tu solicitud de reserva para el Aula 102 ha sido aprobada.',
+            'tipo' => 'info', // exito, advertencia, info, peligro
+            'icono' => 'fa-calendar-check',
+            'fecha' => 'Hace 10 minutos',
+            'leida' => false,
+        ],
+        [
+            'id' => 2,
+            'titulo' => 'Devolución Pendiente',
+            'mensaje' => 'Recuerda entregar el videobeam Epson antes de las 4:00 PM.',
+            'tipo' => 'advertencia',
+            'icono' => 'fa-clock',
+            'fecha' => 'Hace 2 horas',
+            'leida' => false,
+        ],
+        [
+            'id' => 3,
+            'titulo' => 'Nuevo Activo Registrado',
+            'mensaje' => 'Se ha asignado un nuevo equipo a tu área de trabajo.',
+            'tipo' => 'info',
+            'icono' => 'fa-box',
+            'fecha' => 'Ayer',
+            'leida' => true,
+        ],
+    ];
+
+    return view('notificaciones.index', compact('notificaciones'));
+})->middleware('auth')->name('notificaciones');

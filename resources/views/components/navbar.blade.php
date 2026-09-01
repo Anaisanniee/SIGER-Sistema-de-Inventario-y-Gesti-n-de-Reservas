@@ -21,6 +21,38 @@
         </div>
     @endif
 
+    <div class="d-flex align-items-center gap-2">
+        @if(($mostrarRegresar ?? true) && View::getSection('mostrarRegresar') !== 'false')
+            @php
+                // 1. Verificamos si enviaste una ruta explícita mediante la propiedad $rutaRegresar o la sección Blade
+                $rutaEspecificada = $rutaRegresar ?? (View::hasSection('rutaRegresar') ? View::getSection('rutaRegresar') : null);
+
+                if ($rutaEspecificada) {
+                    // Si definiste la ruta, se respeta estrictamente sin validar roles ni dashboards
+                    $urlFinalRegresar = $rutaEspecificada;
+                } else {
+                    // 2. Solo si NO especificaste ninguna ruta, se calcula el dashboard correspondiente
+                    $user = auth()->user();
+                    $slugRolNav = strtolower($user->rol->slug ?? $user->role->slug ?? '');
+                    $nombreRolNav = strtolower($user->rol->name ?? $user->rol->nombre ?? $user->role->name ?? '');
+                    $rolIdNav = $user->rol_id ?? $user->role_id ?? null;
+                    
+                    if ($slugRolNav === 'docente' || $nombreRolNav === 'docente' || $rolIdNav == 3) {
+                        $urlFinalRegresar = route('dashboard.docente', ['id' => $user->id]);
+                    } elseif ($slugRolNav === 'secretaria' || $nombreRolNav === 'secretaria' || $rolIdNav == 1) {
+                        $urlFinalRegresar = route('dashboard.secretaria');
+                    } else {
+                        $urlFinalRegresar = route('dashboard.rectora', ['id' => $user->id]);
+                    }
+                }
+            @endphp
+
+            <a href="{{ $urlFinalRegresar }}" 
+            class="btn-back-nav" 
+            title="Volver">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        @endif
 
         @if(($mostrarPerfil ?? true) && View::getSection('mostrarPerfil') !== 'false')
             @php
@@ -77,11 +109,22 @@
                     @endif
 
                     @php
-                        $notificacionespage = Route::has('notificaciones') ? route('notificaciones') : '#';
+                        $notificacionespage = Route::has('notificaciones.index') ? route('notificaciones.index') : 'notificaciones.index';
                     @endphp
                     <a href="{{$notificacionespage}}" class="dropdown-item">
                         <i class="fas fa-bell"></i> Mis Notificaciones
                     </a>
+
+                    {{--SECCION 1.5: MIS RESERVAS PARA RECTOR Y DOCENTE--}}
+
+                    @php
+                        $misReservasRoute = Route::has('mis-reservas') ? route('mis-reservas') : '#';
+                    @endphp
+                    @if($slugRol === 'docente' || $nombreRol === 'docente' || $rolIdUser == 3 || $slugRol === 'rectora' || $nombreRol === 'rectora' || $rolIdUser == 2)
+                        <a href="{{ $misReservasRoute }}" class="dropdown-item">
+                            <i class="fas fa-calendar-check"></i> Mis Reservas
+                        </a>
+                    @endif
 
                     {{--SECCION 2 Visibles únicamente para Secretaría y Rectora --}}
                     @if($puedeVerInformes)  

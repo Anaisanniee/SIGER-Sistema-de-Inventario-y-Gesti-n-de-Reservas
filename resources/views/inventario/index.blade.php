@@ -52,14 +52,6 @@
         @endcomponent
     </div>
 
-    <!-- 3. COMPONENTE DE FILTRO RÁPIDO -->
-    <div class="contenedor-filtro-rapido-componente">
-        @component('components.filtros.filtro-rapido', [
-            'opciones' => ['Disponible', 'En Mantenimiento', 'Dañado', 'Bueno'],
-            'placeholder' => 'Filtrar por estado...'
-        ])
-        @endcomponent
-    </div>
 
     {{--- 4. CONTENEDOR PRINCIPAL DE TARJETAS ---}} 
     <div class="container-tarjetas">
