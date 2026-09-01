@@ -65,5 +65,11 @@ class DatabaseSeeder extends Seeder
                 'USU_ESTADO'          => 'Activo',
             ]
         );
+
+        // 5. Llamar a los seeders adicionales de Categorías y Tipos de Aulas
+        $this->call([
+            CategoriaSeeder::class,
+            TipoAulaSeeder::class,
+        ]);
     }
 }
