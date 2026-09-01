@@ -60,8 +60,8 @@
   
 /*COLOR DE LOS BOTONES*/
 --color-estado-disponible: #22c55e;
---color-estado-reservado: #2563eb;
---color-estado-en-mantenimiento: #facc15;
+--color-estado-reservado: #3b82f6;
+--color-estado-en-mantenimiento: #e6cc66;
 --color-estado-dañado: #dc2626;
 --color-verde-pastel: #bbf7d0;
 --color-azulado: #64748b;

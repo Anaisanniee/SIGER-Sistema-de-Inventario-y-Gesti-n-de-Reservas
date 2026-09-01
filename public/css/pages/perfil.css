@@ -59,18 +59,6 @@
     margin-bottom: var(--espaciado);
 }
 
-.acciones-laterales {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem; /* Espaciado uniforme entre todos los botones */
-    width: 100%;
-    margin-top: 1rem;
-}
-
-.acciones-laterales form {
-    margin: 0;
-}
-
 .avatar-circulo {
     width: 130px;
     height: 130px;
@@ -154,18 +142,23 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.acciones-laterales form {
+    margin: 0;
 }
 
 .btn-siger-accion {
     width: 100%;
-    padding: 10px; /* Unificado con .btn */
-    border-radius: 4px; /* Unificado con .btn */
+    padding: 10px;
+    border-radius: 4px;
     border: none;
     font-weight: 700;
-    font-size: 1rem; /* Unificado con .btn */
+    font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease; /* Transición suave como base */
+    transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .btn-siger-accion:active {
@@ -178,7 +171,7 @@
 }
 
 .btn-verde-siger:hover {
-    background-color: var(--principal-secundario); /* Mismo hover del login */
+    background-color: var(--principal-secundario);
 }
 
 .btn-oscuro-siger {
@@ -198,40 +191,25 @@
     width: 100%;
 }
 
-/* --- Animación y Estado del Formulario Desplegable --- */
+/* --- Estado Fijo del Formulario de Datos (Sin Animación Desplegable) --- */
 .formulario-desplegable {
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(-15px);
-    transition: max-height 0.4s ease-in-out, opacity 0.3s ease, transform 0.3s ease, margin-bottom 0.3s ease;
-}
-
-.formulario-desplegable.activo {
-    max-height: 2000px; 
-    opacity: 1;
-    transform: translateY(0);
+    width: 100%;
     margin-bottom: calc(var(--espaciado) * 0.5);
 }
 
 .formulario-desplegable .contenedor-botones {
     display: flex;
-    
-    /* OPCIÓN A: Si quieres moverlos a la derecha */
-    justify-content: flex-end !important; 
+    justify-content: flex-end; 
     gap: 15px;
-    
-    /* OPCIÓN B: Si quieres que abarquen todo el ancho en móviles */
-    /* flex-direction: column; */
 }
 
 .tarjeta-blanca-datos {
     background: var(--color-fondo);
     border: 1px solid var(--color-borde);
-    border-radius: 4px; /* Unificado */
+    border-radius: 4px;
     padding: calc(var(--espaciado) * 2.5);
     box-sizing: border-box;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Unificado */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Títulos internos de fichas */
@@ -242,7 +220,7 @@
     margin-bottom: var(--espaciado);
     border-bottom: 1px solid var(--color-borde);
     padding-bottom: 0.5rem;
-    color: var(--color-principal); /* Cambiado a principal para hacer juego con el H2 del Login */
+    color: var(--color-principal);
 }
 
 /* Rejilla de campos organizada de 2 columnas */
@@ -260,17 +238,17 @@
 }
 
 .post-form label {
-    font-size: 1rem; /* Unificado con el login */
+    font-size: 1rem;
     margin-bottom: 5px;
     font-family: var(--fuente-secundaria);
     font-weight: 500;
     color: var(--color-texto);
 }
 
-/* Inputs y Selects del formulario de perfil heredando la estética exacta del login */
+/* Inputs y Selects del formulario de perfil */
 .post-form input,
 .post-form select {
-    background-color: var(--color-borde); /* Color de fondo del login */
+    background-color: var(--color-borde);
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
@@ -285,12 +263,11 @@
     transition: border-color 0.2s ease;
 }
 
-/* EFECTO: Borde verde al dar clic (foco) idéntico al del Login */
 .post-form input:focus,
 .post-form select:focus {
     outline: none !important;
     border-color: var(--color-principal);
-    background-color: var(--color-borde); /* Mantiene consistencia */
+    background-color: var(--color-borde);
 }
 
 .full-width-campo {
@@ -304,7 +281,7 @@
     margin-top: var(--espaciado);
 }
 
-/* Botones específicos de guardar y cancelar en la ficha */
+/* Botones específicos de guardar y cancelar */
 #btn-perfil-guardar {
     background: var(--color-principal);
     color: var(--color-fondo);
@@ -339,7 +316,7 @@
     border-color: var(--color-estado-dañado);
 }
 
-/* --- Contenedor Temporal (Placeholder) de Mis Reservas --- */
+/* --- Contenedor Temporal (Placeholder) --- */
 .modulo-placeholder {
     display: flex;
     flex-direction: column;
@@ -364,7 +341,6 @@
     font-size: 0.95rem;
     font-weight: 500;
 }
-
 
 /* --- ADAPTACIÓN TABLET (RESPONSIVE) --- */
 @media (min-width: 768px) and (max-width: 1024px) {
@@ -424,9 +400,8 @@
     }
 }
 
-
 /* ==========================================================================
-   ESTILOS DE LA TABLA DE GESTIÓN DE USUARIOS DE LA SECREATTIA /LISTA DE USUARIOS
+   ESTILOS DE LA TABLA DE GESTIÓN DE USUARIOS
    ========================================================================== */
 
 .siger-tabla {
@@ -459,7 +434,6 @@
     font-family: var(--fuente-principal);
 }
 
-/* Efecto Hover en las filas */
 .siger-tabla tbody tr {
     transition: background-color 0.2s ease;
 }
@@ -468,7 +442,6 @@
     background-color: var(--color-fondo);
 }
 
-/* Badges de Estado Estilizados */
 .badge-status {
     display: inline-flex;
     align-items: center;
@@ -488,7 +461,6 @@
     color: var(--color-estado-dañado);
 }
 
-/* Contenedor de datos del usuario */
 .user-info-cell {
     display: flex;
     flex-direction: column;
@@ -505,12 +477,6 @@
     font-size: 0.85rem;
     color: var(--color-azulado);
 }
-
-.btn-siger-accion {
-        margin-left: 10px;
-        width: 100%;
-}
-
 
 /* ==========================================================================
    PANTALLA: CAMBIO DE CONTRASEÑA
@@ -540,7 +506,6 @@
     margin-top: 0.25rem;
 }
 
-/* Rejilla idéntica a la de editar datos */
 .siger-grid-formulario {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -570,7 +535,6 @@
     outline: none !important;
 }
 
-/* Área de botones inferior */
 .siger-form-acciones {
     display: flex;
     gap: 1rem;
@@ -592,16 +556,11 @@
     border-radius: 6px;
 }
 
-
-/* Responsive */
 @media(max-width: 768px) {
     .grupo-formulario-vacio {
         display: none;
     }
     .siger-form-acciones {
         flex-direction: column-reverse;
-    }
-    .btn-siger-accion {
-        width: 100% !important;
     }
 }

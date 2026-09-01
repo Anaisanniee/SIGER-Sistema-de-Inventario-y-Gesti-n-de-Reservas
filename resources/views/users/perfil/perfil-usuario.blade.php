@@ -57,6 +57,10 @@
                     <span class="item-titulo">Rol</span>
                     <span class="item-valor" style="text-transform: capitalize;">{{ $usuario->role->name ?? 'Sin Rol' }}</span>
                 </div>
+                  <div class="item-lateral">
+                    <span class="item-titulo">Identificación</span>
+                    <span class="item-valor">{{ $usuario->USU_CEDULA ?? 'No especificada' }}</span>
+                </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Reservas activas</span>
                     <span class="item-valor badge-reserva">5</span>
@@ -64,26 +68,11 @@
             </div>
 
             <div class="acciones-laterales">
-                {{-- Botón Editar Perfil --}}
-                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn-verde-siger">
-                    Editar Perfil
-                </x-botones.boton>
 
                 {{-- Historial de reservas --}}
-                <x-botones.boton type="button" class="btn-siger-accion btn-amarillo" style="color: white;">
-                    Historial de reserva
+                <x-botones.boton type="button" class="btn-siger-accion btn" style="color: white;">
+                    Mis reservas
                 </x-botones.boton>
-
-                {{-- SECCIÓN EXCLUSIVA PARA EL RECTOR/RECTORA --}}
-                @auth
-                    @if(in_array(strtolower($usuario->role->name ?? ''), ['rector', 'rectora']))
-                        <a href="{{ Route::has('informes.inventario') ? route('informes.inventario') : '#' }}" style="text-decoration: none; width: 100%;">
-                            <x-botones.boton type="button" class="btn-siger-accion btn-azul">
-                                Ver Informes de Inventario
-                            </x-botones.boton>
-                        </a>
-                    @endif
-                @endauth
 
                 {{-- Botón Logout compacto --}}
                 <x-botones.boton-logout />
@@ -109,17 +98,6 @@
                             'modo' => 'perfil'
                         ])
                     </form>
-                </div>
-            </div>
-
-            {{-- SECCIÓN 2: MIS RESERVAS --}}
-            <div class="tarjeta-blanca-datos" id="contenedor-reservas">
-                <div class="titulo-ficha-datos">
-                    <span>Mis Reservas</span>
-                </div>
-                <div class="modulo-placeholder">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    <p>Próximamente: Listado y control de reservas asignadas al usuario.</p>
                 </div>
             </div>
 

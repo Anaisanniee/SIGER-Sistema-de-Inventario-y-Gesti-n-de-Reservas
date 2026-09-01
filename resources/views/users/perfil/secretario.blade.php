@@ -42,15 +42,16 @@
                     <span class="item-valor" style="text-transform: capitalize;">{{ $usuario->role->name ?? 'Secretaría' }}</span>
                 </div>
                 <div class="item-lateral">
+                    <span class="item-titulo">Identificación</span>
+                    <span class="item-valor">{{ $usuario->USU_CEDULA ?? 'No especificada' }}</span>
+                </div>
+                <div class="item-lateral">
                     <span class="item-titulo">Pendientes</span>
                     <span class="item-valor badge-reserva" style="background-color: var(--color-estado-en-mantenimiento);">4</span>
                 </div>
             </div>
 
             <div class="acciones-laterales">
-                <x-botones.boton id="btn-editar-perfil" type="button" class="btn-siger-accion btn btn-verde-siger">
-                    Editar Mis Datos
-                </x-botones.boton>
                 <a href="{{ route('usuarios.index') }}" style="text-decoration: none; width: 100%;">
                     <x-botones.boton type="button" class="btn-siger-accion btn btn-azul">
                         Gestionar Usuarios
@@ -81,38 +82,6 @@
                     </form>
                 </div>
             </div>
-
-            {{-- SECCIÓN 2: CONTROL CENTRAL (Pestañas de Gestión de Reservas) --}}
-            <div class="tarjeta-blanca-datos">
-                
-                {{-- Navegación de pestañas interna --}}
-                <div class="tabs-gestion-admin" style="display: flex; gap: 1rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem;">
-                    <button class="tab-btn activo" data-tab="tab-pendientes" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; border-bottom: 3px solid var(--color-principal); color: var(--color-texto);">
-                        Informe de reserva
-                    </button>
-                    <button class="tab-btn" data-tab="tab-historial-global" style="padding: 1rem; border: none; background: none; font-weight: bold; cursor: pointer; color: #64748b;">
-                        Reporte de inventario
-                    </button>
-                </div>
-
-                {{-- CONTENIDO PESTAÑA 1: SOLICITUDES POR APROBAR --}}
-                <div class="tab-contenido" id="tab-pendientes">
-                    <div class="modulo-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon" style="color: #64748b; margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        <p style="color: #475569; font-weight: 500; font-size: 1rem; margin: 0;">Bandeja de entrada: Aquí aparecerán las solicitudes de las aulas y activos listas para ser [Aprobadas] o [Rechazadas].</p>
-                    </div>
-                </div>
-
-                {{-- CONTENIDO PESTAÑA 2: HISTORIAL GLOBAL --}}
-                <div class="tab-contenido" id="tab-historial-global" style="display: none;">
-                    <div class="modulo-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; text-align: center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon" style="color: #64748b; margin-bottom: 1rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                        <p style="color: #475569; font-weight: 500; font-size: 1rem; margin: 0;">Bitácora: Registro general de todas las reservas procesadas anteriormente en la institución.</p>
-                    </div>
-                </div>
-
-            </div>
-
         </main>
 
     </div>

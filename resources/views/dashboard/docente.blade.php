@@ -26,11 +26,6 @@
     @endcomponent
 </div>
 
-{{--- 3. FILTRO OVALADO DE RECURSOS ---}}
-<div class="filtro-rapido-contenedor">
-    @include('components.filtros.filtro-rapido', ['opciones' => ['Disponible', 'reservable']])
-</div>
-
 {{--- 4. CONTENEDOR PRINCIPAL DE TARJETAS ---}} 
 <div class="container-tarjetas">
     @foreach($recursos as $recurso)
