@@ -21,31 +21,6 @@
         </div>
     @endif
 
-    <div class="d-flex align-items-center gap-2">
-        @if(($mostrarRegresar ?? true) && View::getSection('mostrarRegresar') !== 'false')
-            @php
-                $user = auth()->user();
-                $slugRolNav = strtolower($user->rol->slug ?? $user->role->slug ?? '');
-                $nombreRolNav = strtolower($user->rol->name ?? $user->rol->nombre ?? $user->role->name ?? '');
-                $rolIdNav = $user->rol_id ?? $user->role_id ?? null;
-                
-                if ($slugRolNav === 'docente' || $nombreRolNav === 'docente' || $rolIdNav == 3) {
-                    $fallbackRoute = route('dashboard.docente', ['id' => $user->id ?? 3]);
-                } elseif ($slugRolNav === 'secretaria' || $nombreRolNav === 'secretaria' || $rolIdNav == 1) {
-                    $fallbackRoute = route('dashboard.secretaria');
-                } else {
-                    $fallbackRoute = route('dashboard.rectora', ['id' => $user->id ?? 2]);
-                }
-
-                $urlFinalRegresar = $rutaRegresar ?? (View::hasSection('rutaRegresar') ? View::getSection('rutaRegresar') : $fallbackRoute);
-            @endphp
-
-            <a href="{{ $urlFinalRegresar }}" 
-               class="btn-back-nav" 
-               title="Volver">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-        @endif
 
         @if(($mostrarPerfil ?? true) && View::getSection('mostrarPerfil') !== 'false')
             @php
@@ -69,6 +44,8 @@
                 </button>
 
                 <div class="perfil-dropdown-menu" id="menuPerfilDropdown">
+
+                   {{--SECCION 1  PARA TODOS--}}
 
                     {{--si estas en otra pagiandifernet ala dasboard se oculta se muestra el bton de ir al inicio dependiento el rol--}}
                     @if (!request()->routeIs('dashboard.*'))
@@ -99,14 +76,21 @@
                         </a>
                     @endif
 
-                    {{-- Visibles únicamente para Secretaría y Rectora --}}
+                    @php
+                        $notificacionespage = Route::has('notificaciones') ? route('notificaciones') : '#';
+                    @endphp
+                    <a href="{{$notificacionespage}}" class="dropdown-item">
+                        <i class="fas fa-bell"></i> Mis Notificaciones
+                    </a>
+
+                    {{--SECCION 2 Visibles únicamente para Secretaría y Rectora --}}
                     @if($puedeVerInformes)  
                         <div class="dropdown-divider"></div>
 
                         
                         @php
                             $routeReservas = Route::has('secretaria.informe') ? route('secretaria.informe') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
-                            $routeInventario = Route::has('informes.inventario') ? route('informes.inventario') : (Route::has('informes.inventario') ? route('informes.inventario') : null);
+                            $routeInventario = Route::has('secretaria.informe') ? route('secretaria.informe') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
                         @endphp
 
                         @if($routeReservas)
@@ -117,12 +101,12 @@
 
                         @if($routeInventario)
                             <a href="{{ $routeInventario }}" class="dropdown-item">
-                                <i class="fas fa-boxes"></i> Ver Informes de Inventario
+                                <i class="fas fa-boxes"></i> Informes de Inventario
                             </a>
                         @endif
                     @endif
 
-                    {{-- Exclusivo para Secretaría --}}
+                    {{-- SECCION 3: Exclusivo para Secretaría --}}
                     @php
                         $routeUsuarios = Route::has('usuarios.index') ? route('usuarios.index') : (Route::has('users.index') ? route('users.index') : null);
                     @endphp

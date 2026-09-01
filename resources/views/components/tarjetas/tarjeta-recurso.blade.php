@@ -17,53 +17,69 @@
     // Definición segura de la foto (previene error si viene vacía o no existe)
     $imagenFinal = $foto ?? $fotoRecurso ?? asset('img/default-recurso.png');
 
-    // Identificamos con precisión el ID y el Tipo exacto
+    // Identificamos con precisión si es un activo o un aula
     $esActivo = isset($recurso->act_id) || isset($recurso->act_serial) || isset($recurso->act_marca);
-    
     $tipoStr = $esActivo ? 'activo' : 'aula';
     
     // Obtenemos su ID correspondiente
     $idRecurso = $esActivo ? ($recurso->act_id ?? $recurso->id ?? null) : ($recurso->aula_id ?? $recurso->id ?? null);
 
-    // Extraemos el ESTADO REAL directamente desde el objeto $recurso
+    // Extraemos el valor del campo reservable de forma booleana estricta
+    $reservableRaw = $recurso->act_reservable ?? $recurso->aula_reservable ?? true;
+    
+    // Normalizamos valores booleanos, numéricos (0/1) o cadenas de texto ('false', '0', 'no')
+    $esReservable = filter_var($reservableRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    if ($esReservable === null) {
+        $esReservable = !in_array(strtolower(trim((string)$reservableRaw)), ['false', '0', 'no']);
+    }
+
+    // Extraemos el estado físico o de aula
     $estadoReal = $recurso->aula_estado 
         ?? $recurso->act_estado_fisico 
-          ?? $recurso->estado 
-        ?? '';
+        ?? $recurso->estado 
+        ?? 'Disponible';
 
     $estadoLimpio = strtolower(trim($estadoReal));
 
-    // Evaluamos el color para la lucecita/badge según el estado real
-    $claseEstado = match (true) {
-        str_contains($estadoLimpio, 'manten') || 
-        str_contains($estadoLimpio, 'amnten') || 
-        str_contains($estadoLimpio, 'repara')  => 'badge-mantenimiento',
+    // Evaluación de la clase CSS y del texto a mostrar en la lucecita/badge
+    if (!$esReservable) {
+        // Si no es reservable, se fuerza la clase de bloqueado/dañado y se ajusta el texto
+        $claseEstado = 'badge-danado';
+        $textoBadge = 'No reservable';
+    } else {
+        // Si es reservable, se mantiene su texto de estado real y se evalúa el color de la lucecita
+        $textoBadge = $estadoReal;
+        $claseEstado = match (true) {
+            str_contains($estadoLimpio, 'manten') || 
+            str_contains($estadoLimpio, 'amnten') || 
+            str_contains($estadoLimpio, 'repara')  => 'badge-mantenimiento',
+            
+            str_contains($estadoLimpio, 'daña') || 
+            str_contains($estadoLimpio, 'malo') || 
+            str_contains($estadoLimpio, 'inactiv') => 'badge-danado',
 
-        str_contains($estadoLimpio, 'daña') || 
-        str_contains($estadoLimpio, 'malo') || 
-        str_contains($estadoLimpio, 'inactiv') => 'badge-danado',
+            str_contains($estadoLimpio, 'buen') || 
+            str_contains($estadoLimpio, 'bun') => 'badge-reservado',
 
-        str_contains($estadoLimpio, 'buen') || 
-        str_contains($estadoLimpio, 'bun') => 'badge-reservado',
+            str_contains($estadoLimpio, 'disponibl') || 
+            str_contains($estadoLimpio, 'activ')   => 'badge-disponible',
 
-        str_contains($estadoLimpio, 'disponibl') || 
-        str_contains($estadoLimpio, 'activ')   => 'badge-disponible',
+            default => 'badge-disponible',
+        };
+    }
 
-        default => 'badge-disponible',
-    };
-
-    // Determinamos si el estado actual bloquea la reserva
+    // Determinamos si la reserva se bloquea (por estado físico o por la propiedad reservable)
     $estadosBloqueados = ['malo', 'mantenimiento', 'en mantenimiento', 'dañado', 'inactivo'];
-    $estaBloqueado = in_array($estadoLimpio, $estadosBloqueados);
+    $estaBloqueado = !$esReservable || in_array($estadoLimpio, $estadosBloqueados);
 @endphp
 
 <div class="tarjeta-recurso">
     
-   {{-- ETIQUETA / LUCECITA EN LA ESQUINA SUPERIOR DERECHA --}}
+    {{-- ETIQUETA / LUCECITA EN LA ESQUINA SUPERIOR DERECHA --}}
     <div class="estado-esquina-container">
         <span class="badge-siger-estado {{ $claseEstado }}">
             <i class="fas fa-circle indicador-punto"></i> 
-            {{ $recurso->aula_estado ?? $recurso->act_estado_fisico ?? 'Disponible' }}
+            {{ $textoBadge }}
         </span>
     </div>
 
@@ -85,6 +101,7 @@
 
         <div class="botones-container">
 
+            {{-- BOTÓN FICHA TÉCNICA --}}
             <x-botones.boton
                 class="btn btn-azul"
                 target="modalgeneral"
@@ -104,7 +121,7 @@
                 data-act_id="{{ $recurso->act_id ?? '' }}"
                 data-act_marca="{{ $recurso->act_marca ?? 'No registra' }}"
                 data-act_estado_fisico="{{ $recurso->act_estado_fisico ?? '' }}"
-                data-act_reservable="{{ ($recurso->act_reservable ?? false) ? 'Sí' : 'No' }}"
+                data-act_reservable="{{ $esReservable ? 'Sí' : 'No' }}"
                 data-act_fecha_ingreso="{{ $recurso->act_fecha_ingreso ?? '' }}"
                 data-cate_id="{{ $recurso->cate_id ?? '' }}"
                 data-aula_nombre="{{ $recurso->aula_nombre ?? 'No asignada' }}"
@@ -114,16 +131,16 @@
                 data-aula_id="{{ $recurso->aula_id ?? '' }}"
                 data-aula_capacidad="{{ $recurso->aula_capacidad ?? '' }}"
                 data-aula_estado="{{ $recurso->aula_estado ?? '' }}"
-                data-aula_reservable="{{ ($recurso->aula_reservable ?? false) ? 'Sí' : 'No' }}"
+                data-aula_reservable="{{ $esReservable ? 'Sí' : 'No' }}"
                 data-activos="{{ isset($recurso->activos) ? json_encode($recurso->activos) : ($recurso->activos_json ?? '[]') }}"
             >
                 Ver ficha
             </x-botones.boton>
 
-            {{-- BOTONES ADMINISTRATIVOS --}}
+            {{-- BOTONES ADMINISTRATIVOS Y DE RESERVA --}}
             <div class="botones-admin">
 
-                {{-- BOTÓN DINÁMICO (EDITAR O RESERVAR) --}}
+                {{-- MÓDULO DE EDICIÓN O RESERVA --}}
                 @if(request()->is('activos*') || request()->is('inventario*'))
                     @php
                         $idEditar = $recurso->act_id ?? $recurso->aula_id ?? null;
@@ -147,7 +164,7 @@
                     @endphp
 
                     @if($estaBloqueado)
-                        {{-- Botón bloqueado nativo para evitar conflictos con el componente --}}
+                        {{-- Botón deshabilitado si el recurso no es reservable o está en mal estado --}}
                         <button type="button" class="btn btn-secondary" disabled>
                             <i class="bi bi-x-circle"></i> No disponible
                         </button>
