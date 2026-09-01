@@ -8,82 +8,23 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReservasControllers;
 use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\InformeController;
+
 // ==========================================
 // RUTA DE INVENTARIO
 // ==========================================
 
-// Ruta para ver el listado
-Route::get('/inventario', [ActivosControllers::class, 'indexUnificado'])->name('inventario.index');
+// Ruta para ver ficha tecnica (Restringida solo a números)
+Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show')->where('id', '[0-9]+');
 
 // ==========================================
-// RUTAS DE ACTIVOS (INVENTARIO)
+// RUTAS DE RESERVAS (Flujo del Docente)
 // ==========================================
 
-// Ruta para ver el formulario
-Route::get('/activos/crear', [ActivosControllers::class, 'create'])->name('activos.create');
-
-// NUEVA: Vista de la papelera / eliminados (Va arriba de las de {id} para evitar conflictos)
-Route::get('/inventario/papelera', [ActivosControllers::class, 'trashed'])->name('inventario.papelera');
-
-// Ruta para procesar el guardado
-Route::post('/activos', [ActivosControllers::class, 'store'])->name('activos.store');
-
-// Ruta para mostrar el formulario de edición
-Route::get('/activos/{id}/editar', [ActivosControllers::class, 'edit'])->name('activos.edit');
-
-// Ruta para procesar la actualización (PUT o PATCH)
-Route::put('/activos/{id}', [ActivosControllers::class, 'update'])->name('activos.update');
-
-// Ruta para el borrado lógico (Soft Delete)
-Route::delete('/activos/{id}', [ActivosControllers::class, 'destroy'])->name('activos.destroy');
-
-// NUEVA: Restaurar un activo eliminado
-Route::post('/activos/{id}/restore', [ActivosControllers::class, 'restore'])->name('activos.restore');
-
-// NUEVA: Borrado permanente de la base de datos (Físico)
-Route::delete('/activos/{id}/force-delete', [ActivosControllers::class, 'forceDelete'])->name('activos.forceDelete');
-
-// ==========================================
-// RUTAS DE AULAS (INVENTARIO)
-// ==========================================
-
-// Ruta para ver el formulario de creación
-Route::get('/aulas/crear', [AulasControllers::class, 'create'])->name('aulas.create');
-
-// Ruta para procesar el guardado
-Route::post('/aulas', [AulasControllers::class, 'store'])->name('aulas.store');
-
-// Ruta para ver la papelera
-Route::get('/aulas/eliminados', [AulasControllers::class, 'trashed'])->name('aulas.trashed');
-
-// Ruta para mostrar el formulario de edición
-Route::get('/aulas/{id}/editar', [AulasControllers::class, 'edit'])->name('aulas.edit');
-
-// Ruta para procesar la actualización
-Route::put('/aulas/{id}', [AulasControllers::class, 'update'])->name('aulas.update');
-
-// Ruta para el borrado lógico (Soft Delete)
-Route::delete('/aulas/{id}', [AulasControllers::class, 'destroy'])->name('aulas.destroy');
-
-// Ruta para restaurar un aula
-Route::post('/aulas/{id}/restore', [AulasControllers::class, 'restore'])->name('aulas.restore');
-
-// Ruta para borrado permanente (Físico)
-Route::delete('/aulas/{id}/force-delete', [AulasControllers::class, 'forceDelete'])->name('aulas.forceDelete');
-
-// Ruta para ver ficha tecnica
-Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show');
-
-// ==========================================
-// RUTAS DE RESERVAS
-// ==========================================
-
-
-
-// Ruta para mostrar el paso 1 (Ya no necesita {id?} ni {tipo?})
+// Ruta para mostrar el paso 1
 Route::get('/reservas/crear/paso1', [ReservasControllers::class, 'paso1'])->name('reservas.paso1');
 
-// Ruta POST que recibe el formulario del paso 1 (Tampoco necesita {id})
+// Ruta POST que recibe el formulario del paso 1
 Route::post('/reservas/crear/paso1', [ReservasControllers::class, 'postPaso1'])->name('reservas.paso1.post');
 
 // Ruta para mostrar el Paso 2
@@ -98,31 +39,12 @@ Route::get('/reservas/crear/paso3', [ReservasControllers::class, 'paso3'])->name
 // Ruta para guardar o confirmar la reserva final (POST)
 Route::post('/reservas/crear/paso3', [ReservasControllers::class, 'guardarPaso3'])->name('reservas.paso3.post');
 
-// Ruta para aprobar reserva
-Route::patch('/secretaria/reservas/{id}/aprobar', [ReservasControllers::class, 'aprobar'])->name('reservas.aprobar');
-
-// Ruta para rechazar reserva
-Route::patch('/secretaria/reservas/{id}/rechazar', [ReservasControllers::class, 'rechazar'])->name('reservas.rechazar');
-
-// Ruta para revertir reserva
-Route::patch('/secretaria/reservas/{id}/revertir', [ReservasControllers::class, 'revertir'])->name('reservas.revertir');
-
 // ==========================================
 // RUTAS DEL CARRITO
 // ==========================================
 
 Route::post('/reservas/guardar-seleccion-temporal', [CarritoController::class, 'guardarSeleccionTemporal'])->name('reservas.guardar.seleccion');
 
-// ==========================================
-// RUTAS DEL DASHBOARD
-// ==========================================
-
-// Rutas de Dashboard sin middleware para poder trabajar libremente
-Route::get('/dashboard/docente', [DashboardController::class, 'indexDocente'])->name('dashboard.docente');
-
-Route::get('/dashboard/rector', [DashboardController::class, 'indexRector'])->name('dashboard.rector');
-
-Route::get('/dashboard/secretario', [DashboardController::class, 'indexSecretario'])->name('dashboard.secretario');
 
 // ==========================================
 // OTRAS RUTAS DEL SISTEMA
@@ -158,28 +80,57 @@ Route::middleware('auth')->group(function () {
     Route::put('/perfil/actualizar', [UserController::class, 'updatePerfil'])->name('perfil.actualizar');
 
     // -----------------------------------------------------
-    // 🔒 EXCLUSIVO SECRETARÍA (Gestión Total de Usuarios)
+    // 🔒 EXCLUSIVO SECRETARÍA (Gestión Total y Aprobaciones)
     // -----------------------------------------------------
     Route::middleware('role:Secretaria,Secretario')->group(function () {
-        // Listado general y creación
+        // GESTION DE INVENTARIO
+        Route::get('/inventario', [ActivosControllers::class, 'indexUnificado'])->name('inventario.index');
+
+        // GESTIÓN DE RESERVAS (Aprobar, rechazar, revertir y vista de secretaría)
+        Route::get('/secretaria/reservas', [ReservasControllers::class, 'indexSecretaria'])->name('secretaria.reservas');
+        Route::patch('/secretaria/reservas/{id}/aprobar', [ReservasControllers::class, 'aprobar'])->name('reservas.aprobar');
+        Route::patch('/secretaria/reservas/{id}/rechazar', [ReservasControllers::class, 'rechazar'])->name('reservas.rechazar');
+        Route::patch('/secretaria/reservas/{id}/revertir', [ReservasControllers::class, 'revertir'])->name('reservas.revertir');
+
+        // GESTIÓN DE USUARIOS
         Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.index');
         Route::get('/usuarios/create', [UserController::class, 'create'])->name('usuarios.create');
         Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
-        
-        // Edición administrativa exclusiva
         Route::get('/usuarios/{id}/edit', [UserController::class, 'edit'])->name('usuarios.edit');
         Route::put('/usuarios/{id}', [UserController::class, 'update'])->name('usuarios.update');
-        
-        // Acciones de estado y borrado
         Route::patch('/usuarios/{id}/dar-de-baja', [UserController::class, 'darDeBaja'])->name('usuarios.baja');
         Route::delete('/usuarios/{id}', [UserController::class, 'destroy'])->name('usuarios.destroy');
 
-        Route::get('/secretaria/reservas', [ReservasControllers::class, 'indexSecretaria'])->name('secretaria.reservas');
+        // RUTAS DE LOS ACTIVOS
+        Route::get('/activos/crear', [ActivosControllers::class, 'create'])->name('activos.create');
+        Route::get('/inventario/papelera', [ActivosControllers::class, 'trashed'])->name('inventario.papelera');
+        Route::post('/activos', [ActivosControllers::class, 'store'])->name('activos.store');
+        Route::get('/activos/{id}/editar', [ActivosControllers::class, 'edit'])->name('activos.edit');
+        Route::put('/activos/{id}', [ActivosControllers::class, 'update'])->name('activos.update');
+        Route::delete('/activos/{id}', [ActivosControllers::class, 'destroy'])->name('activos.destroy');
+        Route::post('/activos/{id}/restore', [ActivosControllers::class, 'restore'])->name('activos.restore');
+        Route::delete('/activos/{id}/force-delete', [ActivosControllers::class, 'forceDelete'])->name('activos.forceDelete');
+
+        // RUTAS DE LAS AULAS
+        Route::get('/aulas/crear', [AulasControllers::class, 'create'])->name('aulas.create');
+        Route::post('/aulas', [AulasControllers::class, 'store'])->name('aulas.store');
+        Route::get('/aulas/eliminados', [AulasControllers::class, 'trashed'])->name('aulas.trashed');
+        Route::get('/aulas/{id}/editar', [AulasControllers::class, 'edit'])->name('aulas.edit');
+        Route::put('/aulas/{id}', [AulasControllers::class, 'update'])->name('aulas.update');
+        Route::delete('/aulas/{id}', [AulasControllers::class, 'destroy'])->name('aulas.destroy');
+        Route::post('/aulas/{id}/restore', [AulasControllers::class, 'restore'])->name('aulas.restore');
+        Route::delete('/aulas/{id}/force-delete', [AulasControllers::class, 'forceDelete'])->name('aulas.forceDelete');
+
+        Route::get('/secretaria/informe', [InformeController::class, 'index'])->name('secretaria.informe');
 
         // Dashboard Secretaría
         Route::get('/dashboard/secretaria', function () {
             return view('dashboard.secretario');
         })->name('dashboard.secretaria');
+
+        Route::get('/dashboard/secretaria-alias', function () {
+            return view('dashboard.secretario');
+        })->name('dashboard.secretario');
     });
 
     // -----------------------------------------------------
