@@ -1,11 +1,11 @@
 @props([
-    'titulo' => 'Informe', // Recibe el título dinámico de la tabla
-    'columnas' => [],      // Arreglo con la configuración de las columnas
-    'datos' => []          // Arreglo con las filas de datos
+    'titulo' => 'Informe',
+    'columnas' => [],
+    'datos' => [],
+    'urlExcel' => '#'
 ])
 
 <style>
-    /* Contenedor flexible para alinear el título y el botón de Excel horizontalmente */
     .encabezado-tabla-acciones {
         display: flex;
         justify-content: space-between;
@@ -15,13 +15,12 @@
         gap: 1rem;
     }
 
-    /* Estilo para el botón de Exportar a Excel */
     .btn-exportar-excel {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        background-color: #107c41; /* Verde corporativo de Excel */
+        background-color: #107c41;
         color: var(--color-fondo) !important;
         padding: 9px 16px;
         border-radius: 6px;
@@ -39,7 +38,6 @@
         transform: translateY(-1px);
     }
 
-    /* Contenedor responsivo para permitir desplazamiento horizontal sin deformar las celdas */
     .contenedor-tabla-responsive {
         width: 100%;
         overflow-x: auto;
@@ -48,10 +46,9 @@
 
     .contenedor-tabla-responsive table {
         width: 100%;
-        white-space: nowrap; /* Evita que el texto de las celdas se parta verticalmente */
+        white-space: nowrap;
     }
 
-    /* MEDIA QUERY: Reglas para pantallas pequeñas (celulares y tablets) */
     @media (max-width: 768px) {
         .encabezado-tabla-acciones {
             flex-direction: column;
@@ -66,15 +63,13 @@
     }
 </style>
 
-{{-- Encabezado de la tabla con el título dinámico y el botón de Excel --}}
 <div class="encabezado-tabla-acciones">
     <h3 style="margin: 0; color: var(--color-principal);">{{ $titulo }}</h3>
-    <a href="#" class="btn-exportar-excel">
+    <a href="{{ $urlExcel }}" class="btn-exportar-excel">
         <i class="fas fa-file-excel"></i> Exportar a Excel
     </a>
 </div>
 
-{{-- Renderizado dinámico de la tabla dentro de su contenedor responsivo --}}
 <div class="contenedor-tabla-responsive">
     <table class="table table-striped table-hover">
         <thead>
@@ -93,7 +88,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ count($columnas) }}" class="text-center text-muted py-3">
+                    <td colspan="{{ count($columnas) > 0 ? count($columnas) : 1 }}" class="text-center text-muted py-3">
                         No hay registros disponibles.
                     </td>
                 </tr>
