@@ -1,5 +1,5 @@
 @extends('layouts.app') 
-
+@section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'false')
 @section('mostrarBusqueda', 'true')
 
