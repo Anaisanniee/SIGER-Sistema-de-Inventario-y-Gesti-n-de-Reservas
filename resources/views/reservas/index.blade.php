@@ -231,7 +231,7 @@
 
             </div>
         </div>
-
+        //AQUI EMPIEZA LO DE LA AGENDA ----------------------------------------------------
         <div class="columna-agenda-permanente">
             @php
                 $reservasCalendario = $reservas->filter(function($reserva) {
@@ -402,6 +402,7 @@
                     }
                 });
             </script>
+            //HASTA ACA ----------------------------------------------------------------------------------
         </div>
     </div>
 
