@@ -74,8 +74,6 @@
                     Mis reservas
                 </x-botones.boton>
 
-                {{-- Botón Logout compacto --}}
-                <x-botones.boton-logout />
             </div>
         </aside>
 

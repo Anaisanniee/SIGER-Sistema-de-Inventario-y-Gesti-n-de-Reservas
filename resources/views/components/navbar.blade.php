@@ -23,22 +23,18 @@
 
     <div class="d-flex align-items-center gap-2">
         @if(($mostrarRegresar ?? true) && View::getSection('mostrarRegresar') !== 'false')
-            {{-- 
-                Determina la ruta: 
-                1. $rutaRegresar (variable directa del componente)
-                2. @yield('rutaRegresar') (sección definida en la vista blade)
-                3. Redirección inteligente al dashboard según el rol del usuario autenticado
-            --}}
             @php
                 $user = auth()->user();
-                $rolNombre = strtolower($user->rol->nombre ?? $user->rol ?? '');
+                $slugRolNav = strtolower($user->rol->slug ?? $user->role->slug ?? '');
+                $nombreRolNav = strtolower($user->rol->name ?? $user->rol->nombre ?? $user->role->name ?? '');
+                $rolIdNav = $user->rol_id ?? $user->role_id ?? null;
                 
-                if ($rolNombre === 'docente' || ($user->rol_id ?? null) == 2) {
-                    $fallbackRoute = route('dashboard.docente', ['id' => $user->id ?? 1]);
-                } elseif ($rolNombre === 'secretaria' || ($user->rol_id ?? null) == 3) {
+                if ($slugRolNav === 'docente' || $nombreRolNav === 'docente' || $rolIdNav == 3) {
+                    $fallbackRoute = route('dashboard.docente', ['id' => $user->id ?? 3]);
+                } elseif ($slugRolNav === 'secretaria' || $nombreRolNav === 'secretaria' || $rolIdNav == 1) {
                     $fallbackRoute = route('dashboard.secretaria');
                 } else {
-                    $fallbackRoute = route('dashboard.rectora', ['id' => $user->id ?? 1]);
+                    $fallbackRoute = route('dashboard.rectora', ['id' => $user->id ?? 2]);
                 }
 
                 $urlFinalRegresar = $rutaRegresar ?? (View::hasSection('rutaRegresar') ? View::getSection('rutaRegresar') : $fallbackRoute);
@@ -52,9 +48,123 @@
         @endif
 
         @if(($mostrarPerfil ?? true) && View::getSection('mostrarPerfil') !== 'false')
-            <a href="{{ Route::has('perfil') ? route('perfil') : '#' }}" class="nav-link" title="Mi Perfil">
-                <i class="fas fa-user"></i>
-            </a>
+            @php
+                $userAuth = auth()->user();
+                
+                // Obtención de slug, nombre e id según la tabla roles (id 1: Secretaria, id 2: Rectora, id 3: Docente)
+                $slugRol = strtolower($userAuth->rol->slug ?? $userAuth->role->slug ?? '');
+                $nombreRol = strtolower($userAuth->rol->name ?? $userAuth->rol->nombre ?? $userAuth->role->name ?? '');
+                $rolIdUser = $userAuth->rol_id ?? $userAuth->role_id ?? null;
+
+                // Validación exacta de roles
+                $esSecretaria = ($slugRol === 'secretaria' || $nombreRol === 'secretaria' || $rolIdUser == 1);
+                $esRectora    = ($slugRol === 'rectora' || $nombreRol === 'rectora' || $rolIdUser == 2);
+                
+                $puedeVerInformes = ($esSecretaria || $esRectora);
+            @endphp
+
+            <div class="perfil-dropdown-container">
+                <button type="button" class="perfil-dropdown-btn" id="btnPerfilDropdown" onclick="toggleMenuPerfil(event)" title="Menú de opciones">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="perfil-dropdown-menu" id="menuPerfilDropdown">
+
+                    {{--si estas en otra pagiandifernet ala dasboard se oculta se muestra el bton de ir al inicio dependiento el rol--}}
+                    @if (!request()->routeIs('dashboard.*'))
+                        @php
+                            $userDashboard = auth()->user();
+                            $slugDashboard = strtolower($userDashboard->rol->slug ?? $userDashboard->role->slug ?? '');
+                            $idDashboard = $userDashboard->rol_id ?? $userDashboard->role_id ?? null;
+
+                            if ($slugDashboard === 'secretaria' || $idDashboard == 1) {
+                                $rutaHome = route('dashboard.secretaria');
+                            } elseif ($slugDashboard === 'rectora' || $idDashboard == 2) {
+                                $rutaHome = route('dashboard.rectora', ['id' => $userDashboard->id ?? 2]);
+                            } else {
+                                $rutaHome = route('dashboard.docente', ['id' => $userDashboard->id ?? 3]);
+                            }
+                        @endphp
+
+                        <a href="{{ $rutaHome }}" class="dropdown-item">
+                            <i class="fas fa-home"></i> Ir al Inicio
+                        </a>
+                    @endif
+
+
+                     {{--si se está en la página de perfil se oculta el --}}
+                    @if (!request()->routeIs('perfil'))
+                        <a href="{{ Route::has('perfil') ? route('perfil') : '#' }}" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Mi Perfil
+                        </a>
+                    @endif
+
+                    {{-- Visibles únicamente para Secretaría y Rectora --}}
+                    @if($puedeVerInformes)
+                        <div class="dropdown-divider"></div>
+
+                        
+                        @php
+                            $routeReservas = Route::has('reportes.reservas') ? route('reportes.reservas') : (Route::has('informes.reservas') ? route('informes.reservas') : null);
+                            $routeInventario = Route::has('inventario.index') ? route('inventario.index') : (Route::has('informes.inventario') ? route('informes.inventario') : null);
+                        @endphp
+
+                        @if($routeReservas)
+                            <a href="{{ $routeReservas }}" class="dropdown-item">
+                                <i class="fas fa-file-alt"></i> Informe de Reservas
+                            </a>
+                        @endif
+
+                        @if($routeInventario)
+                            <a href="{{ $routeInventario }}" class="dropdown-item">
+                                <i class="fas fa-boxes"></i> Ver Informes de Inventario
+                            </a>
+                        @endif
+                    @endif
+
+                    {{-- Exclusivo para Secretaría --}}
+                    @php
+                        $routeUsuarios = Route::has('usuarios.index') ? route('usuarios.index') : (Route::has('users.index') ? route('users.index') : null);
+                    @endphp
+
+                    @if($esSecretaria && $routeUsuarios)
+                        <a href="{{ $routeUsuarios }}" class="dropdown-item">
+                            <i class="fas fa-users-cog"></i> Gestionar Usuarios
+                        </a>
+                    @endif
+
+                    <div class="dropdown-divider"></div>
+
+                    {{-- Opción para cerrar sesión --}}
+                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                        @csrf
+                        <x-botones.boton type="submit" class="dropdown-item btn-logout">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </x-botones.boton>
+                    </form>
+                </div>
+            </div>
         @endif
     </div>
 </nav>
+
+<script>
+    function toggleMenuPerfil(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('menuPerfilDropdown');
+        if (menu) {
+            menu.classList.toggle('mostrar');
+        }
+    }
+
+    window.addEventListener('click', function(event) {
+        const menu = document.getElementById('menuPerfilDropdown');
+        const btn = document.getElementById('btnPerfilDropdown');
+        
+        if (menu && menu.classList.contains('mostrar')) {
+            if (!menu.contains(event.target) && !btn.contains(event.target)) {
+                menu.classList.remove('mostrar');
+            }
+        }
+    });
+</script>

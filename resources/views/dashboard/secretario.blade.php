@@ -1,7 +1,8 @@
 @extends('layouts.app') 
 @section('mostrarBusqueda', 'false')
-@section('content')
 @section('mostrarRegresar', 'false')
+@section('content')
+
 
 <link rel="stylesheet" href="{{ asset('css/pages/dashboard-secretario.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}">

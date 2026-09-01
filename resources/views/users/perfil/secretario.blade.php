@@ -3,7 +3,6 @@
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', route('dashboard.secretaria'))
-@section('mostrarPerfil', 'false')
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
@@ -49,15 +48,6 @@
                     <span class="item-titulo">Pendientes</span>
                     <span class="item-valor badge-reserva" style="background-color: var(--color-estado-en-mantenimiento);">4</span>
                 </div>
-            </div>
-
-            <div class="acciones-laterales">
-                <a href="{{ route('usuarios.index') }}" style="text-decoration: none; width: 100%;">
-                    <x-botones.boton type="button" class="btn-siger-accion btn btn-azul">
-                        Gestionar Usuarios
-                    </x-botones.boton>
-                </a>
-                <x-botones.boton-logout class="btn-siger-accion btn btn-rojo"/>
             </div>
         </aside>
 

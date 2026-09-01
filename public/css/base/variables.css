@@ -1,119 +1,76 @@
 /* Estilos para el sistema de inventario y gestión de reservas */
 
 /* Importación de fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap');
 
-/* Fuente Inter para textos y datos */
-@font-face {
-    font-family: 'Inter';
-    src: url('/fonts/Inter/static/Inter_24pt-Regular.ttf') format('ttf2'),
-         url('/fonts/Inter/static/Inter_24pt-Regular.ttf') format('ttf');
-    font-weight: 100 900;
-    font-style: normal;
-}
-/* Fuente INTER PARA TITULOS */
-@font-face {
-    font-family: 'Inter';
-    src: url('/fonts/Inter/static/Inter_28pt-Bold.ttf') format('ttf2'),
-         url('/fonts/Inter/static/Inter_28pt-Bold.ttf') format('ttf');
-    font-weight: 700;
-    font-style: normal;
-}
-
-/* Fuente poppins para títulos y encabezados */
-@font-face {
-    font-family: 'Poppins';
-    src: url('/fonts/Poppins/Poppins-Bold.ttf') format('ttf2'),
-         url('/fonts/Poppins/Poppins-Bold.ttf') format('ttf');
-    font-weight: 700;
-    font-style: normal;
-}
-
-/* Fuente Poppins para textos y datos */
-@font-face {
-    font-family: 'Poppins';
-    src: url('/fonts/Poppins/Poppins-Regular.ttf') format('ttf2'),
-         url('/fonts/Poppins/Poppins-Regular.ttf') format('ttf');
-    font-weight: 400;
-    font-style: normal;
-    background-clip: text;
-    -webkit-background-clip: text;
-}
-/* Definición de variables y estilos globales */
+/* Variables de tu sistema original */
 :root {
-  /* Variables de colores */
   --color-principal: #10b981;
   --principal-secundario: #34811ddc;
   --color-fondo: #f9fbf9;
   --color-fondo-secundario: #d1d5db;
   --color-texto: #444444;
-  --color-texto-secundario: #8a87878f;
+  --color-texto-secundario: #6b7280;
   --color-borde: #e5e7eb;
 
-  /* Fuentes */
   --fuente-principal: 'Inter', sans-serif;
   --fuente-secundaria: 'Poppins', sans-serif;
 
-  /* Tamaños */
   --espaciado: 16px;
   --ancho-maximo: 1200px;
   --borde-radio: 8px;
-  
-/*COLOR DE LOS BOTONES*/
---color-estado-disponible: #22c55e;
---color-estado-reservado: #3b82f6;
---color-estado-en-mantenimiento: #e6cc66;
---color-estado-dañado: #dc2626;
---color-verde-pastel: #bbf7d0;
---color-azulado: #64748b;
 
-/*COLOR DE LOS BOTONES en pasteles*/
---color-disponible-pastel: #bbf7d0;
---color-reservado-pastel: #dbeafe;
---color-en-mantenimiento-pastel: #fef3c7;
---color-dañado-pastel: #fee2e2;
+  --color-estado-disponible: #22c55e;
+  --color-estado-reservado: #3b82f6;
+  --color-estado-en-mantenimiento: #e6cc66;
+  --color-estado-dañado: #dc2626;
 
+  --color-verde-pastel: #bbf7d0;
+  --color-azulado: #64748b;
 
-  /* Fondo y color de texto por defecto */
+  --color-disponible-pastel: #bbf7d0;
+  --color-reservado-pastel: #dbeafe;
+  --color-en-mantenimiento-pastel: #fef3c7;
+  --color-dañado-pastel: #fee2e2;
+}
+
+body {
   background-color: var(--color-fondo);
-  color: var(--color-texto-secundario);
+  color: var(--color-texto);
   font-family: var(--fuente-principal);
+  margin: 0;
+  padding: 0;
 }
 
-
-
-/*DISEÑO PARA PC*/
+/* DISEÑO PARA PC */
 .layout-principal {
     display: flex;
     min-height: 100vh;
 }
+
 .content {
     flex: 1;
     padding: 20px;
+}
 
-
-/*DISEÑO PARA TABLET*/
+/* DISEÑO PARA TABLET */
 @media (min-width: 768px) and (max-width: 1024px) {
-    body {
-    background-color: var(--color-estado-dañado);
-}
-.layout-principal {
-    display: flex;
-    min-height: 100vh;
-}
-.content {
-    flex: 1;
-    padding: 20px;
-}}
-
-/*DISEÑO PARA MÓVIL*/
-@media (max-width: 768px) {
-    body{
-        border-radius: 0px;
+    .layout-principal {
+        display: flex;
+        min-height: 100vh;
     }
+    .content {
+        flex: 1;
+        padding: 20px;
+    }
+}
+
+/* DISEÑO PARA MÓVIL */
+@media (max-width: 767px) {
     .layout-principal {
         flex-direction: column;
     }
     .content {
         padding: 10px;
     }
-}}
+}
