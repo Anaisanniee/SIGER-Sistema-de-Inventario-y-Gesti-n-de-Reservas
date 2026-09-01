@@ -1,5 +1,4 @@
 @extends('layouts.app') 
-@section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'false')
 @section('mostrarBusqueda', 'true')
 
@@ -50,7 +49,7 @@
 
 {{--- 3. FILTRO OVALADO DE RECURSOS ---}}
 <div class="filtro-rapido-contenedor">
-    @include('components.filtros.filtro-rapido', ['opciones' => ['bueno', 'reservable', 'en mantenimiento']])
+    @include('components.filtros.filtro-rapido', ['opciones' => ['Disponible', 'reservable', 'En mantenimiento']])
 </div>
 
 {{--- 4. CONTENEDOR PRINCIPAL DE TARJETAS ---}} 

@@ -1,5 +1,4 @@
 @extends('layouts.app') 
-@section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'false')
 @section('mostrarBusqueda', 'true')
 
@@ -29,7 +28,7 @@
 
 {{--- 3. FILTRO OVALADO DE RECURSOS ---}}
 <div class="filtro-rapido-contenedor">
-    @include('components.filtros.filtro-rapido', ['opciones' => ['bueno', 'reservable', 'en mantenimiento']])
+    @include('components.filtros.filtro-rapido', ['opciones' => ['Disponible', 'reservable']])
 </div>
 
 {{--- 4. CONTENEDOR PRINCIPAL DE TARJETAS ---}} 
@@ -47,21 +46,17 @@
                 $reservableActivo = isset($recurso->act_reservable) ? strtolower(trim($recurso->act_reservable)) : '';
 
                 if ($estadoActivo == 'buen estado' || $estadoActivo == 'bueno') {
-                    $tagsActivo[] = 'bueno'; 
+                    $tagsActivo[] = 'Disponible'; 
                 } 
 
                 if ($estadoActivo == 'buen estado' || $estadoActivo == 'excelente') {
-                    $tagsActivo[] = 'bueno'; 
+                    $tagsActivo[] = 'Disponible'; 
                 } 
 
                 if ($estadoActivo == 'buen estado' || $estadoActivo == 'regular') {
-                    $tagsActivo[] = 'bueno'; 
+                    $tagsActivo[] = 'Disponible'; 
                 } 
                 
-                if ($estadoActivo == 'malo' || $estadoActivo == 'malo') {
-                    $tagsActivo[] = 'en-mantenimiento'; 
-                }
-
                 if ($reservableActivo == 'true' || $recurso->act_reservable === true || $recurso->act_reservable == 1) {
                     $tagsActivo[] = 'reservable';
                 }
