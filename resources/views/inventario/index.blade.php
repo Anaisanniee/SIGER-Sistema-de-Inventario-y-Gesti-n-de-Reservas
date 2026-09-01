@@ -2,7 +2,7 @@
 
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', route('dashboard.secretario'))
+@section('rutaRegresar', route('dashboard.secretaria'))
 
 @section('content')
 
