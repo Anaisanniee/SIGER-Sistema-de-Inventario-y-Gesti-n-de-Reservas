@@ -35,7 +35,7 @@
         </x-botones.boton>
     </div>
 
-    <x-filtros.filtro-fecha-estado action="#" />
+    <x-filtros.filtro-fecha-estado action="{{ route('secretaria.informe') }}" />
 
     <div class="reporte-contenedor-principal">
         <div class="reporte-barra-info">

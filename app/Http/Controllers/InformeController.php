@@ -12,30 +12,66 @@ class InformeController extends Controller
      */
     public function index(Request $request)
     {
+        $reservas = $this->obtenerReservasFiltradas($request);
+        $totalRegistros = $reservas->count();
+
+        return view('informes.reservas', compact('reservas', 'totalRegistros'));
+    }
+
+    /**
+     * Método dedicado a construir la consulta y aplicar los filtros.
+     */
+    private function obtenerReservasFiltradas(Request $request)
+    {
         // Iniciamos la consulta cargando las relaciones necesarias
         $query = ReservasModels::with(['detalles.activo', 'detalles.aula', 'usuario']);
 
-        // Filtro por Estado
+        $this->aplicarFiltroEstado($query, $request);
+        $this->aplicarFiltroFechas($query, $request);
+
+        // Obtenemos todos los registros ordenados del más reciente al más antiguo
+        return $query->latest('res_id')->get();
+    }
+
+    /**
+     * Aplica el filtro por estado de manera segura.
+     */
+    private function aplicarFiltroEstado($query, Request $request)
+    {
         if ($request->filled('estado')) {
-            $query->where('res_estado_reserva', $request->estado);
+            $estado = strtolower(trim($request->estado));
+            if ($estado !== 'todos') {
+                $query->whereRaw("LOWER(TRIM(res_estado_reserva)) = ?", [$estado]);
+            }
         }
+    }
 
-        // Filtro por Fecha Desde
-        if ($request->filled('fecha_desde')) {
-            $query->whereDate('created_at', '>=', $request->fecha_desde);
+    /**
+     * Aplica los filtros de fecha desde y fecha hasta basados en los detalles de reserva.
+     */
+    private function aplicarFiltroFechas($query, Request $request)
+    {
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin = $request->input('fecha_fin');
+
+        // Si se seleccionó solo la "Fecha Inicio" pero NO la "Fecha Fin"
+        if (!empty($fechaInicio) && empty($fechaFin)) {
+            $query->whereHas('detalles', function($q) use ($fechaInicio) {
+                $q->whereDate('det_re_fecha_ini', $fechaInicio);
+            });
         }
-
-        // Filtro por Fecha Hasta
-        if ($request->filled('fecha_hasta')) {
-            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        // Si se seleccionó solo la "Fecha Fin" pero NO la "Fecha Inicio"
+        elseif (empty($fechaInicio) && !empty($fechaFin)) {
+            $query->whereHas('detalles', function($q) use ($fechaFin) {
+                $q->whereDate('det_re_fecha_fin', '<=', $fechaFin);
+            });
         }
-
-        // Obtenemos los registros paginados (o puedes usar get() si prefieres mostrarlos todos de una)
-        $reservas = $query->latest()->paginate(10)->appends($request->query());
-        
-        $totalRegistros = $reservas->total();
-
-        // Retornamos la vista (ajusta la ruta de la vista si es 'informes.reservas' o 'secretaria.informe')
-        return view('informes.reservas', compact('reservas', 'totalRegistros'));
+        // Si se seleccionaron AMBAS (es un rango completo)
+        elseif (!empty($fechaInicio) && !empty($fechaFin)) {
+            $query->whereHas('detalles', function($q) use ($fechaInicio, $fechaFin) {
+                $q->whereDate('det_re_fecha_ini', '>=', $fechaInicio)
+                  ->whereDate('det_re_fecha_fin', '<=', $fechaFin);
+            });
+        }
     }
 }

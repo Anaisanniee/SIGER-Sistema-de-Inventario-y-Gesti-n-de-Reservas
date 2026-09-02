@@ -264,57 +264,60 @@ class ReservasControllers extends Controller
         $idsActivos = $datosReserva['ids_activos'] ?? [];
         $idsAulas = $datosReserva['ids_aulas'] ?? [];
 
-        // Rescate inteligente si el aula viene en 'aula_uso' o en los objetos
+        $aulaExplícitaEnCarrito = false;
+
         if (empty($idsAulas)) {
-            if (!empty($datosReserva['aula_uso'])) {
-                $aulaUsoInput = $datosReserva['aula_uso'];
-                if (is_numeric($aulaUsoInput)) {
-                    $idsAulas[] = (int) $aulaUsoInput;
-                } else {
-                    $aulaObj = AulasModels::where('aula_nombre', 'LIKE', '%' . trim($aulaUsoInput) . '%')->first();
-                    if ($aulaObj) {
-                        $idsAulas[] = $aulaObj->aula_id;
-                    }
-                }
-            } elseif (isset($datosReserva['recursos_objetos'])) {
+            if (isset($datosReserva['recursos_objetos'])) {
                 foreach ($datosReserva['recursos_objetos'] as $rec) {
-                    if (isset($rec->tipo_recurso_real) && $rec->tipo_recurso_real === 'aula') {
-                        $idsAulas[] = $rec->aula_id;
+                    $recObj = (object)$rec;
+                    if (isset($recObj->tipo_recurso_real) && $recObj->tipo_recurso_real === 'aula') {
+                        $idsAulas[] = $recObj->aula_id ?? $recObj->id;
+                        $aulaExplícitaEnCarrito = true;
                     }
                 }
             }
+        } else {
+            $aulaExplícitaEnCarrito = true;
         }
 
         $idsAulas = array_unique(array_filter($idsAulas));
 
-        if (empty($datosReserva) || (empty($idsActivos) && empty($idsAulas))) {
-            return redirect()->route('dashboard.docente')->with('error', 'No hay datos de reserva en proceso. Por favor, comience de nuevo.');
-        }
-
         $aulaIdReal = null;
-        if (!empty($idsAulas)) {
-            $aulaIdReal = $idsAulas[0];
-        } else {
-            $aulaIngresada = $datosReserva['aula_uso'] ?? null;
-            if (!empty($aulaIngresada)) {
-                if (is_numeric($aulaIngresada)) {
-                    $aulaObj = AulasModels::where('aula_id', $aulaIngresada)->first();
-                    if ($aulaObj) {
-                        $aulaIdReal = $aulaObj->aula_id;
-                    }
+        $aulaIngresada = $datosReserva['aula_uso'] ?? null;
+        
+        if (!empty($aulaIngresada)) {
+            if (is_numeric($aulaIngresada)) {
+                $aulaObj = AulasModels::where('aula_id', $aulaIngresada)->first();
+                if ($aulaObj) {
+                    $aulaIdReal = $aulaObj->aula_id;
                 }
-                if (!$aulaIdReal) {
-                    $aulaObj = AulasModels::where('aula_nombre', 'LIKE', '%' . trim($aulaIngresada) . '%')->first();
-                    if ($aulaObj) {
-                        $aulaIdReal = $aulaObj->aula_id;
-                    }
+            } else {
+                $aulaObj = AulasModels::where('aula_nombre', 'LIKE', '%' . trim($aulaIngresada) . '%')->first();
+                if ($aulaObj) {
+                    $aulaIdReal = $aulaObj->aula_id;
                 }
             }
+        }
+
+        if (!$aulaIdReal && !empty($idsAulas)) {
+            $aulaIdReal = $idsAulas[0];
         }
 
         if (!$aulaIdReal) {
             $primeraAula = AulasModels::first();
             $aulaIdReal = $primeraAula ? $primeraAula->aula_id : 3;
+        }
+
+        $user = auth()->user();
+        $rolUser = strtolower($user->rol ?? $user->role ?? $user->tipo_usuario ?? '');
+        
+        $dashboardRoute = 'dashboard.docente';
+        if (str_contains($rolUser, 'rector')) {
+            $dashboardRoute = \Route::has('dashboard.rectora') ? 'dashboard.rectora' : 'dashboard.docente';
+        }
+
+        if (empty($datosReserva) || (empty($idsActivos) && empty($idsAulas) && empty($aulaIdReal))) {
+            return redirect()->route($dashboardRoute)->with('error', 'No hay datos de reserva en proceso. Por favor, comience de nuevo.');
         }
 
         $fechaInicio = $datosReserva['res_fecha_inicio'] ?? now();
@@ -354,14 +357,14 @@ class ReservasControllers extends Controller
             }
         }
 
-        // 2. Revisar conflictos en aulas (Buscando tanto en aula_id como en det_re_aula_destino_act)
-        if (!empty($idsAulas)) {
+        // 2. Revisar conflictos en aulas
+        if (!empty($idsAulas) && $aulaExplícitaEnCarrito) {
             $conflictosAulas = DetallesReservasModels::whereHas('reserva', function($query) {
                     $query->whereIn('res_estado_reserva', ['Pendiente', 'Aprobada', 'pendiente', 'aprobada']);
                 })
                 ->where(function($q) use ($idsAulas) {
                     $q->whereIn('aula_id', $idsAulas)
-                      ->orWhereIn('det_re_aula_destino_act', $idsAulas);
+                    ->orWhereIn('det_re_aula_destino_act', $idsAulas);
                 })
                 ->where('det_re_fecha_ini', '<', $fechaFin)
                 ->where('det_re_fecha_fin', '>', $fechaInicio)
@@ -378,7 +381,6 @@ class ReservasControllers extends Controller
             }
         }
 
-        // 3. Si hay conflictos, mostrar los nombres combinados en el mensaje de error
         if (!empty($recursosOcupadosNombres)) {
             $listaNombres = implode(', ', array_unique($recursosOcupadosNombres));
 
@@ -390,23 +392,27 @@ class ReservasControllers extends Controller
         }
 
         $reserva = ReservasModels::create([
-            'usu_id'             => auth()->id(),       // 👈 Toma directamente el ID del usuario autenticado
+            'usu_id'             => auth()->id(),      
             'res_estado_reserva' => 'Pendiente',
             'res_fecha_creacion' => now()->toDateString(),
             'res_motivo'         => $datosReserva['res_motivo'] ?? 'Sin motivo especificado',
         ]);
 
+        $aulaDestinoFinal = $aulaIdReal;
+
+        // 1. Guardar activos (siempre con su aula de destino, pero con aula_id en NULL para no fusionar líneas)
         foreach ($idsActivos as $idActivo) {
             DetallesReservasModels::create([
                 'res_id'                    => $reserva->res_id,
                 'act_id'                    => $idActivo, 
                 'det_re_fecha_ini'          => $fechaInicio, 
                 'det_re_fecha_fin'          => $fechaFin,      
-                'det_re_aula_destino_act'   => $aulaIdReal, 
+                'det_re_aula_destino_act'   => $aulaDestinoFinal, 
                 'aula_id'                   => null,   
             ]);
         }
 
+        // 2. Guardar aulas independientes o de reserva mixta en una línea aparte
         foreach ($idsAulas as $idAula) {
             DetallesReservasModels::create([
                 'res_id'                    => $reserva->res_id,
@@ -418,23 +424,35 @@ class ReservasControllers extends Controller
             ]);
         }
 
+        // Respaldo por si fue mixta pero el ID venía suelto en aula_uso y no en idsAulas directamente
+        if (empty($idsAulas) && $aulaExplícitaEnCarrito && $aulaIdReal && !empty($idsActivos)) {
+            DetallesReservasModels::create([
+                'res_id'                    => $reserva->res_id,
+                'act_id'                    => null, 
+                'det_re_fecha_ini'          => $fechaInicio, 
+                'det_re_fecha_fin'          => $fechaFin,      
+                'det_re_aula_destino_act'   => null, 
+                'aula_id'                   => $aulaIdReal, 
+            ]);
+        }
+
         session()->forget(['reserva', 'reserva_temp']);
 
-        return redirect()->route('dashboard.docente')->with('success', '¡Solicitud múltiple de reserva procesada con éxito! Quedará pendiente de aprobación.');
+        return redirect()->route($dashboardRoute)->with('success', '¡Solicitud de reserva procesada con éxito! Quedará pendiente de aprobación.');
     }
 
     public function indexSecretaria()
     {
-        $reservas = ReservasModels::with([
-                'usuario', 
-                'detalles.activo', 
-                'detalles.aula'    
-            ])
+        // Traemos todas las reservas de forma general para el calendario y pestañas de aprobadas/rechazadas
+        $reservas = ReservasModels::with(['usuario', 'detalles.activo', 'detalles.aula'])->orderBy('res_id', 'desc')->get();
+
+        // OBTENEMOS ESTRICTAMENTE LAS 10 MÁS RECIENTES QUE ESTÉN PENDIENTES
+        $pendientes = ReservasModels::with(['usuario', 'detalles.activo', 'detalles.aula'])
+            ->whereRaw("LOWER(TRIM(res_estado_reserva)) = 'pendiente'")
             ->orderBy('res_id', 'desc')
+            ->take(6) // <-- AQUÍ ESTÁ EL LÍMITE DE 10
             ->get();
 
-        // Usar strtolower y trim para asegurar que coincidan sin importar cómo estén guardadas en la BD
-        $pendientes = $reservas->filter(fn($r) => strtolower(trim($r->res_estado_reserva ?? '')) === 'pendiente');
         $aprobadas  = $reservas->filter(fn($r) => in_array(strtolower(trim($r->res_estado_reserva ?? '')), ['aprobada', 'aprobado']));
         $rechazadas = $reservas->filter(fn($r) => in_array(strtolower(trim($r->res_estado_reserva ?? '')), ['rechazada', 'rechazado']));
 
