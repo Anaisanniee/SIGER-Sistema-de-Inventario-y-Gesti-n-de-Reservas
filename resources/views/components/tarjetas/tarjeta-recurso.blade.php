@@ -33,7 +33,7 @@
         $esReservable = !in_array(strtolower(trim((string)$reservableRaw)), ['false', '0', 'no']);
     }
 
-    // Extraemos el estado físico o de aula
+// Extraemos el estado físico o de aula
     $estadoReal = $recurso->aula_estado 
         ?? $recurso->act_estado_fisico 
         ?? $recurso->estado 
@@ -41,16 +41,18 @@
 
     $estadoLimpio = strtolower(trim($estadoReal));
 
-    // Evaluación de la clase CSS y del texto a mostrar en la lucecita/badge
-    if (!$esReservable) {
-        // Si no es reservable, se fuerza la clase de bloqueado/dañado y se ajusta el texto
-        $claseEstado = 'badge-danado';
-        $textoBadge = 'No reservable';
+    // El badge SIEMPRE muestra el estado real para dar visibilidad a Rectora/Secretaria
+    $textoBadge = $estadoReal;
+
+    // Evaluamos el color de la lucecita/badge según el estado físico real
+    // Si no es reservable por configuración administrativa, también le damos color de alerta si está en buen estado
+    if (!$esReservable && !str_contains($estadoLimpio, 'manten') && !str_contains($estadoLimpio, 'daña')) {
+        $claseEstado = 'badge-danado'; // Muestra luz roja/bloqueada si fue desactivado manualmente
+        $textoBadge = $estadoReal . ' (No reservable)'; // Opcional: aclara entre paréntesis manteniendo el estado
     } else {
-        // Si es reservable, se mantiene su texto de estado real y se evalúa el color de la lucecita
-        $textoBadge = $estadoReal;
         $claseEstado = match (true) {
-            str_contains($estadoLimpio, 'manten') || 
+            str_contains($estadoLimpio, 'en mantenimiento') ||
+            str_contains($estadoLimpio, 'manten') ||  
             str_contains($estadoLimpio, 'amnten') || 
             str_contains($estadoLimpio, 'repara')  => 'badge-mantenimiento',
             
@@ -59,7 +61,7 @@
             str_contains($estadoLimpio, 'inactiv') => 'badge-danado',
 
             str_contains($estadoLimpio, 'buen') || 
-            str_contains($estadoLimpio, 'bun') => 'badge-reservado',
+            str_contains($estadoLimpio, 'bun')     => 'badge-reservado',
 
             str_contains($estadoLimpio, 'disponibl') || 
             str_contains($estadoLimpio, 'activ')   => 'badge-disponible',
@@ -68,8 +70,8 @@
         };
     }
 
-    // Determinamos si la reserva se bloquea (por estado físico o por la propiedad reservable)
-    $estadosBloqueados = ['malo', 'mantenimiento', 'en mantenimiento', 'dañado', 'inactivo'];
+    // Determinamos si la reserva se bloquea
+    $estadosBloqueados = ['malo', 'mantenimiento', 'en mantenimiento', 'dañado', 'inactivo', 'reparacion', 'en reparacion'];
     $estaBloqueado = !$esReservable || in_array($estadoLimpio, $estadosBloqueados);
 @endphp
 
@@ -103,7 +105,7 @@
 
             {{-- BOTÓN FICHA TÉCNICA --}}
             <x-botones.boton
-                class="btn btn-azul"
+                class="btn btn-ficha"
                 target="modalgeneral"
 
                 {{-- CONTROL --}}
@@ -165,9 +167,9 @@
 
                     @if($estaBloqueado)
                         {{-- Botón deshabilitado si el recurso no es reservable o está en mal estado --}}
-                        <button type="button" class="btn btn-secondary" disabled>
+                        <x-botones.boton class="btn btn-secondary" type="button" disabled>
                             <i class="bi bi-x-circle"></i> No disponible
-                        </button>
+                        </x-botones.boton>
                     @else
                         <x-botones.boton 
                             class="btn btn-primary" 

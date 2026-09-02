@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('mostrarPerfil', 'false')
 @section('mostrarBusqueda', 'false')
+@section('rutaRegresar', route('reservas.paso2')) 
 
 @section('content')
 @php
