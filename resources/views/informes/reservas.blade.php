@@ -2,6 +2,8 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
+@section('rutaRegresar', route('dashboard.secretaria')) 
+
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}?v={{ time() }}">

@@ -1,10 +1,28 @@
 @extends('layouts.app')
-
-@section('rutaRegresar', auth()->user()->role === 'docente' 
-    ? route('dashboard.docente', ['id' => auth()->id()]) 
-    : route('dashboard.rectora', ['id' => auth()->id()]))
 @section('mostrarPerfil', 'false')
 @section('mostrarBusqueda', 'false')
+@section('mostrarRegresar', 'true')
+
+@php
+    $user = auth()->user();
+    
+    $rolSlug = strtolower($user->role->slug ?? $user->rol->slug ?? $user->role ?? $user->rol ?? '');
+    $rolId   = $user->role_id ?? $user->rol_id ?? null;
+
+    $esDocente = ($rolSlug === 'docente' || $rolId == 3);
+    $esRector  = ($rolSlug === 'rector' || $rolSlug === 'rectora' || $rolId == 2);
+    $esSecretario = ($rolSlug === 'secretario' || $rolSlug === 'secretaria' || $rolId == 1);
+
+    $urlRegresar = $esDocente
+        ? route('dashboard.docente', ['id' => $user->id])
+        : ($esRector
+            ? route('dashboard.rectora', ['id' => $user->id])
+            : ($esSecretario
+                ? route('dashboard.secretaria')
+                : route('home')));
+@endphp
+
+@section('rutaRegresar', $urlRegresar)
 
 @section('content')
 @php

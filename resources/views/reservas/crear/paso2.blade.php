@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('mostrarPerfil', 'false')
 @section('mostrarBusqueda', 'false')
+@section('rutaRegresar', route('reservas.paso1')) 
 @section('content')
 @php
     $recursosBrutos = session('reserva.recursos_objetos', collect());

@@ -20,12 +20,6 @@
             <h2 class="titulo-pagina" style="color: var(--color-principal);"><i class="fas fa-calendar-alt"></i> Solicitudes de Reservas</h2>
             <p class="subtitulo-pagina">Consulta el estado detallado y el resumen completo de los recursos solicitados.</p>
         </div>
-        
-        <div class="acciones-rapidas-panel">
-            <x-botones.boton clase="btn-papelera" url="{{ url('/reservas/historial') }}">
-                <i class="fas fa-history" style="margin-right: 5px;"></i> Historial
-            </x-botones.boton>
-        </div>
     </div>
 
     <div class="contenedor-kpis">

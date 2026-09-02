@@ -1,33 +1,27 @@
 @extends('layouts.app')
-
 @section('mostrarBusqueda', 'false')
+@section('mostrarRegresar', 'true')
 
 @php
     $user = auth()->user();
     
-    // Se obtiene el slug o el id del rol según la estructura del backend
-    $rolSlug = strtolower($user->role->slug ?? $user->rol->slug ?? $user->role->name ?? $user->rol->nombre ?? '');
+    $rolSlug = strtolower($user->role->slug ?? $user->rol->slug ?? $user->role ?? $user->rol ?? '');
     $rolId   = $user->role_id ?? $user->rol_id ?? null;
 
-    // Evaluación de roles
     $esDocente = ($rolSlug === 'docente' || $rolId == 3);
     $esRector  = ($rolSlug === 'rector' || $rolSlug === 'rectora' || $rolId == 2);
-    $esSecretario = ($rolSlug === 'secretaria' || $rolSlug === 'secretario' || $rolId == 1);
+    $esSecretario = ($rolSlug === 'secretario' || $rolSlug === 'secretaria' || $rolId == 1);
 
-    // Asignación de ruta de retorno
-    if ($esDocente) {
-        $urlRegresar = route('dashboard.docente', ['id' => $user->id]);
-    } elseif ($esRector) {
-        $urlRegresar = route('dashboard.rectora', ['id' => $user->id]);
-    } elseif ($esSecretario) {
-        $urlRegresar = route('dashboard.secretaria');
-    } else {
-        $urlRegresar = route('home');
-    }
+    $urlRegresar = $esDocente
+        ? route('dashboard.docente', ['id' => $user->id])
+        : ($esRector
+            ? route('dashboard.rectora', ['id' => $user->id])
+            : ($esSecretario
+                ? route('dashboard.secretaria')
+                : route('home')));
 @endphp
 
 @section('rutaRegresar', $urlRegresar)
-
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/index-noti.css') }}">

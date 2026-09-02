@@ -82,6 +82,7 @@
     border: 1px solid #d1d5db;
 }
 
+
 /* --- DISEÑO PARA MÓVIL (Hasta 768px) --- */
 @media (max-width: 768px) {
     .container-tarjetas {
