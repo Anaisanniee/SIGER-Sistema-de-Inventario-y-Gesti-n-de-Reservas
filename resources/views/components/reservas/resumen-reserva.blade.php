@@ -8,17 +8,17 @@
     $reservaValida = $reserva ?? new \stdClass();
 
     $usuario = $reservaValida->usuario ?? null;
-    $nombres = trim(($usuario->USU_PRIMER_NOMBRE ?? '') . ' ' . ($usuario->USU_SEGUNDO_NOMBRE ?? ''));
-    $apellidos = trim(($usuario->USU_PRIMER_APELLIDO ?? '') . ' ' . ($usuario->USU_SEG_APELLIDO ?? ''));
+    $nombres = is_object($usuario) ? ($usuario->nombres ?? trim(($usuario->USU_PRIMER_NOMBRE ?? '') . ' ' . ($usuario->USU_SEGUNDO_NOMBRE ?? ''))) : 'Docente Solicitante';
+    $apellidos = is_object($usuario) ? ($usuario->apellidos ?? trim(($usuario->USU_PRIMER_APELLIDO ?? '') . ' ' . ($usuario->USU_SEG_APELLIDO ?? ''))) : '';
     $nombreSolicitante = trim($nombres . ' ' . $apellidos) ?: ($usuario->name ?? 'Docente Solicitante');
 
-    $identificacionUsuario = $usuario->USU_CEDULA ?? ($usuario->identificacion ?? ($usuario->cedula ?? 'N/A'));
-    $emailUsuario = $usuario->USU_CORREO ?? ($usuario->email ?? 'correo@colegio.edu.co');
+    $identificacionUsuario = is_object($usuario) ? ($usuario->identificacion ?? ($usuario->cedula ?? ($usuario->USU_CEDULA ?? 'N/A'))) : 'N/A';
+    $emailUsuario = is_object($usuario) ? ($usuario->email ?? ($usuario->USU_CORREO ?? 'correo@colegio.edu.co')) : 'correo@colegio.edu.co';
 
     $detalles = isset($reservaValida->detalles) ? $reservaValida->detalles : collect();
     $primerDetalle = $detalles->first() ?? null;
 
-    $rawFechaIni = optional($primerDetalle)->det_re_fecha_ini ?? ($reservaValida->res_fecha_reserva ?? null);
+    $rawFechaIni = optional($primerDetalle)->det_re_fecha_ini ?? ($reservaValida->res_fecha_inicio ?? ($reservaValida->res_fecha_reserva ?? null));
     $rawFechaFin = optional($primerDetalle)->det_re_fecha_fin ?? ($reservaValida->res_fecha_fin ?? null);
 
     $fechaInicio = $rawFechaIni ? \Carbon\Carbon::parse($rawFechaIni)->format('Y-m-d') : 'N/A';
@@ -29,60 +29,108 @@
 
     $motivoReserva = $reservaValida->res_motivo ?? ($reservaValida->motivo ?? 'Desarrollo de clase práctica y actividades pedagógicas programadas.');
 
-    $esMultiple = $detalles->count() > 1;
-    $cantidadRecursos = $detalles->count();
-    
+    // Mapeo blindado: Detecta tanto objetos estructurados (Paso 3) como consultas directas de BD (Historial/Secretaría)
+    $listaRecursos = $detalles->map(function($det) {
+        $detObj = (object)$det;
+
+        // Caso A: Viene estructurado desde el Paso 3
+        if (isset($detObj->activo) && $detObj->activo) {
+            $act = (object)$detObj->activo;
+            return (object)[
+                'tipo'            => 'activo',
+                'nombre'          => $act->act_nombre ?? $act->nombre ?? 'Recurso',
+                'serialCapacidad' => $act->act_serial ?? $act->serial ?? 'Sin Serial',
+                'marcaCategoria'  => $act->act_marca ?? $act->marca ?? 'N/A',
+                'imagen'          => $act->act_foto ?? $act->foto ?? null
+            ];
+        }
+        
+        if (isset($detObj->aula) && $detObj->aula) {
+            $aul = (object)$detObj->aula;
+            return (object)[
+                'tipo'            => 'aula',
+                'nombre'          => $aul->aula_nombre ?? $aul->nombre ?? 'Salón',
+                'serialCapacidad' => $aul->aula_capacidad ?? $aul->capacidad ?? 'N/A',
+                'marcaCategoria'  => 'Espacio Institucional',
+                'imagen'          => $aul->aula_foto ?? $aul->foto ?? null
+            ];
+        }
+
+        // Caso B: Viene directo de la Base de Datos (Historial / Secretaría)
+        $activoId = $detObj->act_id ?? $detObj->activo_id ?? $detObj->id_activo ?? null;
+        if (!empty($activoId)) {
+            $activoDb = \DB::table('activos')->where('act_id', $activoId)->first() 
+                        ?? \DB::table('activos')->where('id', $activoId)->first();
+
+            return (object)[
+                'tipo'            => 'activo',
+                'nombre'          => $activoDb->act_nombre ?? $activoDb->nombre ?? ('Activo #' . $activoId),
+                'serialCapacidad' => $activoDb->act_serial ?? $activoDb->serial ?? 'N/A',
+                'marcaCategoria'  => $activoDb->act_marca ?? $activoDb->marca ?? 'N/A',
+                'imagen'          => $activoDb->act_foto ?? $activoDb->foto ?? null
+            ];
+        } else {
+            $aulaId = $detObj->det_re_aula_destino_act ?? $detObj->aula_id ?? $detObj->id_aula ?? null;
+            $aulaDb = null;
+            if (!empty($aulaId)) {
+                $aulaDb = \DB::table('aulas')->where('aula_id', $aulaId)->first() 
+                          ?? \DB::table('aulas')->where('id', $aulaId)->first();
+            }
+
+            return (object)[
+                'tipo'            => 'aula',
+                'nombre'          => $aulaDb->aula_nombre ?? $aulaDb->nombre ?? ('Aula Destino #' . ($aulaId ?? 'General')),
+                'serialCapacidad' => $aulaDb->aula_capacidad ?? $aulaDb->capacidad ?? 'N/A',
+                'marcaCategoria'  => 'Espacio Institucional',
+                'imagen'          => $aulaDb->aula_foto ?? $aulaDb->foto ?? null
+            ];
+        }
+    })->filter()->values();
+
+    $cantidadRecursos = $listaRecursos->count();
+    $esMultiple = $cantidadRecursos > 1;
+
     // Recuperar ubicación de destino correctamente
     $aulaUso = 'N/A';
     if ($primerDetalle) {
-        if (isset($primerDetalle->aula) && $primerDetalle->aula) {
-            $aulaUso = $primerDetalle->aula->aula_nombre ?? 'N/A';
+        if (isset($primerDetalle->aula) && is_object($primerDetalle->aula)) {
+            $aulaUso = $primerDetalle->aula->aula_nombre ?? $primerDetalle->aula->nombre ?? 'N/A';
         } else {
             $aulaIdUbicacion = $primerDetalle->det_re_aula_destino_act ?? $primerDetalle->aula_id ?? null;
             if ($aulaIdUbicacion) {
-                $dbAulaUbicacion = \DB::table('aulas')->where('aula_id', $aulaIdUbicacion)->first();
-                $aulaUso = $dbAulaUbicacion->aula_nombre ?? $aulaIdUbicacion;
+                $dbAulaUbicacion = \DB::table('aulas')->where('aula_id', $aulaIdUbicacion)->first() 
+                                   ?? \DB::table('aulas')->where('id', $aulaIdUbicacion)->first();
+                $aulaUso = $dbAulaUbicacion->aula_nombre ?? $dbAulaUbicacion->nombre ?? $aulaIdUbicacion;
             }
         }
     }
 
-    $listaRecursos = $detalles->map(function($det) {
-        // Validar si el detalle tiene un activo asociado de manera estricta
-        $activoId = $det->act_id ?? null;
-        $activoRel = $det->relationLoaded('activo') ? $det->activo : null;
-        
-        if ($activoId) {
-            $activoDb = \DB::table('activos')->where('act_id', $activoId)->first();
-            $nombreActivo = $activoDb->act_nombre ?? ('Activo #' . $activoId);
-            $serialActivo = $activoDb->act_serial ?? 'N/A';
-            $marcaActivo  = $activoDb->act_marca ?? 'N/A';
-            $fotoActivo   = $activoDb->act_foto ?? null;
-
-            return (object)[
-                'tipo'            => 'activo',
-                'nombre'          => $nombreActivo,
-                'serialCapacidad' => 'Número de serie: ' . $serialActivo,
-                'marcaCategoria'  => $marcaActivo,
-                'imagen'          => $fotoActivo
+    // JSON seguro para el modal interactivo
+    $datosModalArray = [
+        'id'             => $reservaValida->res_id ?? $reservaValida->id ?? '',
+        'titulo'         => 'Detalles de la Reserva #' . ($reservaValida->res_id ?? $reservaValida->id ?? ''),
+        'solicitante'    => $nombreSolicitante,
+        'identificacion' => $identificacionUsuario,
+        'email'          => $emailUsuario,
+        'motivo'         => $motivoReserva,
+        'fechaInicio'    => $fechaInicio,
+        'horaInicio'     => $horaInicio,
+        'fechaFin'       => $fechaFin,
+        'horaFin'        => $horaFin,
+        'aula'           => $aulaUso,
+        'estado'         => $reservaValida->res_estado ?? $reservaValida->estado ?? 'pendiente',
+        'recursos'       => $listaRecursos->map(function($rec) {
+            return [
+                'nombre'  => $rec->nombre,
+                'serial'  => $rec->serialCapacidad,
+                'marca'   => $rec->marcaCategoria,
+                'foto'    => !empty($rec->imagen) ? asset('storage/' . $rec->imagen) : asset('images/default-resource.png'),
+                'es_aula' => $rec->tipo === 'aula'
             ];
-        } else {
-            // Es un Aula / Espacio Institucional
-            $aulaId = $det->aula_id ?? $det->det_re_aula_destino_act ?? null;
-            $aulaDb = $aulaId ? \DB::table('aulas')->where('aula_id', $aulaId)->first() : null;
+        })->toArray()
+    ];
 
-            $nombreAula = $aulaDb->aula_nombre ?? ('Aula #' . ($aulaId ?? 'General'));
-            $capacidadAula = $aulaDb->aula_capacidad ?? null;
-            $fotoAula = $aulaDb->aula_foto ?? null;
-
-            return (object)[
-                'tipo'            => 'aula',
-                'nombre'          => $nombreAula,
-                'serialCapacidad' => $capacidadAula ? 'Capacidad: ' . $capacidadAula . ' personas' : 'Salón / Aula',
-                'marcaCategoria'  => 'Espacio Institucional',
-                'imagen'          => $fotoAula
-            ];
-        }
-    })->toArray();
+    $jsonModalReserva = json_encode($datosModalArray, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 @endphp
 
 <style>
@@ -104,7 +152,7 @@
     }
 </style>
 
-<div class="tarjeta-reserva-siger overflow-hidden rounded-4 border shadow-sm bg-white">
+<div class="tarjeta-reserva-siger overflow-hidden rounded-4 border shadow-sm bg-white" data-reserva='{!! $jsonModalReserva !!}'>
     <div class="px-4 py-2" style="background-color: #d1fae5; border-bottom: 1px solid #a7f3d0;">
         <span class="text-success fw-semibold small">Capacidad: {{ $aulaUso !== 'N/A' ? $aulaUso : 'N/A' }}</span>
     </div>
@@ -127,7 +175,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6" id="resumen-bloque-recurso">
                 <div class="p-3 h-100 border rounded-3 bg-white shadow-sm">
                     <h6 class="fw-bold text-dark mb-3">Recursos Seleccionados ({{ $cantidadRecursos }})</h6>
                     @if($esMultiple)
@@ -149,7 +197,7 @@
                                             <div class="overflow-hidden">
                                                 <h6 class="fw-bold text-dark mb-1 text-truncate small">{{ $rec->nombre }}</h6>
                                                 <p class="text-muted mb-0" style="font-size: 0.72rem; line-height: 1.2;">
-                                                    <span class="d-block">{{ $rec->serialCapacidad }}</span>
+                                                    <span class="d-block">{{ $rec->tipo === 'activo' ? 'Número de serie: ' : 'Capacidad: ' }}{{ $rec->serialCapacidad }}</span>
                                                     <span class="d-block">{{ $rec->marcaCategoria }}</span>
                                                 </p>
                                             </div>

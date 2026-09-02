@@ -128,7 +128,7 @@ Route::middleware('auth')->group(function () {
             return view('dashboard.secretario');
         })->name('dashboard.secretaria');
 
-        Route::get('/dashboard/secretaria-alias', function () {
+        Route::get('/dashboard/secretaria.', function () {
             return view('dashboard.secretario');
         })->name('dashboard.secretario');
     });

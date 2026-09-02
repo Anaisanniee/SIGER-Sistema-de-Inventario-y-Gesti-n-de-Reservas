@@ -72,10 +72,13 @@
                 'activo' => !$esAulaItem ? (object)[
                     'act_nombre' => $itemObj->act_nombre ?? $itemObj->nombre ?? 'Recurso',
                     'act_serial' => $itemObj->act_serial ?? $itemObj->serial ?? 'Sin Serial',
-                    'act_marca'  => $itemObj->act_marca ?? $itemObj->marca ?? 'N/A'
+                    'act_marca'  => $itemObj->act_marca ?? $itemObj->marca ?? 'N/A',
+                    'act_foto'   => $itemObj->act_foto ?? $itemObj->foto ?? null
                 ] : null,
                 'aula' => $esAulaItem ? (object)[
-                    'aula_nombre' => $itemObj->aula_nombre ?? $itemObj->nombre ?? $itemObj->act_nombre ?? 'Salón'
+                    'aula_nombre'    => $itemObj->aula_nombre ?? $itemObj->nombre ?? $itemObj->act_nombre ?? 'Salón',
+                    'aula_capacidad' => $itemObj->aula_capacidad ?? $itemObj->capacidad ?? 'N/A',
+                    'aula_foto'      => $itemObj->aula_foto ?? $itemObj->foto ?? null
                 ] : null
             ];
         }
@@ -86,11 +89,14 @@
             'act_id' => $recurso->act_id ?? null,
             'activo' => !$esAulaUnica ? (object)[
                 'act_nombre' => $recurso->act_nombre ?? $recurso->nombres ?? 'Recurso',
-                    'act_serial' => $recurso->act_serial ?? $recurso->serial ?? 'Sin Serial',
-                    'act_marca'  => $recurso->act_marca ?? $recurso->marca ?? 'N/A'
+                'act_serial' => $recurso->act_serial ?? $recurso->serial ?? 'Sin Serial',
+                'act_marca'  => $recurso->act_marca ?? $recurso->marca ?? 'N/A',
+                'act_foto'   => $recurso->act_foto ?? $recurso->foto ?? null
             ] : null,
             'aula' => $esAulaUnica ? (object)[
-                'aula_nombre' => $recurso->aula_nombre ?? $recurso->nombres ?? 'Salón'
+                'aula_nombre'    => $recurso->aula_nombre ?? $recurso->nombres ?? 'Salón',
+                'aula_capacidad' => $recurso->aula_capacidad ?? $recurso->capacidad ?? 'N/A',
+                'aula_foto'      => $recurso->aula_foto ?? $recurso->foto ?? null
             ] : null
         ];
     }

@@ -47,53 +47,57 @@
                 {{-- FUNCIONES AUXILIARES Y DE MAPEO DE TARJETAS --}}
                 @php
                     $generarHtmlTarjeta = function($reserva) {
-                        $totalDetalles = $reserva->detalles->count();
+                        $detalles = $reserva->detalles ?? ($reserva->detalleReservas ?? collect());
+                        $totalDetalles = $detalles->count();
                         $esMultiple = $totalDetalles > 1;
-                        $primerDetalle = $reserva->detalles->first();
+                        $primerDetalle = $detalles->first();
 
-                        // Mapeo independiente por cada detalle priorizando el Activo si existe
-                        $listaRecursosMultiples = $reserva->detalles->map(function($det) {
-                            if (!empty($det->act_id)) {
-                                $activoObj = $det->activo ?? \App\Models\ActivosModels::find($det->act_id);
-                                if ($activoObj) {
-                                    $rutaBdActivo = $activoObj->act_foto ?? $activoObj->foto ?? null;
-                                    $fotoActivo = !empty($rutaBdActivo)
-                                        ? (str_starts_with($rutaBdActivo, 'http') ? $rutaBdActivo : (str_starts_with($rutaBdActivo, 'storage/') ? asset($rutaBdActivo) : asset('storage/' . $rutaBdActivo)))
-                                        : asset('storage/images/activos/default.jpeg');
+                        // Mapeo seguro y exhaustivo por cada detalle para activos o aulas
+                        $listaRecursosMultiples = $detalles->map(function($det) {
+                            // 1. Intentar capturar Activo por ID (soporta múltiples nombres de columnas posibles)
+                            $actId = $det->act_id ?? $det->activo_id ?? $det->id_activo ?? null;
+                            $activoObj = $det->activo ?? (!empty($actId) ? \App\Models\ActivosModels::find($actId) : null);
 
-                                    return (object)[
-                                        'es_aula' => false,
-                                        'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
-                                        'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
-                                        'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
-                                        'foto'   => $fotoActivo
-                                    ];
-                                }
+                            if ($activoObj) {
+                                $rutaBdActivo = $activoObj->act_foto ?? $activoObj->foto ?? $activoObj->imagen ?? null;
+                                $fotoActivo = !empty($rutaBdActivo)
+                                    ? (str_starts_with($rutaBdActivo, 'http') ? $rutaBdActivo : (str_starts_with($rutaBdActivo, 'storage/') ? asset($rutaBdActivo) : asset('storage/' . $rutaBdActivo)))
+                                    : asset('storage/images/activos/default.jpeg');
+
+                                return (object)[
+                                    'es_aula' => false,
+                                    'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
+                                    'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
+                                    'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
+                                    'foto'   => $fotoActivo
+                                ];
                             }
 
-                            if (!empty($det->aula_id)) {
-                                $aulaObj = $det->aula ?? \App\Models\AulasModels::find($det->aula_id);
-                                if ($aulaObj) {
-                                    $rutaBdAula = $aulaObj->aula_foto ?? $aulaObj->foto ?? null;
-                                    $fotoAula = !empty($rutaBdAula) 
-                                        ? (str_starts_with($rutaBdAula, 'http') ? $rutaBdAula : (str_starts_with($rutaBdAula, 'storage/') ? asset($rutaBdAula) : asset('storage/' . $rutaBdAula)))
-                                        : asset('storage/images/aulas/default.jpeg');
+                            // 2. Intentar capturar Aula por ID (soporta múltiples nombres de columnas posibles)
+                            $aulaId = $det->aula_id ?? $det->id_aula ?? null;
+                            $aulaObj = $det->aula ?? (!empty($aulaId) ? \App\Models\AulasModels::find($aulaId) : null);
 
-                                    $capacidad = $aulaObj->aula_capacidad ?? $aulaObj->capacidad ?? 'N/A';
+                            if ($aulaObj) {
+                                $rutaBdAula = $aulaObj->aula_foto ?? $aulaObj->foto ?? $aulaObj->imagen ?? null;
+                                $fotoAula = !empty($rutaBdAula) 
+                                    ? (str_starts_with($rutaBdAula, 'http') ? $rutaBdAula : (str_starts_with($rutaBdAula, 'storage/') ? asset($rutaBdAula) : asset('storage/' . $rutaBdAula)))
+                                    : asset('storage/images/aulas/default.jpeg');
 
-                                    return (object)[
-                                        'es_aula' => true,
-                                        'nombre' => $aulaObj->aula_nombre ?? $aulaObj->nombre ?? 'Aula sin nombre',
-                                        'serial' => $capacidad,
-                                        'marca'  => 'Salón / Aula',
-                                        'foto'   => $fotoAula
-                                    ];
-                                }
+                                $capacidad = $aulaObj->aula_capacidad ?? $aulaObj->capacidad ?? 'N/A';
+
+                                return (object)[
+                                    'es_aula' => true,
+                                    'nombre' => $aulaObj->aula_nombre ?? $aulaObj->nombre ?? 'Aula sin nombre',
+                                    'serial' => $capacidad,
+                                    'marca'  => 'Salón / Aula',
+                                    'foto'   => $fotoAula
+                                ];
                             }
 
+                            // 3. Fallback en caso de que el detalle no tenga relación mapeada
                             return (object)[
                                 'es_aula' => false,
-                                'nombre' => 'Recurso General',
+                                'nombre' => $det->recurso_nombre ?? 'Recurso General',
                                 'serial' => 'N/A',
                                 'marca'  => 'N/A',
                                 'foto'   => asset('storage/images/activos/default.jpeg')
@@ -103,31 +107,30 @@
                         if ($esMultiple) {
                             $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
                         } else {
-                            $nombreRecurso = $listaRecursosMultiples[0]->nombre ?? 'Recurso General';
+                            $nombreRecurso = optional($listaRecursosMultiples->first())->nombre ?? 'Recurso General';
                         }
 
                         $ubicacion = 'N/A';
                         if ($primerDetalle) {
-                            if ($primerDetalle->aula) {
+                            if (isset($primerDetalle->aula) && $primerDetalle->aula) {
                                 $ubicacion = $primerDetalle->aula->aula_nombre ?? $primerDetalle->aula->nombre ?? 'N/A';
-                            } elseif (!empty($primerDetalle->aula_id)) {
-                                $aulaUbicacion = \App\Models\AulasModels::find($primerDetalle->aula_id);
-                                $ubicacion = $aulaUbicacion->aula_nombre ?? $aulaUbicacion->nombre ?? 'N/A';
+                            } else {
+                                $aulaIdUbicacion = $primerDetalle->aula_id ?? $primerDetalle->id_aula ?? null;
+                                if (!empty($aulaIdUbicacion)) {
+                                    $aulaUbicacion = \App\Models\AulasModels::find($aulaIdUbicacion);
+                                    $ubicacion = $aulaUbicacion->aula_nombre ?? $aulaUbicacion->nombre ?? 'N/A';
+                                }
                             }
                         }
 
-                        $fotoPrincipal = $esMultiple ? asset('storage/activos/multiple-default.png') : ($listaRecursosMultiples[0]->foto ?? asset('storage/images/activos/default.jpeg'));
+                        $fotoPrincipal = $esMultiple ? asset('storage/activos/multiple-default.png') : (optional($listaRecursosMultiples->first())->foto ?? asset('storage/images/activos/default.jpeg'));
                         
-                        // Extracción robusta de los datos del usuario / docente
                         $user = $reserva->usuario;
-                        
-                        // Extracción usando los campos reales del modelo User en mayúsculas
                         $primerNombre = $user->USU_PRIMER_NOMBRE ?? '';
                         $segundoNombre = $user->USU_SEGUNDO_NOMBRE ?? '';
                         $primerApellido = $user->USU_PRIMER_APELLIDO ?? '';
                         $segundoApellido = $user->USU_SEGUNDO_APELLIDO ?? '';
 
-                        // Armamos el nombre completo de manera limpia
                         $nombreCompleto = trim("{$primerNombre} {$segundoNombre} {$primerApellido} {$segundoApellido}");
                         $nombreUsuario = !empty($nombreCompleto) ? $nombreCompleto : ($user->name ?? 'Docente / Usuario');
 
@@ -155,6 +158,22 @@
                         ];
 
                         return [
+                            // Usamos json_encode con flags para escapar comillas dobles de forma segura para HTML
+                            'modal' => json_encode($datosReservaModal, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP),
+                            'id' => $reserva->res_id ?? $reserva->id,
+                            'foto' => $fotoPrincipal,
+                            'nombre' => $nombreRecurso,
+                            'estado' => $estadoReserva,
+                            'solicitante' => $nombreUsuario,
+                            'fecha' => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format('d \d\e F Y') : 'N/A',
+                            'horaInicio' => $fechaIni ? \Carbon\Carbon::parse($fechaIni)->format('H:i') : '08:00 AM',
+                            'horaFin' => $fechaFin ? \Carbon\Carbon::parse($fechaFin)->format('H:i') : '10:00 AM',
+                            'ubicacion' => $ubicacion,
+                            'esMultiple' => $esMultiple,
+                            'recursos' => $listaRecursosMultiples
+                        ];
+
+                        return [
                             'modal' => json_encode($datosReservaModal),
                             'id' => $reserva->res_id ?? $reserva->id,
                             'foto' => $fotoPrincipal,
@@ -170,9 +189,9 @@
                         ];
                     };
 
-                    $pendientes = $reservas->filter(fn($r) => strtolower($r->res_estado_reserva ?? 'pendiente') === 'pendiente');
-                    $aprobadas  = $reservas->filter(fn($r) => in_array(strtolower($r->res_estado_reserva ?? ''), ['aprobada', 'aprobado']));
-                    $rechazadas = $reservas->filter(fn($r) => in_array(strtolower($r->res_estado_reserva ?? ''), ['rechazada', 'rechazado']));
+                    //$pendientes = $reservas->filter(fn($r) => strtolower($r->res_estado_reserva ?? 'pendiente') === 'pendiente');
+                    //$aprobadas  = $reservas->filter(fn($r) => in_array(strtolower($r->res_estado_reserva ?? ''), ['aprobada', 'aprobado']));
+                    //$rechazadas = $reservas->filter(fn($r) => in_array(strtolower($r->res_estado_reserva ?? ''), ['rechazada', 'rechazado']));
                 @endphp
 
                 {{-- CONTENEDOR 1: PENDIENTES --}}
