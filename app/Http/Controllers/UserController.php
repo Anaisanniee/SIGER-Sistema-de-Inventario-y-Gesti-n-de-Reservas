@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\ReservasModels;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -78,21 +79,24 @@ class UserController extends Controller
     {
         $usuario = Auth::user();
         $rol = strtolower($usuario->role->name ?? '');
+        
+        // Calculamos las reservas pendientes en el sistema
+        $pendientesCount = \App\Models\ReservasModels::where('res_estado_reserva', 'pendiente')->count();
 
         if (in_array($rol, ['secretario', 'secretaria', 'secretaria general'])) {
-            return view('users.perfil.secretario', compact('usuario'));
+            return view('users.perfil.secretario', compact('usuario', 'pendientesCount'));
         }
 
         if (in_array($rol, ['rector', 'rectora'])) {
             if (view()->exists('users.perfil.rectora')) {
-                return view('users.perfil.rectora', compact('usuario'));
+                return view('users.perfil.rectora', compact('usuario', 'pendientesCount'));
             }
             if (view()->exists('users.perfil.rector')) {
-                return view('users.perfil.rector', compact('usuario'));
+                return view('users.perfil.rector', compact('usuario', 'pendientesCount'));
             }
         }
 
-        return view('users.perfil.perfil-usuario', compact('usuario'));
+        return view('users.perfil.perfil-usuario', compact('usuario', 'pendientesCount'));
     }
 
     /**

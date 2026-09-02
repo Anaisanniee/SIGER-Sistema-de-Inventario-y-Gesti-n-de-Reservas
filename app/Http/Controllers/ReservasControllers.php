@@ -6,6 +6,7 @@ use App\Models\AulasModels;
 use App\Models\ReservasModels;
 use App\Models\DetallesReservasModels;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -68,66 +69,32 @@ class ReservasControllers extends Controller
         return $recursos;
     }
 
+    /**
+     * Muestra el paso 1 (GET): Carga la vista con los recursos del carrito temporal del usuario.
+     */
     public function paso1(Request $request)
     {
-        $reservaTemp = session('reserva_temp');
+        $userId = Auth::id();
+        $sessionKey = 'reserva_temp_' . $userId;
+        $reservaTemp = session($sessionKey);
 
-        if (!$reservaTemp) {
+        if (!$reservaTemp || empty($reservaTemp['items'])) {
             return redirect()->route('dashboard.docente')
                 ->with('error', 'No hay recursos seleccionados para iniciar una reserva.');
         }
 
-        $idsActivos = [];
-        $idsAulas = [];
-
-        // 1. Extraemos los IDs de forma robusta soportando tanto 'id' como 'aula_id' o 'act_id'
-        if (!empty($reservaTemp['items']) && is_array($reservaTemp['items'])) {
-            foreach ($reservaTemp['items'] as $item) {
-                $tipoItem = $item['tipo'] ?? null;
-                
-                if ($tipoItem === 'aula') {
-                    $idItem = $item['aula_id'] ?? $item['id'] ?? null;
-                    if ($idItem !== null) {
-                        $idsAulas[] = $idItem;
-                    }
-                } else {
-                    $idItem = $item['act_id'] ?? $item['id'] ?? null;
-                    if ($idItem !== null) {
-                        $idsActivos[] = $idItem;
-                    }
-                }
-            }
-        } elseif (!empty($reservaTemp['ids']) && is_array($reservaTemp['ids'])) {
-            $idsActivos = $reservaTemp['ids'];
-        }
-
-        $idsActivos = array_unique($idsActivos);
-        $idsAulas = array_unique($idsAulas);
+        // Usamos tu método privado seguro
+        $separados = $this->extraerIdsSeguros($reservaTemp);
+        $idsActivos = $separados['activos'];
+        $idsAulas = $separados['aulas'];
 
         if (empty($idsActivos) && empty($idsAulas)) {
             return redirect()->route('dashboard.docente')
                 ->with('error', 'No hay recursos válidos seleccionados.');
         }
 
-        $recursos = collect();
-
-        // 2. Consultamos Activos de forma segura
-        if (!empty($idsActivos)) {
-            $activosEncontrados = ActivosModels::whereIn('act_id', $idsActivos)->get();
-            foreach ($activosEncontrados as $item) {
-                $item->tipo_recurso_real = 'activo';
-                $recursos->push($item);
-            }
-        }
-
-        // 3. Consultamos Aulas usando explícitamente 'aula_id' (la llave primaria de tu modelo)
-        if (!empty($idsAulas)) {
-            $aulasEncontradas = AulasModels::whereIn('aula_id', $idsAulas)->get();
-            foreach ($aulasEncontradas as $item) {
-                $item->tipo_recurso_real = 'aula';
-                $recursos->push($item);
-            }
-        }
+        // Usamos tu método privado para obtener la colección
+        $recursos = $this->obtenerRecursosColeccion($idsActivos, $idsAulas);
 
         if ($recursos->isEmpty()) {
             return redirect()->route('dashboard.docente')
@@ -139,25 +106,34 @@ class ReservasControllers extends Controller
         return view('reservas.crear.paso1', compact('recursos', 'tipoRecurso'));
     }
 
+    /**
+     * Procesa el formulario del paso 1 (POST): Guarda los datos para la siguiente vista (paso 2).
+     */
     public function postPaso1(Request $request)
     {
         if ($request->input('confirmacion_recurso') === 'no') {
             return redirect()->route('dashboard.docente')->with('info', 'Has cancelado la selección.');
         }
 
-        $reservaTemp = session('reserva_temp');
+        $userId = Auth::id();
+        $sessionKey = 'reserva_temp_' . $userId;
+        $reservaTemp = session($sessionKey);
 
         if (!$reservaTemp) {
             return redirect()->route('dashboard.docente')->with('error', 'No hay recursos seleccionados.');
         }
 
+        // Extraemos y consultamos reutilizando tus métodos privados
         $separados = $this->extraerIdsSeguros($reservaTemp);
-        $recursosObjetos = $this->obtenerRecursosColeccion($separados['activos'], $separados['aulas']);
+        $idsActivos = $separados['activos'];
+        $idsAulas = $separados['aulas'];
+
+        $recursosObjetos = $this->obtenerRecursosColeccion($idsActivos, $idsAulas);
         $tipoRecurso = $reservaTemp['tipo'] ?? 'activo';
 
-        // Guardamos los arreglos separados y objetos en la sesión principal de la reserva
-        $request->session()->put('reserva.ids_activos', $separados['activos']);
-        $request->session()->put('reserva.ids_aulas', $separados['aulas']);
+        // Guardamos todo en la sesión principal de la reserva para el paso 2
+        $request->session()->put('reserva.ids_activos', $idsActivos);
+        $request->session()->put('reserva.ids_aulas', $idsAulas);
         $request->session()->put('reserva.tipo_recurso', $tipoRecurso); 
         $request->session()->put('reserva.recursos_objetos', $recursosObjetos);
 
@@ -436,7 +412,8 @@ class ReservasControllers extends Controller
             ]);
         }
 
-        session()->forget(['reserva', 'reserva_temp']);
+        $userId = auth()->id();
+        session()->forget(['reserva', 'reserva_temp', 'reserva_temp_' . $userId]);
 
         return redirect()->route($dashboardRoute)->with('success', '¡Solicitud de reserva procesada con éxito! Quedará pendiente de aprobación.');
     }

@@ -5,11 +5,12 @@ use App\Models\ActivosModels;
 use App\Models\AulasModels;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // <-- Asegúrate de importar Auth
 
 class CarritoController extends Controller
 {
     /**
-     * Recibe los IDs seleccionados desde el componente del carrito y los guarda en sesión.
+     * Recibe los IDs seleccionados desde el componente del carrito y los guarda en sesión por usuario.
      */
     public function guardarSeleccionTemporal(Request $request)
     {
@@ -19,9 +20,13 @@ class CarritoController extends Controller
             return response()->json(['success' => false, 'message' => 'No hay items seleccionados.']);
         }
 
-        // Guardamos directamente los items estructurados por el carrito
+        // Creamos una clave única por cada usuario logueado
+        $userId = Auth::id();
+        $sessionKey = 'reserva_temp_' . $userId;
+
+        // Guardamos los items estructurados exclusivamente para este usuario
         session([
-            'reserva_temp' => [
+            $sessionKey => [
                 'items' => $items,
                 'tipo' => count($items) > 1 ? 'mixto' : ($items[0]['tipo'] ?? 'activo')
             ]
@@ -32,7 +37,10 @@ class CarritoController extends Controller
 
     public function paso1(Request $request)
     {
-        $reservaTemp = session('reserva_temp');
+        // Consultamos la sesión específica del usuario actual
+        $userId = Auth::id();
+        $sessionKey = 'reserva_temp_' . $userId;
+        $reservaTemp = session($sessionKey);
 
         if (!$reservaTemp || empty($reservaTemp['items'])) {
             return redirect()->route('dashboard.docente')

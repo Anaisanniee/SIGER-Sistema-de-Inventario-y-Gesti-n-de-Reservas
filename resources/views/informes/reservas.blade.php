@@ -30,7 +30,7 @@
             <p class="reporte-subtitulo">Consolidado institucional de solicitudes y préstamos de recursos</p>
         </div>
         
-        <x-botones.boton type="button" class="btn btn-siger-imprimir" onclick="window.print()">
+        <x-botones.boton type="button" class="btn btn-siger-imprimir" :url="route('informes.exportar', request()->all())">
             <i class="fas fa-file-excel me-2"></i> Exportar a Excel
         </x-botones.boton>
     </div>

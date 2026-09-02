@@ -120,8 +120,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/aulas/{id}', [AulasControllers::class, 'destroy'])->name('aulas.destroy');
         Route::post('/aulas/{id}/restore', [AulasControllers::class, 'restore'])->name('aulas.restore');
         Route::delete('/aulas/{id}/force-delete', [AulasControllers::class, 'forceDelete'])->name('aulas.forceDelete');
-
+        
+        // RUTAS DE INFORMES
         Route::get('/secretaria/informe', [InformeController::class, 'index'])->name('secretaria.informe');
+        Route::get('/informes/reservas/exportar', [InformeController::class, 'exportar'])->name('informes.exportar');
 
         // Dashboard Secretaría
         Route::get('/dashboard/secretaria', function () {
