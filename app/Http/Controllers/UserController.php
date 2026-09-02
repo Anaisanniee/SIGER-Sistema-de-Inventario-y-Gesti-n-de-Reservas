@@ -80,23 +80,31 @@ class UserController extends Controller
         $usuario = Auth::user();
         $rol = strtolower($usuario->role->name ?? '');
         
-        // Calculamos las reservas pendientes en el sistema
+        // 1. Conteo global para secretaría (reservas pendientes en todo el sistema)
         $pendientesCount = \App\Models\ReservasModels::where('res_estado_reserva', 'pendiente')->count();
+
+        // 2. Conteo específico para el usuario logueado (Reservas activas / aprobadas suyas)
+        // Ajusta 'user_id' o 'res_usuario_id' según el nombre exacto de la columna en tu tabla de reservas
+        $reservasActivasCount = \App\Models\ReservasModels::where('usu_id', $usuario->usu_id) 
+            ->where('res_estado_reserva', 'Aprobada') 
+            ->count();
 
         if (in_array($rol, ['secretario', 'secretaria', 'secretaria general'])) {
             return view('users.perfil.secretario', compact('usuario', 'pendientesCount'));
         }
 
         if (in_array($rol, ['rector', 'rectora'])) {
+            // Al rector también le puedes pasar el indicador si lo necesita en su tarjeta
             if (view()->exists('users.perfil.rectora')) {
-                return view('users.perfil.rectora', compact('usuario', 'pendientesCount'));
+                return view('users.perfil.rectora', compact('usuario', 'pendientesCount', 'reservasActivasCount'));
             }
             if (view()->exists('users.perfil.rector')) {
-                return view('users.perfil.rector', compact('usuario', 'pendientesCount'));
+                return view('users.perfil.rector', compact('usuario', 'pendientesCount', 'reservasActivasCount'));
             }
         }
 
-        return view('users.perfil.perfil-usuario', compact('usuario', 'pendientesCount'));
+        // Para el Docente y perfil general de usuario
+        return view('users.perfil.perfil-usuario', compact('usuario', 'pendientesCount', 'reservasActivasCount'));
     }
 
     /**

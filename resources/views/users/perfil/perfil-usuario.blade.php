@@ -36,7 +36,7 @@
         {{-- COLUMNA IZQUIERDA: AVATAR, DATOS Y ACCIONES --}}
         <aside class="perfil-columna-izquierda">
             <div class="avatar-wrapper">
-                <div class="avatar-circulo">
+                <div class="avatar-circulo" translate="no">
                     @auth
                         {{ strtoupper(substr($usuario->USU_PRIMER_NOMBRE, 0, 1) . substr($usuario->USU_PRIMER_APELLIDO ?? 'U', 0, 1)) }}
                     @else
@@ -63,7 +63,7 @@
                 </div>
                 <div class="item-lateral">
                     <span class="item-titulo">Reservas activas</span>
-                    <span class="item-valor badge-reserva">5</span>
+                    <span class="item-valor badge-reserva">{{ $reservasActivasCount ?? 0 }}</span>
                 </div>
             </div>
 

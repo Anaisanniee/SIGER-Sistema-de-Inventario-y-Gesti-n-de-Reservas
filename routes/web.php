@@ -121,9 +121,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/aulas/{id}/restore', [AulasControllers::class, 'restore'])->name('aulas.restore');
         Route::delete('/aulas/{id}/force-delete', [AulasControllers::class, 'forceDelete'])->name('aulas.forceDelete');
         
-        // RUTAS DE INFORMES
-        Route::get('/secretaria/informe', [InformeController::class, 'index'])->name('secretaria.informe');
-        Route::get('/informes/reservas/exportar', [InformeController::class, 'exportar'])->name('informes.exportar');
 
         // Dashboard Secretaría
         Route::get('/dashboard/secretaria', function () {
@@ -147,6 +144,14 @@ Route::middleware('auth')->group(function () {
     // -----------------------------------------------------
     Route::middleware(['auth', 'role:Docente'])->group(function () {
         Route::get('/dashboard/docente', [DashboardController::class, 'indexDocente'])->name('dashboard.docente');
+    });
+
+    // -----------------------------------------------------
+    // 📊 RUTAS DE INFORMES (Compartidas entre Secretaría y Rectoría)
+    // -----------------------------------------------------
+    Route::middleware('role:Secretaria,Secretario,Rectora,Rector')->group(function () {
+        Route::get('/secretaria/informe', [InformeController::class, 'index'])->name('secretaria.informe');
+        Route::get('/informes/reservas/exportar', [InformeController::class, 'exportar'])->name('informes.exportar');
     });
 });
 
