@@ -82,12 +82,13 @@
                     @php
                         $primerRecurso = $recursosColeccion->first();
                     @endphp
-                    <x-reservas.detalle-recurso 
-                        :tipoRecurso="$tipoSession ?? 'activo'"
-                        :recursoNombre="$primerRecurso->act_nombre ?? ($primerRecurso->aula_nombre ?? 'Recurso')"
-                        :serial="$primerRecurso->act_serial ?? 'Sin Serial'"
+                   <x-reservas.detalle-recurso 
+                        :tipoRecurso="$tipoRecurso ?? 'activo'"
+                        :recursoNombre="$primerRecurso->nombre ?? ($primerRecurso->aula_nombre ?? 'Recurso')"
+                        :serial="$primerRecurso->serial ?? 'Sin Serial'"
                         :marca="$primerRecurso->marca ?? 'N/A'"
-                        :recursos="$recursosColeccion" 
+                        :capacidad="$primerRecurso->aula_capacidad ?? ($primerRecurso->capacidad ?? 'N/A')"
+                        :recursos="$recursos" 
                     />
                 </div>
 

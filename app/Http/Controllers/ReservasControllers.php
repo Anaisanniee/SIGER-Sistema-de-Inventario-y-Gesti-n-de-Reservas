@@ -52,17 +52,30 @@ class ReservasControllers extends Controller
 
         if (!empty($idsActivos)) {
             $activosEncontrados = ActivosModels::whereIn('act_id', $idsActivos)->get();
-            foreach ($activosEncontrados as $item) {
-                $item->tipo_recurso_real = 'activo';
-                $recursos->push($item);
+            foreach ($activosEncontrados as $activo) {
+                $recursos->push([
+                    'tipo_recurso_real' => 'activo',
+                    'id' => $activo->act_id,
+                    'nombre' => $activo->act_nombre ?? 'Sin nombre',
+                    'serial' => $activo->act_serial ?? 'N/A',
+                    'marca' => $activo->act_marca ?? 'N/A',
+                    'estado' => $activo->act_estado_fisico ?? 'N/A'
+                ]);
             }
         }
 
         if (!empty($idsAulas)) {
             $aulasEncontradas = AulasModels::whereIn('aula_id', $idsAulas)->get();
-            foreach ($aulasEncontradas as $item) {
-                $item->tipo_recurso_real = 'aula';
-                $recursos->push($item);
+            foreach ($aulasEncontradas as $aula) {
+                $recursos->push([
+                    'tipo_recurso_real' => 'aula',
+                    'id' => $aula->aula_id,
+                    'nombre' => $aula->aula_nombre ?? 'Sin nombre',
+                    'serial' => 'N/A',
+                    'marca' => 'N/A',
+                    'capacidad' => $aula->aula_capacidad ?? $aula->capacidad ?? 'No especificada', // <--- ¡Añadido aquí!
+                    'estado' => $aula->aula_estado ?? 'Disponible'
+                ]);
             }
         }
 
@@ -83,7 +96,6 @@ class ReservasControllers extends Controller
                 ->with('error', 'No hay recursos seleccionados para iniciar una reserva.');
         }
 
-        // Usamos tu método privado seguro
         $separados = $this->extraerIdsSeguros($reservaTemp);
         $idsActivos = $separados['activos'];
         $idsAulas = $separados['aulas'];
@@ -93,7 +105,6 @@ class ReservasControllers extends Controller
                 ->with('error', 'No hay recursos válidos seleccionados.');
         }
 
-        // Usamos tu método privado para obtener la colección
         $recursos = $this->obtenerRecursosColeccion($idsActivos, $idsAulas);
 
         if ($recursos->isEmpty()) {
@@ -103,7 +114,17 @@ class ReservasControllers extends Controller
 
         $tipoRecurso = $reservaTemp['tipo'] ?? 'mixto';
 
-        return view('reservas.crear.paso1', compact('recursos', 'tipoRecurso'));
+        // Aseguramos explícitamente el primer recurso y convertimos a objeto por si viene como array
+        $primerRecurso = (object) $recursos->first();
+
+        // Parche seguro: Si es un aula y le falta la capacidad, la asignamos desde sus posibles variantes o un valor por defecto
+        if (isset($primerRecurso->tipo_recurso_real) && $primerRecurso->tipo_recurso_real === 'aula') {
+            if (!isset($primerRecurso->capacidad) || empty($primerRecurso->capacidad)) {
+                $primerRecurso->capacidad = $primerRecurso->aula_capacidad ?? $primerRecurso->capacidad_maxima ?? '30';
+            }
+        }
+
+        return view('reservas.crear.paso1', compact('recursos', 'tipoRecurso', 'primerRecurso'));
     }
 
     /**
@@ -142,9 +163,20 @@ class ReservasControllers extends Controller
 
     public function paso2(Request $request)
     {
-        $idsActivos = session('reserva.ids_activos', []);
-        $idsAulas = session('reserva.ids_aulas', []);
-        $tipoRecurso = session('reserva.tipo_recurso', 'activo');
+        $userId = Auth::id();
+        $sessionKey = 'reserva_temp_' . $userId;
+        $reservaTemp = session($sessionKey);
+
+        // Si no hay datos en la sesión temporal, redirigimos
+        if (!$reservaTemp || empty($reservaTemp['items'])) {
+            return redirect()->route('dashboard.docente')
+                ->with('error', 'No hay recursos seleccionados para iniciar una reserva.');
+        }
+
+        $separados = $this->extraerIdsSeguros($reservaTemp);
+        $idsActivos = $separados['activos'];
+        $idsAulas = $separados['aulas'];
+        $tipoRecurso = $reservaTemp['tipo'] ?? 'activo';
 
         $recursos = $this->obtenerRecursosColeccion($idsActivos, $idsAulas);
         $horasOcupadas = [];
@@ -173,7 +205,11 @@ class ReservasControllers extends Controller
 
         $aulas = AulasModels::all();
 
-        return view('reservas.crear.paso2', compact('recursos', 'tipoRecurso', 'aulas', 'horasOcupadas'));
+        // Aseguramos el primer recurso para que el componente no falle en el paso 2
+        $primerItem = $recursos->first();
+        $primerRecurso = $primerItem ? (object) $primerItem : null;
+
+        return view('reservas.crear.paso2', compact('recursos', 'tipoRecurso', 'aulas', 'horasOcupadas', 'primerRecurso'));
     }
 
     public function guardarPaso2(Request $request)
