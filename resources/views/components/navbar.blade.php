@@ -111,7 +111,7 @@
                     @php
                         $notificacionespage = Route::has('notificaciones.index') ? route('notificaciones.index') : 'notificaciones.index';
                     @endphp
-                    <a href="{{$notificacionespage}}" class="dropdown-item">
+                    <a href="{{ route('notificaciones') }}" class="dropdown-item">
                         <i class="fas fa-bell"></i> Mis Notificaciones
                     </a>
 

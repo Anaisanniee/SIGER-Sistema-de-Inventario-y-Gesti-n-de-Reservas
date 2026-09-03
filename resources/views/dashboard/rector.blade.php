@@ -19,7 +19,7 @@
     <h3 class="dashboard-subtitulo">Módulos Disponibles</h3>
     <div class="contenedor-accesos">
         <x-tarjetas.tarjeta-acceso-rapido 
-            href="#"
+            href="{{ route('informes.inventario') }}"
             icono="fas fa-boxes"
             claseAcceso="acceso-inventario"
             titulo="Informes Inventario"
@@ -27,7 +27,7 @@
         />
 
         <x-tarjetas.tarjeta-acceso-rapido 
-            href="#"
+            href="{{ route('secretaria.informe') }}"
             icono="fas fa-calendar-alt"
             claseAcceso="acceso-reservas"
             titulo="Informes Reservas"

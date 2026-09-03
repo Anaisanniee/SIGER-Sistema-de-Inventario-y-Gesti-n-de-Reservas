@@ -30,6 +30,7 @@
     <h2 class="mb-4">Mis Notificaciones</h2>
 
     <div class="list-group">
+        {{-- AQUÍ ESTÁ EL CAMBIO: Recorremos las notificaciones reales que vienen del controlador --}}
         @forelse($notificaciones as $notificacion)
             <x-alertas.tarjeta-notificacion :notificacion="$notificacion" />
         @empty
