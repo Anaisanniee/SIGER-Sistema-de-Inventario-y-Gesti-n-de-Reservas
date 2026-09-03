@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('mostrarPerfil', 'true')
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
 
@@ -68,11 +68,6 @@
             </div>
 
             <div class="acciones-laterales">
-
-                {{-- Historial de reservas --}}
-                <x-botones.boton type="button" class="btn-siger-accion btn" style="color: white;">
-                    Mis reservas
-                </x-botones.boton>
 
             </div>
         </aside>
