@@ -37,8 +37,8 @@
     
     <div class="reporte-encabezado">
         <div>
-            <h2 class="reporte-titulo">Informe Histórico de Reservas</h2>
-            <p class="reporte-subtitulo">Consolidado institucional de solicitudes y préstamos de recursos</p>
+            <h2 class="reporte-titulo">Informe de Reservas</h2>
+            <p class="reporte-subtitulo">Revisa las reservas realizadas y su estado.</p>
         </div>
         
         <x-botones.boton type="button" class="btn btn-siger-imprimir" :url="route('informes.reservas.exportar')">
