@@ -413,7 +413,15 @@ class ReservasControllers extends Controller
         }
 
         $userId = auth()->id();
-        session()->forget(['reserva', 'reserva_temp', 'reserva_temp_' . $userId]);
+        
+        // Limpiamos las variables de sesión incluyendo la clave dinámica del carrito por usuario
+        session()->forget([
+            'reserva', 
+            'reserva_temp', 
+            'reserva_temp_' . $userId,
+            'carrito',
+            'cart'
+        ]);
 
         return redirect()->route($dashboardRoute)->with('success', '¡Solicitud de reserva procesada con éxito! Quedará pendiente de aprobación.');
     }

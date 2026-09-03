@@ -13,6 +13,11 @@ use App\Http\Controllers\InformeController;
 // ==========================================
 // RUTA DE INVENTARIO
 // ==========================================
+Route::get('/informes/inventario/exportar/{tipo}', [InformeController::class, 'exportarExcel'])->name('informes.inventario.exportar');
+
+Route::get('/informes/inventario', [InformeController::class, 'inventario'])
+    ->name('informes.inventario')
+    ->middleware(['auth']);
 
 // Ruta para ver ficha tecnica (Restringida solo a números)
 Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show')->where('id', '[0-9]+');
@@ -150,8 +155,12 @@ Route::middleware('auth')->group(function () {
     // 📊 RUTAS DE INFORMES (Compartidas entre Secretaría y Rectoría)
     // -----------------------------------------------------
     Route::middleware('role:Secretaria,Secretario,Rectora,Rector')->group(function () {
-        Route::get('/secretaria/informe', [InformeController::class, 'index'])->name('secretaria.informe');
-        Route::get('/informes/reservas/exportar', [InformeController::class, 'exportar'])->name('informes.exportar');
+        Route::get('/informe', [InformeController::class, 'index'])->name('secretaria.informe');
+    });
+
+    Route::middleware('role:Secretaria,Secretario,Rectora,Rector,Docente')->group(function () {
+        Route::get('/mis-reservas', [InformeController::class, 'misReservas'])->name('mis.reservas');
+        Route::get('/informes/reservas/exportar', [InformeController::class, 'exportar'])->name('informes.reservas.exportar');
     });
 });
 

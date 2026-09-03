@@ -113,6 +113,7 @@
 </style>
 
 <!-- 3. SCRIPT GESTOR GLOBAL DEL CARRITO -->
+<!-- 3. SCRIPT GESTOR GLOBAL DEL CARRITO -->
 <script>
     const contextoRuta = window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
     const usuarioId = "{{ auth()->check() ? auth()->id() : 'invitado' }}";
@@ -122,6 +123,11 @@
         claveStorage: `siger_carrito_${usuarioId}_${contextoRuta}`,
 
         init() {
+            // LIMPIEZA AUTOMÁTICA DE EMERGENCIA: 
+            // Si vienes de procesar una solicitud o quieres asegurarte de limpiar carritos huérfanos de esta ruta:
+            // (Puedes descomentar la siguiente línea si deseas que cada vez que cargue la vista se limpie solo):
+            // localStorage.removeItem(this.claveStorage);
+
             const guardado = localStorage.getItem(this.claveStorage);
             if (guardado) {
                 try {
@@ -220,6 +226,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Limpiamos la clave específica de este carrito antes de redirigir al paso 1
+                    localStorage.removeItem(this.claveStorage);
+                    this.items = [];
+                    this.actualizarInterfaz();
+
                     window.location.href = '/reservas/crear/paso1';
                 } else {
                     alert(data.message || 'Hubo un error al procesar la selección.');
@@ -295,5 +306,13 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         window.CarritoReservas.init();
+
+        // LIMPIEZA GLOBAL: Si deseas barrer cualquier carrito almacenado de SIGER al cargar cualquier página del sistema:
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('siger_carrito_')) {
+                // Si quieres que se borre siempre al recargar el panel principal, descomenta la línea de abajo:
+                // localStorage.removeItem(key);
+            }
+        });
     });
 </script>

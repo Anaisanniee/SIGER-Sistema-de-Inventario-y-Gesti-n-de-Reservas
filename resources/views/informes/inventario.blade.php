@@ -6,78 +6,30 @@
 
 @section('content')
 
-@php
-    // Datos de prueba para la pestaña 1 (Activos)
-    $activos = [
-        [
-            'nombre_activo' => 'Laptop Dell XPS 13',
-            'serial' => 'SN123456789',
-            'marca' => 'Dell',
-            'categoria' => 'Computadora portátil',
-            'estado' => 'Disponible',
-            'ubicacion' => 'Oficina Principal',
-            'anio_adquisicion' => 2022,
-            'precio' => '$1,200.00'
-        ],
-        [
-            'nombre_activo' => 'Proyector Epson X500',
-            'serial' => 'SN987654321',
-            'marca' => 'Epson',
-            'categoria' => 'Proyector',
-            'estado' => 'En uso',
-            'ubicacion' => 'Sala de Conferencias',
-            'anio_adquisicion' => 2021,
-            'precio' => '$800.00'
-        ],
-        [
-            'nombre_activo' => 'Laptop Dell XPS 13',
-            'serial' => 'SN123456789',
-            'marca' => 'Dell',
-            'categoria' => 'Computadora portátil',
-            'estado' => 'Disponible',
-            'ubicacion' => 'Oficina Principal',
-            'anio_adquisicion' => 2022,
-            'precio' => '$1,200.00'
-        ],
-    ];
-
-    // Datos de prueba para la pestaña 2 (Aulas)
-    $aulas = [
-        [
-            'nombre_aula' => 'Aula 101 - Sistemas',
-            'tipo' => 'Laboratorio de Cómputo',
-            'capacidad' => '30 personas',
-            'reservable' => 'Sí',
-            'estado' => 'Disponible',
-            'ultimo_mantenimiento' => '15/07/2026'
-        ],
-        [
-            'nombre_aula' => 'Auditorio Principal',
-            'tipo' => 'Magno / Eventos',
-            'capacidad' => '150 personas',
-            'reservable' => 'Sí',
-            'estado' => 'Bueno',
-            'ultimo_mantenimiento' => '02/08/2026'
-        ],
-    ];
-@endphp
-
 <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">  
 <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/informes-inventario.css') }}">
 
 <h2 class="titulo-pagina"><i class="fas fa-file-alt"></i> Informes de Inventario</h2>
-
 <div class="tarjeta-blanca-datos">
         
-    {{-- Navegación de pestañas interna --}}
-    <div class="tabs-gestion-admin">
-        <button type="button" class="tab-btn activo" onclick="cambiarTab(event, 'contenido-activos')">
-            Activos
-        </button>
-        <button type="button" class="tab-btn" onclick="cambiarTab(event, 'contenido-aulas')">
-            Aulas
-        </button>
+    {{-- Cabecera con Pestañas y el Botón Único de Exportar --}}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="tabs-gestion-admin" style="margin-bottom: 0;">
+            <button type="button" class="tab-btn activo" data-tab="contenido-activos">
+                Activos
+            </button>
+            <button type="button" class="tab-btn" data-tab="contenido-aulas">
+                Aulas
+            </button>
+        </div>
+
+        {{-- ÚNICO BOTÓN GLOBAL DE EXPORTAR --}}
+        <div>
+            <a href="{{ route('informes.inventario.exportar', 'activos') }}" id="btnExportar" class="btn-exportar-excel">
+                <i class="fas fa-file-excel"></i> Exportar a Excel
+            </a>
+        </div>
     </div>
 
     <div class="modulo-placeholder">
@@ -86,6 +38,7 @@
         <div id="contenido-activos" class="seccion-tab activa">
             @include('components.tablas.tabla-informe', [
                 'titulo' => 'Informe de activos',
+                'mostrarBoton' => false, {{-- Ocultamos el botón interno de la tabla --}}
                 'columnas' => [
                     ['titulo' => 'Nombre del activo', 'campo' => 'nombre_activo'],
                     ['titulo' => 'Serial', 'campo' => 'serial'],
@@ -94,7 +47,7 @@
                     ['titulo' => 'Categoría', 'campo' => 'categoria'],
                     ['titulo' => 'Estado', 'campo' => 'estado'],
                     ['titulo' => 'Año de adquisición', 'campo' => 'anio_adquisicion'],
-                    ['titulo' => 'Precio', 'campo' => 'precio'],
+                    ['titulo' => 'Precio', 'campo' => 'his_pre_valor'],
                 ],
                 'datos' => $activos ?? []
             ])
@@ -104,9 +57,10 @@
         <div id="contenido-aulas" class="seccion-tab">
             @include('components.tablas.tabla-informe', [
                 'titulo' => 'Informe de aulas',
+                'mostrarBoton' => false, {{-- Ocultamos el botón interno de la tabla --}}
                 'columnas' => [
                     ['titulo' => 'Nombre del aula', 'campo' => 'nombre_aula'],
-                    ['titulo' => 'Tipo de aula', 'campo' => 'tipo'],
+                    ['titulo' => 'Tipo de aula', 'campo' => 'tip_aula_id'],
                     ['titulo' => 'Capacidad', 'campo' => 'capacidad'],
                     ['titulo' => 'Reservable', 'campo' => 'reservable'],
                     ['titulo' => 'Estado', 'campo' => 'estado'],
@@ -120,21 +74,36 @@
 
 </div>
 
-{{-- Script JS encargado de alternar el estado visible/oculto de cada pestaña --}}
 <script>
-    function cambiarTab(evt, tabId) {
-        // 1. Ocultar todas las secciones
+    document.addEventListener('DOMContentLoaded', function () {
+        const botonesTabs = document.querySelectorAll('.tab-btn');
         const secciones = document.querySelectorAll('.seccion-tab');
-        secciones.forEach(sec => sec.classList.remove('activa'));
+        const btnExportar = document.getElementById('btnExportar');
 
-        // 2. Desactivar el estado activo visual de los botones
-        const botones = document.querySelectorAll('.tab-btn');
-        botones.forEach(btn => btn.classList.remove('activo'));
+        const urlActivos = "{{ route('informes.inventario.exportar', 'activos') }}";
+        const urlAulas = "{{ route('informes.inventario.exportar', 'aulas') }}";
 
-        // 3. Mostrar la pestaña elegida y aplicar clase activa al botón
-        document.getElementById(tabId).classList.add('activa');
-        evt.currentTarget.classList.add('activo');
-    }
+        botonesTabs.forEach((boton, index) => {
+            boton.addEventListener('click', function () {
+                botonesTabs.forEach(btn => btn.classList.remove('activo'));
+                secciones.forEach(sec => sec.classList.remove('activa'));
+
+                this.classList.add('activo');
+
+                if (index === 0) {
+                    document.getElementById('contenido-activos').classList.add('activa');
+                    if (btnExportar) {
+                        btnExportar.href = urlActivos;
+                    }
+                } else if (index === 1) {
+                    document.getElementById('contenido-aulas').classList.add('activa');
+                    if (btnExportar) {
+                        btnExportar.href = urlAulas;
+                    }
+                }
+            });
+        });
+    });
 </script>
 
 @endsection

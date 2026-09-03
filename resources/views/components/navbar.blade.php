@@ -118,10 +118,10 @@
                     {{--SECCION 1.5: MIS RESERVAS PARA RECTOR Y DOCENTE--}}
 
                     @php
-                        $misReservasRoute = Route::has('mis-reservas') ? route('mis-reservas') : '#';
+                        $misReservasRoute = route('secretaria.informe');
                     @endphp
                     @if($slugRol === 'docente' || $nombreRol === 'docente' || $rolIdUser == 3 || $slugRol === 'rectora' || $nombreRol === 'rectora' || $rolIdUser == 2)
-                        <a href="{{ $misReservasRoute }}" class="dropdown-item">
+                        <a href="{{ route('mis.reservas') }}" class="dropdown-item">
                             <i class="fas fa-calendar-check"></i> Mis Reservas
                         </a>
                     @endif
@@ -143,7 +143,7 @@
                         @endif
 
                         @if($routeInventario)
-                            <a href="{{ $routeInventario }}" class="dropdown-item">
+                            <a href="{{ route('informes.inventario') }}" class="dropdown-item">
                                 <i class="fas fa-boxes"></i> Informes de Inventario
                             </a>
                         @endif

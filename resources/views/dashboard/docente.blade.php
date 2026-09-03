@@ -124,6 +124,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 1. Funcionalidad del buscador de recursos
     const buscador = document.getElementById('buscador-recursos');
 
     if (buscador) {
@@ -145,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // 2. Funcionalidad del modal general de activos
     document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
         button.addEventListener('click', function() {
             const contenedor = document.getElementById('contenedor-activos-dinamicos');
@@ -212,6 +214,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // 3. Limpieza profunda y definitiva del carrito en el navegador
+    const userId = "{{ auth()->check() ? auth()->id() : 'invitado' }}";
+
+    // Borra todas las claves que empiecen con el prefijo del sistema SIGER
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('siger_carrito_') || key.includes('carrito') || key.includes('cart') || key.includes('reserva_temp')) {
+            localStorage.removeItem(key);
+        }
+    });
+
+    localStorage.removeItem('carrito');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('reserva_temp');
+    sessionStorage.clear();
 });
 </script>
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>

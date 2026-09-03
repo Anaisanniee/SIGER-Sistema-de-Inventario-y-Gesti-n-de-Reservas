@@ -65,9 +65,11 @@
 
 <div class="encabezado-tabla-acciones">
     <h3 style="margin: 0; color: var(--color-principal);">{{ $titulo }}</h3>
-    <a href="{{ $urlExcel }}" class="btn-exportar-excel">
-        <i class="fas fa-file-excel"></i> Exportar a Excel
-    </a>
+    @if(isset($mostrarBoton) && $mostrarBoton)
+        <a href="{{ $urlExcel ?? '#' }}" id="btnExportar" class="btn-exportar-excel">
+            <i class="fas fa-file-excel"></i> Exportar a Excel
+        </a>
+    @endif
 </div>
 
 <div class="contenedor-tabla-responsive">

@@ -2,25 +2,34 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', route('dashboard.secretaria')) 
-
-
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/pages/reporte-reservas.css') }}?v={{ time() }}">
-@endpush
 
 @php
     $user = auth()->user();
     $userId  = $user->id ?? 1;
     $rolSlug = strtolower($user->role->slug ?? $user->rol->slug ?? $user->role ?? $user->rol ?? '');
     $rolId   = $user->role_id ?? $user->rol_id ?? null;
-    $esSecretaria = ($rolSlug === 'secretaria' || $rolId == 1);
-    $urlRegresar = '#';
+    $nombreRol = strtolower($user->role->name ?? $user->rol->name ?? $user->rol->nombre ?? '');
+
+    // Determinamos la ruta de retorno de forma inteligente según el rol del usuario
+    if ($rolSlug === 'docente' || $nombreRol === 'docente' || $rolId == 3) {
+        $urlRegresar = route('dashboard.docente', ['id' => $user->usu_id ?? $userId]);
+    } elseif ($rolSlug === 'secretaria' || $nombreRol === 'secretaria' || $rolId == 1) {
+        $urlRegresar = route('dashboard.secretaria');
+    } else {
+        // Para Rector / Rectora
+        $urlRegresar = route('dashboard.rectora');
+    }
 @endphp
 
+{{-- Inyectamos la ruta dinámicamente según quién tenga la sesión abierta --}}
 @section('rutaRegresar', $urlRegresar)
 @section('mostrarPerfil', 'true')
+
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/pages/reporte-reservas.css') }}?v={{ time() }}">
+@endpush
 
 @section('content')
 
@@ -32,7 +41,7 @@
             <p class="reporte-subtitulo">Consolidado institucional de solicitudes y préstamos de recursos</p>
         </div>
         
-        <x-botones.boton type="button" class="btn btn-siger-imprimir" :url="route('informes.exportar', request()->all())">
+        <x-botones.boton type="button" class="btn btn-siger-imprimir" :url="route('informes.reservas.exportar')">
             <i class="fas fa-file-excel me-2"></i> Exportar a Excel
         </x-botones.boton>
     </div>
@@ -64,16 +73,25 @@
                             $listaRecursos[] = optional($det->activo)->act_nombre ?? (optional($det->aula)->aula_nombre ?? 'Elemento');
                         }
                     } else {
-                        // Validación estricta para saber si el primer detalle es un activo o un aula
-                        $activoAsociado = $primerDetalle ? $primerDetalle->activo : null;
+                        // Verificamos de forma segura si el detalle apunta a un aula o a un activo
+                        $activoAsociado = optional($primerDetalle)->activo;
+                        $aulaAsociada = optional($primerDetalle)->aula;
                         
-                        if ($activoAsociado) {
-                            $nombreRecurso = $activoAsociado->act_nombre ?? 'Activo';
-                            // ¡Corregido a act_foto!
+                        // Si no viene cargada la relación aula pero existe el ID en el detalle
+                        if (!$aulaAsociada && $primerDetalle && ($primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act ?? null)) {
+                            $aId = $primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act;
+                            $aulaAsociada = \DB::table('aulas')->where('aula_id', $aId)->first();
+                        }
+
+                        if ($activoAsociado && !empty($activoAsociado->act_nombre)) {
+                            $nombreRecurso = $activoAsociado->act_nombre;
                             $fotoRecurso = $activoAsociado->act_foto ?? null;
+                        } elseif ($aulaAsociada) {
+                            $nombreRecurso = $aulaAsociada->aula_nombre ?? $aulaAsociada->nombre ?? 'Aula Asignada';
+                            $fotoRecurso = $aulaAsociada->aula_foto ?? $aulaAsociada->foto ?? null;
                         } else {
-                            $nombreRecurso = optional($primerDetalle->aula)->aula_nombre ?? 'Recurso General';
-                            $fotoRecurso = optional($primerDetalle->aula)->aula_foto ?? null;
+                            $nombreRecurso = 'Recurso General';
+                            $fotoRecurso = null;
                         }
 
                         $fotoFinal = $fotoRecurso ? asset('storage/' . $fotoRecurso) : asset('images/default.png');

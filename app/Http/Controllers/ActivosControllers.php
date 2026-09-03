@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\AulasModels;
 use App\Models\CategoriasModels;
 use App\Models\ActivosModels;
+use App\Models\HistorialPreciosModels;
 use Illuminate\Support\Facades\Storage;
 
 class ActivosControllers extends Controller
@@ -137,52 +138,62 @@ class ActivosControllers extends Controller
             'act_reservable'    => 'required|boolean',
             'act_fecha_ingreso' => 'required|date',
             'his_pre_valor'     => 'nullable|numeric|min:0',
-            'his_pre_motivo'    => 'nullable|string|max:255', // Ahora es totalmente opcional
+            'his_pre_motivo'    => 'nullable|string|max:255',
+            'act_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
-            'act_nombre.min'      => 'El nombre debe tener al menos 3 letras.',
-            'act_nombre.required' => 'Escribe el nombre del activo.',
-            'act_serial.unique'   => 'Este serial ya pertenece a otro activo registrado.',
-            'act_serial.required' => 'Escribe el serial del activo.',
+            'act_nombre.min'            => 'El nombre debe tener al menos 3 letras.',
+            'act_nombre.required'       => 'Escribe el nombre del activo.',
+            'act_serial.unique'         => 'Este serial ya pertenece a otro activo registrado.',
+            'act_serial.required'       => 'Escribe el serial del activo.',
+            'aula_id.exists'            => 'El aula seleccionada no existe.',
+            'cate_id.exists'            => 'La categoría seleccionada no existe.',
         ]);
 
-        if ($request->hasFile('act_foto')) {
-            if ($activo->act_foto) {
-                Storage::disk('public')->delete($activo->act_foto);
+        try {
+            // Manejo de la fotografía
+            if ($request->hasFile('act_foto')) {
+                if ($activo->act_foto) {
+                    Storage::disk('public')->delete($activo->act_foto);
+                }
+                $activo->act_foto = $request->file('act_foto')->store('activos', 'public');
             }
-            $activo->act_foto = $request->file('act_foto')->store('activos', 'public');
-        }
 
-        $activo->act_nombre        = $request->act_nombre;
-        $activo->act_serial        = $request->act_serial;
-        $activo->act_marca         = $request->act_marca; 
-        $activo->aula_id           = $request->aula_id;
-        $activo->cate_id           = $request->cate_id;
-        $activo->act_estado_fisico = $request->act_estado_fisico;
-        $activo->act_reservable    = $request->act_reservable;
-        $activo->act_fecha_ingreso = $request->act_fecha_ingreso;
+            // Asignación de los campos principales del activo
+            $activo->act_nombre         = $request->act_nombre;
+            $activo->act_serial         = $request->act_serial;
+            $activo->act_marca          = $request->act_marca; 
+            $activo->aula_id            = $request->aula_id;
+            $activo->cate_id            = $request->cate_id;
+            $activo->act_estado_fisico  = $request->act_estado_fisico;
+            $activo->act_reservable     = $request->act_reservable;
+            $activo->act_fecha_ingreso  = $request->act_fecha_ingreso;
 
-        $activo->save(); 
+            $activo->save(); 
 
-        // Gestionamos el precio SOLO si se ingresó un valor y un motivo válido
-        if ($request->filled('his_pre_valor') && $request->filled('his_pre_motivo')) {
-            
-            $precioActual = \App\Models\HistorialPreciosModels::where('act_id', $activo->act_id)
+            // Gestión del historial de precios de forma segura
+            if ($request->filled('his_pre_valor')) {
+                
+                $precioActual = \App\Models\HistorialPreciosModels::where('act_id', $activo->act_id)
                                                         ->orderBy('his_pre_fecha_cambio', 'desc')
                                                         ->first();
 
-            // Si no existe un registro previo O el valor nuevo es diferente al anterior:
-            if (!$precioActual || $precioActual->his_pre_valor != $request->his_pre_valor) {
-                
-                \App\Models\HistorialPreciosModels::create([
-                    'act_id'               => $activo->act_id,
-                    'his_pre_valor'        => $request->his_pre_valor,
-                    'his_pre_fecha_cambio' => now(),
-                    'his_pre_motivo'       => $request->his_pre_motivo
-                ]);
+                // Si no existe un registro previo o el valor es diferente al último registrado
+                if (!$precioActual || $precioActual->his_pre_valor != $request->his_pre_valor) {
+                    
+                    \App\Models\HistorialPreciosModels::create([
+                        'act_id'               => $activo->act_id,
+                        'his_pre_valor'        => $request->his_pre_valor,
+                        'his_pre_fecha_cambio' => now(),
+                        'his_pre_motivo'       => $request->filled('his_pre_motivo') ? $request->his_pre_motivo : 'Actualización de datos del activo'
+                    ]);
+                }
             }
-        }
 
-        return redirect()->route('inventario.index')->with('exito', 'Activo actualizado correctamente');
+            return redirect()->route('inventario.index')->with('exito', 'Activo actualizado correctamente.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Error técnico: ' . $e->getMessage());
+        }
     }
 
     public function store(Request $request)
