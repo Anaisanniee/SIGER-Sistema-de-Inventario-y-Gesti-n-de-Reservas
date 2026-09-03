@@ -5,30 +5,32 @@
 
 @php
     $user = auth()->user();
-    $userId  = $user->id ?? 1;
-    $rolSlug = strtolower($user->role->slug ?? $user->rol->slug ?? $user->role ?? $user->rol ?? '');
+    $userId  = $user->id ?? $user->usu_id ?? 1;
+    
+    // Obtenemos el rol de forma segura comprobando string o relación
+    $rolSlug = strtolower(optional($user->role)->slug ?? optional($user->rol)->slug ?? $user->role ?? $user->rol ?? '');
+    $nombreRol = strtolower(optional($user->role)->name ?? optional($user->rol)->name ?? optional($user->rol)->nombre ?? '');
     $rolId   = $user->role_id ?? $user->rol_id ?? null;
-    $nombreRol = strtolower($user->role->name ?? $user->rol->name ?? $user->rol->nombre ?? '');
 
-    // Determinamos la ruta de retorno de forma inteligente según el rol del usuario
+    // Evaluamos el tipo de usuario para la ruta
     if ($rolSlug === 'docente' || $nombreRol === 'docente' || $rolId == 3) {
-        $urlRegresar = route('dashboard.docente', ['id' => $user->usu_id ?? $userId]);
+        $urlRegresar = route('dashboard.docente', ['id' => $userId]);
     } elseif ($rolSlug === 'secretaria' || $nombreRol === 'secretaria' || $rolId == 1) {
         $urlRegresar = route('dashboard.secretaria');
     } else {
-        // Para Rector / Rectora
         $urlRegresar = route('dashboard.rectora');
     }
 @endphp
 
-{{-- Inyectamos la ruta dinámicamente según quién tenga la sesión abierta --}}
-@section('rutaRegresar', $urlRegresar)
+{{-- Asignación limpia sin problemas de escape --}}
+@section('rutaRegresar'){{ $urlRegresar }}@endsection
 @section('mostrarPerfil', 'true')
-
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/components/resumen-reserva.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/pages/reporte-reservas.css') }}?v={{ time() }}">
+
 @endpush
 
 @section('content')
@@ -67,17 +69,16 @@
                     if ($esMultiple) {
                         $fotoFinal = asset('storage/activos/multiple-default.png');
                         $nombreRecurso = 'Reserva Múltiple (' . $detalles->count() . ' elementos)';
+                        $caracteristicaSecundaria = 'Varios elementos seleccionados';
                         
                         $listaRecursos = [];
                         foreach ($detalles as $det) {
                             $listaRecursos[] = optional($det->activo)->act_nombre ?? (optional($det->aula)->aula_nombre ?? 'Elemento');
                         }
                     } else {
-                        // Verificamos de forma segura si el detalle apunta a un aula o a un activo
                         $activoAsociado = optional($primerDetalle)->activo;
                         $aulaAsociada = optional($primerDetalle)->aula;
                         
-                        // Si no viene cargada la relación aula pero existe el ID en el detalle
                         if (!$aulaAsociada && $primerDetalle && ($primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act ?? null)) {
                             $aId = $primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act;
                             $aulaAsociada = \DB::table('aulas')->where('aula_id', $aId)->first();
@@ -86,12 +87,16 @@
                         if ($activoAsociado && !empty($activoAsociado->act_nombre)) {
                             $nombreRecurso = $activoAsociado->act_nombre;
                             $fotoRecurso = $activoAsociado->act_foto ?? null;
+                            $caracteristicaSecundaria = 'Serial: ' . ($activoAsociado->act_serial ?? $activoAsociado->serial ?? 'N/A');
                         } elseif ($aulaAsociada) {
                             $nombreRecurso = $aulaAsociada->aula_nombre ?? $aulaAsociada->nombre ?? 'Aula Asignada';
                             $fotoRecurso = $aulaAsociada->aula_foto ?? $aulaAsociada->foto ?? null;
+                            $cap = $aulaAsociada->aula_capacidad ?? $aulaAsociada->capacidad ?? 'N/A';
+                            $caracteristicaSecundaria = 'Capacidad: ' . $cap;
                         } else {
                             $nombreRecurso = 'Recurso General';
                             $fotoRecurso = null;
+                            $caracteristicaSecundaria = 'N/A';
                         }
 
                         $fotoFinal = $fotoRecurso ? asset('storage/' . $fotoRecurso) : asset('images/default.png');
@@ -120,7 +125,7 @@
 
                     $horaFin = $rawFechaFin ? \Carbon\Carbon::parse($rawFechaFin)->format('H:i') : 'N/A';
 
-                    // Ubicación corregida
+                    // Ubicación
                     $ubicacion = 'Sede Principal';
                     if ($primerDetalle) {
                         if (isset($primerDetalle->aula) && $primerDetalle->aula) {
@@ -140,7 +145,11 @@
                 @endphp
 
                 <!-- Tarjeta clicable -->
-                <div class="tarjeta-wrapper recurso-item mb-3 tarjeta-reserva-clicable" data-id="{{ $reservaId }}" style="cursor: pointer;">
+                <div class="tarjeta-wrapper recurso-item mb-3 tarjeta-reserva-clicable" 
+                     data-id="{{ $reservaId }}" 
+                     data-nombre="{{ $nombreRecurso }}" 
+                     data-caracteristica="{{ $caracteristicaSecundaria }}"
+                     style="cursor: pointer;">
                     @component('components.tarjetas.tarjeta-reserva', [
                         'id'          => $reservaId,
                         'foto'        => $fotoFinal,
@@ -173,7 +182,7 @@
     </div>
 
     <!-- Modal oficial para mostrar los detalles -->
-    <x-modal id="modalDetalleReserva" title="Detalle de la Reserva" size="lg">
+    <x-modal id="modalDetalleReserva" title="Nombre" subtitle="Caracteristica" size="lg">
         <div id="contenidoModalDetalleReserva">
             <x-reservas.resumen-reserva :reserva="null" />
         </div>
@@ -183,26 +192,42 @@
 
 @push('scripts')
 <script>
+    window.cargarDatosModal = function (reservaId, nombreRecurso = '', caracteristica = '') {
+        const contenidoOculto = document.getElementById(`data-resumen-${reservaId}`);
+        const contenedorModal = document.getElementById('contenidoModalDetalleReserva');
+        const modalElement = document.getElementById('modalDetalleReserva');
+
+        if (contenidoOculto && contenedorModal && modalElement) {
+            contenedorModal.innerHTML = contenidoOculto.innerHTML;
+
+            const tituloModal = modalElement.querySelector('#modal-titulo-dinamico') || modalElement.querySelector('.modal-title');
+            const subtituloModal = modalElement.querySelector('#modal-sub-dinamico') || modalElement.querySelector('.modal-subtitle');
+
+            if (tituloModal && nombreRecurso) {
+                tituloModal.textContent = nombreRecurso;
+            }
+
+            if (subtituloModal && caracteristica) {
+                subtituloModal.textContent = caracteristica;
+            }
+
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const modalBootstrap = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modalBootstrap.show();
+            }
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         const tarjetas = document.querySelectorAll('.tarjeta-reserva-clicable');
 
         tarjetas.forEach(tarjeta => {
             tarjeta.addEventListener('click', function () {
                 const reservaId = this.getAttribute('data-id');
-                const contenidoOculto = document.getElementById(`data-resumen-${reservaId}`);
-                const contenedorModal = document.getElementById('contenidoModalDetalleReserva');
-
-                if (contenidoOculto && contenedorModal) {
-                    // Inyectamos el contenido del resumen dentro del modal
-                    contenedorModal.innerHTML = contenidoOculto.innerHTML;
-
-                    // Instanciamos y mostramos el modal con Bootstrap 5 de manera segura
-                    const modalElement = document.getElementById('modalDetalleReserva');
-                    if (modalElement) {
-                        const modalBootstrap = bootstrap.Modal.getOrCreateInstance(modalElement);
-                        modalBootstrap.show();
-                    }
-                }
+                const nombre = this.getAttribute('data-nombre');
+                const caracteristica = this.getAttribute('data-caracteristica');
+                
+                window.cargarDatosModal(reservaId, nombre, caracteristica);
             });
         });
     });

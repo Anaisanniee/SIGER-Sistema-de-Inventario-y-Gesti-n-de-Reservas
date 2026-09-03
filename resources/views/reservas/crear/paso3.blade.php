@@ -115,31 +115,71 @@
 
     <x-reservas.resumen-reserva :reserva="$reservaObj" />
 
-    @if(!empty($nombreAulaUso))
-        <div class="card my-3 p-3 shadow-sm border-0 bg-light" style="border-left: 4px solid #28a745 !important;">
-            <p class="mb-0 text-dark font-weight-medium">
-                🏫 El aula de uso seleccionada para esta reserva es: <strong>{{ $nombreAulaUso }}</strong>
-            </p>
-        </div>
-    @endif
-
-    <form action="{{ route('reservas.paso3.post') }}" method="POST" class="formulario-paso3">
-        @csrf
-        
-        <div class="notificacion-alerta-siger margin-top-main">
-            <p>⚠️ Al presionar "Confirmar y Guardar", la solicitud se mostrará pendiente para aprobación.</p>
-        </div>
-
-        <div class="contenedor-botones-paso3">
-            <x-botones.boton type="button" class="btn-siger-accion btn btn-azul" onclick="window.history.back();">
-                ⬅ Modificar Horario
-            </x-botones.boton>
+        {{-- Formulario con ID para el control mediante JavaScript --}}
+        <form id="formConfirmarReserva" action="{{ route('reservas.paso3.post') }}" method="POST" class="formulario-paso3">
+            @csrf
             
-            <x-botones.boton type="submit" class="btn-siger-accion btn">
-                Confirmar y Guardar Reserva
-            </x-botones.boton>
-        </div>
-    </form>
+            <div class="notificacion-alerta-siger margin-top-main">
+                <p>⚠️ Al presionar "Confirmar y Guardar", la solicitud se mostrará pendiente para aprobación.</p>
+            </div>
 
-</div>
+            <div class="contenedor-botones-paso3">
+                <x-botones.boton type="button" class="btn-siger-accion btn btn-azul" onclick="window.history.back();">
+                    ⬅ Modificar Horario
+                </x-botones.boton>
+                
+                <x-botones.boton type="submit" id="btnGuardarReserva" class="btn-siger-accion btn">
+                    Confirmar y Guardar Reserva
+                </x-botones.boton>
+            </div>
+        </form>
+
+        {{-- Lógica para resolver la ruta de destino según el rol --}}
+        @php
+            $user = auth()->user();
+            $userId = $user->usu_id ?? $user->id ?? 1;
+
+            $rolSlug = strtolower(optional($user->role)->slug ?? optional($user->rol)->slug ?? $user->role ?? $user->rol ?? '');
+            $nombreRol = strtolower(optional($user->role)->name ?? optional($user->rol)->name ?? optional($user->rol)->nombre ?? '');
+            $rolId = $user->role_id ?? $user->rol_id ?? null;
+
+            if ($rolSlug === 'docente' || $nombreRol === 'docente' || $rolId == 3) {
+                $urlRedireccion = route('dashboard.docente', ['id' => $userId]);
+            } elseif ($rolSlug === 'secretaria' || $nombreRol === 'secretaria' || $rolId == 1) {
+                $urlRedireccion = route('dashboard.secretaria');
+            } else {
+                $urlRedireccion = route('dashboard.rectora');
+            }
+        @endphp
+    </div>
+<script>
+document.getElementById('formConfirmarReserva').addEventListener('submit', function(e) {
+    e.preventDefault(); // Evita la redirección por defecto del servidor
+
+    const btn = document.getElementById('btnGuardarReserva');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => {
+        // Redirige al Dashboard correspondiente evaluado en Blade
+        window.location.href = "{{ $urlRedireccion }}";
+    })
+    .catch(error => {
+        console.error('Error al guardar la reserva:', error);
+        alert('Ocurrió un error al procesar la reserva. Por favor intenta de nuevo.');
+        btn.disabled = false;
+        btn.textContent = 'Confirmar y Guardar Reserva';
+    });
+});
+</script>
 @endsection

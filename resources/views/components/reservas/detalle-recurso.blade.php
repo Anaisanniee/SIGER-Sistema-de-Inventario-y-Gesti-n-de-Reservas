@@ -1,7 +1,7 @@
 @props([
     'tipoRecurso'   => 'activo',
     'recursoNombre' => 'Laboratorio de Sistemas A',
-    'capacidad'     => '35 Estudiantes',
+    'capacidad'     => 'Personas',
     'serial'        => 'DELL-5420-X92',
     'marca'         => 'Dell Inspiron',
     'activos'       => [],

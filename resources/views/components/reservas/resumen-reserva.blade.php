@@ -3,7 +3,21 @@
     'reserva' => null, 
     'mostrarSubtitulo' => true
 ])
+    <style>
+        /* Correcciones de estilo para la cabecera y el cuerpo del modal */
+        #modalDetalleReserva .modal-titulo-dinamico,
+        #modalDetalleReserva .modal-title,
+        #modalDetalleReserva h4 {
+            color: var(--principal-secudario)) !important;
+            font-weight: 700 !important;
+        }
 
+        #modalDetalleReserva .modal-subtitle,
+        #modalDetalleReserva h6 {
+            color: var(--principal-secundario) !important;
+            font-weight: 500 !important;
+        }
+    </style>
 @php
     $reservaValida = $reserva ?? new \stdClass();
 
@@ -138,24 +152,21 @@
         border: 1px solid #198754 !important;
         border-radius: 0.75rem !important;
         padding: 0.75rem !important;
-        background-color: #ffffff !important;
+        background-color: var(--color-fondo) !important;
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
     }
     .item-recurso-card {
         transition: background-color 0.2s ease, border-color 0.2s ease;
         border: 1px solid #e5e7eb;
-        background-color: #ffffff;
+        background-color: var(--color-fondo);
     }
     .item-recurso-card:hover {
-        background-color: #d1fae5 !important;
+        background-color: var(--color-verde-pastel) !important;
         border-color: #a7f3d0 !important;
     }
 </style>
 
 <div class="tarjeta-reserva-siger overflow-hidden rounded-4 border shadow-sm bg-white" data-reserva='{!! $jsonModalReserva !!}'>
-    <div class="px-4 py-2" style="background-color: #d1fae5; border-bottom: 1px solid #a7f3d0;">
-        <span class="text-success fw-semibold small">Capacidad: {{ $aulaUso !== 'N/A' ? $aulaUso : 'N/A' }}</span>
-    </div>
 
     <div class="p-4">
         <div class="mb-4">
