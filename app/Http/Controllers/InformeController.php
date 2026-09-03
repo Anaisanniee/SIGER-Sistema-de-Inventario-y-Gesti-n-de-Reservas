@@ -241,7 +241,7 @@ class InformeController extends Controller
         }
     }
 
-    public function exportar(Request $request)
+    public function exportarReservas(Request $request)
     {
         $reservas = $this->obtenerReservasFiltradas($request);
         $nombreArchivo = 'informe_reservas_' . date('Y-m-d_H-i-s') . '.csv';
@@ -271,7 +271,6 @@ class InformeController extends Controller
                     $activoAsociado = optional($primerDetalle)->activo;
                     $aulaAsociada = optional($primerDetalle)->aula;
 
-                    // Si la relación no viene cargada pero existe el ID en el detalle, lo buscamos de forma segura
                     if (!$aulaAsociada && $primerDetalle && ($primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act ?? null)) {
                         $aId = $primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act;
                         $aulaAsociada = \DB::table('aulas')->where('aula_id', $aId)->first();
@@ -288,7 +287,6 @@ class InformeController extends Controller
 
                 $nombreUsuario = trim((optional($reserva->usuario)->USU_PRIMER_NOMBRE ?? '') . ' ' . (optional($reserva->usuario)->USU_PRIMER_APELLIDO ?? ''));
 
-                // Fecha y Hora de Inicio (con formato AM/PM)
                 $rawFechaIni = optional($primerDetalle)->det_re_fecha_ini ?? $reserva->created_at;
                 if ($rawFechaIni) {
                     $carbonIni = \Carbon\Carbon::parse($rawFechaIni);
@@ -299,7 +297,6 @@ class InformeController extends Controller
                     $horaInicio = 'N/A';
                 }
 
-                // Fecha y Hora de Fin (con formato AM/PM)
                 $rawFechaFin = optional($primerDetalle)->det_re_fecha_fin;
                 if ($rawFechaFin) {
                     $carbonFin = \Carbon\Carbon::parse($rawFechaFin);
@@ -310,7 +307,6 @@ class InformeController extends Controller
                     $horaFin = 'N/A';
                 }
 
-                // Ubicación segura también para el Excel
                 $ubicacionExport = 'Sede Principal';
                 if ($primerDetalle) {
                     if (isset($primerDetalle->aula) && $primerDetalle->aula) {
