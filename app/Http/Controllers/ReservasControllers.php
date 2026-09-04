@@ -523,18 +523,19 @@ class ReservasControllers extends Controller
     {
         $usuario = auth()->user();
 
+        // Ya no necesitamos la sesión para filtrar, solo limitamos a las 6 últimas
         $reservas = \App\Models\ReservasModels::where('usu_id', $usuario->usu_id)
             ->whereIn('res_estado_reserva', ['Aprobada', 'Rechazada'])
             ->latest('updated_at')
+            ->take(6) // <--- Mantiene solo las 6 más recientes
             ->get();
 
         $notificaciones = $reservas->map(function ($reserva) {
             $esAprobada = $reserva->res_estado_reserva === 'Aprobada';
             
-            // Traemos todos los campos de los detalles, activos y aulas para evitar errores de columnas
             $detalles = \Illuminate\Support\Facades\DB::table('detalles_reservas')
                 ->leftJoin('activos', 'detalles_reservas.act_id', '=', 'activos.act_id')
-                ->leftJoin('aulas', 'detalles_reservas.aula_id', '=', 'aulas.aula_id') // Probando con aula_id por si acaso
+                ->leftJoin('aulas', 'detalles_reservas.aula_id', '=', 'aulas.aula_id')
                 ->where('detalles_reservas.res_id', $reserva->res_id)
                 ->select('detalles_reservas.*', 'activos.*', 'aulas.*')
                 ->get();
@@ -542,10 +543,8 @@ class ReservasControllers extends Controller
             $nombresElementos = collect();
 
             foreach ($detalles as $det) {
-                // Buscamos dinámicamente cualquier propiedad que parezca un nombre o título
                 foreach ($det as $key => $value) {
                     if (!empty($value) && (str_contains($key, 'nombre') || str_contains($key, 'titulo') || str_contains($key, 'descripcion'))) {
-                        // Evitamos agregar IDs o campos que no sean texto descriptivo
                         if (!str_contains($key, 'id')) {
                             $nombresElementos->push($value);
                         }
