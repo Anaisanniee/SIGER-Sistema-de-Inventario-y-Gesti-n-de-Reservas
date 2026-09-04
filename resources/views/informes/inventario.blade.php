@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('mostrarBusqueda', 'false')
+@section('mostrarBusqueda', 'true')
 @php
     $user = auth()->user();
     $userId  = $user->id ?? $user->usu_id ?? 1;
