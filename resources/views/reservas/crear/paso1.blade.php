@@ -28,9 +28,11 @@
 @php
     $tipoRecurso = $tipoRecurso ?? 'activo';
     $recursos = $recursos ?? collect();
-    $primerRecurso = $recursos->first();
+    $primerItem = $recursos->first();
+    
+    // Convertimos de forma segura a objeto si viene como array
+    $itemObj = is_array($primerItem) ? (object)$primerItem : $primerItem;
 @endphp
-
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
@@ -51,10 +53,10 @@
 
                 <x-reservas.detalle-recurso 
                     :tipoRecurso="$tipoRecurso"
-                    :recursoNombre="$primerRecurso->act_nombre ?? $primerRecurso->aula_nombre ?? 'Recurso'"
-                    :serial="$primerRecurso->act_serial ?? $primerRecurso->aula_codigo ?? 'Sin Serial'"
-                    :marca="$primerRecurso->act_marca ?? 'N/A'"
-                    :capacidad="$primerRecurso->aula_capacidad ?? 'N/A'"
+                    :recursoNombre="$itemObj->act_nombre ?? ($itemObj->nombre ?? ($itemObj->aula_nombre ?? ($itemObj->descripcion ?? 'Recurso')))"
+                    :serial="$itemObj->act_serial ?? ($itemObj->serial ?? ($itemObj->aula_codigo ?? 'Sin Serial'))"
+                    :marca="$itemObj->act_marca ?? ($itemObj->marca ?? 'N/A')"
+                    :capacidad="$primerRecurso->capacidad ?? ($primerRecurso->aula_capacidad ?? 'N/A')"
                     :recursos="$recursos" 
                 />
             </div>
