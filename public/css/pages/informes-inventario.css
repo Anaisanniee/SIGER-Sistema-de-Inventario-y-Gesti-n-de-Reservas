@@ -38,11 +38,12 @@
     display: block;
     padding: 1rem;
     width: 100%;
+    box-sizing: border-box;
 }
 
 /* Secciones de contenido por pestaña */
 .seccion-tab {
-    background: var(--color-fondo, #f9fbf9);
+     background: var(--color-fondo-secundario, #f9fbf9);
     padding: 2rem;
     border-radius: var(--borde-radio, 8px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);

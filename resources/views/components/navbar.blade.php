@@ -133,7 +133,7 @@
                         
                         @php
                             $routeReservas = Route::has('secretaria.informe') ? route('secretaria.informe') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
-                            $routeInventario = Route::has('secretaria.informe') ? route('secretaria.informe') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
+                            $routeInventario = Route::has('informes.inventario') ? route('informes.inventario') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
                         @endphp
 
                         @if($routeReservas)
@@ -143,7 +143,7 @@
                         @endif
 
                         @if($routeInventario)
-                            <a href="{{ route('informes.inventario') }}" class="dropdown-item">
+                            <a href="{{ $routeInventario }}" class="dropdown-item">
                                 <i class="fas fa-boxes"></i> Informes de Inventario
                             </a>
                         @endif

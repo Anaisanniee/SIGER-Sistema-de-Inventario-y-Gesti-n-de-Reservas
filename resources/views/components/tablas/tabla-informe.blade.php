@@ -21,7 +21,7 @@
         justify-content: center;
         gap: 8px;
         background-color: #107c41;
-        color: var(--color-fondo) !important;
+        color: var(--color-fondo, #ffffff) !important;
         padding: 9px 16px;
         border-radius: 6px;
         text-decoration: none;
@@ -47,6 +47,39 @@
     .contenedor-tabla-responsive table {
         width: 100%;
         white-space: nowrap;
+        border-collapse: collapse;
+    }
+
+    .contenedor-tabla-responsive th {
+        background-color: var(--color-principal, #10b981);
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .contenedor-tabla-responsive td, 
+    .contenedor-tabla-responsive th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--color-borde, #e5e7eb);
+    }
+
+    .contenedor-tabla-responsive td {
+        color: var(--color-texto, #1f2937);
+    }
+
+    /* 1. Primera fila y todas las impares (1, 3, 5...) en blanco */
+    .contenedor-tabla-responsive tbody tr:nth-child(odd) {
+        background-color: #ffffff;
+    }
+
+    /* 2. Filas pares (2, 4, 6...) con fondo verde pastel */
+    .contenedor-tabla-responsive tbody tr:nth-child(even) {
+        background-color: var(--color-disponible-pastel, #e8f5e9);
+    }
+
+    /* Efecto Hover */
+    .contenedor-tabla-responsive tbody tr:hover {
+        background-color: var(--color-hover-tabla, #d1e7dd);
     }
 
     @media (max-width: 768px) {
@@ -64,7 +97,7 @@
 </style>
 
 <div class="encabezado-tabla-acciones">
-    <h3 style="margin: 0; color: var(--color-principal);">{{ $titulo }}</h3>
+    <h3 style="margin: 0; color: var(--color-principal, #10b981);">{{ $titulo }}</h3>
     @if(isset($mostrarBoton) && $mostrarBoton)
         <a href="{{ $urlExcel ?? '#' }}" id="btnExportar" class="btn-exportar-excel">
             <i class="fas fa-file-excel"></i> Exportar a Excel
@@ -73,7 +106,7 @@
 </div>
 
 <div class="contenedor-tabla-responsive">
-    <table class="table table-striped table-hover">
+    <table>
         <thead>
             <tr>
                 @foreach ($columnas as $columna)
@@ -85,7 +118,13 @@
             @forelse ($datos as $fila)
                 <tr>
                     @foreach ($columnas as $columna)
-                        <td>{{ $fila[$columna['campo']] ?? 'N/A' }}</td>
+                        <td>
+                            @if(!empty($columna['html']))
+                                {!! $fila[$columna['campo']] ?? 'N/A' !!}
+                            @else
+                                {{ $fila[$columna['campo']] ?? 'N/A' }}
+                            @endif
+                        </td>
                     @endforeach
                 </tr>
             @empty
