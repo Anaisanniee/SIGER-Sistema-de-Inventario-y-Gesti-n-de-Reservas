@@ -14,48 +14,82 @@
         });
 
         $eventosCalculados = $reservasCalendario->map(function($reserva) {
-            $totalDetalles = $reserva->detalles->count();
+            $detalles = $reserva->detalles ?? ($reserva->detalleReservas ?? collect());
+            $totalDetalles = $detalles->count();
+
+            if ($totalDetalles === 0 && (!empty($reserva->aula_id) || !empty($reserva->det_re_aula_destino_act))) {
+                $detalles = collect([$reserva]);
+            }
+
+            $totalDetalles = $detalles->count();
             $esMultiple = $totalDetalles > 1;
-            $primerDetalle = $reserva->detalles->first();
+            $primerDetalle = $detalles->first();
 
-            // Mapeo independiente por cada detalle priorizando el Activo si existe
-            $listaRecursosMultiples = $reserva->detalles->map(function($det) {
-                if (!empty($det->act_id)) {
-                    $activoObj = $det->activo ?? \App\Models\ActivosModels::find($det->act_id);
-                    if ($activoObj) {
-                        $rutaBdActivo = $activoObj->act_foto ?? $activoObj->foto ?? null;
-                        $fotoActivo = !empty($rutaBdActivo)
-                            ? (str_starts_with($rutaBdActivo, 'http') ? $rutaBdActivo : (str_starts_with($rutaBdActivo, 'storage/') ? asset($rutaBdActivo) : asset('storage/' . $rutaBdActivo)))
-                            : asset('storage/images/activos/default.jpeg');
+            // Mapeo independiente por cada detalle priorizando el Activo o Aula con withTrashed
+            $listaRecursosMultiples = $detalles->map(function($det) {
+                
+                // 1. Buscar AULA con withTrashed
+                $aulaId = $det->aula_id ?? $det->det_re_aula_destino_act ?? null;
+                $aulaObj = $det->aula ?? (!empty($aulaId) ? \App\Models\AulasModels::withTrashed()->find($aulaId) : null);
 
-                        return (object)[
-                            'es_aula' => false,
-                            'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
-                            'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
-                            'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
-                            'foto'   => $fotoActivo
-                        ];
-                    }
-                }
+                if ($aulaObj) {
+                    $estaEliminada = !empty($aulaObj->deleted_at);
 
-                if (!empty($det->aula_id)) {
-                    $aulaObj = $det->aula ?? \App\Models\AulasModels::find($det->aula_id);
-                    if ($aulaObj) {
-                        $rutaBdAula = $aulaObj->aula_foto ?? $aulaObj->foto ?? null;
-                        $fotoAula = !empty($rutaBdAula) 
-                            ? (str_starts_with($rutaBdAula, 'http') ? $rutaBdAula : (str_starts_with($rutaBdAula, 'storage/') ? asset($rutaBdAula) : asset('storage/' . $rutaBdAula)))
-                            : asset('storage/images/aulas/default.jpeg');
-
-                        $capacidad = $aulaObj->aula_capacidad ?? $aulaObj->capacidad ?? 'N/A';
-
+                    if ($estaEliminada) {
                         return (object)[
                             'es_aula' => true,
-                            'nombre' => $aulaObj->aula_nombre ?? $aulaObj->nombre ?? 'Aula sin nombre',
-                            'serial' => $capacidad,
-                            'marca'  => 'Salón / Aula',
-                            'foto'   => $fotoAula
+                            'nombre' => 'Aula fuera de servicio',
+                            'serial' => 'N/A',
+                            'marca'  => 'Fuera de servicio',
+                            'foto'   => asset('storage/activos/fuera-servicio.png')
                         ];
                     }
+
+                    $rutaBdAula = $aulaObj->aula_foto ?? $aulaObj->foto ?? $aulaObj->imagen ?? null;
+                    $fotoAula = !empty($rutaBdAula) 
+                        ? (str_starts_with($rutaBdAula, 'http') ? $rutaBdAula : (str_starts_with($rutaBdAula, 'storage/') ? asset($rutaBdAula) : asset('storage/' . $rutaBdAula)))
+                        : asset('storage/images/aulas/default.jpeg');
+
+                    $capacidad = $aulaObj->aula_capacidad ?? $aulaObj->capacidad ?? 'N/A';
+
+                    return (object)[
+                        'es_aula' => true,
+                        'nombre' => $aulaObj->aula_nombre ?? $aulaObj->nombre ?? 'Aula sin nombre',
+                        'serial' => $capacidad,
+                        'marca'  => 'Salón / Aula',
+                        'foto'   => $fotoAula
+                    ];
+                }
+
+                // 2. Buscar ACTIVO con withTrashed
+                $actId = $det->act_id ?? null;
+                $activoObj = $det->activo ?? (!empty($actId) ? \App\Models\ActivosModels::withTrashed()->find($actId) : null);
+
+                if ($activoObj) {
+                    $estaActivoEliminado = !empty($activoObj->deleted_at);
+
+                    if ($estaActivoEliminado) {
+                        return (object)[
+                            'es_aula' => false,
+                            'nombre' => 'Activo fuera de servicio',
+                            'serial' => 'N/A',
+                            'marca'  => 'Fuera de servicio',
+                            'foto'   => asset('storage/activos/fuera-servicio.png')
+                        ];
+                    }
+
+                    $rutaBdActivo = $activoObj->act_foto ?? $activoObj->foto ?? $activoObj->imagen ?? null;
+                    $fotoActivo = !empty($rutaBdActivo)
+                        ? (str_starts_with($rutaBdActivo, 'http') ? $rutaBdActivo : (str_starts_with($rutaBdActivo, 'storage/') ? asset($rutaBdActivo) : asset('storage/' . $rutaBdActivo)))
+                        : asset('storage/images/activos/default.jpeg');
+
+                    return (object)[
+                        'es_aula' => false,
+                        'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
+                        'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
+                        'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
+                        'foto'   => $fotoActivo
+                    ];
                 }
 
                 return (object)[
@@ -70,16 +104,21 @@
             if ($esMultiple) {
                 $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
             } else {
-                $nombreRecurso = $listaRecursosMultiples[0]->nombre ?? 'Recurso General';
+                $nombreRecurso = optional($listaRecursosMultiples->first())->nombre ?? 'Recurso General';
             }
 
             $ubicacion = 'N/A';
             if ($primerDetalle) {
-                if ($primerDetalle->aula) {
-                    $ubicacion = $primerDetalle->aula->aula_nombre ?? $primerDetalle->aula->nombre ?? 'N/A';
-                } elseif (!empty($primerDetalle->aula_id)) {
-                    $aulaUbicacion = \App\Models\AulasModels::find($primerDetalle->aula_id);
-                    $ubicacion = $aulaUbicacion->aula_nombre ?? $aulaUbicacion->nombre ?? 'N/A';
+                $aulaIdUbicacion = $primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act ?? null;
+                if (!empty($aulaIdUbicacion)) {
+                    $aulaUbicacion = \App\Models\AulasModels::withTrashed()->find($aulaIdUbicacion);
+                    if ($aulaUbicacion && empty($aulaUbicacion->deleted_at)) {
+                        $ubicacion = $aulaUbicacion->aula_nombre ?? $aulaUbicacion->nombre ?? 'N/A';
+                    } else {
+                        $ubicacion = 'Fuera de servicio';
+                    }
+                } elseif (optional($listaRecursosMultiples->first())->es_aula) {
+                    $ubicacion = optional($listaRecursosMultiples->first())->nombre;
                 }
             }
 
@@ -131,7 +170,7 @@
                     'recurso'   => $nombreRecurso,
                     'usuario'   => $nombreUsuario,
                     'estado'    => ucfirst($estadoReserva),
-                    'modalData' => json_encode($datosReservaModal)
+                    'modalData' => json_encode($datosReservaModal, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)
                 ]
             ];
         })->filter(fn($evento) => !empty($evento['start']))->values()->toArray();

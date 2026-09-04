@@ -154,32 +154,14 @@
     </div>
 <script>
 document.getElementById('formConfirmarReserva').addEventListener('submit', function(e) {
-    e.preventDefault(); // Evita la redirección por defecto del servidor
-
+    // YA NO usamos e.preventDefault(); para que el formulario viaje de forma normal al servidor.
+    
     const btn = document.getElementById('btnGuardarReserva');
     btn.disabled = true;
     btn.textContent = 'Guardando...';
-
-    const formData = new FormData(this);
-
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => {
-        // Redirige al Dashboard correspondiente evaluado en Blade
-        window.location.href = "{{ $urlRedireccion }}";
-    })
-    .catch(error => {
-        console.error('Error al guardar la reserva:', error);
-        alert('Ocurrió un error al procesar la reserva. Por favor intenta de nuevo.');
-        btn.disabled = false;
-        btn.textContent = 'Confirmar y Guardar Reserva';
-    });
+    
+    // El formulario se enviará de forma nativa a la ruta del controlador, 
+    // el controlador hará el redirect()->route() y la sesión flash viajará limpia al dashboard.
 });
 </script>
 @endsection

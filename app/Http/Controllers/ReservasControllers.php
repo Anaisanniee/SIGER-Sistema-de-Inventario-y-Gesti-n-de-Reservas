@@ -459,7 +459,7 @@ class ReservasControllers extends Controller
             'cart'
         ]);
 
-        return redirect()->route($dashboardRoute)->with('success', '¡Solicitud de reserva procesada con éxito! Quedará pendiente de aprobación.');
+        return redirect()->route($dashboardRoute)->with('exito', '¡Solicitud de reserva procesada con éxito! Quedará pendiente de aprobación.');
     }
 
     public function indexSecretaria()

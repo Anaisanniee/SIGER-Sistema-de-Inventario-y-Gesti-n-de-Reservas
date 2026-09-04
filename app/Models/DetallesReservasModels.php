@@ -27,16 +27,15 @@ class DetallesReservasModels extends Model
         return $this->belongsTo(ReservasModels::class, 'res_id', 'res_id');
     }
 
-    // Relación con el activo
+    // Relación con el activo (Añadimos withTrashed para que traiga los eliminados de la papelera)
     public function activo()
     {
-        return $this->belongsTo(ActivosModels::class, 'act_id', 'act_id');
+        return $this->belongsTo(ActivosModels::class, 'act_id', 'act_id')->withTrashed();
     }
 
-    // Relación con el aula
+    // Relación con el aula (Añadimos withTrashed también aquí)
     public function aula()
     {
-        // Forzamos a que use la columna de destino del activo y la llave primaria 'aula_id'
-        return $this->belongsTo(AulasModels::class, 'det_re_aula_destino_act', 'aula_id');
+        return $this->belongsTo(AulasModels::class, 'aula_id', 'aula_id');
     }
 }
