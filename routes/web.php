@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReservasControllers;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\InformeController;
+use App\Http\Controllers\PasswordResetController;
 
 // ==========================================
 // RUTA DE INVENTARIO
@@ -61,10 +62,16 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// 🔑 Rutas de Autenticación (Públicas)
+// 🔑 Rutas de Autenticación y Recuperación (Públicas)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // 🔄 Rutas de Recuperación de Contraseña
+    Route::get('password/forgot', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('password/email', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('password/update', [PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 // 🚪 Cerrar sesión oficial (POST)
@@ -135,7 +142,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/dashboard/secretaria.', function () {
             return view('dashboard.secretario');
-        })->name('dashboard.secretario');
+        })->name('dashboard.secretaria');
     });
 
     // -----------------------------------------------------

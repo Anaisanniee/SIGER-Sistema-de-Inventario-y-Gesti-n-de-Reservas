@@ -77,7 +77,7 @@
             </div>
 
 
-            <a href="">¿Olvidaste tu contraseña?</a>
+            <a href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
 
 
             {{----$_COOKIE['user_id'/rol]----}}

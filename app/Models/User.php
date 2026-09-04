@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\ResetPasswordNotification;
 
 #[Fillable([
     'USU_CEDULA', 
@@ -21,11 +22,12 @@ use Illuminate\Notifications\Notifiable;
     'ROL_ID'
 ])]
 #[Hidden(['USU_CONTRASEÑA', 'remember_token'])]
+
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // Ajustado a minúsculas como lo muestra tu base de datos
+    protected $table = 'users'; // Asegura el nombre de la tabla
     protected $primaryKey = 'usu_id'; 
 
     protected function casts(): array
@@ -43,5 +45,21 @@ class User extends Authenticatable
     public function getAuthPassword()
     {
         return $this->USU_CONTRASEÑA;
+    }
+
+    public function getEmailForPasswordReset()
+    {
+        return $this->USU_CORREO;
+    }
+
+    // FUERZA A LARAVEL A USAR USU_CORREO PARA EL ENVÍO DE NOTIFICACIONES
+    public function routeNotificationForMail($notification)
+    {
+        return $this->USU_CORREO;
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }
