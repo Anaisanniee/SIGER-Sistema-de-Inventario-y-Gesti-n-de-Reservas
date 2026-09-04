@@ -142,7 +142,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/dashboard/secretaria.', function () {
             return view('dashboard.secretario');
-        })->name('dashboard.secretaria');
+        })->name('dashboard.secretario');
     });
 
     // -----------------------------------------------------
