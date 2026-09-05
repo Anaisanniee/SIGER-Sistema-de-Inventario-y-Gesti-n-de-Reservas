@@ -13,11 +13,7 @@
     $esAdmin = Auth::user()->esAdmin ?? true;
 
     if (!isset($reservas) && !isset($reservasSimuladas)) {
-        $fuenteReservas = \App\Models\ReservasModels::with([
-            'detalles.activo' => fn($q) => $q->withTrashed(), 
-            'detalles.aula' => fn($q) => $q->withTrashed(), 
-            'usuario'
-        ])->get();
+        $fuenteReservas = \App\Models\ReservasModels::with(['detalles.activo', 'detalles.aula', 'usuario'])->get();
     } else {
         $fuenteReservas = $reservas ?? $reservasSimuladas;
     }
@@ -29,74 +25,28 @@
         $primerDetalle = $totalDetalles > 0 ? $detalles->first() : null;
 
         $nombreRecurso = 'Recurso General';
+        $ubicacion = 'N/A';
         $fotoRecurso = asset('storage/activos/default.jpeg');
 
-        // ==========================================
-        // BÚSQUEDA ROBUSTA DE UBICACIÓN
-        // ==========================================
-        $ubicacion = 'N/A';
-        $aulaIdUbicacion = $reserva->aula_id ?? ($primerDetalle->aula_id ?? ($primerDetalle->det_re_aula_destino_act ?? null));
-
-        if (empty($aulaIdUbicacion) && $totalDetalles > 1) {
-            foreach ($detalles as $det) {
-                $posibleId = $det->aula_id ?? ($det->det_re_aula_destino_act ?? null);
-                if (!empty($posibleId)) {
-                    $aulaIdUbicacion = $posibleId;
-                    break;
-                }
+        if ($primerDetalle) {
+            if (!empty($primerDetalle->aula)) {
+                $ubicacion = $primerDetalle->aula->aula_nombre ?? ($primerDetalle->aula->nombre ?? 'N/A');
+            } elseif (!empty($primerDetalle->aula_id)) {
+                $aulaObj = \App\Models\AulasModels::find($primerDetalle->aula_id);
+                $ubicacion = $aulaObj ? ($aulaObj->aula_nombre ?? ($aulaObj->nombre ?? 'N/A')) : 'N/A';
             }
         }
-
-        if (!empty($aulaIdUbicacion)) {
-            $aulaObjUbicacion = \App\Models\AulasModels::withTrashed()->find($aulaIdUbicacion);
-            if ($aulaObjUbicacion) {
-                if ($aulaObjUbicacion->trashed()) {
-                    $ubicacion = 'Aula Fuera de Servicio';
-                } else {
-                    $ubicacion = $aulaObjUbicacion->aula_nombre ?? ($aulaObjUbicacion->nombre ?? 'N/A');
-                }
-            }
-        } elseif ($primerDetalle && !empty($primerDetalle->aula)) {
-            $ubicacion = $primerDetalle->aula->aula_nombre ?? ($primerDetalle->aula->nombre ?? 'N/A');
-        }
-        // ==========================================
 
         if ($esMultiple) {
             $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
             $fotoRecurso = asset('storage/activos/multiple-default.png');
         } elseif ($primerDetalle) {
             $activoObj = $primerDetalle->activo ?? null;
-            $aulaObj = $primerDetalle->aula ?? null;
-            $aulaId = $primerDetalle->aula_id ?? ($primerDetalle->det_re_aula_destino_act ?? null);
-            if (!$aulaObj && $aulaId) {
-                $aulaObj = \App\Models\AulasModels::withTrashed()->find($aulaId);
-            }
-
             if ($activoObj) {
-                if ($activoObj->trashed()) {
-                    $nombreRecurso = 'Activo Fuera de Servicio';
-                    $fotoRecurso = asset('storage/activos/fuera-servicio.png');
-                } else {
-                    $nombreRecurso = $activoObj->act_nombre ?? ($activoObj->nombre ?? 'Activo sin nombre');
-                    $rutaFoto = $activoObj->act_foto ?? ($activoObj->foto ?? null);
-                    if ($rutaFoto) {
-                        $fotoRecurso = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
-                    }
-                }
-            } elseif ($aulaObj) {
-                if ($aulaObj->trashed()) {
-                    $nombreRecurso = 'Aula Fuera de Servicio';
-                    $fotoRecurso = asset('storage/activos/fuera-servicio.png');
-                } else {
-                    $nombreRecurso = $aulaObj->aula_nombre ?? ($aulaObj->nombre ?? 'Aula Institucional');
-                    
-                    // Búsqueda dinámica y segura de la foto del aula
-                    $rutaFoto = $aulaObj->aula_foto ?? ($aulaObj->foto ?? null);
-                    if ($rutaFoto) {
-                        $fotoRecurso = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
-                    } else {
-                        $fotoRecurso = asset('storage/activos/default.jpeg'); 
-                    }
+                $nombreRecurso = $activoObj->act_nombre ?? ($activoObj->nombre ?? 'Activo sin nombre');
+                $rutaFoto = $activoObj->act_foto ?? ($activoObj->foto ?? null);
+                if ($rutaFoto) {
+                    $fotoRecurso = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
                 }
             }
         }
@@ -124,50 +74,28 @@
             $act = $det->activo ?? null;
             $actId = $det->act_id ?? ($det->activo_id ?? null);
             if (!$act && $actId) {
-                $act = \App\Models\ActivosModels::withTrashed()->where('act_id', $actId)->first();
+                $act = \App\Models\ActivosModels::where('act_id', $actId)->first();
             }
 
             if ($act) {
-                if ($act->trashed()) {
-                    $nombreItem = 'Activo Fuera de Servicio (Eliminado)';
-                    $serialItem = 'Número de serie: No disponible';
-                    $marcaItem = 'Estado: En papelera';
-                    $fotoItem = asset('storage/activos/fuera-servicio.png');
-                } else {
-                    $nombreItem = $act->act_nombre ?? ($act->nombre ?? 'Activo');
-                    $serialItem = 'Número de serie: ' . ($act->act_serial ?? ($act->serial ?? 'N/A'));
-                    $marcaItem = 'Marca: ' . ($act->act_marca ?? ($act->marca ?? 'N/A'));
-                    $rutaFoto = $act->act_foto ?? ($act->foto ?? null);
-                    if ($rutaFoto) {
-                        $fotoItem = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
-                    }
+                $nombreItem = $act->act_nombre ?? ($act->nombre ?? 'Activo');
+                $serialItem = 'Número de serie: ' . ($act->act_serial ?? ($act->serial ?? 'N/A'));
+                $marcaItem = 'Marca: ' . ($act->act_marca ?? ($act->marca ?? 'N/A'));
+                $rutaFoto = $act->act_foto ?? ($act->foto ?? null);
+                if ($rutaFoto) {
+                    $fotoItem = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
                 }
             } else {
                 $aulaObj = $det->aula ?? null;
                 $aulaId = $det->aula_id ?? ($det->det_re_aula_destino_act ?? null);
                 if (!$aulaObj && $aulaId) {
-                    $aulaObj = \App\Models\AulasModels::withTrashed()->find($aulaId);
+                    $aulaObj = \App\Models\AulasModels::find($aulaId);
                 }
 
                 if ($aulaObj) {
-                    if ($aulaObj->trashed()) {
-                        $nombreItem = 'Aula Fuera de Servicio (Eliminada)';
-                        $serialItem = ''; 
-                        $marcaItem = 'Estado: En papelera';
-                        $fotoItem = asset('storage/activos/fuera-servicio.png');
-                    } else {
-                        $nombreItem = $aulaObj->aula_nombre ?? ($aulaObj->nombre ?? 'Aula Institucional');
-                        $serialItem = ''; 
-                        $marcaItem = 'Salón / Aula';
-                        
-                        // Búsqueda dinámica y segura de la foto del aula para el modal
-                        $rutaFoto = $aulaObj->aula_foto ?? ($aulaObj->foto ?? null);
-                        if ($rutaFoto) {
-                            $fotoItem = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
-                        } else {
-                            $fotoItem = asset('storage/activos/default.jpeg');
-                        }
-                    }
+                    $nombreItem = $aulaObj->aula_nombre ?? ($aulaObj->nombre ?? 'Aula Institucional');
+                    $serialItem = ''; 
+                    $marcaItem = 'Salón / Aula';
                 }
             }
 
@@ -194,7 +122,7 @@
             "fechaFin" => $fechaCruda ? \Carbon\Carbon::parse($fechaCruda)->format("Y-m-d") : date('Y-m-d'),
             "horaFin" => $horaFin,
             "aula" => $ubicacion,          
-            "ubicacion" => $ubicacion,    
+            "ubicacion" => $ubicacion,     
             "recursos" => $listaRecursosModal
         ];
 
@@ -224,21 +152,36 @@
     'descripcion' => 'Sistema institucional de inventario, activos y gestión de reservas en tiempo real.'
 ])
 
-{{--- 2. SECCIÓN SUPERIOR: ACCESOS Y ALERTAS ---}}
+{{--- 2. SECCIÓN SUPERIOR: MÓDULOS DE ACCESO RÁPIDO ---}}
 <div class="dashboard-grid">
     <div class="dashboard-columna">
-        <h3 class="dashboard-subtitulo">Módulos Disponibles</h3>
+        <h3 class="dashboard-subtitulo">Módulos Principales</h3>
         <div class="contenedor-accesos">
-            <x-tarjetas.tarjeta-acceso-rapido :href="url('/secretaria/reservas')" icono="fas fa-calendar-check" claseAcceso="acceso-reservas" titulo="Gestión de Reservas" descripcion="Revisa solicitudes, aprueba, rechaza y controla las agendas del día."/>
-            <x-tarjetas.tarjeta-acceso-rapido :href="url('/inventario')" icono="fas fa-boxes" claseAcceso="acceso-inventario" titulo="Gestión de Inventario" descripcion="Controla las aulas, equipos tecnológicos y el estado de los activos."/>
+            <x-tarjetas.tarjeta-acceso-rapido 
+                :href="url('/secretaria/reservas')" 
+                icono="fas fa-calendar-check" 
+                color="azul"
+                titulo="Gestión de Reservas" 
+                descripcion="Revisa solicitudes, aprueba, rechaza y controla las agendas del día."/>
+                
+            <x-tarjetas.tarjeta-acceso-rapido 
+                :href="url('/inventario')" 
+                icono="fas fa-boxes" 
+                color="verde"
+                titulo="Gestión de Inventario" 
+                descripcion="Controla las aulas, equipos tecnológicos y el estado de los activos."/>
         </div>
     </div>
 
     <div class="dashboard-columna">
-        <h3 class="dashboard-subtitulo">Alertas del Sistema</h3>
-        <div class="contenedor-alertas" id="contenedor-alertas-siger">
-            <x-alertas.notificacion tipo="peligro" titulo="Entrega Retrasada">El <strong>Computador Dell Inspiron</strong> debió devolverse a las 10:00 AM.</x-alertas.notificacion>
-            <x-alertas.notificacion tipo="advertencia" titulo="Mantenimiento">El Aula 101 reporta fallas en la red.</x-alertas.notificacion>
+        <h3 class="dashboard-subtitulo">Administración</h3>
+        <div class="contenedor-accesos">
+            <x-tarjetas.tarjeta-acceso-rapido 
+                :href="url('/usuarios')" 
+                icono="fas fa-users-cog" 
+                color="amarillo"
+                titulo="Gestión de Usuarios" 
+                descripcion="Administra los usuarios del sistema y sus permisos."/>
         </div>
     </div>
 </div>

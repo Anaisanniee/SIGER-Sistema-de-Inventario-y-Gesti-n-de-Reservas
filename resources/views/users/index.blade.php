@@ -3,7 +3,7 @@
 @section('mostrarBusqueda', 'true')
 @section('mostrarRegresar', 'true')
 @section('rutaRegresar', route('dashboard.secretaria'))
-@section('mostrarPerfil', 'false')
+@section('mostrarPerfil', 'true')
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">

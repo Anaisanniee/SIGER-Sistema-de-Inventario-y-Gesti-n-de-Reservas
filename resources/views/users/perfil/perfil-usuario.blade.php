@@ -70,7 +70,7 @@
 
             <div class="acciones-laterales">
                 <x-botones.boton 
-                    url="{{route('perfil.password.edit')}}" 
+                    url="" 
                     clase="btn btn-perfil-guardar text-center-link">
                     <i class="fas fa-edit" style="margin-right: 5px;"></i>Cambiar Contraseña
                 </x-botones.boton>
