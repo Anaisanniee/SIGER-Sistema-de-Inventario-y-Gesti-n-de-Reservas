@@ -30,6 +30,7 @@
             href="{{ route('secretaria.informe') }}"
             icono="fas fa-calendar-alt"
             claseAcceso="acceso-reservas"
+            color="azul"
             titulo="Informes Reservas"
             descripcion="Consulta y genera informes detallados sobre las reservas."
         />
