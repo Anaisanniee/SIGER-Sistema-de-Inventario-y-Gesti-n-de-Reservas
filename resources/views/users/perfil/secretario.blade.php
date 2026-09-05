@@ -6,6 +6,7 @@
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
 <div class="siger-modulo-perfil">
     
@@ -48,6 +49,13 @@
                     <span class="item-titulo">Pendientes</span>
                     <span class="item-valor badge-reserva" style="background-color: var(--color-estado-en-mantenimiento);">{{ $pendientesCount ?? 0 }}</span>
                 </div>
+            </div>
+
+             
+            <div class="accion-lateral">
+                <x-botones.boton id="btn-editar-perfil" class="btn btn-editar-perfil" type="button">
+                    <i class="fas fa-edit" style="margin-right: 5px;"></i> Cambiar contraseña
+                </x-botones.boton>
             </div>
         </aside>
 

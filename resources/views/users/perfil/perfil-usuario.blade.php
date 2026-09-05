@@ -23,6 +23,7 @@
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
+<link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
 <div class="siger-modulo-perfil">
     
@@ -68,7 +69,11 @@
             </div>
 
             <div class="acciones-laterales">
-
+                <x-botones.boton 
+                    url="{{route('perfil.password.edit')}}" 
+                    clase="btn btn-perfil-guardar text-center-link">
+                    <i class="fas fa-edit" style="margin-right: 5px;"></i>Cambiar Contraseña
+                </x-botones.boton>
             </div>
         </aside>
 

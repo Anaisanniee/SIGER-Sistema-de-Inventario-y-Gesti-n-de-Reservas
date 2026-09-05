@@ -84,14 +84,29 @@
            value="{{ old('correo', $usuario->USU_CORREO ?? '') }}">
 </div>
 
-{{-- CONDICIONAL CONTRASEÑA: Solo si se está CREANDO un usuario --}}
-@if('crear' === $modo)
+{{--
+    BLOQUE DE CONTRASEÑA: Solo visible en los modos de creación, edición por administrador o edición de perfil
+    - En el modo de creación, la contraseña es obligatoria.
+    - En el modo de edición por administrador, la contraseña es opcional.
+    - En el modo de edición de perfil, la contraseña es opcional y se puede cambiar
+--}}
+
+@if('crear' === $modo || 'editar-admin' === $modo)
+
     <div class="post-form">
-        <label for="password">Contraseña Inicial <span class="text-danger">*</span></label>
-        <input type="password" id="password" name="password" required 
-               autocomplete="new-password" placeholder="Asigna una clave temporal">
-    </div>
+        <label for="password">
+            Contraseña @if('crear' === $modo)<span class="text-danger">*</span>@endif
+        </label>
+        
+        <input type="password" 
+               id="password" 
+               name="password" 
+               class="input-siger"
+               autocomplete="new-password"
+               placeholder="{{ ('editar-admin' === $modo && isset($usuario)) ? 'Puedes cambiar en cualquier momento la clave del usuario' : 'Asigna una clave de ingreso' }}">
+</div>
 @endif
+
 
 <div class="contenedor-botones" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
     <x-botones.boton 

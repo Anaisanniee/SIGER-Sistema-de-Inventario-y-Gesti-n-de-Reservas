@@ -63,8 +63,6 @@
         </div>
     </div>
 
-    {{-- Script para que el botón 'X' de las alertas flotantes funcione --}}
-    <script src="{{ asset('js/componentes/alertas-flotantes.js') }}"></script>
-
+ 
 </body>
 </html>

@@ -68,6 +68,13 @@ input, select {
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Efecto al hacer clic o posicionarse en el campo */
+input:focus, select:focus {
+    background-color: var(--color-fondo-secundario);
+    border-color: var(--color-principal); /* Color verde corporativo */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(0, 168, 107, 0.15);
+}
+
 option {
     font-family: var(--fuente-secundaria);
     font-weight: 400;
