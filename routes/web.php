@@ -15,11 +15,7 @@ use App\Http\Controllers\PasswordResetController;
 // RUTA DE INVENTARIO
 // ==========================================
 // Ruta dinámica de notificaciones para el usuario autenticado
-Route::get('/informes/inventario/exportar/{tipo}', [InformeController::class, 'exportarExcel'])->name('informes.inventario.exportar');
 
-Route::get('/informes/inventario', [InformeController::class, 'inventario'])
-    ->name('informes.inventario')
-    ->middleware(['auth']);
 
 // Ruta para ver ficha tecnica (Restringida solo a números)
 Route::get('/aulas/{id}', [AulasControllers::class, 'show'])->name('aulas.show')->where('id', '[0-9]+');
@@ -165,6 +161,11 @@ Route::middleware('auth')->group(function () {
     // -----------------------------------------------------
     Route::middleware('role:Secretaria,Secretario,Rectora,Rector')->group(function () {
         Route::get('/informe', [InformeController::class, 'index'])->name('secretaria.informe');
+        Route::get('/informes/inventario/exportar/{tipo}', [InformeController::class, 'exportarExcel'])->name('informes.inventario.exportar');
+
+        Route::get('/informes/inventario', [InformeController::class, 'inventario'])
+            ->name('informes.inventario')
+            ->middleware(['auth']);
     });
 
     Route::middleware('role:Secretaria,Secretario,Rectora,Rector,Docente')->group(function () {

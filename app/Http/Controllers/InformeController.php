@@ -26,27 +26,32 @@ class InformeController extends Controller
 
     public function inventario()
     {
-        // 1. Consultamos y transformamos los Activos incluyendo la relación del precio actual
-        $activos = ActivosModels::with(['aula', 'categoria', 'precioActual'])->get()->map(function ($activo) {
+        // 1. Consultamos y transformamos los Activos (incluyendo los eliminados con withTrashed)
+        $activos = ActivosModels::withTrashed()->with(['aula' => fn($q) => $q->withTrashed(), 'categoria', 'precioActual'])->get()->map(function ($activo) {
             
             // Obtenemos el valor directamente de la relación que ya definiste en el modelo
             $valorPrecio = $activo->precioActual ? $activo->precioActual->his_pre_valor : 0;
 
+            // Verificamos si está eliminado para agregarle una indicación visual opcional
+            $nombreActivo = $activo->act_nombre ?? 'Sin nombre';
+            if ($activo->trashed()) {
+                $nombreActivo .= ' (Fuera de servicio)';
+            }
+
             return [
-                'nombre_activo'    => $activo->act_nombre ?? 'Sin nombre',
+                'nombre_activo'    => $nombreActivo,
                 'serial'           => $activo->act_serial ?? 'N/A',
                 'ubicacion'        => optional($activo->aula)->aula_nombre ?? 'Sede Principal',
                 'marca'            => $activo->act_marca ?? 'N/A',
                 'categoria'        => optional($activo->categoria)->cate_nombre ?? 'General',
-                'estado'           => $activo->act_estado_fisico ?? 'No registrado',
+                'estado'           => $activo->trashed() ? 'Eliminado / Papelera' : ($activo->act_estado_fisico ?? 'No registrado'),
                 'anio_adquisicion' => $activo->act_fecha_ingreso ? Carbon::parse($activo->act_fecha_ingreso)->format('Y') : 'N/A',
                 'his_pre_valor'    => $valorPrecio > 0 ? '$ ' . number_format($valorPrecio, 2, ',', '.') : 'N/A'
             ];
         });
 
-        // 2. Consultamos y transformamos las Aulas
-        // 2. Consultamos y transformamos las Aulas
-        $aulas = AulasModels::all()->map(function ($aula) {
+        // 2. Consultamos y transformamos las Aulas (incluyendo las eliminadas con withTrashed)
+        $aulas = AulasModels::withTrashed()->get()->map(function ($aula) {
             
             // Buscamos el tipo de aula usando la columna correcta 'tip_aula_id' y 'tip_aula_nombre'
             $tipoAulaNombre = 'General';
@@ -57,12 +62,17 @@ class InformeController extends Controller
                 }
             }
 
+            $nombreAula = $aula->aula_nombre ?? 'Sin nombre';
+            if ($aula->trashed()) {
+                $nombreAula .= ' (Fuera de servicio)';
+            }
+
             return [
-                'nombre_aula'          => $aula->aula_nombre ?? 'Sin nombre',
-                'tip_aula_id'          => $tipoAulaNombre, // <--- Cambiado de 'tipo_aula' a 'tip_aula_id' para que coincida con el Blade
+                'nombre_aula'          => $nombreAula,
+                'tip_aula_id'          => $tipoAulaNombre, 
                 'capacidad'            => ($aula->aula_capacidad ?? 0) . ' personas',
                 'reservable'           => ($aula->aula_reservable == 1) ? 'Sí' : 'No',
-                'estado'               => $aula->aula_estado ?? 'Disponible',
+                'estado'               => $aula->trashed() ? 'Eliminada / Papelera' : ($aula->aula_estado ?? 'Disponible'),
                 'ultimo_mantenimiento' => $aula->updated_at ? Carbon::parse($aula->updated_at)->format('d/m/Y') : 'N/A'
             ];
         });
@@ -75,33 +85,40 @@ class InformeController extends Controller
         $nombreArchivo = 'informe_' . $tipo . '_' . date('Y-m-d') . '.csv';
         
         if ($tipo === 'activos') {
-            $datos = \App\Models\ActivosModels::with(['aula', 'categoria'])->get()->map(function ($activo) {
-                // Buscamos el precio más reciente usando la misma lógica que ya funciona en tu vista
-                $historialPrecio = DB::table('historial_precios')
-                    ->where('act_id', $activo->act_id)
-                    ->orderBy('his_pre_id', 'desc')
-                    ->first();
-                
-                $valorPrecio = $historialPrecio ? ($historialPrecio->his_pre_valor ?? 0) : 0;
+            // Añadimos withTrashed() para incluir los activos eliminados y la relación con el aula eliminada también
+            $datos = \App\Models\ActivosModels::withTrashed()
+                ->with(['aula' => fn($q) => $q->withTrashed(), 'categoria'])
+                ->get()
+                ->map(function ($activo) {
+                    
+                    // Buscamos el precio más reciente
+                    $historialPrecio = DB::table('historial_precios')
+                        ->where('act_id', $activo->act_id)
+                        ->orderBy('his_pre_id', 'desc')
+                        ->first();
+                    
+                    $valorPrecio = $historialPrecio ? ($historialPrecio->his_pre_valor ?? 0) : 0;
+                    
+                    $nombreActivo = $activo->act_nombre ?? 'Sin nombre';
+                    if ($activo->trashed()) {
+                        $nombreActivo .= ' (Fuera de servicio)';
+                    }
 
-                return [
-                    'Nombre del activo'    => $activo->act_nombre ?? 'Sin nombre',
-                    'Serial'               => $activo->act_serial ?? 'N/A',
-                    'Ubicación'            => optional($activo->aula)->aula_nombre ?? 'Sede Principal',
-                    'Marca'                => $activo->act_marca ?? 'N/A',
-                    'Categoría'            => optional($activo->categoria)->cate_nombre ?? 'General',
-                    'Estado'               => $activo->act_estado_fisico ?? 'No registrado',
-                    'Año de adquisición'   => $activo->act_fecha_ingreso ? Carbon::parse($activo->act_fecha_ingreso)->format('Y') : 'N/A',
-                    'Precio'               => $valorPrecio > 0 ? '$ ' . number_format($valorPrecio, 2, ',', '.') : 'N/A'
-                ];
-            });
+                    return [
+                        'Nombre del activo'    => $nombreActivo,
+                        'Serial'               => $activo->act_serial ?? 'N/A',
+                        'Ubicación'            => optional($activo->aula)->aula_nombre ?? 'Sede Principal',
+                        'Marca'                => $activo->act_marca ?? 'N/A',
+                        'Categoría'            => optional($activo->categoria)->cate_nombre ?? 'General',
+                        'Estado'               => $activo->trashed() ? 'Eliminado / Papelera' : ($activo->act_estado_fisico ?? 'No registrado'),
+                        'Año de adquisición'   => $activo->act_fecha_ingreso ? Carbon::parse($activo->act_fecha_ingreso)->format('Y') : 'N/A',
+                        'Precio'               => $valorPrecio > 0 ? '$ ' . number_format($valorPrecio, 2, ',', '.') : 'N/A'
+                    ];
+                });
         } else {
-            // PRUEBA DE DIAGNÓSTICO TEMPORAL PARA AULAS
-            $aulasTest = \App\Models\AulasModels::all();
+            // Añadimos withTrashed() para incluir las aulas eliminadas
+            $aulasTest = \App\Models\AulasModels::withTrashed()->get();
             
-            // Si quieres ver qué datos trae antes de exportar, descomenta la siguiente línea:
-            // dd($aulasTest);
-
             $datos = $aulasTest->map(function ($aula) {
                 $tipoAulaNombre = 'General';
                 if (!empty($aula->tip_aula_id)) {
@@ -111,12 +128,17 @@ class InformeController extends Controller
                     }
                 }
 
+                $nombreAula = $aula->aula_nombre ?? 'Sin nombre';
+                if ($aula->trashed()) {
+                    $nombreAula .= ' (Fuera de servicio)';
+                }
+
                 return [
-                    'Nombre del aula'      => $aula->aula_nombre ?? 'Sin nombre',
+                    'Nombre del aula'      => $nombreAula,
                     'Tipo de aula'         => $tipoAulaNombre,
                     'Capacidad'            => ($aula->aula_capacidad ?? 0) . ' personas',
                     'Reservable'           => ($aula->aula_reservable == 1) ? 'Sí' : 'No',
-                    'Estado'               => $aula->aula_estado ?? 'Disponible',
+                    'Estado'               => $aula->trashed() ? 'Eliminada / Papelera' : ($aula->aula_estado ?? 'Disponible'),
                     'Último Mantenimiento' => $aula->updated_at ? Carbon::parse($aula->updated_at)->format('d/m/Y') : 'N/A'
                 ];
             });
@@ -177,8 +199,12 @@ class InformeController extends Controller
         $usuario = auth()->user();
         $rol = strtolower($usuario->role->name ?? '');
 
-        // Consulta filtrada estrictamente por el ID del usuario actual
-        $query = ReservasModels::with(['detalles.activo', 'detalles.aula', 'usuario'])
+        // Consulta filtrada estrictamente por el ID del usuario actual (con withTrashed para capturar recursos eliminados)
+        $query = ReservasModels::with([
+                'detalles.activo' => fn($q) => $q->withTrashed(), 
+                'detalles.aula' => fn($q) => $q->withTrashed(), 
+                'usuario'
+            ])
             ->where('usu_id', $usuario->usu_id);
 
         $this->aplicarFiltroEstado($query, $request);
@@ -189,11 +215,11 @@ class InformeController extends Controller
 
         // 🔀 Definimos la ruta de retorno de forma inteligente según el rol
         if (in_array($rol, ['rector', 'rectora'])) {
-            $rutaRegresar = route('dashboard.rectora'); // O la ruta principal de la rectora
+            $rutaRegresar = route('dashboard.rectora'); 
         } elseif (in_array($rol, ['docente'])) {
-            $rutaRegresar = route('dashboard.docente'); // O la ruta principal del docente
+            $rutaRegresar = route('dashboard.docente'); 
         } else {
-            $rutaRegresar = route('dashboard.secretaria'); // Por defecto para secretaría
+            $rutaRegresar = route('dashboard.secretaria'); 
         }
 
         return view('informes.reservas', compact('reservas', 'totalRegistros', 'rutaRegresar'));
@@ -262,24 +288,33 @@ class InformeController extends Controller
             fputcsv($file, ['ID Reserva', 'Solicitante', 'Estado', 'Recurso / Elemento', 'Fecha Inicio', 'Hora Inicio', 'Fecha Fin', 'Hora Fin', 'Ubicación'], ';');
 
             foreach ($reservas as $reserva) {
-                $primerDetalle = $reserva->detalles->first();
-                $esMultiple = $reserva->detalles->count() > 1;
+                $detalles = $reserva->detalles;
+                $primerDetalle = $detalles->first();
+                $esMultiple = $detalles->count() > 1;
 
                 if ($esMultiple) {
-                    $nombreRecurso = 'Reserva Múltiple (' . $reserva->detalles->count() . ' elementos)';
+                    $nombreRecurso = 'Reserva Múltiple (' . $detalles->count() . ' elementos)';
                 } else {
                     $activoAsociado = optional($primerDetalle)->activo;
                     $aulaAsociada = optional($primerDetalle)->aula;
 
                     if (!$aulaAsociada && $primerDetalle && ($primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act ?? null)) {
                         $aId = $primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act;
-                        $aulaAsociada = \DB::table('aulas')->where('aula_id', $aId)->first();
+                        $aulaAsociada = \App\Models\AulasModels::withTrashed()->find($aId);
                     }
 
-                    if ($activoAsociado && !empty($activoAsociado->act_nombre)) {
-                        $nombreRecurso = $activoAsociado->act_nombre;
+                    if ($activoAsociado) {
+                        if (!empty($activoAsociado->deleted_at)) {
+                            $nombreRecurso = 'Activo fuera de servicio';
+                        } else {
+                            $nombreRecurso = $activoAsociado->act_nombre ?? 'Activo sin nombre';
+                        }
                     } elseif ($aulaAsociada) {
-                        $nombreRecurso = $aulaAsociada->aula_nombre ?? $aulaAsociada->nombre ?? 'Aula Asignada';
+                        if (!empty($aulaAsociada->deleted_at)) {
+                            $nombreRecurso = 'Aula fuera de servicio';
+                        } else {
+                            $nombreRecurso = $aulaAsociada->aula_nombre ?? $aulaAsociada->nombre ?? 'Aula Asignada';
+                        }
                     } else {
                         $nombreRecurso = 'Recurso General';
                     }
@@ -307,18 +342,19 @@ class InformeController extends Controller
                     $horaFin = 'N/A';
                 }
 
+                // Ubicación con validación de borrado suave
                 $ubicacionExport = 'Sede Principal';
                 if ($primerDetalle) {
                     if (isset($primerDetalle->aula) && $primerDetalle->aula) {
-                        $ubicacionExport = $primerDetalle->aula->aula_nombre ?? 'Aula Asignada';
+                        $ubicacionExport = !empty($primerDetalle->aula->deleted_at) ? 'Aula fuera de servicio' : ($primerDetalle->aula->aula_nombre ?? 'Aula Asignada');
                     } elseif (optional($primerDetalle->activo)->act_ubicacion) {
                         $ubicacionExport = $primerDetalle->activo->act_ubicacion;
                     } else {
                         $aulaId = $primerDetalle->det_re_aula_destino_act ?? $primerDetalle->aula_id;
                         if ($aulaId) {
-                            $aulaRecord = \DB::table('aulas')->where('aula_id', $aulaId)->first();
+                            $aulaRecord = \App\Models\AulasModels::withTrashed()->find($aulaId);
                             if ($aulaRecord) {
-                                $ubicacionExport = $aulaRecord->aula_nombre ?? ('Aula #' . $aulaId);
+                                $ubicacionExport = !empty($aulaRecord->deleted_at) ? 'Aula fuera de servicio' : ($aulaRecord->aula_nombre ?? ('Aula #' . $aulaId));
                             }
                         }
                     }
@@ -327,7 +363,7 @@ class InformeController extends Controller
                 fputcsv($file, [
                     $reserva->res_id ?? $reserva->id,
                     $nombreUsuario ?: 'Solicitante no asignado',
-                    ucfirst($reserva->res_estado_reserva ?? 'Pendiente'),
+                    ucfirst($reserva->res_estado_reserva ?? $reserva->estado ?? 'Pendiente'),
                     $nombreRecurso,
                     $fechaInicio,
                     $horaInicio,

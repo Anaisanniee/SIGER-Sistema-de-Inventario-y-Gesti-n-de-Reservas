@@ -73,26 +73,47 @@
                         
                         $listaRecursos = [];
                         foreach ($detalles as $det) {
-                            $listaRecursos[] = optional($det->activo)->act_nombre ?? (optional($det->aula)->aula_nombre ?? 'Elemento');
+                            $act = $det->activo;
+                            $aul = $det->aula;
+                            if ($act && !empty($act->deleted_at)) {
+                                $listaRecursos[] = 'Activo fuera de servicio';
+                            } elseif ($aul && !empty($aul->deleted_at)) {
+                                $listaRecursos[] = 'Aula fuera de servicio';
+                            } else {
+                                $listaRecursos[] = optional($act)->act_nombre ?? (optional($aul)->aula_nombre ?? 'Elemento');
+                            }
                         }
                     } else {
+                        // Usamos withTrashed() mediante Eloquent asegurando capturar el estado real
                         $activoAsociado = optional($primerDetalle)->activo;
                         $aulaAsociada = optional($primerDetalle)->aula;
                         
                         if (!$aulaAsociada && $primerDetalle && ($primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act ?? null)) {
                             $aId = $primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act;
-                            $aulaAsociada = \DB::table('aulas')->where('aula_id', $aId)->first();
+                            $aulaAsociada = \App\Models\AulasModels::withTrashed()->find($aId);
                         }
 
-                        if ($activoAsociado && !empty($activoAsociado->act_nombre)) {
-                            $nombreRecurso = $activoAsociado->act_nombre;
-                            $fotoRecurso = $activoAsociado->act_foto ?? null;
-                            $caracteristicaSecundaria = 'Serial: ' . ($activoAsociado->act_serial ?? $activoAsociado->serial ?? 'N/A');
+                        if ($activoAsociado) {
+                            if (!empty($activoAsociado->deleted_at)) {
+                                $nombreRecurso = 'Activo fuera de servicio';
+                                $fotoRecurso = 'activos/fuera-servicio.png';
+                                $caracteristicaSecundaria = 'Estado: En papelera';
+                            } else {
+                                $nombreRecurso = $activoAsociado->act_nombre ?? 'Activo sin nombre';
+                                $fotoRecurso = $activoAsociado->act_foto ?? null;
+                                $caracteristicaSecundaria = 'Serial: ' . ($activoAsociado->act_serial ?? $activoAsociado->serial ?? 'N/A');
+                            }
                         } elseif ($aulaAsociada) {
-                            $nombreRecurso = $aulaAsociada->aula_nombre ?? $aulaAsociada->nombre ?? 'Aula Asignada';
-                            $fotoRecurso = $aulaAsociada->aula_foto ?? $aulaAsociada->foto ?? null;
-                            $cap = $aulaAsociada->aula_capacidad ?? $aulaAsociada->capacidad ?? 'N/A';
-                            $caracteristicaSecundaria = 'Capacidad: ' . $cap;
+                            if (!empty($aulaAsociada->deleted_at)) {
+                                $nombreRecurso = 'Aula fuera de servicio';
+                                $fotoRecurso = 'activos/fuera-servicio.png';
+                                $caracteristicaSecundaria = 'Estado: En papelera';
+                            } else {
+                                $nombreRecurso = $aulaAsociada->aula_nombre ?? $aulaAsociada->nombre ?? 'Aula Asignada';
+                                $fotoRecurso = $aulaAsociada->aula_foto ?? $aulaAsociada->foto ?? null;
+                                $cap = $aulaAsociada->aula_capacidad ?? $aulaAsociada->capacidad ?? 'N/A';
+                                $caracteristicaSecundaria = 'Capacidad: ' . $cap;
+                            }
                         } else {
                             $nombreRecurso = 'Recurso General';
                             $fotoRecurso = null;
@@ -129,15 +150,15 @@
                     $ubicacion = 'Sede Principal';
                     if ($primerDetalle) {
                         if (isset($primerDetalle->aula) && $primerDetalle->aula) {
-                            $ubicacion = $primerDetalle->aula->aula_nombre ?? 'Aula Asignada';
+                            $ubicacion = !empty($primerDetalle->aula->deleted_at) ? 'Aula fuera de servicio' : ($primerDetalle->aula->aula_nombre ?? 'Aula Asignada');
                         } elseif (optional($primerDetalle->activo)->act_ubicacion) {
                             $ubicacion = $primerDetalle->activo->act_ubicacion;
                         } else {
                             $aulaId = $primerDetalle->det_re_aula_destino_act ?? $primerDetalle->aula_id;
                             if ($aulaId) {
-                                $aulaRecord = \DB::table('aulas')->where('aula_id', $aulaId)->first();
+                                $aulaRecord = \App\Models\AulasModels::withTrashed()->find($aulaId);
                                 if ($aulaRecord) {
-                                    $ubicacion = $aulaRecord->aula_nombre ?? ('Aula #' . $aulaId);
+                                    $ubicacion = !empty($aulaRecord->deleted_at) ? 'Aula fuera de servicio' : ($aulaRecord->aula_nombre ?? ('Aula #' . $aulaId));
                                 }
                             }
                         }
