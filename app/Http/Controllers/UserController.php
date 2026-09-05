@@ -134,6 +134,31 @@ class UserController extends Controller
     }
 
     /**
+     * Procesa la actualización de la contraseña desde el perfil
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        // Valida que la contraseña actual sea correcta usando el campo personalizado
+        if (!Hash::check($request->current_password, $user->USU_CONTRASEÑA)) {
+            return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
+        }
+
+        // Actualiza la contraseña en la columna personalizada
+        $user->update([
+            'USU_CONTRASEÑA' => Hash::make($request->password)
+        ]);
+
+        return back()->with('success', '¡Contraseña actualizada correctamente!');
+    }
+
+    /**
      * Edición administrativa de usuario
      */
     public function edit($id)

@@ -70,8 +70,8 @@
 
             <div class="acciones-laterales">
                 <x-botones.boton 
-                    url="" 
-                    clase="btn btn-perfil-guardar text-center-link">
+                    url="{{ route('perfil.password.edit') }}" 
+                    class="btn btn-perfil-guardar text-center-link">
                     <i class="fas fa-edit" style="margin-right: 5px;"></i>Cambiar Contraseña
                 </x-botones.boton>
             </div>
@@ -103,18 +103,5 @@
 
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnEditar = document.getElementById('btn-editar-perfil');
-        const contenedorForm = document.getElementById('contenedor-formulario');
-
-        if(btnEditar && contenedorForm) {
-            btnEditar.addEventListener('click', function() {
-                contenedorForm.classList.toggle('activo');
-            });
-        }
-    });
-</script>
 
 @endsection

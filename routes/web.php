@@ -91,6 +91,13 @@ Route::middleware('auth')->group(function () {
     // 🛡️ CAPA 2 DE SEGURIDAD: Ruta exclusiva para actualizar datos propios del perfil
     Route::put('/perfil/actualizar', [UserController::class, 'updatePerfil'])->name('perfil.actualizar');
 
+    // 🔑 RUTAS DE CAMBIO DE CONTRASEÑA DESDE EL PERFIL
+    Route::get('/perfil/password/edit', function () {
+        return view('auth.actualizar');
+    })->name('perfil.password.edit');
+
+    Route::put('/perfil/password/update', [UserController::class, 'updatePassword'])->name('perfil.password.update');
+
     // -----------------------------------------------------
     // 🔒 EXCLUSIVO SECRETARÍA (Gestión Total y Aprobaciones)
     // -----------------------------------------------------

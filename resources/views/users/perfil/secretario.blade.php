@@ -53,7 +53,10 @@
 
              
             <div class="accion-lateral">
-                <x-botones.boton id="btn-editar-perfil" class="btn btn-editar-perfil" type="button">
+                <x-botones.boton 
+                    url="{{ route('perfil.password.edit') }}" 
+                    class="btn btn-editar-perfil" 
+                    type="button">
                     <i class="fas fa-edit" style="margin-right: 5px;"></i> Cambiar contraseña
                 </x-botones.boton>
             </div>
@@ -84,40 +87,5 @@
 
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnEditar = document.getElementById('btn-editar-perfil');
-        const contenedorForm = document.getElementById('contenedor-formulario');
-
-        if(btnEditar && contenedorForm) {
-            btnEditar.addEventListener('click', function() {
-                contenedorForm.classList.toggle('activo');
-            });
-        }
-
-        const tabs = document.querySelectorAll('.tab-btn');
-        const contenidos = document.querySelectorAll('.tab-contenido');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                tabs.forEach(t => {
-                    t.classList.remove('activo');
-                    t.style.borderBottom = 'none';
-                    t.style.color = 'var(--color-azulado)';
-                });
-                
-                contenidos.forEach(c => c.style.display = 'none');
-
-                this.classList.add('activo');
-                this.style.borderBottom = '3px solid var(--color-principal)';
-                this.style.color = 'inherit';
-
-                const targetTab = this.getAttribute('data-tab');
-                document.getElementById(targetTab).style.display = 'block';
-            });
-        });
-    });
-</script>
 
 @endsection
