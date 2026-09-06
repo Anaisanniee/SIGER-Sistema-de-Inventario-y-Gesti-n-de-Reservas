@@ -14,7 +14,7 @@
         @method('PUT')
         {{-- Campo de Contraseña Actual solo cuando se edita en el Perfil --}}
         <div class="grupo-formulario full-width-campo mb-3">
-            <label for="current_password" class="label-siger">Contraseña Actual *</label>
+            <label for="current_password" class="label-siger">Contraseña Actual <span class="text-danger">*</span></label>
             <input type="password" id="current_password" name="current_password" required
                    placeholder="Ingresa tu contraseña actual" class="input-siger">
             @error('current_password')
@@ -30,7 +30,7 @@
     <div class="siger-grid-formulario">
         {{-- Nueva Contraseña --}}
         <div class="grupo-formulario mb-3">
-            <label for="new_password" class="label-siger">Nueva Contraseña *</label>
+            <label for="new_password" class="label-siger">Nueva Contraseña <span class="text-danger">*</span></label>
             <input type="password" id="new_password" name="password" required
                    placeholder="Mínimo 6 caracteres" class="input-siger">
             @error('password')
@@ -40,7 +40,7 @@
 
         {{-- Confirmación de Nueva Contraseña --}}
         <div class="grupo-formulario mb-4">
-            <label for="new_password_confirmation" class="label-siger">Confirmar Nueva Contraseña *</label>
+            <label for="new_password_confirmation" class="label-siger">Confirmar Nueva Contraseña <span class="text-danger">*</span></label>
             <input type="password" id="new_password_confirmation" name="password_confirmation" required
                    placeholder="Repite tu nueva contraseña" class="input-siger">
         </div>

@@ -53,12 +53,19 @@
 
     {{-- ESTADO --}}
     <div class="post-form">
-        <label for="aula_estado">Estado Inicial <span class="text-danger">*</span></label>
+        <label for="aula_estado">
+            {{ $esEdicion ? 'Estado Físico Actual' : 'Estado Físico Inicial' }} 
+            <span class="text-danger">*</span>
+        </label>
+        
         <select name="aula_estado" id="aula_estado">
-            <option value="Disponible" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Disponible' ? 'selected' : '' }}>Disponible</option>
-            <option value="Mantenimiento" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Mantenimiento' ? 'selected' : '' }}>En Mantenimiento</option>
+            <option value="Bueno" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Bueno' ? 'selected' : '' }}>Buen estado</option>
+            <option value="En Mantenimiento" {{ old('aula_estado', $aula->aula_estado ?? '') == 'En Mantenimiento' ? 'selected' : '' }}>En Mantenimiento</option>
+            <option value="Dañado" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Dañado' ? 'selected' : '' }}>Dañado</option>
         </select>
     </div>
+
+    {{-- DISPONIBILIDAD PARA RESERVAS --}}
 
     <div class="post-form-switch" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
         <span class="label-switch">¿Está disponible para reservas? <span class="text-danger">*</span></span>

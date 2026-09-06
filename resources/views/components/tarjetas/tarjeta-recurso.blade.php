@@ -33,46 +33,38 @@
         $esReservable = !in_array(strtolower(trim((string)$reservableRaw)), ['false', '0', 'no']);
     }
 
-// Extraemos el estado físico o de aula
+    // PARA LA LÓGICA DE ESTADO FÍSICO Y DISPONIBILIDAD DEL RECURSO
+    // 1. Obtenemos el estado físico normalizado
     $estadoReal = $recurso->aula_estado 
         ?? $recurso->act_estado_fisico 
         ?? $recurso->estado 
-        ?? 'Disponible';
+        ?? 'Bueno';
 
     $estadoLimpio = strtolower(trim($estadoReal));
 
-    // El badge SIEMPRE muestra el estado real para dar visibilidad a Rectora/Secretaria
-    $textoBadge = $estadoReal;
+    // 2. Evaluamos si el estado físico es apto (Bueno / Disponible / Activo)
+    $esEstadoOptimo = str_contains($estadoLimpio, 'buen') 
+        || str_contains($estadoLimpio, 'disponibl') 
+        || str_contains($estadoLimpio, 'activ');
 
-    // Evaluamos el color de la lucecita/badge según el estado físico real
-    // Si no es reservable por configuración administrativa, también le damos color de alerta si está en buen estado
-    if (!$esReservable && !str_contains($estadoLimpio, 'manten') && !str_contains($estadoLimpio, 'daña')) {
-        $claseEstado = 'badge-danado'; // Muestra luz roja/bloqueada si fue desactivado manualmente
-        $textoBadge = $estadoReal . ' (No reservable)'; // Opcional: aclara entre paréntesis manteniendo el estado
+    // 3. Evaluamos si está en mantenimiento o reparación
+    $esMantenimiento = str_contains($estadoLimpio, 'manten') 
+        || str_contains($estadoLimpio, 'repara');
+
+    // 4. Lógica orientada a la posibilidad de reservar
+    if ($esReservable && $esEstadoOptimo) {
+        $textoBadge = 'Disponible';
+        $claseEstado = 'badge-disponible';
+        $estaBloqueado = false;
+    } elseif ($esMantenimiento) {
+        $textoBadge = 'Fuera de Servicio';
+        $claseEstado = 'badge-mantenimiento';
+        $estaBloqueado = true;
     } else {
-        $claseEstado = match (true) {
-            str_contains($estadoLimpio, 'en mantenimiento') ||
-            str_contains($estadoLimpio, 'manten') ||  
-            str_contains($estadoLimpio, 'amnten') || 
-            str_contains($estadoLimpio, 'repara')  => 'badge-mantenimiento',
-            
-            str_contains($estadoLimpio, 'daña') || 
-            str_contains($estadoLimpio, 'malo') || 
-            str_contains($estadoLimpio, 'inactiv') => 'badge-danado',
-
-            str_contains($estadoLimpio, 'buen') || 
-            str_contains($estadoLimpio, 'bun')     => 'badge-reservado',
-
-            str_contains($estadoLimpio, 'disponibl') || 
-            str_contains($estadoLimpio, 'activ')   => 'badge-disponible',
-
-            default => 'badge-disponible',
-        };
+        $textoBadge = 'No Disponible';
+        $claseEstado = 'badge-danado';
+        $estaBloqueado = true;
     }
-
-    // Determinamos si la reserva se bloquea
-    $estadosBloqueados = ['malo', 'mantenimiento', 'en mantenimiento', 'dañado', 'inactivo', 'reparacion', 'en reparacion'];
-    $estaBloqueado = !$esReservable || in_array($estadoLimpio, $estadosBloqueados);
 @endphp
 
 <div class="tarjeta-recurso">

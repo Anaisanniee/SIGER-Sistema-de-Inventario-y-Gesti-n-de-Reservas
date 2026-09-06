@@ -41,7 +41,7 @@
                 <p id="ficha-fecha">...</p>
             </div>
             <div class="form-group">
-                <label>Aula Ubicación</label>
+                <label>Aula Perteneciente</label>
                 <p id="ficha-aula-nombre" class="text-primary fw-bold">...</p>
             </div>
             <div class="form-group">

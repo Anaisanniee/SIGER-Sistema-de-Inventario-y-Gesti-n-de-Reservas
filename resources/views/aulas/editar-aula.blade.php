@@ -28,7 +28,7 @@
         <div class="bloque-guia-segura">
             <h3><i class="fas fa-info-circle"></i> Edición de Espacios</h3>
             <div class="alerta-informativa-azul">
-                <p>Si el aula sufrió daños estructurales o se encuentra inhabilitada temporalmente, recuerde cambiar su estado a "En Mantenimiento".</p>
+                <p>Si el aula sufrió daños estructurales o se encuentra inhabilitada temporalmente, recuerde cambiar su estado a "En Mantenimiento" o "Dañado".</p>
             </div>
         </div>
     </div>

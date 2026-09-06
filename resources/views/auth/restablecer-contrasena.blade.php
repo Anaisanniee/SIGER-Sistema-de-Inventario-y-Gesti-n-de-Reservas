@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">
 
-   <x-auth.tarjeta-auth 
+   <x-tarjetas.tarjeta-auth 
     icono="fas fa-lock" 
     titulo="Restablecer Contraseña" 
     subtitulo="Ingresa tu nueva contraseña y confírmala para recuperar el acceso al sistema SIGER.">
@@ -21,6 +21,6 @@
         textoBoton="Actualizar"
         :rutaCancelar="url('/login')"
     />
-
-</x-auth.tarjeta-auth>
+    </x-auth.tarjeta-auth>
+    
 @endsection
