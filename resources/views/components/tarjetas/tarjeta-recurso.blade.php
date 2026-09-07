@@ -43,9 +43,9 @@
     $estadoLimpio = strtolower(trim($estadoReal));
 
     // 2. Evaluamos si el estado físico es apto (Bueno / Disponible / Activo)
-    $esEstadoOptimo = str_contains($estadoLimpio, 'buen') 
-        || str_contains($estadoLimpio, 'disponibl') 
-        || str_contains($estadoLimpio, 'activ');
+    $esEstadoOptimo = str_contains($estadoLimpio, 'buen',) 
+        || str_contains($estadoLimpio, 'regular') 
+        || str_contains($estadoLimpio, 'excelente');
 
     // 3. Evaluamos si está en mantenimiento o reparación
     $esMantenimiento = str_contains($estadoLimpio, 'manten') 

@@ -37,7 +37,7 @@ class AulasControllers extends Controller
         $request->validate([
             'aula_nombre'      => 'required|string|max:25',
             'aula_capacidad'   => 'required|integer|min:1',
-            'aula_estado'      => 'required|in:Disponible,Ocupado,En Mantenimiento',
+            'aula_estado'      => 'required|in:Buen estado,En Mantenimiento,Dañado',
             'tip_aula_id'      => 'required',
             'aula_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);

@@ -59,7 +59,7 @@
         </label>
         
         <select name="aula_estado" id="aula_estado">
-            <option value="Bueno" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Bueno' ? 'selected' : '' }}>Buen estado</option>
+            <option value="Buen estado" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Bueno' ? 'selected' : '' }}>Buen estado</option>
             <option value="En Mantenimiento" {{ old('aula_estado', $aula->aula_estado ?? '') == 'En Mantenimiento' ? 'selected' : '' }}>En Mantenimiento</option>
             <option value="Dañado" {{ old('aula_estado', $aula->aula_estado ?? '') == 'Dañado' ? 'selected' : '' }}>Dañado</option>
         </select>
