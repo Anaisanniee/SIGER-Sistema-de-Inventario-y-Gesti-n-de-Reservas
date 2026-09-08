@@ -26,34 +26,43 @@ class InformeController extends Controller
 
     public function inventario()
     {
-        // 1. Consultamos y transformamos los Activos (incluyendo los eliminados con withTrashed)
-        $activos = ActivosModels::withTrashed()->with(['aula' => fn($q) => $q->withTrashed(), 'categoria', 'precioActual'])->get()->map(function ($activo) {
-            
-            // Obtenemos el valor directamente de la relación que ya definiste en el modelo
-            $valorPrecio = $activo->precioActual ? $activo->precioActual->his_pre_valor : 0;
+        // 1. Consultamos los Activos incluyendo el historial de precios completo
+        $activos = ActivosModels::withTrashed()
+            ->with([
+                'aula' => fn($q) => $q->withTrashed(), 
+                'categoria', 
+                'precioActual',
+                'historialPrecios' => fn($q) => $q->orderBy('his_pre_fecha_cambio', 'desc')
+            ])
+            ->get()
+            ->map(function ($activo) {
+                
+                $valorPrecio = $activo->precioActual ? $activo->precioActual->his_pre_valor : 0;
+                $nombreActivo = $activo->act_nombre ?? 'Sin nombre';
+                if ($activo->trashed()) {
+                    $nombreActivo .= ' (Fuera de servicio)';
+                }
 
-            // Verificamos si está eliminado para agregarle una indicación visual opcional
-            $nombreActivo = $activo->act_nombre ?? 'Sin nombre';
-            if ($activo->trashed()) {
-                $nombreActivo .= ' (Fuera de servicio)';
-            }
+                // Convertimos el activo a un arreglo pero aseguramos conservar el ID y la relación
+                $arrayActivo = $activo->toArray();
+                
+                $arrayActivo['nombre_activo'] = $nombreActivo;
+                $arrayActivo['serial'] = $activo->act_serial ?? 'N/A';
+                $arrayActivo['ubicacion'] = optional($activo->aula)->aula_nombre ?? 'Sede Principal';
+                $arrayActivo['marca'] = $activo->act_marca ?? 'N/A';
+                $arrayActivo['categoria'] = optional($activo->categoria)->cate_nombre ?? 'General';
+                $arrayActivo['estado'] = $activo->trashed() ? 'Eliminado / Papelera' : ($activo->act_estado_fisico ?? 'No registrado');
+                $arrayActivo['anio_adquisicion'] = $activo->act_fecha_ingreso ? Carbon::parse($activo->act_fecha_ingreso)->format('Y') : 'N/A';
+                $arrayActivo['his_pre_valor'] = $valorPrecio > 0 ? '$ ' . number_format($valorPrecio, 2, ',', '.') : 'N/A';
+                
+                // Aseguramos que el ID esté disponible para los modales y botones
+                $arrayActivo['id'] = $activo->act_id ?? $activo->id;
 
-            return [
-                'nombre_activo'    => $nombreActivo,
-                'serial'           => $activo->act_serial ?? 'N/A',
-                'ubicacion'        => optional($activo->aula)->aula_nombre ?? 'Sede Principal',
-                'marca'            => $activo->act_marca ?? 'N/A',
-                'categoria'        => optional($activo->categoria)->cate_nombre ?? 'General',
-                'estado'           => $activo->trashed() ? 'Eliminado / Papelera' : ($activo->act_estado_fisico ?? 'No registrado'),
-                'anio_adquisicion' => $activo->act_fecha_ingreso ? Carbon::parse($activo->act_fecha_ingreso)->format('Y') : 'N/A',
-                'his_pre_valor'    => $valorPrecio > 0 ? '$ ' . number_format($valorPrecio, 2, ',', '.') : 'N/A'
-            ];
-        });
+                return $arrayActivo;
+            });
 
-        // 2. Consultamos y transformamos las Aulas (incluyendo las eliminadas con withTrashed)
+        // 2. Consultamos y transformamos las Aulas
         $aulas = AulasModels::withTrashed()->get()->map(function ($aula) {
-            
-            // Buscamos el tipo de aula usando la columna correcta 'tip_aula_id' y 'tip_aula_nombre'
             $tipoAulaNombre = 'General';
             if ($aula->tip_aula_id ?? null) {
                 $tipoRecord = \DB::table('tipos_aulas')->where('tip_aula_id', $aula->tip_aula_id)->first();
@@ -174,23 +183,26 @@ class InformeController extends Controller
      */
     private function obtenerReservasFiltradas(Request $request)
     {
-        // Iniciamos la consulta cargando las relaciones necesarias
         $query = ReservasModels::with(['detalles.activo', 'detalles.aula', 'usuario']);
 
-        // 🛡️ RESTRICCIÓN POR ROL: 
-        // Únicamente si es Docente (o un rol que no sea directivo/secretaría), filtramos sus propias reservas.
-        // La Rectora, Rector y Secretaría verán todo el consolidado institucional.
         $usuario = auth()->user();
         $rol = strtolower($usuario->role->name ?? '');
 
-        if (in_array($rol, ['docente'])) { // Puedes agregar más roles aquí si los hay (ej: 'estudiante')
+        // 🎯 VERIFICACIÓN INTELIGENTE:
+        // Si la petición viene de la sección "Mis Reservas" (ya sea por la URL o por el nombre de ruta),
+        // filtramos ESTRICTAMENTE por el ID del usuario actual, sin importar si es Rector o Docente.
+        if ($request->routeIs('mis.reservas') || str_contains(url()->previous(), 'mis-reservas')) {
+            $query->where('usu_id', $usuario->usu_id);
+        } 
+        // Si está en el módulo general de informes, aplicamos la regla de roles:
+        elseif (in_array($rol, ['docente'])) {
             $query->where('usu_id', $usuario->usu_id);
         }
+        // Nota: Si es Rector/Secretaria en el informe general, no entra aquí y descarga todo.
 
         $this->aplicarFiltroEstado($query, $request);
         $this->aplicarFiltroFechas($query, $request);
 
-        // Obtenemos todos los registros ordenados del más reciente al más antiguo
         return $query->latest('res_id')->get();
     }
 
@@ -223,6 +235,122 @@ class InformeController extends Controller
         }
 
         return view('informes.reservas', compact('reservas', 'totalRegistros', 'rutaRegresar'));
+    }
+
+    public function exportarMisReservas(Request $request)
+    {
+        $usuario = auth()->user();
+
+        // 1. Consultamos las reservas filtradas ESTRICTAMENTE por el ID del usuario actual
+        $query = ReservasModels::with([
+            'detalles.activo' => fn($q) => $q->withTrashed(), 
+            'detalles.aula' => fn($q) => $q->withTrashed(), 
+            'usuario'
+        ])->where('usu_id', $usuario->usu_id);
+
+        // Aplicamos los mismos filtros de estado y fechas si el usuario los usó en la vista
+        $this->aplicarFiltroEstado($query, $request);
+        $this->aplicarFiltroFechas($query, $request);
+
+        $reservas = $query->latest('res_id')->get();
+        $nombreArchivo = 'mis_reservas_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$nombreArchivo",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use ($reservas) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
+
+            // Encabezados del CSV
+            fputcsv($file, ['ID Reserva', 'Solicitante', 'Estado', 'Recurso / Elemento', 'Fecha Inicio', 'Hora Inicio', 'Fecha Fin', 'Hora Fin', 'Ubicación'], ';');
+
+            foreach ($reservas as $reserva) {
+                $detalles = $reserva->detalles;
+                $primerDetalle = $detalles->first();
+                $esMultiple = $detalles->count() > 1;
+
+                if ($esMultiple) {
+                    $nombreRecurso = 'Reserva Múltiple (' . $detalles->count() . ' elementos)';
+                } else {
+                    $activoAsociado = optional($primerDetalle)->activo;
+                    $aulaAsociada = optional($primerDetalle)->aula;
+
+                    if (!$aulaAsociada && $primerDetalle && ($primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act ?? null)) {
+                        $aId = $primerDetalle->aula_id ?? $primerDetalle->det_re_aula_destino_act;
+                        $aulaAsociada = \App\Models\AulasModels::withTrashed()->find($aId);
+                    }
+
+                    if ($activoAsociado) {
+                        $nombreRecurso = !empty($activoAsociado->deleted_at) ? 'Activo fuera de servicio' : ($activoAsociado->act_nombre ?? 'Activo sin nombre');
+                    } elseif ($aulaAsociada) {
+                        $nombreRecurso = !empty($aulaAsociada->deleted_at) ? 'Aula fuera de servicio' : ($aulaAsociada->aula_nombre ?? $aulaAsociada->nombre ?? 'Aula Asignada');
+                    } else {
+                        $nombreRecurso = 'Recurso General';
+                    }
+                }
+
+                $nombreUsuario = trim((optional($reserva->usuario)->USU_PRIMER_NOMBRE ?? '') . ' ' . (optional($reserva->usuario)->USU_PRIMER_APELLIDO ?? ''));
+
+                $rawFechaIni = optional($primerDetalle)->det_re_fecha_ini ?? $reserva->created_at;
+                if ($rawFechaIni) {
+                    $carbonIni = \Carbon\Carbon::parse($rawFechaIni);
+                    $fechaInicio = $carbonIni->format('Y-m-d');
+                    $horaInicio = $carbonIni->format('h:i A');
+                } else {
+                    $fechaInicio = 'N/A';
+                    $horaInicio = 'N/A';
+                }
+
+                $rawFechaFin = optional($primerDetalle)->det_re_fecha_fin;
+                if ($rawFechaFin) {
+                    $carbonFin = \Carbon\Carbon::parse($rawFechaFin);
+                    $fechaFin = $carbonFin->format('Y-m-d');
+                    $horaFin = $carbonFin->format('h:i A');
+                } else {
+                    $fechaFin = 'N/A';
+                    $horaFin = 'N/A';
+                }
+
+                $ubicacionExport = 'Sede Principal';
+                if ($primerDetalle) {
+                    if (isset($primerDetalle->aula) && $primerDetalle->aula) {
+                        $ubicacionExport = !empty($primerDetalle->aula->deleted_at) ? 'Aula fuera de servicio' : ($primerDetalle->aula->aula_nombre ?? 'Aula Asignada');
+                    } elseif (optional($primerDetalle->activo)->act_ubicacion) {
+                        $ubicacionExport = $primerDetalle->activo->act_ubicacion;
+                    } else {
+                        $aulaId = $primerDetalle->det_re_aula_destino_act ?? $primerDetalle->aula_id;
+                        if ($aulaId) {
+                            $aulaRecord = \App\Models\AulasModels::withTrashed()->find($aulaId);
+                            if ($aulaRecord) {
+                                $ubicacionExport = !empty($aulaRecord->deleted_at) ? 'Aula fuera de servicio' : ($aulaRecord->aula_nombre ?? ('Aula #' . $aulaId));
+                            }
+                        }
+                    }
+                }
+
+                fputcsv($file, [
+                    $reserva->res_id ?? $reserva->id,
+                    $nombreUsuario ?: 'Solicitante no asignado',
+                    ucfirst($reserva->res_estado_reserva ?? $reserva->estado ?? 'Pendiente'),
+                    $nombreRecurso,
+                    $fechaInicio,
+                    $horaInicio,
+                    $fechaFin,
+                    $horaFin,
+                    $ubicacionExport
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     /**
@@ -269,6 +397,7 @@ class InformeController extends Controller
 
     public function exportarReservas(Request $request)
     {
+        // Pasamos el $request para que los filtros de la interfaz se apliquen también al exportar
         $reservas = $this->obtenerReservasFiltradas($request);
         $nombreArchivo = 'informe_reservas_' . date('Y-m-d_H-i-s') . '.csv';
 
@@ -377,5 +506,29 @@ class InformeController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function obtenerHistorialPrecios($id)
+    {
+        // Buscamos el activo (ajusta 'ActivosModel' si tu modelo tiene otro nombre)
+        $activo = \App\Models\ActivosModel::find($id);
+
+        if (!$activo) {
+            return response()->json(['error' => 'Activo no encontrado'], 404);
+        }
+
+        // Consultamos el historial usando la tabla y columnas reales de tu base de datos
+        $historial = \DB::table('historial_precios')
+                        ->where('act_id', $id)
+                        ->orderBy('his_pre_fecha_cambio', 'desc')
+                        ->get();
+
+        return response()->json([
+            'activo' => [
+                'nombre' => $activo->act_nombre ?? 'Activo',
+                'serial' => $activo->act_serial ?? 'N/A'
+            ],
+            'historial' => $historial
+        ]);
     }
 }

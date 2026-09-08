@@ -30,7 +30,6 @@
     <link rel="stylesheet" href="{{ asset('css/components/tarjeta-reserva.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/components/resumen-reserva.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/pages/reporte-reservas.css') }}?v={{ time() }}">
-
 @endpush
 
 @section('content')
@@ -43,12 +42,12 @@
             <p class="reporte-subtitulo">Revisa las reservas realizadas y su estado.</p>
         </div>
         
-        <x-botones.boton type="button" class="btn btn-siger-imprimir" :url="route('informes.reservas.exportar')">
+        <x-botones.boton type="button" class="btn btn-siger-imprimir" :url="route('informes.reservas.exportar', request()->all())">
             <i class="fas fa-file-excel me-2"></i> Exportar a Excel
         </x-botones.boton>
     </div>
 
-    <x-filtros.filtro-fecha-estado action="{{ route('secretaria.informe') }}" />
+    <x-filtros.filtro-fecha-estado action="{{ url()->current() }}" />
 
     <div class="reporte-contenedor-principal">
         <div class="reporte-barra-info">

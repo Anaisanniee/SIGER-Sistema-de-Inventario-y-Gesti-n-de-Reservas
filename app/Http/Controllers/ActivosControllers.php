@@ -207,7 +207,7 @@ class ActivosControllers extends Controller
             'act_estado_fisico' => 'required|string|max:50',
             'act_reservable'    => 'required|boolean',
             'act_fecha_ingreso' => 'required|date',
-            'act_precio_actual' => 'nullable|numeric|min:0', // <--- Agregamos validación opcional para el precio
+            'his_pre_valor'     => 'nullable|numeric|min:0', // <--- Cambiado a his_pre_valor
             'act_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'act_nombre.min'            => 'El nombre debe tener al menos 3 letras.',
@@ -236,9 +236,9 @@ class ActivosControllers extends Controller
             $activo->save();
 
             // --- REGISTRO DEL PRECIO INICIAL EN EL HISTORIAL ---
-            if ($request->filled('act_precio_actual') && $request->act_precio_actual > 0) {
+            if ($request->filled('his_pre_valor') && $request->his_pre_valor > 0) {
                 $activo->historialPrecios()->create([
-                    'his_pre_valor'        => $request->act_precio_actual,
+                    'his_pre_valor'        => $request->his_pre_valor,
                     'his_pre_motivo'       => 'Precio inicial de registro',
                     'his_pre_fecha_cambio' => now(),
                 ]);

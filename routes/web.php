@@ -15,6 +15,7 @@ use App\Http\Controllers\PasswordResetController;
 // RUTA DE INVENTARIO
 // ==========================================
 // Ruta dinámica de notificaciones para el usuario autenticadoRoute::get('/informes/inventario/exportar/{tipo}', [InformeController::class, 'exportarExcel'])->name('informes.inventario.exportar');
+Route::get('/activos/{id}/historial-precios', [InformeController::class, 'obtenerHistorialPrecios'])->name('activos.historial.precios');
 
 Route::get('/informes/inventario', [InformeController::class, 'inventario'])
     ->name('informes.inventario')
@@ -179,6 +180,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:Secretaria,Secretario,Rectora,Rector,Docente')->group(function () {
+        Route::get('/mis-reservas/exportar', [InformeController::class, 'exportarMisReservas'])->name('mis.reservas.exportar');
         Route::get('/mis-reservas', [InformeController::class, 'misReservas'])->name('mis.reservas');
         Route::get('/informes/reservas/exportar', [InformeController::class, 'exportarReservas'])->name('informes.reservas.exportar');
         Route::get('/dashboard/notificaciones', [App\Http\Controllers\ReservasControllers::class, 'notificaciones'])

@@ -52,8 +52,8 @@
             $idActivo = $act['id'] ?? $act['ACT_ID'] ?? 1;
 
             $act['btn_historial'] = Blade::render('
-                <x-botones.boton target="modalHistorial'.$idActivo.'" class="btn btn-siger-accion">
-                    <i class="fas fa-eye" style="margin-right: 5px";></i> Ver Historial
+                <x-botones.boton target="modalHistorial'.$idActivo.'" class="btn btn-siger-accion btn-ver-historial" data-id="'.$idActivo.'">
+                    <i class="fas fa-eye" style="margin-right: 5px;"></i> Ver Historial
                 </x-botones.boton>
             ', ['idActivo' => $idActivo]);
 
@@ -114,11 +114,22 @@
         
         $historialData = collect($act['historialPrecios'] ?? $act['historial_precios'] ?? [])->map(function($h) {
             $item = (array) $h;
-            $valorNum = $item['HIS_PRE_VALOR'] ?? $item['valor'] ?? 0;
+            
+            $valorCrudo = $item['his_pre_valor'] ?? $item['HIS_PRE_VALOR'] ?? 0;
+            
+            // Limpiamos la cadena de texto para quitar puntos de miles y comas, dejando solo el número puro
+            // Si viene como "1.500.000,0", lo convertimos a un número flotante real (1500000.0)
+            $valorLimPIO = is_string($valorCrudo) 
+                ? floatval(str_replace(['.', ','], ['', '.'], str_replace(',', '.', $valorCrudo))) 
+                : (float)$valorCrudo;
+
+            $fechaCambio = $item['his_pre_fecha_cambio'] ?? $item['HIS_PRE_FECHA_CAMBIO'] ?? 'N/A';
+            $motivoCambio = $item['his_pre_motivo'] ?? $item['HIS_PRE_MOTIVO'] ?? 'Actualización de valor';
+            
             return [
-                'fecha'  => $item['HIS_PRE_FECHA_CAMBIO'] ?? $item['fecha'] ?? 'N/A',
-                'motivo' => $item['HIS_PRE_MOTIVO'] ?? $item['motivo'] ?? 'Sin especificación',
-                'valor'  => '$' . number_format((float)$valorNum, 2),
+                'fecha'  => $fechaCambio !== 'N/A' ? \Carbon\Carbon::parse($fechaCambio)->format('d/m/Y H:i') : 'N/A',
+                'motivo' => $motivoCambio,
+                'valor'  => '$ ' . number_format($valorLimPIO, 0, ',', '.'),
             ];
         })->toArray();
     @endphp
@@ -168,6 +179,43 @@
             });
         });
     });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const buscador = document.getElementById('buscador-recursos');
+
+    if (buscador) {
+        // Filtrado en tiempo real con keyup
+        buscador.addEventListener('keyup', function () {
+            let filtro = this.value.toLowerCase().trim();
+            
+            // Determinamos cuál pestaña está activa actualmente
+            const seccionActiva = document.querySelector('.seccion-tab.activa');
+            if (!seccionActiva) return;
+
+            // Seleccionamos todas las filas de datos (tr) dentro del tbody de la tabla activa
+            let filas = seccionActiva.querySelectorAll('tbody tr');
+            
+            filas.forEach(function (fila) {
+                let textoFila = fila.innerText.toLowerCase();
+                
+                // Si el texto de la fila incluye lo que se escribió, se muestra; de lo contrario, se oculta
+                if (textoFila.includes(filtro)) {
+                    fila.style.display = ""; 
+                } else {
+                    fila.style.display = "none"; 
+                }
+            });
+        });
+
+        // Evitamos que el formulario recargue la página al presionar Enter en la barra superior
+        buscador.closest('form')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            return false;
+        });
+    }
+});
 </script>
 
 @endsection
