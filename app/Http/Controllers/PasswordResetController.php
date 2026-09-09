@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use App\Models\User;
 
 class PasswordResetController extends Controller
@@ -35,7 +36,7 @@ class PasswordResetController extends Controller
 
     public function showResetForm(Request $request, $token)
     {
-        return view('auth.cambiar-contrasena', [
+        return view('auth.restablecer-contrasena', [
             'token' => $token, 
             'email' => $request->query('email') // Captura correctamente el correo enviado por GET en la URL
         ]);
@@ -46,7 +47,19 @@ class PasswordResetController extends Controller
         $request->validate([
             'token' => 'required',
             'correo' => 'required|email|exists:users,USU_CORREO',
-            'password' => 'required|min:6|confirmed',
+            'password' => [
+                'required',
+                'confirmed',
+                PasswordRule::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
+        ], [
+            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'password.mixed_case' => 'La contraseña debe contener al menos una letra mayúscula y una minúscula.',
+            'password.numbers' => 'La contraseña debe contener al menos un número.',
+            'password.symbols' => 'La contraseña debe contener al menos un símbolo especial.',
         ]);
 
         $record = DB::table('password_reset_tokens')->where('email', $request->correo)->first();
