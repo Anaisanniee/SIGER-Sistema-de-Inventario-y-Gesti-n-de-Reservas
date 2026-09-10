@@ -23,6 +23,7 @@
 @endphp
 
 {{-- Asignación limpia sin problemas de escape --}}
+@section('rutaRegresar', $urlRegresar)
 @section('mostrarPerfil', 'true')
 
 @push('styles')
