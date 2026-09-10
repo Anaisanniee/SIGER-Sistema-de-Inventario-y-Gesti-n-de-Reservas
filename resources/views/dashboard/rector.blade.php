@@ -5,13 +5,32 @@
 @section('content')
 @php
     $esAdmin = Auth::check() && in_array(Auth::user()->rol, ['admin', 'secretario', 'secretaria']);
+
+    // Lógica para el saludo dinámico según la hora en Colombia
+    $usuario = auth()->user();
+    $nombreCompleto = trim(($usuario->USU_PRIMER_NOMBRE ?? '') . ' ' . ($usuario->USU_PRIMER_APELLIDO ?? '')) ?: 'Rector';
+
+    $hora = (int) now()->format('H');
+    $minuto = (int) now()->format('i');
+    $tiempoEnMinutos = ($hora * 60) + $minuto;
+
+    // Rangos exactos: 
+    // - Buenos Días: 03:01 a 11:59 (181 a 719 min)
+    // - Buenas Tardes: 12:00 a 18:59 (720 a 1139 min)
+    // - Buenas Noches: 19:00 en adelante hasta las 03:00
+    if ($tiempoEnMinutos >= 181 && $tiempoEnMinutos <= 719) {
+        $saludo = 'Buenos Días';
+    } elseif ($tiempoEnMinutos >= 720 && $tiempoEnMinutos <= 1139) {
+        $saludo = 'Buenas Tardes';
+    } else {
+        $saludo = 'Buenas Noches';
+    }
 @endphp
 <link rel="stylesheet" href="{{ asset('css/pages/dashboard-secretario.css') }}">
-{{-- Resto del código... --}}
 
-{{--- 1. TARJETA DE BIENVENIDA ---}}
+{{-- --- 1. TARJETA DE BIENVENIDA --- --}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => 'Bienvenido ' . (trim((auth()->user()->USU_PRIMER_NOMBRE ?? '') . ' ' . (auth()->user()->USU_PRIMER_APELLIDO ?? '')) ?: 'Rector'),
+    'titulo' => "{$saludo}, {$nombreCompleto}",
     'descripcion' => 'Consulta informes de inventario y reservas de la Institución Educativa Bohórquez aquí'
 ])
 
@@ -48,7 +67,7 @@
     @endcomponent
 </div>
 
-{{--- 4. CONTENEDOR PRINCIPAL DE TARJETAS ---}} 
+{{-- --- 4. CONTENEDOR PRINCIPAL DE TARJETAS --- --}} 
 <div class="container-tarjetas">
     @foreach($recursos as $recurso)
 
@@ -109,7 +128,6 @@
                 $estadoAula = isset($recurso->aula_estado) ? strtolower(trim($recurso->aula_estado)) : '';
                 $reservableAula = isset($recurso->aula_reservable) ? strtolower(trim($recurso->aula_reservable)) : '';
 
-                // CORRECCIÓN CLAVE: Ahora evalúa correctamente contra 'disponible' en minúsculas
                 if ($estadoAula == 'disponible' || $estadoAula == 'bueno') {
                     $tagsAula[] = 'bueno';
                 } 

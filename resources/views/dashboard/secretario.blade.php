@@ -12,6 +12,26 @@
 @php
     $esAdmin = Auth::user()->esAdmin ?? true;
 
+    // Lógica para el saludo dinámico según la hora en Colombia
+    $usuarioAuth = auth()->user();
+    $nombreCompleto = trim(($usuarioAuth->USU_PRIMER_NOMBRE ?? '') . ' ' . ($usuarioAuth->USU_PRIMER_APELLIDO ?? '')) ?: 'Secretaría';
+
+    $hora = (int) now()->format('H');
+    $minuto = (int) now()->format('i');
+    $tiempoEnMinutos = ($hora * 60) + $minuto;
+
+    // Rangos exactos: 
+    // - Buenos Días: 03:01 a 11:59 (181 a 719 min)
+    // - Buenas Tardes: 12:00 a 18:59 (720 a 1139 min)
+    // - Buenas Noches: 19:00 en adelante hasta las 03:00
+    if ($tiempoEnMinutos >= 181 && $tiempoEnMinutos <= 719) {
+        $saludo = 'Buenos Días';
+    } elseif ($tiempoEnMinutos >= 720 && $tiempoEnMinutos <= 1139) {
+        $saludo = 'Buenas Tardes';
+    } else {
+        $saludo = 'Buenas Noches';
+    }
+
     if (!isset($reservas) && !isset($reservasSimuladas)) {
         $fuenteReservas = \App\Models\ReservasModels::with([
             'detalles.activo' => fn($q) => $q->withTrashed(), 
@@ -29,7 +49,7 @@
         $primerDetalle = $totalDetalles > 0 ? $detalles->first() : null;
 
         $nombreRecurso = 'Recurso General';
-         $fotoRecurso = asset('storage/activos/default.jpeg');
+        $fotoRecurso = asset('storage/activos/default.jpeg');
         $ubicacion = 'N/A';
         $aulaIdUbicacion = $reserva->aula_id ?? ($primerDetalle->aula_id ?? ($primerDetalle->det_re_aula_destino_act ?? null));
 
@@ -52,6 +72,7 @@
                 } else {
                     $ubicacion = $aulaObjUbicacion->aula_nombre ?? ($aulaObjUbicacion->nombre ?? 'N/A');
                 }
+            }
         } elseif ($primerDetalle && !empty($primerDetalle->aula)) {
             $ubicacion = $primerDetalle->aula->aula_nombre ?? ($primerDetalle->aula->nombre ?? 'N/A');
         }
@@ -85,7 +106,6 @@
                 } else {
                     $nombreRecurso = $aulaObj->aula_nombre ?? ($aulaObj->nombre ?? 'Aula Institucional');
                     
-                    // Búsqueda dinámica y segura de la foto del aula
                     $rutaFoto = $aulaObj->aula_foto ?? ($aulaObj->foto ?? null);
                     if ($rutaFoto) {
                         $fotoRecurso = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
@@ -95,8 +115,6 @@
                 }
             }
         }
-    }
-
 
         $usuarioObj = $reserva->usuario ?? \App\Models\User::find($reserva->usu_id);
         $nombreUsuario = $usuarioObj ? ($usuarioObj->nombres ?? ($usuarioObj->USU_PRIMER_NOMBRE . ' ' . $usuarioObj->USU_PRIMER_APELLIDO ?? 'Usuario Institucional')) : 'Usuario Institucional';
@@ -157,7 +175,6 @@
                         $serialItem = ''; 
                         $marcaItem = 'Salón / Aula';
                         
-                        // Búsqueda dinámica y segura de la foto del aula para el modal
                         $rutaFoto = $aulaObj->aula_foto ?? ($aulaObj->foto ?? null);
                         if ($rutaFoto) {
                             $fotoItem = str_starts_with($rutaFoto, 'http') ? $rutaFoto : asset('storage/' . $rutaFoto);
@@ -217,7 +234,7 @@
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => 'Bienvenido ' . (trim((auth()->user()->USU_PRIMER_NOMBRE ?? '') . ' ' . (auth()->user()->USU_PRIMER_APELLIDO ?? '')) ?: 'Secretaría'),
+    'titulo' => "{$saludo}, {$nombreCompleto}",
     'descripcion' => 'Sistema institucional de inventario, activos y gestión de reservas en tiempo real.'
 ])
 

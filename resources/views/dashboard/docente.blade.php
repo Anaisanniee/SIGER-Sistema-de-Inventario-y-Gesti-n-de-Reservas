@@ -5,12 +5,31 @@
 @section('content')
 @php
     $esAdmin = Auth::check() && in_array(Auth::user()->rol, ['admin', 'secretario', 'secretaria']);
+
+    // Lógica para el saludo dinámico según la hora en Colombia
+    $usuario = auth()->user();
+    $nombreCompleto = trim(($usuario->USU_PRIMER_NOMBRE ?? '') . ' ' . ($usuario->USU_PRIMER_APELLIDO ?? '')) ?: 'Docente';
+
+    $hora = (int) now()->format('H');
+    $minuto = (int) now()->format('i');
+    $tiempoEnMinutos = ($hora * 60) + $minuto;
+
+    // Rangos: 
+    // - Buenos Días: 03:01 a 11:59 (181 a 719 min)
+    // - Buenas Tardes: 12:00 a 18:59 (720 a 1139 min)
+    // - Buenas Noches: 19:00 en adelante hasta las 03:00
+    if ($tiempoEnMinutos >= 181 && $tiempoEnMinutos <= 719) {
+        $saludo = 'Buenos Días';
+    } elseif ($tiempoEnMinutos >= 720 && $tiempoEnMinutos <= 1139) {
+        $saludo = 'Buenas Tardes';
+    } else {
+        $saludo = 'Buenas Noches';
+    }
 @endphp
-{{-- Resto del código... --}}
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => 'Bienvenido ' . (auth()->user()->USU_PRIMER_NOMBRE ?? '') . ' ' . (auth()->user()->USU_PRIMER_APELLIDO ?? ''),
+    'titulo' => "{$saludo}, {$nombreCompleto}",
     'descripcion' => 'Reserva equipos y aulas de la Institución Educativa Bohórquez.'
 ])
 
@@ -216,9 +235,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 3. Limpieza profunda y definitiva del carrito en el navegador
-    const userId = "{{ auth()->check() ? auth()->id() : 'invitado' }}";
-
-    // Borra todas las claves que empiecen con el prefijo del sistema SIGER
     Object.keys(localStorage).forEach(key => {
         if (key.startsWith('siger_carrito_') || key.includes('carrito') || key.includes('cart') || key.includes('reserva_temp')) {
             localStorage.removeItem(key);

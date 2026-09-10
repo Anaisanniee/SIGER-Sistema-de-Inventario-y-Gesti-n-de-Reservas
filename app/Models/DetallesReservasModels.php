@@ -33,9 +33,15 @@ class DetallesReservasModels extends Model
         return $this->belongsTo(ActivosModels::class, 'act_id', 'act_id')->withTrashed();
     }
 
-    // Relación con el aula (Añadimos withTrashed también aquí)
+    // Relación con el aula (Para cuando se reserva un aula de forma independiente)
     public function aula()
     {
         return $this->belongsTo(AulasModels::class, 'aula_id', 'aula_id');
+    }
+
+    // Relación para el aula de destino cuando se le asigna un activo a un aula
+    public function aulaDestino()
+    {
+        return $this->belongsTo(AulasModels::class, 'det_re_aula_destino_act', 'aula_id');
     }
 }
