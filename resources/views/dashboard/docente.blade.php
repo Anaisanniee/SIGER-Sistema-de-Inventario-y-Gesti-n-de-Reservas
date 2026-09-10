@@ -8,7 +8,7 @@
 
     // Lógica para el saludo dinámico según la hora en Colombia
     $usuario = auth()->user();
-    $nombreCompleto = trim(($usuario->USU_PRIMER_NOMBRE ?? '') . ' ' . ($usuario->USU_PRIMER_APELLIDO ?? '')) ?: 'Docente';
+    $primerNombre = trim($usuario->USU_PRIMER_NOMBRE ?? '') ?: 'Docente';
 
     $hora = (int) now()->format('H');
     $minuto = (int) now()->format('i');
@@ -29,7 +29,7 @@
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => "{$saludo}, {$nombreCompleto}",
+    'titulo' => "{$saludo}, {$primerNombre}",
     'descripcion' => 'Reserva equipos y aulas de la Institución Educativa Bohórquez.'
 ])
 
