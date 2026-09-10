@@ -1,6 +1,5 @@
 /* ==========================================================================
-   ESTILOS OPTIMIZADOS: TARJETAS DE RECURSO (COMPONENTES GLOBALES)
-   Integrado 100% con variables.css para consistencia del sistema
+    ESTILOS OPTIMIZADOS: TARJETAS DE RECURSO (COMPONENTES GLOBALES)
    ========================================================================== */
 
 /* --- CONTENEDOR GENERAL --- */
@@ -20,6 +19,8 @@
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
     overflow: hidden;
+    width: 16rem;
+    height: auto; /* Altura automática para que se adapte al contenido de forma natural */
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -35,13 +36,16 @@
 .tarjeta-img-container {
     position: relative;
     width: 100%;
-    height: 130px;
+    height: 150px;
+    min-height: 150px;
+    max-height: 150px;
     background-color: var(--color-fondo-secundario);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     border-bottom: 1px solid var(--color-borde);
+    flex-shrink: 0;
 }
 
 .tarjeta-img {
@@ -83,87 +87,79 @@
     display: inline-block;
 }
 
-/* --- COLORES DE ESTADO (Llamados desde variables.css) --- */
-
-/* Disponible / Activo */
+/* --- COLORES DE ESTADO --- */
 .badge-disponible {
     background-color: var(--color-disponible-pastel);
     color: var(--color-estado-disponible);
     border: 1px solid var(--color-borde-disponible);
 }
-.badge-disponible .indicador-punto { 
-    background-color: var(--color-estado-disponible); 
-}
+.badge-disponible .indicador-punto { background-color: var(--color-estado-disponible); }
 
-/* Mantenimiento / En Reparación */
 .badge-mantenimiento {
     background-color: var(--color-en-mantenimiento-pastel);
     color: var(--color-estado-en-mantenimiento);
     border: 1px solid var(--color-borde-mantenimiento, #fde68a);
 }
-.badge-mantenimiento .indicador-punto { 
-    background-color: var(--color-estado-en-mantenimiento); 
-}
+.badge-mantenimiento .indicador-punto { background-color: var(--color-estado-en-mantenimiento); }
 
-/* Dañado / Fuera de Servicio */
 .badge-danado {
     background-color: var(--color-dañado-pastel);
     color: var(--color-estado-dañado);
     border: 1px solid var(--color-borde-danado, #fca5a5);
 }
-.badge-danado .indicador-punto { 
-    background-color: var(--color-estado-dañado); 
-}
+.badge-danado .indicador-punto { background-color: var(--color-estado-dañado); }
 
-/* Reservado / En uso */
 .badge-reservado {
     background-color: var(--color-reservado-pastel);
     color: var(--color-estado-reservado);
     border: 1px solid var(--color-borde-reservado, #bfdbfe);
 }
-.badge-reservado .indicador-punto { 
-    background-color: var(--color-estado-reservado); 
-}
+.badge-reservado .indicador-punto { background-color: var(--color-estado-reservado); }
 
 /* --- CUERPO DE LA TARJETA --- */
 .tarjeta-body {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
     padding: 16px;
-    justify-content: space-between;
+    gap: 16px; /* Espaciado uniforme y ordenado entre elementos internos */
+    justify-content: flex-start;
 }
 
 .cuerpo-tarjeta {
-    margin-bottom: 12px;
+    margin-bottom: 0;
 }
 
 .card-title {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 700;
     font-family: var(--fuente-principal);
     color: var(--color-texto);
     margin: 0 0 4px 0;
-    line-height: 1.3;
+    line-height: 1.2;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-.estado-tarjeta {
+.estado {
     font-family: var(--fuente-secundaria);
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     color: var(--color-texto-secundario);
     margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* --- SECCIÓN DE BOTONES --- */
 .botones-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
+    margin-top: 0;
 }
 
 .botones-container .btn {

@@ -66,7 +66,6 @@
         $estaBloqueado = true;
     }
 @endphp
-
 <div class="tarjeta-recurso">
     
     {{-- ETIQUETA / LUCECITA EN LA ESQUINA SUPERIOR DERECHA --}}
@@ -77,11 +76,14 @@
         </span>
     </div>
 
-    <img
-        src="{{ $imagenFinal }}"
-        alt="Foto del recurso"
-        class="tarjeta-img"
-    >
+    {{-- CONTENEDOR DE LA IMAGEN OBLIGATORIO PARA QUE FUNCIONE EL CSS --}}
+    <div class="tarjeta-img-container">
+        <img
+            src="{{ $imagenFinal }}"
+            alt="Foto del recurso"
+            class="tarjeta-img"
+        >
+    </div>
 
     <div class="tarjeta-body">
 
