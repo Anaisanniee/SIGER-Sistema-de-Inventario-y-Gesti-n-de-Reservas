@@ -213,7 +213,7 @@
     </div>
 </x-modal>
 
-{{-- SCRIPT INTERACTIVO --}}
+{{-- SCRIPT INTERACTIVO Y BÚSQUEDA EN TIEMPO REAL --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tabBtns = document.querySelectorAll('.tab-btn');
@@ -237,6 +237,32 @@
                 document.getElementById(targetTab).style.display = 'block';
             });
         });
+
+        // 🔍 BÚSQUEDA EN TIEMPO REAL
+        const inputBusqueda = document.querySelector('input[type="text"]'); // Ajusta el selector si tienes un ID específico en el layout
+
+        if (inputBusqueda) {
+            inputBusqueda.addEventListener('input', function() {
+                const textoBusqueda = this.value.toLowerCase().trim();
+                
+                // Seleccionamos todas las filas de usuarios en ambas tablas (activos e inactivos)
+                const filas = document.querySelectorAll('.siger-tabla tbody tr');
+
+                filas.forEach(fila => {
+                    // Evitamos procesar la fila de "No hay usuarios"
+                    if (fila.querySelector('td[colspan]')) return;
+
+                    const textoFila = fila.innerText.toLowerCase();
+
+                    // Si el texto de la fila incluye lo que se escribió en la barra, la mostramos; si no, la ocultamos
+                    if (textoFila.includes(textoBusqueda)) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+            });
+        }
     });
 
     function prepararModal(id, nombre, estadoActual) {

@@ -15,9 +15,24 @@ class UserController extends Controller
     /**
      * Listado general de usuarios (Exclusivo Secretaría)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role')->get();
+        $query = User::with('role');
+
+        // Si el usuario escribió algo en la barra de búsqueda superior
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            $query->where(function($q) use ($search) {
+                $q->where('USU_CEDULA', 'LIKE', "%{$search}%")
+                ->orWhere('USU_PRIMER_NOMBRE', 'LIKE', "%{$search}%")
+                ->orWhere('USU_SEGUNDO_NOMBRE', 'LIKE', "%{$search}%")
+                ->orWhere('USU_PRIMER_APELLIDO', 'LIKE', "%{$search}%")
+                ->orWhere('USU_SEGUNDO_APELLIDO', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $users = $query->get();
         $usuarios = $users; 
 
         return view('users.index', compact('users', 'usuarios'));
