@@ -150,11 +150,6 @@
 
     <x-reservas.resumen-reserva :reserva="$reservaObj" />
         {{-- Mensaje de Aula de Destino (si aplica) --}}
-        @if($nombreAulaUso)
-            <div class="alert alert-info">
-                <strong>Aula de destino:</strong> {{ $nombreAulaUso }}
-            </div>
-        @endif
 
         {{-- Formulario con ID para el control mediante JavaScript --}}
         <form id="formConfirmarReserva" action="{{ route('reservas.paso3.post') }}" method="POST" class="formulario-paso3">

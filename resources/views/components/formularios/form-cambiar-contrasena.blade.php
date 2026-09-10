@@ -32,7 +32,7 @@
         <div class="grupo-formulario mb-3">
             <label for="new_password" class="label-siger">Nueva Contraseña <span class="text-danger">*</span></label>
             <input type="password" id="new_password" name="password" required
-                   placeholder="Mínimo 8 caracteres, mayúscula, número y símbolo" class="input-siger">
+                   placeholder="Mínimo 8 caracteres, una mayúscula, un número y un símbolo" class="input-siger">
             
             {{-- Texto de ayuda visual con los requisitos exigidos --}}
             <small class="form-text text-muted d-block mt-2" style="font-size: 0.85rem; color: var(--color-azulado); line-height: 1.4;">

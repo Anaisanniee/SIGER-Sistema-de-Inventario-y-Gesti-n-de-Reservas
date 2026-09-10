@@ -31,7 +31,7 @@
                     // Si definiste la ruta, se respeta estrictamente sin validar roles ni dashboards
                     $urlFinalRegresar = $rutaEspecificada;
                 } else {
-                    // 2. Solo si NO especificaste ninguna ruta, se calcula el dashboard correspondiente
+                    // 2. Solo si NO se especifica ninguna ruta, se calcula el dashboard correspondiente
                     $user = auth()->user();
                     $slugRolNav = strtolower($user->rol->slug ?? $user->role->slug ?? '');
                     $nombreRolNav = strtolower($user->rol->name ?? $user->rol->nombre ?? $user->role->name ?? '');
@@ -101,20 +101,37 @@
                     @endif
 
 
-                     {{--si se está en la página de perfil se oculta el --}}
-                    @if (!request()->routeIs('perfil'))
-                        <a href="{{ Route::has('perfil') ? route('perfil') : '#' }}" class="dropdown-item">
-                            <i class="fas fa-user-circle"></i> Mi Perfil
-                        </a>
-                    @endif
-
                     @php
                         $notificacionespage = Route::has('notificaciones.index') ? route('notificaciones.index') : 'notificaciones.index';
+                        
+                        // Verificamos de forma sencilla si hay elementos recientes para mostrar el punto rojo
+                        $hasNewNotifications = false;
+                        if ($userAuth) {
+                            $userIdNav = $userAuth->usu_id ?? $userAuth->id;
+                            
+                            if ($esSecretaria) {
+                                // Si es secretaría, muestra el punto si hay entregas pendientes para hoy
+                                $hasNewNotifications = \App\Models\ReservasModels::whereIn('res_estado_reserva', ['Aprobada', 'aprobada'])
+                                    ->whereHas('detalles', function($q) {
+                                        $q->whereDate('det_re_fecha_fin', \Carbon\Carbon::today())
+                                        ->where('det_re_fecha_fin', '>', \Carbon\Carbon::now());
+                                    })->exists();
+                            } else {
+                                // Si es docente o rectora, muestra el punto si hay reservas aprobadas/rechazadas en los últimos 2 días
+                                $hasNewNotifications = \App\Models\ReservasModels::where('usu_id', $userIdNav)
+                                    ->whereIn('res_estado_reserva', ['Aprobada', 'Rechazada'])
+                                    ->where('updated_at', '>=', \Carbon\Carbon::now()->subDays(2))
+                                    ->exists();
+                            }
+                        }
                     @endphp
-                    <a href="{{ route('notificaciones') }}" class="dropdown-item">
-                        <i class="fas fa-bell"></i> Mis Notificaciones
-                    </a>
 
+                    <a href="{{ route('notificaciones') }}" class="dropdown-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-bell"></i> Mis Notificaciones</span>
+                        @if($hasNewNotifications)
+                            <span class="rounded-circle" style="width: 8px; height: 8px; background-color: #dc3545 !important; display: inline-block;"></span>
+                        @endif
+                    </a>
                     {{--SECCION 1.5: MIS RESERVAS PARA RECTOR Y DOCENTE--}}
 
                     @php

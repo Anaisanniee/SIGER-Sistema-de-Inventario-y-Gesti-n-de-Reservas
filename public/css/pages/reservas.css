@@ -103,3 +103,294 @@
         grid-template-columns: 1fr !important;
     }
 }
+
+/* ========================================================================== */
+/* SIGER - ESTILOS PARA RESERVA PASO 2                             */
+/* ========================================================================== */
+
+.contenedor-reserva-universal {
+    max-width: var(--ancho-maximo, 1200px);
+    margin: 0 auto;
+    padding: var(--espaciado, 16px);
+}
+
+/* Grid principal de 2 columnas (Aplica para paso 2 y paso 3) */
+.dashboard-reserva-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+/* Tarjetas contenedoras generales (Siger) */
+.tarjeta-reserva-siger {
+    background: var(--color-fondo-secundario, #ffffff);
+    border-radius: var(--borde-radio, 8px);
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--color-borde, #e2e8f0);
+    margin-bottom: 20px;
+}
+
+.tarjeta-reserva-siger h3 {
+    font-family: var(--fuente-secundaria, 'Poppins', sans-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-texto, #2d3748);
+    margin-bottom: 4px;
+}
+
+.subtitulo-tarjeta {
+    font-size: 0.875rem;
+    color: var(--color-texto-secundario, #64748b);
+    margin-bottom: 16px;
+}
+
+/* Grids internos de formularios */
+.grid-dos-columnas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.margin-top-main {
+    margin-top: 16px;
+}
+
+/* Estilos de inputs y formularios (Paso 2) */
+.post-form label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-texto, #2d3748);
+    margin-bottom: 6px;
+}
+
+.post-form input[type="date"],
+.post-form input[type="time"],
+.post-form select,
+.post-form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-borde, #e2e8f0);
+    border-radius: var(--borde-radio, 8px);
+    font-size: 0.95rem;
+    font-family: var(--fuente-principal, 'Inter', sans-serif);
+    color: var(--color-texto, #2d3748);
+    background-color: var(--color-fondo, #f4f7f6);
+    transition: all 0.2s ease;
+}
+
+.post-form input:focus,
+.post-form select:focus,
+.post-form textarea:focus {
+    outline: none;
+    border-color: var(--color-principal, #10b981);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Acordeón de Fecha y Horario (Exclusivo Reserva Paso 2) */
+.acordeon-reserva summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.acordeon-reserva summary::-webkit-details-marker {
+    display: none;
+}
+
+.icono-flecha {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: var(--color-texto-secundario, #64748b);
+}
+
+.acordeon-reserva[open] .icono-flecha {
+    transform: rotate(180deg);
+}
+
+/* Tarjeta de Resumen Lateral (Compartido Paso 2 y Paso 3) */
+.resumen-card {
+    position: sticky;
+    top: 20px;
+}
+
+.tabla-resumen-siger {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+}
+
+.tabla-resumen-siger tr {
+    border-bottom: 1px solid var(--color-borde, #e2e8f0);
+}
+
+.tabla-resumen-siger td {
+    padding: 10px 0;
+    font-size: 0.9rem;
+    color: var(--color-texto, #2d3748);
+}
+
+.tabla-resumen-siger td:first-child {
+    font-weight: 600;
+    color: var(--color-texto-secundario, #64748b);
+}
+
+.tabla-resumen-siger td:last-child {
+    text-align: right;
+    color: var(--color-texto, #2d3748);
+    font-weight: 500;
+}
+
+.resaltado-amarillo {
+    color: var(--color-estado-en-mantenimiento, #d97706) !important;
+    font-style: italic;
+}
+
+/* Alertas y botones de acción (Paso 2 y Paso 3) */
+.notificacion-alerta-siger {
+    background-color: var(--color-reservado-pastel, #e8f0fe);
+    border: 1px solid var(--color-borde, #e2e8f0);
+    border-radius: var(--borde-radio, 8px);
+    padding: 12px;
+    font-size: 0.85rem;
+    color: var(--color-estado-reservado, #2563eb);
+    margin-bottom: 16px;
+}
+
+.notificacion-alerta-siger p {
+    margin: 0;
+}
+
+.btn-siger-accion {
+    background-color: var(--color-principal, #10b981);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: var(--borde-radio, 8px);
+    border: none;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-siger-accion:hover {
+    background-color: var(--principal-secundario, #34811ddc);
+}
+
+/* ========================================================================== */
+/* MEDIA QUERIES (RESPONSIVE DESIGN - PASO 2                        */
+/* ========================================================================== */
+
+/* Pantallas medianas (Tablets y Laptops pequeñas <= 1024px) */
+@media (max-width: 1024px) {
+    .dashboard-reserva-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .resumen-card {
+        position: static; 
+    }
+}
+
+/* Pantallas móviles (Celulares <= 768px) */
+@media (max-width: 768px) {
+    .contenedor-reserva-universal {
+        padding: 10px;
+    }
+
+    .tarjeta-reserva-siger {
+        padding: 16px;
+    }
+
+    .grid-dos-columnas {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .tarjeta-reserva-siger h3 {
+        font-size: 1.1rem;
+    }
+
+    .subtitulo-tarjeta {
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================================================== */
+/* SIGER - ESTILOS PARA RESERVA PASO 3 (CONFIRMACIÓN Y RESUMEN)               */
+/* ========================================================================== */
+
+/* Contenedores específicos del Paso 3 */
+.formulario-paso3 {
+    margin-top: 20px;
+}
+
+/* Contenedor de los botones de acción al final del paso 3 */
+.contenedor-botones-paso3 {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+    align-items: center;
+}
+
+/* Botón secundario/modificar específico dentro del paso 3 */
+.contenedor-botones-paso3 .btn-azul {
+    background-color: var(--color-estado-reservado, #2563eb);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: var(--borde-radio, 8px);
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedor-botones-paso3 .btn-azul:hover {
+    background-color: var(--color-estado-reservado);
+}
+
+/* Estilo para el componente de alerta informativa del aula de destino */
+.alert-info {
+    background-color: var(--color-reservado-pastel, #e8f0fe);
+    border: 1px solid var(--color-borde, #e2e8f0);
+    border-radius: var(--borde-radio, 8px);
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    color: var(--color-estado-reservado, #2563eb);
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.alert-info strong {
+    font-weight: 600;
+}
+
+/* ========================================================================== */
+/* MEDIA QUERIES (RESPONSIVE DESIGN - PASO 3)                                 */
+/* ========================================================================== */
+
+/* Pantallas medianas y pequeñas (Celulares y tablets <= 768px) */
+@media (max-width: 768px) {
+    .contenedor-botones-paso3 {
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+
+    .contenedor-botones-paso3 .btn-siger-accion,
+    .contenedor-botones-paso3 .btn-azul {
+        width: 100%;
+    }
+}

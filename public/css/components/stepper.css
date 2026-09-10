@@ -87,7 +87,7 @@
 }
 
 .paso-item.actual .paso-circulo {
-    box-shadow: 0 0 0 4px var(--color-disponible-pastel);
+    box-shadow: 0 0 0 4px var( --color-disponible-pastel, rgba(16, 139, 98, 0.13));
     animation: pulsarCirculo 0.5s ease-out 0.6s both;
 }
 

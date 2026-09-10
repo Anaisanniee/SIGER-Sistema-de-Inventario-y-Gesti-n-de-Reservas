@@ -38,7 +38,7 @@
     
     <div class="reporte-encabezado">
         <div>
-            <h2 class="reporte-titulo">Informe de Reservas</h2>
+            <h2 class="reporte-titulo">Reservas</h2>
             <p class="reporte-subtitulo">Revisa las reservas realizadas y su estado.</p>
         </div>
         

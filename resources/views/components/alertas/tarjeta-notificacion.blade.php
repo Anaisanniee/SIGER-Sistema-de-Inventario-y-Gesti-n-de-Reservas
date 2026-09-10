@@ -30,13 +30,27 @@
         ? ($notificacion['leida'] ?? false) 
         : ($notificacion->read_at !== null);
 
-    $titulo = $esArray 
-        ? ($notificacion['titulo'] ?? 'Notificación') 
-        : ($notificacion->data['titulo'] ?? 'Notificación');
-
+    // 1. OBTENER MENSAJE PRIMERO
     $mensaje = $esArray 
         ? ($notificacion['mensaje'] ?? 'Sin mensaje') 
         : ($notificacion->data['mensaje'] ?? 'Sin mensaje');
+
+    // 2. CORREGIR EL TÍTULO Y TIPO BASÁNDONOS EN EL TEXTO REAL DEL MENSAJE
+    $mensajeLower = strtolower($mensaje);
+    
+    if (str_contains($mensajeLower, 'ha sido aprobada')) {
+        $titulo = 'Reserva Aprobada';
+        $tipo = 'exito';
+        $iconoClase = 'fas fa-check-circle';
+    } elseif (str_contains($mensajeLower, 'ha sido rechazada')) {
+        $titulo = 'Reserva Rechazada';
+        $tipo = 'peligro';
+        $iconoClase = 'fas fa-times-circle';
+    } else {
+        $titulo = $esArray 
+            ? ($notificacion['titulo'] ?? 'Notificación') 
+            : ($notificacion->data['titulo'] ?? 'Notificación');
+    }
 
     $fecha = $esArray 
         ? ($notificacion['fecha'] ?? '') 

@@ -60,6 +60,7 @@
     $userCedula = $user->USU_CEDULA ?? ($user->usu_cedula ?? ($user->id ?? 'Por completar'));
     $userCorreo = $user->USU_CORREO ?? ($user->usu_correo ?? ($user->email ?? 'Por completar'));
 @endphp
+
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
 <link rel="stylesheet" href="{{ asset('css/components/detalle-recurso.css') }}">
 <link rel="stylesheet" href="{{ asset('css/pages/reservas.css') }}">
@@ -73,35 +74,36 @@
         
         <div class="dashboard-reserva-grid">
             
+            {{-- COLUMNA IZQUIERDA: Recurso seleccionado y Formulario de Fechas --}}
             <div class="columna-formulario">
                 
-                <div class="tarjeta-reserva-siger">
+                <div class="tarjeta-reserva-siger mb-3">
                     <h3>Recurso Seleccionado</h3>
                     <p class="subtitulo-tarjeta">Puedes volver atrás para cambiar el elemento</p>
                     
                     @php
                         $primerRecurso = $recursosColeccion->first();
                     @endphp
-                   <x-reservas.detalle-recurso 
+                    <x-reservas.detalle-recurso 
                         :tipoRecurso="$tipoRecurso ?? 'activo'"
-                        :recursoNombre="$primerRecurso->nombre ?? ($primerRecurso->aula_nombre ?? 'Recurso')"
-                        :serial="$primerRecurso->serial ?? 'Sin Serial'"
-                        :marca="$primerRecurso->marca ?? 'N/A'"
+                        :recursoNombre="$primerRecurso->nombre ?? ($primerRecurso->act_nombre ?? ($primerRecurso->aula_nombre ?? 'Recurso'))"
+                        :serial="$primerRecurso->serial ?? ($primerRecurso->act_serial ?? 'Sin Serial')"
+                        :marca="$primerRecurso->marca ?? ($primerRecurso->act_marca ?? 'N/A')"
                         :capacidad="$primerRecurso->aula_capacidad ?? ($primerRecurso->capacidad ?? 'N/A')"
-                        :recursos="$recursos" 
+                        :recursos="$recursos ?? []" 
                     />
                 </div>
 
                 <details class="tarjeta-reserva-siger acordeon-reserva" open>
                     <summary>
-                        <div>
+                        <div style="display: inline-block;">
                             <h3>Fecha y Horario</h3>
                             <p class="subtitulo-tarjeta">Selecciona los rangos en los que usarás el recurso</p>
                         </div>
                         <span class="icono-flecha">▼</span>
                     </summary>
                     
-                    <div class="contenido-desplegable">
+                    <div class="contenido-desplegable" style="margin-top: 15px;">
                         <div class="grid-dos-columnas">
                             <div class="post-form">
                                 <label for="res_fecha_inicio">Fecha de Inicio <span class="text-danger">*</span></label>
@@ -118,7 +120,7 @@
                             </div>
                         </div>
 
-                        <div class="grid-dos-columnas margin-top-main">
+                        <div class="grid-dos-columnas margin-top-main" style="margin-top: 15px;">
                             <div class="post-form">
                                 <label for="res_hora_inicio">Hora de Inicio <span class="text-danger">*</span></label>
                                 <input type="time" id="res_hora_inicio" name="res_hora_inicio" required 
@@ -133,7 +135,7 @@
                         </div>
                         
                         @if($mostrarCampoAula)
-                            <div class="grid-dos-columnas margin-top-main">
+                            <div class="grid-dos-columnas margin-top-main" style="margin-top: 15px;">
                                 <div class="post-form">
                                     <label for="res_motivo" class="form-label-siger">Motivo o Justificación de la Reserva <span class="text-danger">*</span></label>
                                     <textarea 
@@ -160,7 +162,7 @@
                                 </div>
                             </div>
                         @else
-                            <div class="margin-top-main">
+                            <div class="margin-top-main" style="margin-top: 15px;">
                                 <div class="post-form">
                                     <label for="res_motivo" class="form-label-siger">Motivo o Justificación de la Reserva <span class="text-danger">*</span></label>
                                     <textarea 
@@ -185,11 +187,12 @@
                                     @endforeach
                                 </ul>
                             </div>
-                        @endif       
+                        @endif      
                     </div>
                 </details>
             </div>
 
+            {{-- COLUMNA DERECHA: Resumen de la reserva (Sidebar fijo) --}}
             <div class="columna-resumen">
                 <div class="tarjeta-reserva-siger resumen-card">
                     <h3>Resumen de Reserva</h3>
@@ -235,7 +238,7 @@
                         <p>ℹ️ La reserva quedará pendiente de aprobación por el administrador.</p>
                     </div>
 
-                    <div class="contenedor-botones">           
+                    <div class="contenedor-botones">          
                         <button type="submit" class="btn-siger-accion btn" style="width: 100%;">
                             Confirmar Reserva
                         </button>
