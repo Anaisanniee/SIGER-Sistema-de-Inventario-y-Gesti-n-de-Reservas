@@ -6,7 +6,7 @@
 @section('mostrarPerfil', 'true')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/pages/perfil.css') }}">
+<link rel="stylesheet" href="{{ asset('css/pages/index-usuarios.css') }}">
 
 <div class="siger-modulo-perfil" style="padding: 2rem;">
     

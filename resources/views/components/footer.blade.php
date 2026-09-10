@@ -18,7 +18,7 @@
                 <!-- AQUÍ AGREGAS TUS LINKS DE CONTACTO -->
                 <li>
                     <i class="bi bi-envelope"></i> 
-                    <a href="mailto:soporte@siger.edu.co">soporte@siger.edu.co</a>
+                    <a href="mailto:soporte-siger@gmail.com">soporte-siger@gmail.com</a>
                 </li>
                 <li>
                     <i class="bi bi-telephone"></i> 
@@ -27,10 +27,6 @@
                 <li>
                     <i class="bi bi-geo-alt"></i> 
                     <span>Sede Principal - Colombia</span>
-                </li>
-                <li>
-                    <i class="bi bi-file-earmark-text"></i> 
-                    <a href="#">Términos y Condiciones</a>
                 </li>
             </ul>
         </div>

@@ -1,12 +1,25 @@
-/* --- ESTILOS PARA EL MÓDULO DE PAPELERA SIGER --- */
+/* ========================================================
+   ESTILOS PARA EL MÓDULO DE PAPELERA SIGER (MODERNIZADA)
+   ======================================================== */
+:root {
+    --papelera-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --papelera-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --papelera-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+    --papelera-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
 
-/* Contenedor tipo perfil/panel principal */
+/* Contenedor tipo panel principal */
 .card-siger-papelera {
-    background-color: var(--color-fondo)       ;
-    border-radius: var(--borde-radio);
+    background-color: var(--color-fondo);
+    border-radius: 12px;
     border: 1px solid var(--color-borde);
-    padding: 25px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    padding: calc(var(--espaciado) * 2.5);
+    box-shadow: var(--papelera-shadow-md);
+    transition: var(--papelera-transition);
+}
+
+.card-siger-papelera:hover {
+    box-shadow: var(--papelera-shadow-lg);
 }
 
 /* Contenedor de las pestañas (Tabs) */
@@ -14,64 +27,102 @@
     display: flex;
     gap: 24px;
     border-bottom: 2px solid var(--color-borde);
-    margin-bottom: 25px;
+    margin-bottom: calc(var(--espaciado) * 2);
 }
 
 /* Botón de pestaña individual */
 .btn-tab-siger {
     border: none;
     background: none;
-    font-family: var(--fuente-secundaria); /* Poppins para títulos de tabs */
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--color-azulado);
+    font-family: var(--fuente-secundaria);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-texto-secundario);
     padding-bottom: 12px;
     cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    transition: var(--papelera-transition);
 }
 
-/* Pestaña activa (Usa el color principal verde de SIGER) */
+.btn-tab-siger:hover {
+    color: var(--color-principal);
+}
+
+/* Pestaña activa */
 .btn-tab-siger.active-tab {
     color: var(--color-principal);
-    border-bottom: 3px solid var(--color-principal);
+    font-weight: 700;
+}
+
+.btn-tab-siger.active-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--color-principal);
+    border-radius: 3px 3px 0 0;
 }
 
 /* Tabla responsiva adaptada */
 .tabla-papelera-wrapper {
-    border: 1px dashed var(--color-fondo-secundario);
-    border-radius: var(--borde-radio);
-    padding: 8px;
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    padding: 4px;
     background-color: var(--color-fondo);
+    box-shadow: var(--papelera-shadow-sm);
+    overflow: hidden;
 }
 
 .tabla-siger {
     width: 100%;
     margin-bottom: 0;
-    font-family: var(--fuente-principal); /* Inter para datos de tablas */
+    font-family: var(--fuente-principal);
     color: var(--color-texto);
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .tabla-siger thead {
-    background-color: var(--color-borde);
+    background-color: var(--color-fondo-secundario, #f9fafb);
 }
 
 .tabla-siger th {
-    padding: 12px;
+    padding: 14px 16px;
     color: var(--color-texto);
     font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--color-borde);
 }
 
 .tabla-siger td {
-    padding: 12px;
+    padding: 14px 16px;
     vertical-align: middle;
+    border-bottom: 1px solid var(--color-borde);
+    font-size: 0.95rem;
 }
 
-/* Badge del motivo de baja (Usando el tono pastel de mantenimiento o dañado) */
+.tabla-siger tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.tabla-siger tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-siger tbody tr:hover {
+    background-color: var(--color-fondo-secundario, #f9fafb);
+}
+
+/* Badge del motivo de baja */
 .badge-motivo-baja {
-    background-color: var(--color-en-mantenimiento-pastel);
-    color: var(--color-texto);
+    background-color: var(--color-en-mantenimiento-pastel, #fef3c7);
+    color: var(--color-texto, #92400e);
     padding: 6px 12px;
-    border-radius: var(--borde-radio);
+    border-radius: 6px;
     font-size: 0.85rem;
     font-weight: 600;
     display: inline-block;
@@ -85,54 +136,58 @@
 /* ADAPTACIÓN PARA TABLETS (Hasta 1024px) */
 @media (max-width: 1024px) {
     .card-siger-papelera {
-        padding: var(--espaciado); /* Reduce el acolchado interno usando tu variable */
+        padding: var(--espaciado);
     }
     
     .tabs-papelera-contenedor {
-        gap: 16px; /* Junta un poco más las pestañas */
+        gap: 16px;
     }
 }
 
 /* ADAPTACIÓN PARA MÓVILES (Hasta 768px) */
 @media (max-width: 768px) {
     .tabs-papelera-contenedor {
-        gap: 10px;
-        flex-direction: column; /* Apila las pestañas una arriba de otra */
+        gap: 8px;
+        flex-direction: column;
         border-bottom: none;
+        margin-bottom: 16px;
     }
 
     .btn-tab-siger {
         width: 100%;
         text-align: center;
-        padding: 10px;
-        border: 1px solid var(--color-borde);
-        border-radius: var(--borde-radio);
+        padding: 12px;
+        border: 1.5px solid var(--color-borde);
+        border-radius: 8px;
         background-color: var(--color-fondo);
     }
 
     .btn-tab-siger.active-tab {
-        border: 1px solid var(--color-principal);
-        background-color: var(--color-verde-pastel); /* Tu tono pastel para resaltar la activa */
-        color: var(--color-texto);
+        border-color: var(--color-principal);
+        background-color: var(--color-verde-pastel, #d1fae5);
+        color: var(--color-principal);
     }
 
-    /* El truco maestro para que la tabla no rompa la pantalla del celular:
-       Permite scroll horizontal suave SOLO dentro del recuadro de la tabla */
+    .btn-tab-siger.active-tab::after {
+        display: none; /* Oculta la línea inferior en móvil ya que usa contenedor completo */
+    }
+
     .tabla-papelera-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        margin-top: 15px;
+        margin-top: 10px;
     }
 
     .tabla-siger th, 
     .tabla-siger td {
-        padding: 8px; /* Hace las celdas más compactas en celular */
+        padding: 10px 12px;
         font-size: 0.9rem;
+        white-space: nowrap; /* Evita quiebres extraños al hacer scroll horizontal */
     }
     
-    /* Hace que los botones de acción se organicen mejor verticalmente si el espacio es muy crítico */
     .tabla-siger .d-flex {
         flex-wrap: wrap;
         justify-content: center;
+        gap: 6px;
     }
 }
