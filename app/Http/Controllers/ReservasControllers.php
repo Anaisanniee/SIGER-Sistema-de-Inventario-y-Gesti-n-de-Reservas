@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Mail\AprobarReservaMail;
+use Illuminate\Support\Facades\Mail;
 
 class ReservasControllers extends Controller
 {
@@ -296,26 +298,31 @@ class ReservasControllers extends Controller
         $idsAulas = array_unique(array_filter($idsAulas));
 
         $aulaIdReal = null;
-        $aulaIngresada = $datosReserva['aula_uso'] ?? null;
-        
-        if (!empty($aulaIngresada)) {
-            if (is_numeric($aulaIngresada)) {
-                $aulaObj = AulasModels::where('aula_id', $aulaIngresada)->first();
-                if ($aulaObj) {
-                    $aulaIdReal = $aulaObj->aula_id;
-                }
-            } else {
-                $aulaObj = AulasModels::where('aula_nombre', 'LIKE', '%' . trim($aulaIngresada) . '%')->first();
-                if ($aulaObj) {
-                    $aulaIdReal = $aulaObj->aula_id;
+
+        // 1. PRIORIDAD: Si ya tenemos idsAulas capturados (ej. ID 3), úsalo de inmediato porque es el aula correcta
+        if (!empty($idsAulas)) {
+            $aulaIdReal = $idsAulas[0];
+        }
+
+        // 2. Si no hay en idsAulas, revisamos el aula_uso como respaldo
+        if (!$aulaIdReal) {
+            $aulaIngresada = $datosReserva['aula_uso'] ?? null;
+            if (!empty($aulaIngresada)) {
+                if (is_numeric($aulaIngresada)) {
+                    $aulaObj = AulasModels::where('aula_id', $aulaIngresada)->first();
+                    if ($aulaObj) {
+                        $aulaIdReal = $aulaObj->aula_id;
+                    }
+                } else {
+                    $aulaObj = AulasModels::where('aula_nombre', 'LIKE', '%' . trim($aulaIngresada) . '%')->first();
+                    if ($aulaObj) {
+                        $aulaIdReal = $aulaObj->aula_id;
+                    }
                 }
             }
         }
 
-        if (!$aulaIdReal && !empty($idsAulas)) {
-            $aulaIdReal = $idsAulas[0];
-        }
-
+        // 3. Respaldo final si todo lo demás falla
         if (!$aulaIdReal) {
             $primeraAula = AulasModels::first();
             $aulaIdReal = $primeraAula ? $primeraAula->aula_id : 3;
@@ -413,7 +420,7 @@ class ReservasControllers extends Controller
 
         $aulaDestinoFinal = $aulaIdReal;
 
-        // 1. Guardar activos (siempre con su aula de destino, pero con aula_id en NULL para no fusionar líneas)
+        // 1. Guardar activos (con su aula destino correcta, ej. ID 3)
         foreach ($idsActivos as $idActivo) {
             DetallesReservasModels::create([
                 'res_id'                    => $reserva->res_id,
@@ -425,7 +432,7 @@ class ReservasControllers extends Controller
             ]);
         }
 
-        // 2. Guardar aulas independientes o de reserva mixta en una línea aparte
+        // 2. Guardar aulas independientes
         foreach ($idsAulas as $idAula) {
             DetallesReservasModels::create([
                 'res_id'                    => $reserva->res_id,
@@ -437,7 +444,6 @@ class ReservasControllers extends Controller
             ]);
         }
 
-        // Respaldo por si fue mixta pero el ID venía suelto en aula_uso y no en idsAulas directamente
         if (empty($idsAulas) && $aulaExplícitaEnCarrito && $aulaIdReal && !empty($idsActivos)) {
             DetallesReservasModels::create([
                 'res_id'                    => $reserva->res_id,
@@ -451,7 +457,6 @@ class ReservasControllers extends Controller
 
         $userId = auth()->id();
         
-        // Limpiamos las variables de sesión incluyendo la clave dinámica del carrito por usuario
         session()->forget([
             'reserva', 
             'reserva_temp', 
@@ -483,10 +488,10 @@ class ReservasControllers extends Controller
 
     public function aprobar($id)
     {
-        // Cargamos la reserva con sus detalles
-        $reserva = ReservasModels::with('detalles')->findOrFail($id);
+        // 1. Cargamos la reserva con sus detalles Y el usuario solicitante
+        $reserva = ReservasModels::with(['detalles.activo', 'usuario'])->findOrFail($id);
         
-        // Obtenemos directamente la fecha y hora de inicio exacta del detalle
+        // 2. Obtenemos directamente la fecha y hora de inicio exacta del detalle
         $fechaHoraInicio = optional($reserva->detalles->first())->det_re_fecha_ini 
                         ?? ($reserva->res_fecha_inicio ?? null);
 
@@ -499,10 +504,20 @@ class ReservasControllers extends Controller
             }
         }
 
-        $reserva->res_estado_reserva = 'Aprobada'; 
+        // 3. Cambiamos el estado a aprobada y guardamos
+        $reserva->res_estado_reserva = 'aprobada';
         $reserva->save();
 
-        return redirect()->back()->with('success', 'Reserva aprobada exitosamente.');
+        // 4. --- DISPARAMOS EL CORREO ELECTRÓNICO ---
+        if ($reserva->usuario && !empty($reserva->usuario->USU_CORREO)) {
+            try {
+                Mail::to($reserva->usuario->USU_CORREO)->send(new AprobarReservaMail($reserva));
+            } catch (\Exception $e) {
+                \Log::error("Error enviando correo de aprobación: " . $e->getMessage());
+            }
+        }
+
+        return redirect()->back()->with('success', '¡Reserva aprobada y correo de notificación enviado con éxito!');
     }
 
     public function rechazar($id)
