@@ -6,12 +6,14 @@ use App\Models\AulasModels;
 use App\Models\ReservasModels;
 use App\Models\User;
 use App\Models\DetallesReservasModels;
+use App\Mail\AprobarReservaMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use App\Mail\AprobarReservaMail;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+
 
 class ReservasControllers extends Controller
 {
@@ -616,7 +618,7 @@ class ReservasControllers extends Controller
             // --- LÓGICA PARA DOCENTES / RECTOR: Sus propias reservas (máximo 2 días de antigüedad) ---
             $reservas = \App\Models\ReservasModels::where('usu_id', $usuario->usu_id ?? $usuario->id)
                 ->whereIn('res_estado_reserva', ['Aprobada', 'Rechazada'])
-                ->where('updated_at', '>=', \Carbon\Carbon::now()->subDays(2)) // 👈 AQUÍ ESTÁ EL FILTRO DE LOS 2 DÍAS
+                ->where('updated_at', '>=', \Carbon\Carbon::now()->subDays(2)) 
                 ->latest('updated_at')
                 ->take(6) 
                 ->get();
@@ -658,6 +660,9 @@ class ReservasControllers extends Controller
             });
         }
 
-        return view('notificaciones.index', compact('notificaciones'));
+        // 🍪 Creamos la cookie que durará 1 año registrando que el usuario ya leyó sus notificaciones
+        $cookie = cookie('last_seen_notifications', now(), 525600);
+
+        return response()->view('notificaciones.index', compact('notificaciones'))->cookie($cookie);
     }
 }

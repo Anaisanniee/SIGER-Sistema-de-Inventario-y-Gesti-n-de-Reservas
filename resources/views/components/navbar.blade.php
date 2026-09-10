@@ -24,14 +24,11 @@
     <div class="d-flex align-items-center gap-2">
         @if(($mostrarRegresar ?? true) && View::getSection('mostrarRegresar') !== 'false')
             @php
-                // 1. Verificamos si enviaste una ruta explícita mediante la propiedad $rutaRegresar o la sección Blade
                 $rutaEspecificada = $rutaRegresar ?? (View::hasSection('rutaRegresar') ? View::getSection('rutaRegresar') : null);
 
                 if ($rutaEspecificada) {
-                    // Si definiste la ruta, se respeta estrictamente sin validar roles ni dashboards
                     $urlFinalRegresar = $rutaEspecificada;
                 } else {
-                    // 2. Solo si NO se especifica ninguna ruta, se calcula el dashboard correspondiente
                     $user = auth()->user();
                     $slugRolNav = strtolower($user->rol->slug ?? $user->role->slug ?? '');
                     $nombreRolNav = strtolower($user->rol->name ?? $user->rol->nombre ?? $user->role->name ?? '');
@@ -58,28 +55,57 @@
             @php
                 $userAuth = auth()->user();
                 
-                // Obtención de slug, nombre e id según la tabla roles (id 1: Secretaria, id 2: Rectora, id 3: Docente)
                 $slugRol = strtolower($userAuth->rol->slug ?? $userAuth->role->slug ?? '');
                 $nombreRol = strtolower($userAuth->rol->name ?? $userAuth->rol->nombre ?? $userAuth->role->name ?? '');
                 $rolIdUser = $userAuth->rol_id ?? $userAuth->role_id ?? null;
 
-                // Validación exacta de roles
                 $esSecretaria = ($slugRol === 'secretaria' || $nombreRol === 'secretaria' || $rolIdUser == 1);
                 $esRectora    = ($slugRol === 'rectora' || $nombreRol === 'rectora' || $rolIdUser == 2);
                 
                 $puedeVerInformes = ($esSecretaria || $esRectora);
+
+                // 🍪 LECTURA DE LA COOKIE (Sobrevive al cierre de sesión y al navegador)
+                $cookieValor = request()->cookie('last_seen_notifications');
+                $ultimaVista = $cookieValor 
+                    ? \Carbon\Carbon::parse($cookieValor) 
+                    : \Carbon\Carbon::now()->subDays(3);
+
+                $hasNewNotifications = false;
+
+                if ($userAuth) {
+                    $userIdNav = $userAuth->usu_id ?? $userAuth->id;
+                    
+                    if ($esSecretaria) {
+                        $ahora = \Carbon\Carbon::now();
+                        $hoy = \Carbon\Carbon::today();
+
+                        $hasNewNotifications = \App\Models\ReservasModels::whereIn('res_estado_reserva', ['Aprobada', 'aprobada'])
+                            ->where('updated_at', '>', $ultimaVista)
+                            ->whereHas('detalles', function($q) use ($hoy, $ahora) {
+                                $q->whereDate('det_re_fecha_fin', $hoy)
+                                  ->where('det_re_fecha_fin', '>', $ahora);
+                            })->exists();
+                    } else {
+                        $hasNewNotifications = \App\Models\ReservasModels::where('usu_id', $userIdNav)
+                            ->whereIn('res_estado_reserva', ['Aprobada', 'Rechazada'])
+                            ->where('updated_at', '>', $ultimaVista)
+                            ->exists();
+                    }
+                }
             @endphp
 
             <div class="perfil-dropdown-container">
-                <button type="button" class="perfil-dropdown-btn" id="btnPerfilDropdown" onclick="toggleMenuPerfil(event)" title="Menú de opciones">
+                {{-- 🔴 BOTÓN DE LAS 3 RAYAS CON EL PUNTICO ROJO CONDICIONAL --}}
+                <button type="button" class="perfil-dropdown-btn" id="btnPerfilDropdown" onclick="toggleMenuPerfil(event)" title="Menú de opciones" style="position: relative;">
                     <i class="fas fa-bars"></i>
+                    @if($hasNewNotifications)
+                        <span class="rounded-circle" style="position: absolute; top: 4px; right: 4px; width: 9px; height: 9px; background-color: #dc3545 !important; display: inline-block;"></span>
+                    @endif
                 </button>
 
                 <div class="perfil-dropdown-menu" id="menuPerfilDropdown">
 
                    {{--SECCION 1  PARA TODOS--}}
-
-                    {{--si estas en otra pagiandifernet ala dasboard se oculta se muestra el bton de ir al inicio dependiento el rol--}}
                     @if (!request()->routeIs('dashboard.*'))
                         @php
                             $userDashboard = auth()->user();
@@ -100,40 +126,13 @@
                         </a>
                     @endif
 
-                    {{---perfil--- si esta en la pagina de peril no se muestra el boton de perfil--}}
                     @if(!request()->routeIs('perfil'))
                         <a href="{{ route('perfil') }}" class="dropdown-item">
                             <i class="fas fa-user"></i> Mi Perfil
                         </a>
                     @endif
 
-
-
-                    @php
-                        $notificacionespage = Route::has('notificaciones.index') ? route('notificaciones.index') : 'notificaciones.index';
-                        
-                        // Verificamos de forma sencilla si hay elementos recientes para mostrar el punto rojo
-                        $hasNewNotifications = false;
-                        if ($userAuth) {
-                            $userIdNav = $userAuth->usu_id ?? $userAuth->id;
-                            
-                            if ($esSecretaria) {
-                                // Si es secretaría, muestra el punto si hay entregas pendientes para hoy
-                                $hasNewNotifications = \App\Models\ReservasModels::whereIn('res_estado_reserva', ['Aprobada', 'aprobada'])
-                                    ->whereHas('detalles', function($q) {
-                                        $q->whereDate('det_re_fecha_fin', \Carbon\Carbon::today())
-                                        ->where('det_re_fecha_fin', '>', \Carbon\Carbon::now());
-                                    })->exists();
-                            } else {
-                                // Si es docente o rectora, muestra el punto si hay reservas aprobadas/rechazadas en los últimos 2 días
-                                $hasNewNotifications = \App\Models\ReservasModels::where('usu_id', $userIdNav)
-                                    ->whereIn('res_estado_reserva', ['Aprobada', 'Rechazada'])
-                                    ->where('updated_at', '>=', \Carbon\Carbon::now()->subDays(2))
-                                    ->exists();
-                            }
-                        }
-                    @endphp
-
+                    {{-- 🔴 OPCIÓN DE NOTIFICACIONES EN EL MENÚ DESPLEGABLE --}}
                     <a href="{{ route('notificaciones') }}" class="dropdown-item d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-bell"></i> Mis Notificaciones</span>
                         @if($hasNewNotifications)
@@ -142,10 +141,6 @@
                     </a>
 
                     {{--SECCION 1.5: MIS RESERVAS PARA RECTOR Y DOCENTE--}}
-
-                    @php
-                        $misReservasRoute = route('secretaria.informe');
-                    @endphp
                     @if($slugRol === 'docente' || $nombreRol === 'docente' || $rolIdUser == 3 || $slugRol === 'rectora' || $nombreRol === 'rectora' || $rolIdUser == 2)
                         <a href="{{ route('mis.reservas') }}" class="dropdown-item">
                             <i class="fas fa-calendar-check"></i> Mis Reservas
@@ -155,11 +150,10 @@
                     {{--SECCION 2 Visibles únicamente para Secretaría y Rectora --}}
                     @if($puedeVerInformes)  
                         <div class="dropdown-divider"></div>
-
                         
                         @php
-                            $routeReservas = Route::has('secretaria.informe') ? route('secretaria.informe') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
-                            $routeInventario = Route::has('informes.inventario') ? route('informes.inventario') : (Route::has('secretaria.informe') ? route('secretaria.informe') : null);
+                            $routeReservas = Route::has('secretaria.informe') ? route('secretaria.informe') : null;
+                            $routeInventario = Route::has('informes.inventario') ? route('informes.inventario') : null;
                         @endphp
 
                         @if($routeReservas)
@@ -188,7 +182,6 @@
 
                     <div class="dropdown-divider"></div>
 
-                    {{-- Opción para cerrar sesión --}}
                     <form method="POST" action="{{ route('logout') }}" class="m-0">
                         @csrf
                         <x-botones.boton type="submit" class="dropdown-item btn-logout">
