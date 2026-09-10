@@ -11,7 +11,7 @@
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => 'Bienvenido Rector',
+    'titulo' => 'Bienvenido ' . (trim((auth()->user()->USU_PRIMER_NOMBRE ?? '') . ' ' . (auth()->user()->USU_PRIMER_APELLIDO ?? '')) ?: 'Rector'),
     'descripcion' => 'Consulta informes de inventario y reservas de la Institución Educativa Bohórquez aquí'
 ])
 

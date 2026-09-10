@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivosModels;
 use App\Models\AulasModels;
 use App\Models\ReservasModels;
+use App\Models\User;
 use App\Models\DetallesReservasModels;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -482,17 +483,20 @@ class ReservasControllers extends Controller
 
     public function aprobar($id)
     {
-        // Cargamos la reserva con sus detalles para verificar fecha y hora exacta
+        // Cargamos la reserva con sus detalles
         $reserva = ReservasModels::with('detalles')->findOrFail($id);
         
-        // Obtenemos la fecha y hora de fin (o de inicio) del detalle o de la reserva principal
-        $fechaHoraFin = optional($reserva->detalles->first())->det_re_fecha_fin 
-                        ?? optional($reserva->detalles->first())->det_re_fecha_ini 
-                        ?? ($reserva->res_fecha_fin ?? $reserva->res_fecha_inicio);
+        // Obtenemos directamente la fecha y hora de inicio exacta del detalle
+        $fechaHoraInicio = optional($reserva->detalles->first())->det_re_fecha_ini 
+                        ?? ($reserva->res_fecha_inicio ?? null);
 
-        // Validamos si la fecha y hora ya pasaron respecto al momento actual (now)
-        if ($fechaHoraFin && Carbon::parse($fechaHoraFin)->lt(Carbon::now()) && strtolower($reserva->res_estado_reserva ?? 'pendiente') === 'pendiente') {
-            return redirect()->back()->with('error', 'No se puede aceptar una reserva cuyo horario ya ha finalizado o transcurrido.');
+        if ($fechaHoraInicio) {
+            $parsedInicio = \Carbon\Carbon::parse($fechaHoraInicio);
+
+            // Si la fecha y hora de inicio ya pasaron respecto al horario real de Colombia, bloqueamos
+            if ($parsedInicio->isPast() && strtolower($reserva->res_estado_reserva ?? 'pendiente') === 'pendiente') {
+                return redirect()->back()->with('error', 'No se puede aceptar una reserva cuya hora de inicio ya ha transcurrido.');
+            }
         }
 
         $reserva->res_estado_reserva = 'Aprobada'; 
@@ -523,49 +527,121 @@ class ReservasControllers extends Controller
     {
         $usuario = auth()->user();
 
-        // Ya no necesitamos la sesión para filtrar, solo limitamos a las 6 últimas
-        $reservas = \App\Models\ReservasModels::where('usu_id', $usuario->usu_id)
-            ->whereIn('res_estado_reserva', ['Aprobada', 'Rechazada'])
-            ->latest('updated_at')
-            ->take(6) // <--- Mantiene solo las 6 más recientes
-            ->get();
+        // 1. Validamos el rol usando la misma estructura de tu Blade
+        $rolSlug = strtolower($usuario->role->slug ?? $usuario->rol->slug ?? $usuario->role ?? $usuario->rol ?? '');
+        $rolId   = $usuario->role_id ?? $usuario->rol_id ?? null;
 
-        $notificaciones = $reservas->map(function ($reserva) {
-            $esAprobada = $reserva->res_estado_reserva === 'Aprobada';
-            
-            $detalles = \Illuminate\Support\Facades\DB::table('detalles_reservas')
-                ->leftJoin('activos', 'detalles_reservas.act_id', '=', 'activos.act_id')
-                ->leftJoin('aulas', 'detalles_reservas.aula_id', '=', 'aulas.aula_id')
-                ->where('detalles_reservas.res_id', $reserva->res_id)
-                ->select('detalles_reservas.*', 'activos.*', 'aulas.*')
+        $esSecretario = ($rolSlug === 'secretario' || $rolSlug === 'secretaria' || $rolId == 1);
+
+        $notificaciones = collect();
+
+        if ($esSecretario) {
+            // --- LÓGICA PARA LA SECRETARÍA: Solo entregas que finalizan hoy y cuya hora NO haya pasado todavía ---
+            $ahora = \Carbon\Carbon::now();
+            $hoy = \Carbon\Carbon::today();
+
+            $reservas = \App\Models\ReservasModels::with(['usuario', 'detalles'])
+                ->whereIn('res_estado_reserva', ['Aprobada', 'aprobada'])
+                ->whereHas('detalles', function($q) use ($hoy, $ahora) {
+                    $q->whereDate('det_re_fecha_fin', $hoy)
+                    ->where('det_re_fecha_fin', '>', $ahora); // Solo si la hora de fin es mayor al momento actual
+                })
+                ->latest('updated_at')
                 ->get();
 
-            $nombresElementos = collect();
+            $notificaciones = $reservas->map(function ($reserva) use ($hoy, $ahora) {
+                // Obtenemos el detalle válido que aún no ha expirado
+                $detalleValido = $reserva->detalles->first(function($det) use ($hoy, $ahora) {
+                    $parsedFin = \Carbon\Carbon::parse($det->det_re_fecha_fin);
+                    return $parsedFin->isToday() && $parsedFin->isFuture();
+                });
 
-            foreach ($detalles as $det) {
-                foreach ($det as $key => $value) {
-                    if (!empty($value) && (str_contains($key, 'nombre') || str_contains($key, 'titulo') || str_contains($key, 'descripcion'))) {
-                        if (!str_contains($key, 'id')) {
-                            $nombresElementos->push($value);
+                $fechaFin = $detalleValido->det_re_fecha_fin ?? optional($reserva->detalles->first())->det_re_fecha_fin;
+                $horaFin = $fechaFin ? \Carbon\Carbon::parse($fechaFin)->format('h:i A') : 'hoy';
+
+                // Obtener los nombres de los activos o aulas involucrados
+                $detalles = \Illuminate\Support\Facades\DB::table('detalles_reservas')
+                    ->leftJoin('activos', 'detalles_reservas.act_id', '=', 'activos.act_id')
+                    ->leftJoin('aulas', 'detalles_reservas.aula_id', '=', 'aulas.aula_id')
+                    ->where('detalles_reservas.res_id', $reserva->res_id)
+                    ->select('detalles_reservas.*', 'activos.*', 'aulas.*')
+                    ->get();
+
+                $nombresElementos = collect();
+                foreach ($detalles as $det) {
+                    foreach ($det as $key => $value) {
+                        if (!empty($value) && (str_contains($key, 'nombre') || str_contains($key, 'titulo') || str_contains($key, 'descripcion'))) {
+                            if (!str_contains($key, 'id')) {
+                                $nombresElementos->push($value);
+                            }
                         }
                     }
                 }
-            }
 
-            $nombreElemento = $nombresElementos->isNotEmpty() 
-                ? $nombresElementos->unique()->join(', ') 
-                : 'la reserva #' . $reserva->res_id;
+                $nombreElemento = $nombresElementos->isNotEmpty() 
+                    ? $nombresElementos->unique()->join(', ') 
+                    : 'la reserva #' . $reserva->res_id;
 
-            return [
-                'id' => $reserva->res_id,
-                'titulo' => $esAprobada ? 'Reserva Aprobada' : 'Reserva Rechazada',
-                'mensaje' => "Tu solicitud para " . $nombreElemento . " ha sido " . strtolower($reserva->res_estado_reserva),
-                'tipo' => $esAprobada ? 'exito' : 'peligro',
-                'icono' => $esAprobada ? 'fa-check-circle' : 'fa-times-circle',
-                'fecha' => $reserva->updated_at ? $reserva->updated_at->diffForHumans() : '',
-                'leida' => false,
-            ];
-        });
+                // Obtener nombre del docente solicitante
+                $solicitante = $reserva->usuario ?? null;
+                $nombreDocente = trim(($solicitante->USU_PRIMER_NOMBRE ?? $solicitante->name ?? $solicitante->nombres ?? '') . ' ' . ($solicitante->USU_PRIMER_APELLIDO ?? $solicitante->lastname ?? $solicitante->apellidos ?? '')) ?: 'Docente';
+
+                return [
+                    'id' => $reserva->res_id,
+                    'titulo' => 'Entrega / Desocupación Programada',
+                    'mensaje' => "El recurso/aula ({$nombreElemento}) reservado por {$nombreDocente} debe ser entregado o desocupado hoy a las {$horaFin}.",
+                    'tipo' => 'advertencia',
+                    'icono' => 'fa-clock',
+                    'fecha' => 'Vence hoy a las ' . $horaFin,
+                    'leida' => false,
+                ];
+            });
+
+        } else {
+            // --- LÓGICA PARA DOCENTES / RECTOR: Sus propias reservas (máximo 2 días de antigüedad) ---
+            $reservas = \App\Models\ReservasModels::where('usu_id', $usuario->usu_id ?? $usuario->id)
+                ->whereIn('res_estado_reserva', ['Aprobada', 'Rechazada'])
+                ->where('updated_at', '>=', \Carbon\Carbon::now()->subDays(2)) // 👈 AQUÍ ESTÁ EL FILTRO DE LOS 2 DÍAS
+                ->latest('updated_at')
+                ->take(6) 
+                ->get();
+
+            $notificaciones = $reservas->map(function ($reserva) {
+                $esAprobada = $reserva->res_estado_reserva === 'Aprobada';
+                
+                $detalles = \Illuminate\Support\Facades\DB::table('detalles_reservas')
+                    ->leftJoin('activos', 'detalles_reservas.act_id', '=', 'activos.act_id')
+                    ->leftJoin('aulas', 'detalles_reservas.aula_id', '=', 'aulas.aula_id')
+                    ->where('detalles_reservas.res_id', $reserva->res_id)
+                    ->select('detalles_reservas.*', 'activos.*', 'aulas.*')
+                    ->get();
+
+                $nombresElementos = collect();
+                foreach ($detalles as $det) {
+                    foreach ($det as $key => $value) {
+                        if (!empty($value) && (str_contains($key, 'nombre') || str_contains($key, 'titulo') || str_contains($key, 'descripcion'))) {
+                            if (!str_contains($key, 'id')) {
+                                $nombresElementos->push($value);
+                            }
+                        }
+                    }
+                }
+
+                $nombreElemento = $nombresElementos->isNotEmpty() 
+                    ? $nombresElementos->unique()->join(', ') 
+                    : 'la reserva #' . $reserva->res_id;
+
+                return [
+                    'id' => $reserva->res_id,
+                    'titulo' => $esAprobada ? 'Reserva Aprobada' : 'Reserva Rechazada',
+                    'mensaje' => "Tu solicitud para " . $nombreElemento . " ha sido " . strtolower($reserva->res_estado_reserva),
+                    'tipo' => $esAprobada ? 'exito' : 'peligro',
+                    'icono' => $esAprobada ? 'fa-check-circle' : 'fa-times-circle',
+                    'fecha' => $reserva->updated_at ? $reserva->updated_at->diffForHumans() : '',
+                    'leida' => false,
+                ];
+            });
+        }
 
         return view('notificaciones.index', compact('notificaciones'));
     }

@@ -217,7 +217,7 @@
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => 'Panel de Control - SIGER',   
+    'titulo' => 'Bienvenido ' . (trim((auth()->user()->USU_PRIMER_NOMBRE ?? '') . ' ' . (auth()->user()->USU_PRIMER_APELLIDO ?? '')) ?: 'Secretaría'),
     'descripcion' => 'Sistema institucional de inventario, activos y gestión de reservas en tiempo real.'
 ])
 

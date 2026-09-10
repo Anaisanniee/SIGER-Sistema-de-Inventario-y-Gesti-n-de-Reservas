@@ -10,7 +10,7 @@
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => 'Bienvenido Docente',   
+    'titulo' => 'Bienvenido ' . (auth()->user()->USU_PRIMER_NOMBRE ?? '') . ' ' . (auth()->user()->USU_PRIMER_APELLIDO ?? ''),
     'descripcion' => 'Reserva equipos y aulas de la Institución Educativa Bohórquez.'
 ])
 

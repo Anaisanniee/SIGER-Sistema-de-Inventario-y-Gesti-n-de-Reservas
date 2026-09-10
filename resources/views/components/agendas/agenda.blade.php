@@ -21,14 +21,41 @@
                 $detalles = collect([$reserva]);
             }
 
-            $totalDetalles = $detalles->count();
-            $esMultiple = $totalDetalles > 1;
-            $primerDetalle = $detalles->first();
-
-            // Mapeo independiente por cada detalle priorizando el Activo o Aula con withTrashed
+            // Mapeo directo y seguro de cada detalle (sin descartar filas arbitrariamente)
             $listaRecursosMultiples = $detalles->map(function($det) {
                 
-                // 1. Buscar AULA con withTrashed
+                // PRIORIDAD 1: Si la fila tiene un ACTIVO válido ($act_id o relación activo)
+                $actId = $det->act_id ?? null;
+                $activoObj = $det->activo ?? (!empty($actId) ? \App\Models\ActivosModels::withTrashed()->find($actId) : null);
+
+                if ($activoObj) {
+                    $estaActivoEliminado = !empty($activoObj->deleted_at);
+
+                    if ($estaActivoEliminado) {
+                        return (object)[
+                            'es_aula' => false,
+                            'nombre' => 'Activo fuera de servicio',
+                            'serial' => 'N/A',
+                            'marca'  => 'Fuera de servicio',
+                            'foto'   => asset('storage/activos/fuera-servicio.png')
+                        ];
+                    }
+
+                    $rutaBdActivo = $activoObj->act_foto ?? $activoObj->foto ?? $activoObj->imagen ?? null;
+                    $fotoActivo = !empty($rutaBdActivo)
+                        ? (str_starts_with($rutaBdActivo, 'http') ? $rutaBdActivo : (str_starts_with($rutaBdActivo, 'storage/') ? asset($rutaBdActivo) : asset('storage/' . $rutaBdActivo)))
+                        : asset('storage/images/activos/default.jpeg');
+
+                    return (object)[
+                        'es_aula' => false,
+                        'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
+                        'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
+                        'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
+                        'foto'   => $fotoActivo
+                    ];
+                }
+
+                // PRIORIDAD 2: Si NO tiene activo, evaluamos si es una AULA (exclusiva o destino)
                 $aulaId = $det->aula_id ?? $det->det_re_aula_destino_act ?? null;
                 $aulaObj = $det->aula ?? (!empty($aulaId) ? \App\Models\AulasModels::withTrashed()->find($aulaId) : null);
 
@@ -61,37 +88,6 @@
                     ];
                 }
 
-                // 2. Buscar ACTIVO con withTrashed
-                $actId = $det->act_id ?? null;
-                $activoObj = $det->activo ?? (!empty($actId) ? \App\Models\ActivosModels::withTrashed()->find($actId) : null);
-
-                if ($activoObj) {
-                    $estaActivoEliminado = !empty($activoObj->deleted_at);
-
-                    if ($estaActivoEliminado) {
-                        return (object)[
-                            'es_aula' => false,
-                            'nombre' => 'Activo fuera de servicio',
-                            'serial' => 'N/A',
-                            'marca'  => 'Fuera de servicio',
-                            'foto'   => asset('storage/activos/fuera-servicio.png')
-                        ];
-                    }
-
-                    $rutaBdActivo = $activoObj->act_foto ?? $activoObj->foto ?? $activoObj->imagen ?? null;
-                    $fotoActivo = !empty($rutaBdActivo)
-                        ? (str_starts_with($rutaBdActivo, 'http') ? $rutaBdActivo : (str_starts_with($rutaBdActivo, 'storage/') ? asset($rutaBdActivo) : asset('storage/' . $rutaBdActivo)))
-                        : asset('storage/images/activos/default.jpeg');
-
-                    return (object)[
-                        'es_aula' => false,
-                        'nombre' => $activoObj->act_nombre ?? $activoObj->nombre ?? $activoObj->nombre_activo ?? 'Activo sin nombre',
-                        'serial' => $activoObj->act_serial ?? $activoObj->serial ?? $activoObj->codigo ?? 'N/A',
-                        'marca'  => $activoObj->act_marca ?? $activoObj->marca ?? 'N/A',
-                        'foto'   => $fotoActivo
-                    ];
-                }
-
                 return (object)[
                     'es_aula' => false,
                     'nombre' => 'Recurso General',
@@ -100,6 +96,13 @@
                     'foto'   => asset('storage/images/activos/default.jpeg')
                 ];
             });
+
+            // Limpiamos duplicados exactos en el listado visual (por si acaso el mapeo arroja objetos idénticos)
+            $listaRecursosMultiples = $listaRecursosMultiples->unique(fn($item) => $item->nombre . $item->serial)->values();
+
+            $totalDetalles = $listaRecursosMultiples->count();
+            $esMultiple = $totalDetalles > 1;
+            $primerDetalle = $detalles->first();
 
             if ($esMultiple) {
                 $nombreRecurso = "Reserva Múltiple ({$totalDetalles} ítems)";
