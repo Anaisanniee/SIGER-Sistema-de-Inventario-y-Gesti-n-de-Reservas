@@ -31,8 +31,10 @@
         {{-- Nueva Contraseña --}}
         <div class="grupo-formulario mb-3">
             <label for="new_password" class="label-siger">Nueva Contraseña <span class="text-danger">*</span></label>
-            <input type="password" id="new_password" name="password" required
-                   placeholder="Mínimo 6 caracteres" class="input-siger">
+            <input type="password" id="new_password" name="password" 
+                required
+                placeholder="Mínimo 6 caracteres"
+                class="input-siger">
             @error('password')
                 <small class="text-danger" style="color: red; margin-top: 5px; display: block;">{{ $message }}</small>
             @enderror

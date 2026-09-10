@@ -53,6 +53,7 @@ body {
     padding: 20px;
 }
 
+
 /* DISEÑO PARA TABLET */
 @media (min-width: 768px) and (max-width: 1024px) {
     .layout-principal {
