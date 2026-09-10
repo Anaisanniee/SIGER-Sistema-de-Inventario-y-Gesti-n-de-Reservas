@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components/carrito-reserva.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/components/footer.css') }}">
 
     <!-- Pila para la inyección de estilos adicionales desde vistas hijas -->
     @stack('styles')
@@ -50,6 +51,9 @@
     <main class="content" style="flex: 1; padding: 20px;">
         @yield('content')
     </main>
+
+    <!-- Pie de página del sistema -->
+    <x-footer/>
 
     <!-- Pila para la inyección de scripts JS adicionales desde vistas hijas -->
     @stack('scripts')

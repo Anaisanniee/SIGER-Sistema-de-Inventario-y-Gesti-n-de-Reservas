@@ -10,7 +10,6 @@
         <label for="rol">Rol del Usuario <span class="text-danger">*</span></label>
         <select name="rol" id="rol" required>
             <option value="">-- Selecciona un Rol --</option>
-            {{-- Si la variable $roles viene desde el controlador, la iteramos dinámicamente --}}
             @if(isset($roles) && count($roles) > 0)
                 @foreach($roles as $r)
                     <option value="{{ $r->ROL_ID ?? $r->id }}" 
@@ -19,7 +18,6 @@
                     </option>
                 @endforeach
             @else
-                {{-- Opciones de respaldo en caso de que no se pase la variable $roles --}}
                 <option value="1" {{ old('rol', $usuario->ROL_ID ?? '') == '1' ? 'selected' : '' }}>Secretaría</option>
                 <option value="2" {{ old('rol', $usuario->ROL_ID ?? '') == '2' ? 'selected' : '' }}>Rector(a)</option>
                 <option value="3" {{ old('rol', $usuario->ROL_ID ?? '') == '3' ? 'selected' : '' }}>Docente</option>
@@ -57,7 +55,7 @@
 </div>
 
 @if('crear' === $modo || 'editar-admin' === $modo)
-    {{-- ESTADO: Solo visible para crear o editar --}}
+    {{-- ESTADO --}}
     <div class="post-form">
         <label for="estado">Estado <span class="text-danger">*</span></label>
         <select name="estado" id="estado">
@@ -84,31 +82,34 @@
            value="{{ old('correo', $usuario->USU_CORREO ?? '') }}">
 </div>
 
-{{--
-    BLOQUE DE CONTRASEÑA: Solo visible en los modos de creación, edición por administrador o edición de perfil
-    - En el modo de creación, la contraseña es obligatoria.
-    - En el modo de edición por administrador, la contraseña es opcional.
-    - En el modo de edición de perfil, la contraseña es opcional y se puede cambiar
---}}
-
-@if('crear' === $modo || 'editar-admin' === $modo)
-
-    <div class="post-form">
-        <label for="password">
-            Contraseña @if('crear' === $modo)<span class="text-danger">*</span>@endif
+{{-- GESTIÓN DINÁMICA DE CONTRASEÑA SEGÚN MODO --}}
+@if('crear' === $modo)
+    <div class="bloque-gestion-clave">
+        <label class="etiqueta-gestion-clave">
+            <i class="fas fa-key"></i> Clave de Acceso Inicial
         </label>
-        
-        <input type="password" 
-               id="password" 
-               name="password" 
-               class="input-siger"
-               autocomplete="new-password"
-               placeholder="{{ ('editar-admin' === $modo && isset($usuario)) ? 'Puedes cambiar en cualquier momento la clave del usuario' : 'Asigna una clave de ingreso' }}">
-</div>
+        <p class="texto-gestion-clave">
+            La contraseña de ingreso se asignará automáticamente utilizando el número de <strong>Cédula / Documento</strong> registrado. El usuario podrá cambiarla desde su perfil tras iniciar sesión.
+        </p>
+    </div>
+@elseif('editar-admin' === $modo || 'editar' === $modo)
+    <div class="bloque-gestion-clave">
+        <label class="etiqueta-gestion-clave">
+            <i class="fas fa-key"></i> Gestión de Contraseña
+        </label>
+        <div class="opcion-restablecer-clave">
+            <input type="checkbox" name="restablecer_a_cedula" id="restablecer_a_cedula" class="check-restablecer" value="1">
+            <label for="restablecer_a_cedula" class="label-restablecer">
+                Restablecer contraseña al número de documento (<strong>{{ $usuario->USU_CEDULA ?? 'Documento Registrado' }}</strong>)
+            </label>
+        </div>
+        <span class="subtexto-gestion-clave">
+            Al activar esta opción, la clave actual se descartará y se restablecerá al número de cédula del usuario.
+        </span>
+    </div>
 @endif
 
-
-<div class="contenedor-botones" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+<div class="contenedor-botones">
     <x-botones.boton 
         class="btn btn-rojo" 
         type="button" 
@@ -128,24 +129,26 @@
 <script>
 function ejecutarCierreUniversal(boton) {
     let formulario = boton.closest('form');
-    if (formulario) formulario.reset();
+    if (formulario) {
+        formulario.reset();
+    }
 
-    let contenedor = boton.closest('.collapse') 
-                  || boton.closest('#contenedor-formulario') 
-                  || boton.closest('.formulario-desplegable');
-    
-    if (contenedor) {
-        contenedor.classList.remove('activo');
-        contenedor.classList.remove('show');
+    // El colapso/desplegable SOLO aplica para Móviles y Tablets (<= 1024px)
+    if (window.innerWidth <= 1024) {
+        let contenedor = boton.closest('.collapse') 
+                      || boton.closest('#contenedor-formulario') 
+                      || boton.closest('.formulario-desplegable');
         
-        if (window.bootstrap && bootstrap.Collapse) {
-            let bsCollapse = bootstrap.Collapse.getInstance(contenedor);
-            if (bsCollapse) {
-                bsCollapse.hide();
+        if (contenedor) {
+            contenedor.classList.remove('activo', 'show');
+            
+            if (window.bootstrap && bootstrap.Collapse) {
+                let bsCollapse = bootstrap.Collapse.getInstance(contenedor);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                }
             }
-        }
-        
-        if (window.innerWidth <= 768) {
+            
             contenedor.style.display = 'none';
         }
     }

@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="{{ asset('css/components/navbarStyle.css') }}">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="">SIGER</a>
+    <img src="{{ asset('storage/images/logo-siger.png') }}" alt="Logo" class="navbar-logo">
 
     @if(($mostrarBusqueda ?? true) && View::getSection('mostrarBusqueda') !== 'false')
         <div class="buscador-container" style="position: relative; display: flex; align-items: center;">

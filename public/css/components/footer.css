@@ -1,0 +1,147 @@
+/* ==========================================================================
+   ESTILOS COMPONENTE: FOOTER GLOBAL (SIGER)
+   ========================================================================== */
+
+.siger-footer {
+    background-color: var(--color-fondo, #ffffff);
+    border-top: 1px solid var(--color-borde, #e2e8f0);
+    color: var(--color-texto, #1e293b);
+    font-family: var(--fuente-principal, system-ui, sans-serif);
+    margin-top: auto; /* Empuja el footer siempre al final si se usa flex en el layout */
+    width: 100%;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 30px;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 32px;
+}
+
+@media (min-width: 768px) {
+    .footer-container {
+        grid-template-columns: 2fr 1fr 1.5fr;
+        gap: 48px;
+    }
+}
+
+.footer-col {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Columna de Marca */
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.footer-brand .brand-icon {
+    font-size: 1.5rem;
+    color: var(--color-principal, #10b981);
+}
+
+.footer-brand .brand-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-principal, #047857);
+    letter-spacing: 0.5px;
+}
+
+.brand-desc {
+    font-size: 0.875rem;
+    color: var(--color-texto-secundario, #64748b);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 320px;
+}
+
+/* Encabezados y Listas */
+.footer-heading {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-texto, #0f172a);
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.footer-links,
+.footer-contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-links li a,
+.footer-contact-list li a,
+.footer-contact-list li span {
+    font-size: 0.875rem;
+    color: var(--color-texto-secundario, #64748b);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-links li a:hover,
+.footer-contact-list li a:hover {
+    color: var(--color-principal, #10b981);
+    transform: translateX(3px);
+}
+
+.footer-contact-list i {
+    color: var(--color-principal, #10b981);
+    font-size: 1rem;
+}
+
+/* Barra de Derechos de Autor */
+.footer-bottom {
+    background-color: var(--color-fondo-secundario, #f8fafc);
+    border-top: 1px solid var(--color-borde, #f1f5f9);
+    padding: 16px 24px;
+}
+
+.footer-bottom-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+@media (min-width: 640px) {
+    .footer-bottom-container {
+        flex-direction: row;
+    }
+}
+
+.footer-bottom p {
+    font-size: 0.8rem;
+    color: var(--color-texto-secundario, #94a3b8);
+    margin: 0;
+}
+
+.footer-socials {
+    display: flex;
+    gap: 16px;
+}
+
+.footer-socials a {
+    color: var(--color-texto-secundario, #64748b);
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+}
+
+.footer-socials a:hover {
+    color: var(--color-principal, #10b981);
+}

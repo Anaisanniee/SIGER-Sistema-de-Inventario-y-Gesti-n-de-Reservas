@@ -35,7 +35,7 @@
                    placeholder="Mínimo 8 caracteres, mayúscula, número y símbolo" class="input-siger">
             
             {{-- Texto de ayuda visual con los requisitos exigidos --}}
-            <small class="form-text text-muted d-block mt-2" style="font-size: 0.85rem; color: #6c757d; line-height: 1.4;">
+            <small class="form-text text-muted d-block mt-2" style="font-size: 0.85rem; color: var(--color-azulado); line-height: 1.4;">
                 <strong>Requisitos obligatorios:</strong>
                 <ul class="mb-0 ps-3" style="margin-top: 2px;">
                     <li>Mínimo 8 caracteres</li>

@@ -1,160 +1,165 @@
 /* ==========================================================================
-   PANEL DE GESTIÓN DE RECURSOS (AULAS Y ACTIVOS)
+   PANEL DE GESTIÓN DE RECURSOS (CABECERA Y KPIS MEJORADOS)
    ========================================================================== */
 
 .panel-administracion-contenedor {
     width: 100%;
-    padding: 1rem 0;
+    padding: 1.5rem 0;
 }
 
-/* Cabecera Flexible */
+/* Cabecera Flexible y Alineación */
 .cabecera-panel {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.texto-cabecera .titulo-pagina {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-texto, #1e293b);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .texto-cabecera .subtitulo-pagina {
-    font-size: 0.95rem;
-    color: var(--color-texto-secundario, #666);
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario, #64748b);
     margin-top: 0.25rem;
 }
 
+/* Jerarquía en Botones Superiores */
 .acciones-rapidas-panel {
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-/* Grid de Indicadores o KPIs */
-.metricas-resumen-grid {
+/* Botón Destructivo / Secundario: Papelera */
+.acciones-rapidas-panel .btn-outline-secundario,
+.acciones-rapidas-panel a[href*="papelera"] {
+    background-color: var(--color-fondo, #ffffff) !important;
+    color: #ef4444 !important;
+    border: 1px solid #fca5a5 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    transition: all 0.2s ease !important;
+}
+
+.acciones-rapidas-panel .btn-outline-secundario:hover,
+.acciones-rapidas-panel a[href*="papelera"]:hover {
+    background-color: #fee2e2 !important;
+    border-color: #ef4444 !important;
+    color: #b91c1c !important;
+}
+
+/* Rediseño del Grid de Indicadores (KPIs / Filtros) */
+.metricas-resumen-grid,
+.contenedor-kpis {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
 }
 
 .tarjeta-metrica-kpi {
     background: var(--color-fondo, #ffffff);
-    border-radius: 8px;
-    padding: 1.2rem;
+    border-radius: 12px;
+    padding: 1.25rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
-    border: 1px solid var(--color-borde, #e0e0e0);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 1.25rem;
+    border: 1px solid var(--color-borde, #e2e8f0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 0.5rem;
 }
 
-/* Efecto visual cuando una KPI está seleccionada */
+.tarjeta-metrica-kpi:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
+}
+
+/* Estado Seleccionado / Activo de los KPIs */
 .tarjeta-metrica-kpi.active {
-    border-color: var(--color-estado-disponible, #28a745);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: var(--color-fondo, #10b981);
+    border: 2px solid var(--color-principal, #10b981);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12);
     transform: translateY(-2px);
 }
 
 .icono-kpi {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
-    flex-shrink: 0; /* Evita que el círculo se deforme si hay mucho texto */
+    font-size: 1.35rem;
+    flex-shrink: 0;
 }
-
-/* Colores dinámicos para los iconos del KPI */
-.icono-kpi.azul { background-color: var(--color-reservado-pastel); color: var(--color-estado-reservado); }
-.icono-kpi.verde { background-color: var(--color-disponible-pastel); color: var(--color-estado-disponible); }
-.icono-kpi.rojo { background-color: var(--color-dañado-pastel); color: var(--color-estado-dañado); }
-.icono-kpi.amarillo { background-color: var(--color-en-mantenimiento-pastel); color: var(--color-estado-en-mantenimiento); }
 
 .datos-kpi {
     display: flex;
     flex-direction: column;
 }
 
-.cifra-kpi {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--color-texto, #333);
+.cifra-kpi, 
+.datos-kpi strong {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-texto, #0f172a);
+    line-height: 1.2;
 }
 
-.label-kpi {
-    font-size: 0.85rem;
-    color: var(--color-texto-secundario, #666);
+.label-kpi, 
+.datos-kpi span {
+    font-size: 0.82rem;
+    color: var(--color-texto-secundario, #64748b);
+    margin-top: 2px;
 }
 
 /* ==========================================================================
-   MÓVILES (Hasta 576px) - Solución de desborde y optimización vertical
+   RESPONSIVE (MÓVILES Y TABLETS)
    ========================================================================== */
-@media (max-width: 576px) {
+@media (max-width: 768px) {
     .cabecera-panel {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 1rem;
     }
 
-    /* Solución al botón roto de "Nuevo Activo": Ocupan todo el ancho apilados */
     .acciones-rapidas-panel {
         flex-direction: column;
         width: 100%;
-        gap: 0.75rem;
     }
 
-    .acciones-rapidas-panel .btn {
+    .acciones-rapidas-panel .btn,
+    .acciones-rapidas-panel a {
         width: 100%;
-        justify-content: center;
         text-align: center;
-        white-space: nowrap; /* Impide que el texto se parta feo en dos líneas */
+        justify-content: center;
     }
 
-    /* Solución al Scroll Infinito: Las KPIs se vuelven un slider horizontal */
     .metricas-resumen-grid {
         display: flex;
-        overflow-x: auto; /* Activa el scroll de izquierda a derecha */
+        overflow-x: auto;
         gap: 1rem;
-        margin: 1.5rem 0;
         padding-bottom: 0.5rem;
-        scrollbar-width: none; /* Oculta la barra en Firefox */
+        scrollbar-width: none;
     }
 
     .metricas-resumen-grid::-webkit-scrollbar {
-        display: none; /* Oculta la barra en Chrome, Safari y Edge */
+        display: none;
     }
 
     .tarjeta-metrica-kpi {
-        gap: 0.75rem;
-        min-width: 220px; /* Asegura que cada KPI tenga un ancho mínimo */
-        flex: 0 0 80%; /* Cada KPI toma el 80% para asomar la siguiente e invitar a deslizar */
-        padding: 1rem;
-        margin-top: 0.5rem;
+        min-width: 220px;
+        flex: 0 0 85%;
     }
-}
-
-/* ==========================================================================
-   TABLETS (De 577px a 992px)
-   ========================================================================== */
-@media (min-width: 577px) and (max-width: 992px) {
-    .cabecera-panel {
-        flex-direction: row;
-        justify-content: space-between;
-    }
-
-    .acciones-rapidas-panel {
-        width: auto;
-    }
-
-    /* Fuerza a las 3 KPIs a quedarse en una sola fila horizontal bien distribuida */
-    .metricas-resumen-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-}
-
-#modalConfirmarEliminar .modal-footer {
-    display: none !important;
 }

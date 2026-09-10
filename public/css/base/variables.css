@@ -3,15 +3,18 @@
 /* Importación de fuentes */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap');
 
-/* Variables de tu sistema original */
+/* Variables de del sistema con contraste */
 :root {
+  /* Tus colores originales de marca intactos */
   --color-principal: #10b981;
   --principal-secundario: #34811ddc;
-  --color-fondo: #f9fbf9;
-  --color-fondo-secundario: #e1f5e2;
-  --color-texto: #444444;
-  --color-texto-secundario: #6b7280;
-  --color-borde: #e5e7eb;
+  
+  /* Fondos limpios y descansados para la vista */
+  --color-fondo: #f4f7f6;
+  --color-fondo-secundario: #e8f5e9;
+  --color-texto: #2d3748;
+  --color-texto-secundario: #64748b;
+  --color-borde: #e2e8f0;
 
   --fuente-principal: 'Inter', sans-serif;
   --fuente-secundaria: 'Poppins', sans-serif;
@@ -20,18 +23,20 @@
   --ancho-maximo: 1200px;
   --borde-radio: 8px;
 
-  --color-estado-disponible: #22c55e;
-  --color-estado-reservado: #3b82f6;
-  --color-estado-en-mantenimiento: #e6cc66;
-  --color-estado-dañado: #dc2626;
+  /* Colores de estado fuertes (para bordes de 3px, textos e iconos) */
+  --color-estado-disponible: #10b981;
+  --color-estado-reservado: #2563eb;
+  --color-estado-en-mantenimiento: #d97706;
+  --color-estado-dañado: #ef4444;
 
-  --color-verde-pastel: #bbf7d0;
-  --color-azulado: #64748b;
+  --color-verde-pastel: #d1fae5;
+  --color-azulado: #475569;
 
-  --color-disponible-pastel: #bbf7d0;
-  --color-reservado-pastel: #dbeafe;
-  --color-en-mantenimiento-pastel: #fef3c7;
-  --color-dañado-pastel: #fee2e2;
+  /* Fondos pastel BIEN DISTINGUIBLES pero suaves (ideales para badges y tarjetas) */
+  --color-disponible-pastel: #e6f4ea;      /* Verde menta suave */
+  --color-reservado-pastel: #e8f0fe;       /* Azul institucional claro */
+  --color-en-mantenimiento-pastel: #fef3c7; /* Ámbar/Crema suave */
+  --color-dañado-pastel: #fee2e2;          /* Rosa/Rojo pastel suave */
 }
 
 body {

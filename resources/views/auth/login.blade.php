@@ -1,111 +1,126 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">    
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | SIGER</title>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> 
     <link rel="stylesheet" href="{{ asset('css/base/variables.css') }}">
-
     <link rel="stylesheet" href="{{ asset('css/pages/login.css') }}">
-
     <link rel="stylesheet" href="{{ asset('css/components/botones.css') }}">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
-    <title>LoginSiger</title>
-
 </head>
-
-
-
 <body>
 
-   <x-alertas.alertas-flotantes/>
+    <x-alertas.alertas-flotantes/>
 
-        <div class="welcome-container">
+    <main class="login-wrapper">
+        <!-- PANEL IZQUIERDO: Marca e Identidad -->
+        <section class="welcome-container">
+            <!-- Formas decorativas orgánicas en fondo -->
+            <div class="bg-shape shape-1"></div>
+            <div class="bg-shape shape-2"></div>
 
-            <h1>SIGER</h1>
+            <div class="brand-content">
+                <div class="brand-logo-badge">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+                
+                <h1 class="brand-title">SIGER</h1>
+                <p class="brand-subtitle">Sistema Integrado de Inventario y Gestión de Reservas</p>
 
-            <h3>Sistema de Inventario y Gestión de Reservas</h3>
-
-        </div>
-
-     
-
-     <div class="login-container">
-
-     
-
-        <h2>Iniciar Sesión</h2>
-
-        <h4>Ingrese sus credenciales</h4>
-
-
-
-        <form method="POST" action="{{ route('login') }}">
-
-            @csrf
-
-
-
-            <div class="form-group">
-
-                <label for="username">Usuario:</label>
-
-                <input type="text" id="username" name="USU_CEDULA" required autocomplete="current-USU_CEDULA" value="{{ old('USU_CEDULA') }}">
-
-
+                <!-- Tarjeta destacada con beneficios del sistema -->
+                <div class="brand-feature-card">
+                    <div class="feature-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Control de activos e inventario institucional en tiempo real</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Gestión ágil de préstamos y reserva de ambientes</span>
+                    </div>
+                </div>
             </div>
 
+            <footer class="brand-footer">
+                <small>© {{ date('Y') }} SIGER. Todos los derechos reservados.</small>
+            </footer>
+        </section>
 
+        <!-- PANEL DERECHO: Formulario de Acceso -->
+        <section class="login-card-container">
+            <div class="login-card">
+                <header class="login-header">
+                    <h2>Iniciar Sesión</h2>
+                    <p>Ingrese sus credenciales corporativas para continuar</p>
+                </header>
 
-            <div class="form-group">
+                <form method="POST" action="{{ route('login') }}" class="login-form">
+                    @csrf
 
-                <label for="password">Contraseña:</label>
+                    <!-- Campo Usuario -->
+                    <div class="form-group">
+                        <label for="username">Usuario / Cédula</label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-person input-icon"></i>
+                            <input type="text" 
+                                   id="username" 
+                                   name="USU_CEDULA" 
+                                   required 
+                                   autocomplete="current-USU_CEDULA" 
+                                   value="{{ old('USU_CEDULA') }}"
+                                   placeholder="Número de documento">
+                        </div>
+                    </div>
 
-                <input type="password" id="password" name="USU_CONTRASEÑA" required autocomplete="current-password">
+                    <!-- Campo Contraseña con Toggle -->
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-lock input-icon"></i>
+                            <input type="password" 
+                                   id="password" 
+                                   name="USU_CONTRASEÑA" 
+                                   required 
+                                   autocomplete="current-password"
+                                   placeholder="••••••••">
+                            <button type="button" class="btn-toggle-password" id="togglePassword">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
 
+                    <div class="form-options">
+                        <a href="{{ route('password.request') }}" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                    </div>
 
+                    <x-botones.boton
+                        class="btn btn-primary-siger"
+                        url=""
+                        type="submit">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
+                    </x-botones.boton>
+                </form>
             </div>
+        </section>
+    </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Script ligero para alternar visibilidad de la contraseña
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const toggleIcon = document.querySelector('#toggleIcon');
 
-            <a href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
-
-
-            {{----$_COOKIE['user_id'/rol]----}}
-
-            <x-botones.boton
-
-                class="btn"
-
-                url=""
-
-                type="submit">Iniciar Sesión
-
-            </x-botones.boton>
-
-           
-
-        </form>
-
-
-
-</div>
-
-
-
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function () {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                toggleIcon.classList.toggle('bi-eye');
+                toggleIcon.classList.toggle('bi-eye-slash');
+            });
+        }
+    </script>
 </body>
-
 </html>

@@ -72,7 +72,7 @@
     {{-- ETIQUETA / LUCECITA EN LA ESQUINA SUPERIOR DERECHA --}}
     <div class="estado-esquina-container">
         <span class="badge-siger-estado {{ $claseEstado }}">
-            <i class="fas fa-circle indicador-punto"></i> 
+            <i class="fas fa-circle indicador-punto" style="margin-right: 6px;"></i> 
             {{ $textoBadge }}
         </span>
     </div>

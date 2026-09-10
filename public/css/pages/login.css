@@ -1,254 +1,261 @@
 /* ==========================================================================
-   ESTILOS BASE / COMUNES (Se aplican a todas las pantallas por defecto)
+   ESTILOS DE LOGIN OPTIMIZADOS (SIGER)
    ========================================================================== */
+
 body {
-    background-color: var(--color-fondo-secundario);
-    background: linear-gradient(var(--color-borde), var(--color-fondo-secundario));
     margin: 0;
-    height: 100vh;
+    padding: 0;
+    min-height: 100vh;
+    font-family: var(--fuente-principal, system-ui, sans-serif);
+    background-color: var(--color-fondo-secundario, #f8fafc);
 }
 
-.welcome-container {
+.login-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--color-principal);
-    color: var(--color-fondo);
-    z-index: 1;
-    position: relative;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.welcome-container h1 {
-    margin: 0;
-    color: var(--fuente-secundaria);
-}
-
-.welcome-container h3,
-.welcome-container h4 {
-    font-weight: normal;
-}
-
-.login-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--color-fondo);
-    border-radius: 4px;
-    color: var(--color-texto);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 2;
-}
-
-.login-container h2 {
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: var(--color-principal);
-}
-
-.form-group {
+    min-height: 100vh;
     width: 100%;
-    margin-bottom: 5px;
 }
 
-input, select {
-    background-color: var(--color-borde);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    margin-bottom: 15px;
-    transition: border-color 0.2s ease; /* Suaviza el cambio al dar clic */
+/* --- PANEL IZQUIERDO: DECORACIÓN Y MARCA --- */
+.welcome-container {
+    position: relative;
+    background: linear-gradient(135deg, var(--principal-secundario, #047857), var(--color-principal, #10b981));
+    color: var(--color-fondo, #ffffff);
+    padding: 48px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
 }
 
-/* EFECTO: Borde verde al dar clic (foco) */
-input:focus, select:focus {
+/* Formas flotantes de fondo */
+.bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.shape-1 {
+    width: 350px;
+    height: 350px;
+    top: -100px;
+    right: -80px;
+}
+
+.shape-2 {
+    width: 250px;
+    height: 250px;
+    bottom: -50px;
+    left: -50px;
+}
+
+/* Contenido de la marca */
+.brand-content {
+    position: relative;
+    z-index: 2;
+    max-width: 460px;
+    margin: auto 0;
+}
+
+.brand-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    font-size: 1.75rem;
+    color: #ffffff;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.brand-title {
+    font-size: 3.25rem;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    letter-spacing: 1px;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.brand-subtitle {
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin: 0 0 32px 0;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+/* Tarjeta de características internas */
+.brand-feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.4;
+}
+
+.feature-item i {
+    font-size: 1.1rem;
+    color: #a7f3d0;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.brand-footer {
+    position: relative;
+    z-index: 2;
+    opacity: 0.7;
+    font-size: 0.8rem;
+    margin-top: 24px;
+}
+
+/* --- PANEL DERECHO: FORMULARIO --- */
+.login-card-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 32px 20px;
+}
+
+.login-card {
+    background-color: var(--color-fondo, #ffffff);
+    border: 1px solid var(--color-borde, #e2e8f0);
+    border-radius: 14px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06);
+}
+
+.login-header h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--color-principal, #047857);
+    margin: 0 0 6px 0;
+}
+
+.login-header p {
+    font-size: 0.875rem;
+    color: var(--color-texto-secundario, #64748b);
+    margin: 0 0 24px 0;
+}
+
+/* Inputs con Iconos */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-texto, #1e293b);
+}
+
+.input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--color-texto-secundario, #94a3b8);
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.input-icon-wrapper input {
+    width: 100%;
+    padding: 10px 14px 10px 42px;
+    border: 1px solid var(--color-borde, #cbd5e1);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.input-icon-wrapper input:focus {
     outline: none;
-    border-color: var(--color-principal);
+    border-color: var(--color-principal, #10b981);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
-a {
-    color: var(--color-principal);
-    margin-left: 50px;
-    text-decoration: none;
-    margin-top: 10px;
+/* Botón Toggle Contraseña */
+.btn-toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--color-texto-secundario, #94a3b8);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.btn-toggle-password:hover {
+    color: var(--color-texto, #1e293b);
+}
+
+.form-options {
+    display: flex;
+    justify-content: flex-end;
     margin-bottom: 20px;
 }
 
-label {
-    font-size: 1rem;
-    margin-bottom: 10px;
-    font-family: var(--fuente-secundaria);
+.forgot-link {
+    font-size: 0.85rem;
+    color: var(--color-principal, #047857);
+    text-decoration: none;
     font-weight: 500;
 }
 
-.btn, .login-container button {
-    background: var(--color-principal);
-    color: var(--color-fondo);
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.forgot-link:hover {
+    text-decoration: underline;
 }
 
-.btn:hover, .login-container button:hover {
-    background-color: var(--principal-secundario);
+.btn-primary-siger {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
 }
 
-
-/* ==========================================================================
-   DISEÑO MÓVIL (Hasta 768px)
-   ========================================================================== */
-@media (max-width: 768px) {
-    body {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-    }
-
-    .welcome-container {
-        width: 100%;
-        height: 120px;
-    }
-
-    .welcome-container h1 {
-        font-size: 1.5rem;
-    }
-
-    .welcome-container h3 {
-        margin: 5px 0 0 0;
-        font-size: 0.9rem;
-    }
-
-    .login-container {
-        position: absolute;
-        top: 100px;
-        transform: translateY(-10px);
-        padding: 20px 30px;
-        margin: 0;
-        min-height: 27rem;
-        font-family: var(--fuente-principal);
-    }
-
-    .login-container h2 {
-        font-size: 1.5rem;
-    }
-
-    input, select, .btn {
-        width: 97%;
-    }
-
-    a {
-        font-size: 0.9rem;
-    }
-}
-
-
-/* ==========================================================================
-   DISEÑO TABLET (De 769px a 1023px)
-   ========================================================================== */
-@media (min-width: 769px) and (max-width: 1023px) {
-    body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-    }
-
-    .welcome-container {
-        width: 100%;
-        height: 160px;
-    }
-
-    .welcome-container h1 {
-        margin: 10px 0;
-        font-size: 3rem;
-        background: linear-gradient(45deg, var(--color-fondo), var(--color-texto-secundario));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .welcome-container h3 {
-        margin: 0 0 20px 0;
-        font-size: 1.25rem;
-    }
-
-    .login-container {
-        position: absolute;
-        top: 200px;
-        transform: translateY(-10px);
-        padding: 40px 50px;
-        width: 50%;
-        margin-left: auto;
-        height: auto;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-
-    input, select, .btn, .login-container button {
-        width: 95%;
-    }
-
-    a {
-        font-size: 1rem;
-    }
-}
-
-
-/* ==========================================================================
-   DISEÑO PC (Desde 1024px en adelante) - CORREGIDO
-   ========================================================================== */
+/* --- RESPONSIVE DESIGN --- */
 @media (min-width: 1024px) {
-    body {
-        background-color: var(--color-fondo);
+    .login-wrapper {
         display: grid;
-        grid-template-columns: 40% 60%;
+        grid-template-columns: 48% 52%;
     }
 
     .welcome-container {
-        justify-content: space-between;
-        background: linear-gradient(to bottom, var(--principal-secundario), var(--color-principal));
-        box-shadow: 7px 0 10px rgba(0, 0, 0, 0.3);
-        padding: 20px;
-        align-items: flex-start; /* Cambia la alineación general de los hijos a la izquierda en PC */
+        padding: 56px 48px;
     }
 
-    .welcome-container h1 {
-        font-size: 3rem;
-        background: linear-gradient(45deg, var(--color-fondo), var(--color-texto-secundario));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: left;     /* Alinea el texto a la izquierda */
-        align-self: flex-start; /* Rompe el centrado de los estilos base y lo manda a la izquierda */
-    }
-
-    .welcome-container h4 {
-        font-size: 1.5rem;
-        text-align: left;     /* Asegura que el h4 también acompañe el diseño si lo necesitas */
-    }
-
-    .login-container {
-        padding: 40px 50px;
-        margin: auto;
-        height: auto;
-        max-height: 500px;
-        max-width: 400px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-
-    input, select, .login-container button {
-        width: 95%;
-    }
-
-    a {
-        font-size: 1rem;
-        margin-bottom: 15px;
+    .brand-title {
+        font-size: 3.75rem;
     }
 }

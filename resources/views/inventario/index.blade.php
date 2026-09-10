@@ -14,29 +14,28 @@
     <!-- CABECERA DEL PANEL -->
     <div class="cabecera-panel">
         <div class="texto-cabecera">
-            <h2 class="titulo-pagina" style="color: var(--color-principal);"><i class="fas fa-cubes"></i> Gestión de Inventario</h2>
+            <h2 class="titulo-pagina"><i class="fas fa-cubes me-2"></i>Gestión de Inventario</h2>
             <p class="subtitulo-pagina">Administra y controla las aulas y activos de la institución en un solo lugar.</p>
         </div>
+        
         <div class="acciones-rapidas-panel">
-
             <x-botones.boton 
                 clase="btn-verde"
                 url="{{ url('/aulas/crear') }}">
-                <i class="fas fa-plus" style="margin-right: 5px;"></i> Nueva Aula
+                <i class="fas fa-plus me-1"></i> Nueva Aula
             </x-botones.boton>
 
             <x-botones.boton 
                 clase="btn-verde"
                 url="{{ url('/activos/crear') }}">
-                <i class="fas fa-plus" style="margin-right: 5px;"></i> Nuevo Activo
+                <i class="fas fa-plus me-1"></i> Nuevo Activo
             </x-botones.boton>
 
             <x-botones.boton 
-                clase="btn-papelera" 
+                clase="btn-outline-secundario" 
                 url="{{ url('/inventario/papelera') }}">
-                <i class="fas fa-trash-alt" style="margin-right: 5px;"></i> Ver Papelera
+                <i class="fas fa-trash-alt me-1"></i> Ver Papelera
             </x-botones.boton>
-            
         </div>
     </div>
 
@@ -52,43 +51,28 @@
         @endcomponent
     </div>
 
-
-    {{--- 4. CONTENEDOR PRINCIPAL DE TARJETAS ---}} 
+    <!-- CONTENEDOR PRINCIPAL DE TARJETAS -->
     <div class="container-tarjetas">
         @foreach($recursos as $recurso)
-
-            @if(isset($recurso->act_id))
+            @php
+                $esActivo = isset($recurso->act_id);
+                $estado = strtolower($esActivo 
+                    ? ($recurso->act_estado_fisico ?? $recurso->act_estado ?? '') 
+                    : ($recurso->aula_estado ?? '')
+                );
                 
-                @php
-                    $tagsActivo = ['activo'];
-                    
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'excelente') {
-                        $tagsActivo[] = 'disponible'; 
-                    }
+                $tagEstado = match(true) {
+                    str_contains($estado, 'buen') || str_contains($estado, 'excelente') || str_contains($estado, 'disponibl') => 'disponible',
+                    str_contains($estado, 'manten') || str_contains($estado, 'regular') => 'en-mantenimiento',
+                    str_contains($estado, 'daña') || str_contains($estado, 'malo') => 'dañado',
+                    default => 'disponible'
+                };
 
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'bueno') {
-                        $tagsActivo[] = 'disponible'; 
-                    }
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'regular') {
-                        $tagsActivo[] = 'disponible'; 
-                    } 
-                    
-                    if (isset($recurso->act_estado_fisico) && strtolower($recurso->act_estado_fisico) == 'malo') {
-                        $tagsActivo[] = 'en-mantenimiento';
-                    }
+                $strTags = $esActivo ? "activo {$tagEstado}" : "aula {$tagEstado}";
+            @endphp
 
-                    if (isset($recurso->act_estado) && strtolower($recurso->act_estado) == 'dañado') {
-                        $tagsActivo[] = 'dañado';
-                    }
-
-                    if (isset($recurso->act_estado) && strtolower($recurso->act_estado) == 'malo') {
-                        $tagsActivo[] = 'dañado';
-                    }
-
-                    $strTagsActivo = implode(' ', $tagsActivo);
-                @endphp
-                
-                <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsActivo }}">
+            <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTags }}">
+                @if($esActivo)
                     @component('components.tarjetas.tarjeta-recurso', [
                         'tipo' => 'activo',
                         'foto' => $recurso->act_foto ? asset('storage/' . $recurso->act_foto) : asset('storage/activos/default.jpeg'),
@@ -102,29 +86,7 @@
                         'urlBoton' => url('/activos/' . $recurso->act_id . '/editar')
                     ])
                     @endcomponent
-                </div>
-
-            @else
-
-                @php
-                    $tagsAula = ['aula'];
-                    
-                    if (isset($recurso->aula_estado) && strtolower($recurso->aula_estado) == 'disponible') {
-                        $tagsAula[] = 'disponible';
-                    } 
-
-                    if (isset($recurso->aula_estado) && strtolower($recurso->aula_estado) == 'mantenimiento') {
-                        $tagsAula[] = 'en-mantenimiento';
-                    }
-
-                    if (isset($recurso->aula_estado) && strtolower($recurso->aula_estado) == 'reservado') {
-                        $tagsAula[] = 'reservado';
-                    }
-
-                    $strTagsAula = implode(' ', $tagsAula);
-                @endphp
-
-                <div class="tarjeta-wrapper recurso-item" data-tags="{{ $strTagsAula }}">
+                @else
                     @component('components.tarjetas.tarjeta-recurso', [
                         'tipo' => 'aula',
                         'foto' => $recurso->aula_foto ? asset('storage/' . $recurso->aula_foto) : asset('storage/aulas/default.jpeg'),
@@ -138,37 +100,34 @@
                         'urlBoton' => url('/aulas/' . $recurso->aula_id . '/editar')
                     ])
                     @endcomponent
-                </div>
-
-            @endif
-
+                @endif
+            </div>
         @endforeach
 
-        {{--- MODAL GLOBAL PARA LAS FICHAS TÉCNICAS ---}}
+        {{-- MODAL GLOBAL PARA LAS FICHAS TÉCNICAS --}}
         <x-modal id="modalgeneral" title="Cargando..." subtitle="">
             @include('components.fichas.ficha-tecnica-universal')
         </x-modal>
     </div>
 
-    {{--- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ---}}
+    {{-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN --}}
     <x-modal id="modalConfirmarEliminar" titulo="¿Está seguro de eliminar este recurso?" subtitulo="El elemento se moverá temporalmente a la papelera de recuperación.">
         
-        <form id="formEliminarSeguro" action="#" method="POST" style="width: 100%;">
+        <form id="formEliminarSeguro" action="#" method="POST" class="w-100">
             @csrf
             @method('DELETE')
 
-            <div class="form-group-siger" style="margin-bottom: 20px; text-align: left;">
-                <label for="motivo_baja" style="font-family: var(--fuente-principal); font-weight: 600; color: var(--color-texto); display: block; margin-bottom: 8px;">
-                    Motivo de la Baja <span style="color: red;">*</span>
+            <div class="form-group-siger mb-4 text-start">
+                <label for="motivo_baja" class="form-label font-weight-bold">
+                    Motivo de la Baja <span class="text-danger">*</span>
                 </label>
-                <input type="text" id="motivo_baja" name="motivo_baja" class="form-control" placeholder="Ej. Daño estructural, obsolescencia, traslado..." required style="width: 100%; border-radius: 4px;">
+                <input type="text" id="motivo_baja" name="motivo_baja" class="form-control" placeholder="Ej. Daño estructural, obsolescencia, traslado..." required>
             </div>
 
-            <div class="d-flex justify-content-center gap-3" style="padding-top: 10px; width: 100%;">
-                
+            <div class="d-flex justify-content-center gap-3 pt-2 w-100">
                 <x-botones.boton 
                     type="button" 
-                    class="btn btn-verde"
+                    class="btn btn-secundario"
                     data-bs-dismiss="modal">
                     No, Cancelar
                 </x-botones.boton>
@@ -178,23 +137,17 @@
                     class="btn btn-rojo">
                     Sí, Confirmar Baja
                 </x-botones.boton>
-                
             </div>
         </form>
     </x-modal>
 
 </div>
 
-{{--- SCRIPTS ---}}
+{{-- SCRIPTS --}}
 <script>
 function prepararEliminacion(id, tipo, nombre, caracteristica) {
     const formulario = document.getElementById('formEliminarSeguro');
-    
-    if (tipo === 'activo') {
-        formulario.action = `{{ url('/activos') }}/${id}`;
-    } else {
-        formulario.action = `{{ url('/aulas') }}/${id}`;
-    }
+    formulario.action = tipo === 'activo' ? `{{ url('/activos') }}/${id}` : `{{ url('/aulas') }}/${id}`;
 
     const txtTitulo = document.getElementById('modal-titulo-dinamico');
     const txtSubtit = document.getElementById('modal-sub-dinamico');
@@ -203,9 +156,7 @@ function prepararEliminacion(id, tipo, nombre, caracteristica) {
     if (txtSubtit) txtSubtit.textContent = caracteristica;
 
     const inputMotivo = document.getElementById('motivo_baja');
-    if (inputMotivo) {
-        inputMotivo.value = '';
-    }
+    if (inputMotivo) inputMotivo.value = '';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -272,10 +223,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (Array.isArray(activos) && activos.length > 0) {
                     activos.forEach(item => {
                         const li = document.createElement('li');
-                        li.className = 'activo-item text-center py-2';
+                        li.className = 'activo-item py-2';
                         li.innerHTML = `
-                            <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding: 5px;">
-                                <img src="/storage/${item.act_foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                            <div class="d-flex align-items-center gap-2 border-bottom pb-2">
+                                <img src="/storage/${item.act_foto}" class="img-activo-preview">
                                 <div>
                                     <strong>${item.act_nombre}</strong><br>
                                     <small class="text-muted">Serial: ${item.act_serial}</small>
@@ -304,6 +255,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- SCRIPT EXCLUSIVO PARA LAS CAJAS KPI Y FILTROS -->
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
 @endsection
