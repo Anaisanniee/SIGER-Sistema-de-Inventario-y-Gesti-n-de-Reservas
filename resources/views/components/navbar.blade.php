@@ -100,6 +100,14 @@
                         </a>
                     @endif
 
+                    {{---perfil--- si esta en la pagina de peril no se muestra el boton de perfil--}}
+                    @if(!request()->routeIs('perfil'))
+                        <a href="{{ route('perfil') }}" class="dropdown-item">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                    @endif
+
+
 
                     @php
                         $notificacionespage = Route::has('notificaciones.index') ? route('notificaciones.index') : 'notificaciones.index';
@@ -132,6 +140,7 @@
                             <span class="rounded-circle" style="width: 8px; height: 8px; background-color: #dc3545 !important; display: inline-block;"></span>
                         @endif
                     </a>
+
                     {{--SECCION 1.5: MIS RESERVAS PARA RECTOR Y DOCENTE--}}
 
                     @php
