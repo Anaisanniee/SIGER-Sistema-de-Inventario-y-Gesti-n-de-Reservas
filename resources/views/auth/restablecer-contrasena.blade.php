@@ -2,8 +2,7 @@
 
 @section('mostrarBusqueda', 'false')
 @section('mostrarRegresar', 'true')
-@section('rutaRegresar', url('/login')) // cambiar por la rutad e enviar correo (recuperar-contrasena.blade.php)
-
+@section('rutaRegresar', url('/login')) 
 @section('content')
 
     <link rel="stylesheet" href="{{ asset('css/components/form-usuario.css') }}">

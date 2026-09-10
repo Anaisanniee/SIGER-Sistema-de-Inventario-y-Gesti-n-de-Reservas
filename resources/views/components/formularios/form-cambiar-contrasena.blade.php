@@ -32,7 +32,19 @@
         <div class="grupo-formulario mb-3">
             <label for="new_password" class="label-siger">Nueva Contraseña <span class="text-danger">*</span></label>
             <input type="password" id="new_password" name="password" required
-                   placeholder="Mínimo 6 caracteres" class="input-siger">
+                   placeholder="Mínimo 8 caracteres, mayúscula, número y símbolo" class="input-siger">
+            
+            {{-- Texto de ayuda visual con los requisitos exigidos --}}
+            <small class="form-text text-muted d-block mt-2" style="font-size: 0.85rem; color: #6c757d; line-height: 1.4;">
+                <strong>Requisitos obligatorios:</strong>
+                <ul class="mb-0 ps-3" style="margin-top: 2px;">
+                    <li>Mínimo 8 caracteres</li>
+                    <li>Al menos una letra mayúscula y una minúscula</li>
+                    <li>Al menos un número</li>
+                    <li>Al menos un símbolo especial (ej. @, $, !, %, *, ?, &)</li>
+                </ul>
+            </small>
+
             @error('password')
                 <small class="text-danger" style="color: red; margin-top: 5px; display: block;">{{ $message }}</small>
             @enderror
@@ -72,9 +84,9 @@
                     e.preventDefault();
                     alert('¡Atención! La nueva contraseña y su confirmación no coinciden.');
                     confirmPassword.focus();
-                } else if (newPassword.value.length < 6) {
+                } else if (newPassword.value.length < 8) {
                     e.preventDefault();
-                    alert('Por seguridad, la nueva contraseña debe contener un mínimo de 6 caracteres.');
+                    alert('Por seguridad, la nueva contraseña debe contener un mínimo de 8 caracteres.');
                     newPassword.focus();
                 } else if (currentPassword && currentPassword.value === newPassword.value) {
                     e.preventDefault();

@@ -8,6 +8,7 @@ use App\Models\ReservasModels;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -58,7 +59,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+       $request->validate([
             'identificacion'   => 'nullable|numeric|digits_between:7,10|unique:users,USU_CEDULA',
             'USU_CEDULA'       => 'nullable|string|unique:users,USU_CEDULA',
             'name'             => 'required|string|max:50',
@@ -66,25 +67,27 @@ class UserController extends Controller
             'lastname'         => 'required|string|max:50',
             'second-last-name' => 'nullable|string|max:50',
             'correo'           => 'required|email|unique:users,USU_CORREO',
-            'password'         => 'required|string|min:6',
             'rol'              => 'required|exists:roles,id',
-        ]);
+       ]);
 
-        $cedula = $request->input('identificacion') ?? $request->input('USU_CEDULA');
+       $cedula = $request->input('identificacion') ?? $request->input('USU_CEDULA');
 
-        User::create([
+       // La contraseña inicial será el mismo documento de identidad (cédula)
+       $passwordInicial = $cedula;
+
+       User::create([
             'USU_CEDULA'          => $cedula,
             'USU_PRIMER_NOMBRE'   => $request->input('name'),
             'USU_SEGUNDO_NOMBRE'  => $request->input('second-name'),
             'USU_PRIMER_APELLIDO' => $request->input('lastname'),
             'USU_SEGUNDO_APELLIDO'=> $request->input('second-last-name'),
             'USU_CORREO'          => $request->input('correo'),
-            'USU_CONTRASEÑA'      => Hash::make($request->input('password')),
+            'USU_CONTRASEÑA'      => Hash::make($passwordInicial), 
             'ROL_ID'              => $request->input('rol'),
             'USU_ESTADO'          => 'Activo',
-        ]);
+       ]);
 
-        return redirect()->route('usuarios.index')->with('success', '¡Usuario creado exitosamente!');
+        return redirect()->route('usuarios.index')->with('success', '¡Usuario creado exitosamente con su documento como contraseña inicial!');
     }
 
     /**
@@ -95,11 +98,7 @@ class UserController extends Controller
         $usuario = Auth::user();
         $rol = strtolower($usuario->role->name ?? '');
         
-        // 1. Conteo global para secretaría (reservas pendientes en todo el sistema)
         $pendientesCount = \App\Models\ReservasModels::where('res_estado_reserva', 'pendiente')->count();
-
-        // 2. Conteo específico para el usuario logueado (Reservas activas / aprobadas suyas)
-        // Ajusta 'user_id' o 'res_usuario_id' según el nombre exacto de la columna en tu tabla de reservas
         $reservasActivasCount = \App\Models\ReservasModels::where('usu_id', $usuario->usu_id) 
             ->where('res_estado_reserva', 'Aprobada') 
             ->count();
@@ -109,7 +108,6 @@ class UserController extends Controller
         }
 
         if (in_array($rol, ['rector', 'rectora'])) {
-            // Al rector también le puedes pasar el indicador si lo necesita en su tarjeta
             if (view()->exists('users.perfil.rectora')) {
                 return view('users.perfil.rectora', compact('usuario', 'pendientesCount', 'reservasActivasCount'));
             }
@@ -118,7 +116,6 @@ class UserController extends Controller
             }
         }
 
-        // Para el Docente y perfil general de usuario
         return view('users.perfil.perfil-usuario', compact('usuario', 'pendientesCount', 'reservasActivasCount'));
     }
 
@@ -149,28 +146,38 @@ class UserController extends Controller
     }
 
     /**
-     * Procesa la actualización de la contraseña desde el perfil
+     * Procesa la actualización de la contraseña desde el perfil (Regla Estricta)
      */
     public function updatePassword(Request $request)
     {
         $request->validate([
             'current_password' => 'required',
-            'password' => 'required|min:6|confirmed',
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
+        ], [
+            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'password.mixed_case' => 'La contraseña debe contener al menos una letra mayúscula y una minúscula.',
+            'password.numbers' => 'La contraseña debe contener al menos un número.',
+            'password.symbols' => 'La contraseña debe contener al menos un símbolo especial.',
         ]);
 
         $user = Auth::user();
 
-        // Valida que la contraseña actual sea correcta usando el campo personalizado
         if (!Hash::check($request->current_password, $user->USU_CONTRASEÑA)) {
             return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
         }
 
-        // Actualiza la contraseña en la columna personalizada
         $user->update([
             'USU_CONTRASEÑA' => Hash::make($request->password)
         ]);
 
-        return back()->with('success', '¡Contraseña actualizada correctamente!');
+        return back()->with('success', '¡Contraseña actualizada correctamente con los requisitos de seguridad!');
     }
 
     /**
@@ -188,7 +195,7 @@ class UserController extends Controller
     }
 
     /**
-     * Actualización administrativa del usuario
+     * Actualización administrativa del usuario (Permite restablecer a cédula o actualizar datos)
      */
     public function update(Request $request, $id)
     {
@@ -213,7 +220,14 @@ class UserController extends Controller
             $data['ROL_ID'] = $request->input('rol');
         }
 
-        if ($request->filled('password')) {
+        // Opción 1: Si la secretaría marca la casilla para restablecer la clave al documento de identidad
+        if ($request->has('restablecer_a_cedula')) {
+            if (!empty($usuario->USU_CEDULA)) {
+                $data['USU_CONTRASEÑA'] = Hash::make($usuario->USU_CEDULA);
+            }
+        } 
+        // Opción 2: Si la secretaría ingresa una contraseña manual en la edición
+        elseif ($request->filled('password')) {
             $data['USU_CONTRASEÑA'] = Hash::make($request->input('password'));
         }
 
