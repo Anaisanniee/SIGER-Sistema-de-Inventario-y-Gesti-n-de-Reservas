@@ -33,6 +33,29 @@
                     'usuario' => $usuario, 
                     'modo' => 'editar-admin'
                 ])
+
+                {{-- NUEVA SECCIÓN: Restablecer contraseña a cédula (Exclusivo administración) --}}
+                <div class="mb-3 mt-4 p-3 border rounded" style="background-color: var(--color-fondo-secundario, #f8f9fa);">
+                    <label class="form-label fw-bold text-dark" style="color: var(--color-principal);">
+                        <i class="fas fa-key" style="margin-right: 5px;"></i> Gestión de Contraseña
+                    </label>
+                    <div class="form-check">
+                        <input type="checkbox" name="restablecer_a_cedula" id="restablecer_a_cedula" class="form-check-input" value="1">
+                        <label for="restablecer_a_cedula" class="form-check-label" style="cursor: pointer;">
+                            Restablecer contraseña al número de documento del usuario (<strong>{{ $usuario->USU_CEDULA }}</strong>)
+                        </label>
+                    </div>
+                    <small class="form-text text-muted d-block mt-1">
+                        Al marcar esta casilla, la contraseña actual se descartará y volverá a ser la cédula del usuario automáticamente.
+                    </small>
+                </div>
+
+                {{-- Botón de guardar cambios general del formulario --}}
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary" style="background-color: var(--color-principal); border: none;">
+                        Guardar Cambios
+                    </button>
+                </div>
             </form>
         </div>
     </div>

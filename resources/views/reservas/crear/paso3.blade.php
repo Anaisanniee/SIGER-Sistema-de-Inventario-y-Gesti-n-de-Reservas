@@ -32,15 +32,95 @@
     $reservaObj->res_fecha_fin = session('reserva.res_fecha_fin') ?? session('res_fecha_fin');
     $reservaObj->res_motivo = session('reserva.res_motivo') ?? session('res_motivo', 'Desarrollo de clase práctica y actividades pedagógicas programadas.');
 
-    $nombreAulaUso = null;
+    $detallesArray = [];
 
     if ($recursosColeccion->isNotEmpty()) {
         foreach ($recursosColeccion as $item) {
             $itemObj = (object)$item;
-            if ((isset($itemObj->tipo_recurso) && $itemObj->tipo_recurso === 'aula') || isset($itemObj->aula_nombre)) {
-                $nombreAulaUso = $itemObj->aula_nombre ?? $itemObj->nombre ?? $itemObj->act_nombre ?? null;
-                break;
+            
+            $esAulaItem = isset($itemObj->tipo_recurso) && $itemObj->tipo_recurso === 'aula' 
+                        || isset($itemObj->aula_nombre) || isset($itemObj->capacidad);
+
+            if ($esAulaItem) {
+                $aulaId = $itemObj->aula_id ?? $itemObj->id ?? null;
+                $aulaDb = $aulaId ? \App\Models\AulasModels::where('aula_id', $aulaId)->first() : null;
+
+                $detallesArray[] = (object)[
+                    'act_id' => null,
+                    'activo' => null,
+                    'aula' => (object)[
+                        'aula_nombre'    => $aulaDb->aula_nombre ?? $itemObj->aula_nombre ?? $itemObj->nombre ?? 'Salón',
+                        'aula_capacidad' => $aulaDb->aula_capacidad ?? $itemObj->aula_capacidad ?? $itemObj->capacidad ?? 'N/A',
+                        'aula_foto'      => $aulaDb->aula_foto ?? $itemObj->aula_foto ?? $itemObj->foto ?? null,
+                        'nombre'         => $aulaDb->aula_nombre ?? $itemObj->aula_nombre ?? $itemObj->nombre ?? 'Salón',
+                        'serial'         => 'Capacidad: ' . ($aulaDb->aula_capacidad ?? $itemObj->aula_capacidad ?? $itemObj->capacidad ?? 'N/A'),
+                        'marca'          => 'Aula / Salón',
+                        'foto'           => $aulaDb->aula_foto ?? $itemObj->aula_foto ?? $itemObj->foto ?? null
+                    ]
+                ];
+            } else {
+                $activoId = $itemObj->act_id ?? $itemObj->id ?? null;
+                $activoDb = $activoId ? \App\Models\ActivosModels::where('act_id', $activoId)->first() : null;
+
+                $detallesArray[] = (object)[
+                    'act_id' => $activoId,
+                    'activo' => (object)[
+                        'act_nombre' => $activoDb->act_nombre ?? $activoDb->nombre ?? $itemObj->act_nombre ?? $itemObj->nombre ?? 'Recurso',
+                        'act_serial' => $activoDb->act_serial ?? $activoDb->serial ?? 'Sin Serial',
+                        'act_marca'  => $activoDb->act_marca ?? $activoDb->marca ?? 'N/A',
+                        'act_foto'   => $activoDb->act_foto ?? $activoDb->foto ?? null,
+                        'nombre'     => $activoDb->act_nombre ?? $activoDb->nombre ?? $itemObj->act_nombre ?? $itemObj->nombre ?? 'Recurso',
+                        'serial'     => $activoDb->act_serial ?? $activoDb->serial ?? 'Sin Serial',
+                        'marca'      => $activoDb->act_marca ?? $activoDb->marca ?? 'N/A',
+                        'foto'       => $activoDb->act_foto ?? $activoDb->foto ?? null
+                    ],
+                    'aula' => null
+                ];
             }
+        }
+    } elseif ($recurso) {
+        $esAulaUnica = ($tipoRecurso === 'aula');
+
+        if ($esAulaUnica) {
+            $detallesArray[] = (object)[
+                'act_id' => null,
+                'activo' => null,
+                'aula' => (object)[
+                    'aula_nombre'    => $recurso->aula_nombre ?? 'Salón',
+                    'aula_capacidad' => $recurso->aula_capacidad ?? 'N/A',
+                    'aula_foto'      => $recurso->aula_foto ?? $recurso->foto ?? null,
+                    'nombre'         => $recurso->aula_nombre ?? 'Salón',
+                    'serial'         => 'Capacidad: ' . ($recurso->aula_capacidad ?? 'N/A'),
+                    'marca'          => 'Aula / Salón',
+                    'foto'           => $recurso->aula_foto ?? $recurso->foto ?? null
+                ]
+            ];
+        } else {
+            $detallesArray[] = (object)[
+                'act_id' => $recurso->act_id ?? null,
+                'activo' => (object)[
+                    'act_nombre' => $recurso->act_nombre ?? 'Recurso',
+                    'act_serial' => $recurso->act_serial ?? 'Sin Serial',
+                    'act_marca'  => $recurso->act_marca ?? 'N/A',
+                    'act_foto'   => $recurso->act_foto ?? $recurso->foto ?? null,
+                    'nombre'     => $recurso->act_nombre ?? 'Recurso',
+                    'serial'     => $recurso->act_serial ?? 'Sin Serial',
+                    'marca'      => $recurso->act_marca ?? 'N/A',
+                    'foto'       => $recurso->act_foto ?? $recurso->foto ?? null
+                ],
+                'aula' => null
+            ];
+        }
+    }
+
+    $reservaObj->detalles = collect($detallesArray);
+
+    // --- OBTENER EL NOMBRE DEL AULA DE DESTINO DE FORMA SEGURA ---
+    $nombreAulaUso = null;
+    foreach ($detallesArray as $det) {
+        if (!empty($det->aula)) {
+            $nombreAulaUso = $det->aula->aula_nombre;
+            break;
         }
     }
 
@@ -57,51 +137,6 @@
             }
         }
     }
-
-    $detallesArray = [];
-
-    if ($recursosColeccion->isNotEmpty()) {
-        foreach ($recursosColeccion as $item) {
-            $itemObj = (object)$item;
-            
-            $esAulaItem = isset($itemObj->tipo_recurso) && $itemObj->tipo_recurso === 'aula' 
-                        || isset($itemObj->aula_nombre);
-
-            $detallesArray[] = (object)[
-                'act_id' => $itemObj->act_id ?? $itemObj->id ?? null,
-                'activo' => !$esAulaItem ? (object)[
-                    'act_nombre' => $itemObj->act_nombre ?? $itemObj->nombre ?? 'Recurso',
-                    'act_serial' => $itemObj->act_serial ?? $itemObj->serial ?? 'Sin Serial',
-                    'act_marca'  => $itemObj->act_marca ?? $itemObj->marca ?? 'N/A',
-                    'act_foto'   => $itemObj->act_foto ?? $itemObj->foto ?? null
-                ] : null,
-                'aula' => $esAulaItem ? (object)[
-                    'aula_nombre'    => $itemObj->aula_nombre ?? $itemObj->nombre ?? $itemObj->act_nombre ?? 'Salón',
-                    'aula_capacidad' => $itemObj->aula_capacidad ?? $itemObj->capacidad ?? 'N/A',
-                    'aula_foto'      => $itemObj->aula_foto ?? $itemObj->foto ?? null
-                ] : null
-            ];
-        }
-    } elseif ($recurso) {
-        $esAulaUnica = ($tipoRecurso === 'aula');
-
-        $detallesArray[] = (object)[
-            'act_id' => $recurso->act_id ?? null,
-            'activo' => !$esAulaUnica ? (object)[
-                'act_nombre' => $recurso->act_nombre ?? $recurso->nombres ?? 'Recurso',
-                'act_serial' => $recurso->act_serial ?? $recurso->serial ?? 'Sin Serial',
-                'act_marca'  => $recurso->act_marca ?? $recurso->marca ?? 'N/A',
-                'act_foto'   => $recurso->act_foto ?? $recurso->foto ?? null
-            ] : null,
-            'aula' => $esAulaUnica ? (object)[
-                'aula_nombre'    => $recurso->aula_nombre ?? $recurso->nombres ?? 'Salón',
-                'aula_capacidad' => $recurso->aula_capacidad ?? $recurso->capacidad ?? 'N/A',
-                'aula_foto'      => $recurso->aula_foto ?? $recurso->foto ?? null
-            ] : null
-        ];
-    }
-
-    $reservaObj->detalles = collect($detallesArray);
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -114,6 +149,12 @@
     <x-reservas.stepper paso="3" />
 
     <x-reservas.resumen-reserva :reserva="$reservaObj" />
+        {{-- Mensaje de Aula de Destino (si aplica) --}}
+        @if($nombreAulaUso)
+            <div class="alert alert-info">
+                <strong>Aula de destino:</strong> {{ $nombreAulaUso }}
+            </div>
+        @endif
 
         {{-- Formulario con ID para el control mediante JavaScript --}}
         <form id="formConfirmarReserva" action="{{ route('reservas.paso3.post') }}" method="POST" class="formulario-paso3">

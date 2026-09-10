@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('mostrarBusqueda', 'true')
+@section('mostrarBusqueda', 'false')
 @section('rutaRegresar', route('dashboard.secretaria'))
 
 @section('content')
