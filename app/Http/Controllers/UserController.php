@@ -47,11 +47,22 @@ class UserController extends Controller
         $registrados = User::count();
         $activos = User::where('USU_ESTADO', 'Activo')->count();
 
+        // Validar si ya existen Secretaría o Rector en la base de datos
+        $secretariaOcupada = User::whereHas('role', function($query) {
+            $query->whereRaw('LOWER(name) in (?, ?)', ['secretaria', 'secretario'])
+                  ->orWhereRaw('LOWER(slug) in (?, ?)', ['secretaria', 'secretario']);
+        })->exists();
+
+        $rectorOcupado = User::whereHas('role', function($query) {
+            $query->whereRaw('LOWER(name) in (?, ?)', ['rectora', 'rector'])
+                  ->orWhereRaw('LOWER(slug) in (?, ?)', ['rectora', 'rector']);
+        })->exists();
+
         if (view()->exists('users.crear-usuario')) {
-            return view('users.crear-usuario', compact('roles', 'registrados', 'activos'));
+            return view('users.crear-usuario', compact('roles', 'registrados', 'activos', 'secretariaOcupada', 'rectorOcupado'));
         }
 
-        return view('users.create', compact('roles', 'registrados', 'activos')); 
+        return view('users.create', compact('roles', 'registrados', 'activos', 'secretariaOcupada', 'rectorOcupado')); 
     }
 
     /**
@@ -69,6 +80,32 @@ class UserController extends Controller
             'correo'           => 'required|email|unique:users,USU_CORREO',
             'rol'              => 'required|exists:roles,id',
        ]);
+
+       // Verificación de roles únicos (Secretaría y Rector)
+       $rolAsignado = Role::find($request->input('rol'));
+       $nombreRol = strtolower($rolAsignado->name ?? $rolAsignado->slug ?? '');
+
+       if (in_array($nombreRol, ['secretaria', 'secretario'])) {
+           $secretariaExiste = User::whereHas('role', function($query) {
+               $query->whereRaw('LOWER(name) in (?, ?)', ['secretaria', 'secretario'])
+                     ->orWhereRaw('LOWER(slug) in (?, ?)', ['secretaria', 'secretario']);
+           })->exists();
+
+           if ($secretariaExiste) {
+               return back()->withErrors(['rol' => 'Ya existe una cuenta de Secretaría registrada en el sistema. Solo se permite una.'])->withInput();
+           }
+       }
+
+       if (in_array($nombreRol, ['rectora', 'rector'])) {
+           $rectorExiste = User::whereHas('role', function($query) {
+               $query->whereRaw('LOWER(name) in (?, ?)', ['rectora', 'rector'])
+                     ->orWhereRaw('LOWER(slug) in (?, ?)', ['rectora', 'rector']);
+           })->exists();
+
+           if ($rectorExiste) {
+               return back()->withErrors(['rol' => 'Ya existe una cuenta de Rector/Rectora registrada en el sistema. Solo se permite una.'])->withInput();
+           }
+       }
 
        $cedula = $request->input('identificacion') ?? $request->input('USU_CEDULA');
 

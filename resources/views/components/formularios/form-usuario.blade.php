@@ -1,7 +1,9 @@
 @props([
     'modo' => 'crear',
     'usuario' => null,
-    'roles' => []
+    'roles' => [],
+    'secretariaOcupada' => false,
+    'rectorOcupado' => false
 ])
 
 @if('crear' === $modo || 'editar-admin' === $modo)
@@ -12,14 +14,24 @@
             <option value="">-- Selecciona un Rol --</option>
             @if(isset($roles) && count($roles) > 0)
                 @foreach($roles as $r)
+                    @php
+                        $nombreRol = strtolower($r->ROL_NOMBRE ?? $r->name ?? '');
+                        $esSecretaria = in_array($nombreRol, ['secretaria', 'secretario']);
+                        $esRector = in_array($nombreRol, ['rectora', 'rector']);
+                        
+                        // Validamos si debe deshabilitarse
+                        $deshabilitado = ($esSecretaria && $secretariaOcupada) || ($esRector && $rectorOcupado);
+                    @endphp
+
                     <option value="{{ $r->ROL_ID ?? $r->id }}" 
+                        {{ $deshabilitado ? 'disabled' : '' }}
                         {{ (old('rol', $usuario->ROL_ID ?? '') == ($r->ROL_ID ?? $r->id)) ? 'selected' : '' }}>
-                        {{ $r->ROL_NOMBRE ?? $r->name }}
+                        {{ $r->ROL_NOMBRE ?? $r->name }} {{ $deshabilitado ? '(Ya asignado)' : '' }}
                     </option>
                 @endforeach
             @else
-                <option value="1" {{ old('rol', $usuario->ROL_ID ?? '') == '1' ? 'selected' : '' }}>Secretaría</option>
-                <option value="2" {{ old('rol', $usuario->ROL_ID ?? '') == '2' ? 'selected' : '' }}>Rector(a)</option>
+                <option value="1" {{ $secretariaOcupada ? 'disabled' : '' }} {{ old('rol', $usuario->ROL_ID ?? '') == '1' ? 'selected' : '' }}>Secretaría {{ $secretariaOcupada ? '(Ya asignado)' : '' }}</option>
+                <option value="2" {{ $rectorOcupado ? 'disabled' : '' }} {{ old('rol', $usuario->ROL_ID ?? '') == '2' ? 'selected' : '' }}>Rector(a) {{ $rectorOcupado ? '(Ya asignado)' : '' }}</option>
                 <option value="3" {{ old('rol', $usuario->ROL_ID ?? '') == '3' ? 'selected' : '' }}>Docente</option>
             @endif
         </select>
@@ -136,8 +148,8 @@ function ejecutarCierreUniversal(boton) {
     // El colapso/desplegable SOLO aplica para Móviles y Tablets (<= 1024px)
     if (window.innerWidth <= 1024) {
         let contenedor = boton.closest('.collapse') 
-                      || boton.closest('#contenedor-formulario') 
-                      || boton.closest('.formulario-desplegable');
+                    || boton.closest('#contenedor-formulario') 
+                    || boton.closest('.formulario-desplegable');
         
         if (contenedor) {
             contenedor.classList.remove('activo', 'show');

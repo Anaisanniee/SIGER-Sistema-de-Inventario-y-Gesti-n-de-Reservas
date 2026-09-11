@@ -34,10 +34,12 @@
             <form action="{{ route('usuarios.store') }}" method="POST">
                 @csrf
 
-                {{-- INYECCIÓN DEL COMPONENTE PARCIAL --}}
+                {{-- INYECCIÓN DEL COMPONENTE PARCIAL CON LAS BANDERAS DE OCUPACIÓN --}}
                 @include('components.formularios.form-usuario', [
                     'modo' => 'crear',
-                    'roles' => $roles ?? []
+                    'roles' => $roles ?? [],
+                    'secretariaOcupada' => $secretariaOcupada ?? false,
+                    'rectorOcupado' => $rectorOcupado ?? false
                 ])
             </form>
         </div>
@@ -48,7 +50,7 @@
         
         <div class="bloque-estadisticas">
             <h3><i class="fas fa-chart-pie"></i> Estado del Sistema</h3>
-            <p class="subtexto-tarjeta">Registro exclusivo para el rol de <strong>Secretario(a)</strong>.</p>
+            <p class="subtexto-tarjeta">Registro exclusivo para roles únicos del sistema.</p>
             
             <div class="grid-contadores">
                 <div class="tarjeta-contador">
