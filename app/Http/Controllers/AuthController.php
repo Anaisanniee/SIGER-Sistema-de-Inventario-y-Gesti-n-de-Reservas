@@ -80,35 +80,38 @@ class AuthController extends Controller
                     ->with('warning', 'Por seguridad, debes cambiar tu contraseña predeterminada antes de continuar.');
             }
 
-            // 4.2. Detección de nuevo dispositivo con bloqueo estricto (Estilo Google)
-            $ip = $request->ip();
-            $userAgent = $request->header('User-Agent');
+            // 4.2. Detección de nuevo dispositivo con bloqueo estricto (Omitir para la secretaría)
+            $rolName = strtolower($user->role->name ?? '');
+            $rolSlug = strtolower($user->role->slug ?? '');
+            $esSecretaria = in_array($rolName, ['secretaria', 'secretario']) || in_array($rolSlug, ['secretaria', 'secretario']) || ($user->USU_CORREO === 'secretaria@siger.edu.co');
 
-            $dispositivoRegistrado = DB::table('user_devices')
-                ->where('user_id', $user->getKey())
-                ->where('ip_address', $ip)
-                ->where('user_agent', $userAgent)
-                ->exists();
+            if (!$esSecretaria) {
+                $ip = $request->ip();
+                $userAgent = $request->header('User-Agent');
 
-           if (!$dispositivoRegistrado) {
-                $correoDestino = $user->USU_CORREO ?? $user->email ?? null;
+                $dispositivoRegistrado = DB::table('user_devices')
+                    ->where('user_id', $user->getKey())
+                    ->where('ip_address', $ip)
+                    ->where('user_agent', $userAgent)
+                    ->exists();
 
-                if ($correoDestino) {
-                    Mail::to($correoDestino)->send(new NuevoDispositivoMail($user, $ip, $userAgent));
+                if (!$dispositivoRegistrado) {
+                    $correoDestino = $user->USU_CORREO ?? $user->email ?? null;
+
+                    if ($correoDestino) {
+                        Mail::to($correoDestino)->send(new NuevoDispositivoMail($user, $ip, $userAgent));
+                    }
+
+                    // Frenamos el acceso y destruimos la sesión temporal de login
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return redirect()->route('device.verify.notice');
                 }
-
-                // Frenamos el acceso y destruimos la sesión temporal de login
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
-                return redirect()->route('device.verify.notice');
             }
 
             // 5. Redireccionar al dashboard según el Rol asignado
-            $rolName = strtolower($user->role->name ?? '');
-            $rolSlug = strtolower($user->role->slug ?? '');
-
             if (in_array($rolName, ['rectora', 'rector']) || in_array($rolSlug, ['rectora', 'rector'])) {
                 return redirect()->intended(route('dashboard.rectora'));
             } elseif (in_array($rolName, ['secretaria', 'secretario']) || in_array($rolSlug, ['secretaria', 'secretario'])) {
