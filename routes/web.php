@@ -14,7 +14,7 @@ use App\Http\Controllers\PasswordResetController;
 // ==========================================
 // RUTA DE INVENTARIO
 // ==========================================
-// Ruta dinámica de notificaciones para el usuario autenticadoRoute::get('/informes/inventario/exportar/{tipo}', [InformeController::class, 'exportarExcel'])->name('informes.inventario.exportar');
+Route::get('/informes/inventario/exportar/{tipo}', [InformeController::class, 'exportarExcel'])->name('informes.inventario.exportar');
 Route::get('/activos/{id}/historial-precios', [InformeController::class, 'obtenerHistorialPrecios'])->name('activos.historial.precios');
 
 Route::get('/informes/inventario', [InformeController::class, 'inventario'])
@@ -57,15 +57,32 @@ Route::post('/reservas/guardar-seleccion-temporal', [CarritoController::class, '
 // OTRAS RUTAS DEL SISTEMA
 // ==========================================
 
-// Ruta de bienvenida pública
+// Ruta principal redirigida al login de forma limpia
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('perfil');
+    }
+    return redirect()->route('login');
 });
+
+// Ruta firmada para autorizar nuevos dispositivos desde el correo
+Route::get('/dispositivo/autorizar', [AuthController::class, 'autorizarDispositivo'])
+    ->name('device.authorize')
+    ->middleware('signed');
 
 // 🔑 Rutas de Autenticación y Recuperación (Públicas)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Vista de aviso cuando se detecta un nuevo dispositivo bloqueado
+    Route::get('/dispositivo/verificar-aviso', function () {
+        return view('auth.esperando-verificacion');
+    })->name('device.verify.notice');
+
+    // Ruta AJAX para que la sala de espera detecte la autorización
+    Route::get('/dispositivo/verificar-estado', [AuthController::class, 'verificarEstadoDispositivo'])
+        ->name('device.check.status');
 
     // 🔄 Rutas de Recuperación de Contraseña
     Route::get('password/forgot', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
@@ -149,7 +166,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/dashboard/secretaria.', function () {
             return view('dashboard.secretario');
-        })->name('dashboard.secretario');
+        })->name('dashboard.secretaria');
     });
 
     // -----------------------------------------------------

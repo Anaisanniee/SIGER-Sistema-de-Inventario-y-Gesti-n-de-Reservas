@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\User;
+use App\Mail\NuevoDispositivoMail;
 
 class AuthController extends Controller
 {
@@ -42,7 +45,6 @@ class AuthController extends Controller
                     'USU_CEDULA' => "Demasiados intentos fallidos. Acceso bloqueado temporalmente. Inténtalo de nuevo en {$tiempoFormateado}.",
                 ])->onlyInput('USU_CEDULA');
             } else {
-                // El tiempo expiró, limpiamos la variable de bloqueo
                 session()->forget('lockout_until');
             }
         }
@@ -67,11 +69,41 @@ class AuthController extends Controller
         // 4. Verificar la contraseña contra el hash de la base de datos
         if (Hash::check($credentials['USU_CONTRASEÑA'], $user->USU_CONTRASEÑA)) {
             
-            // Acceso exitoso: limpiamos toda la data de seguridad de la sesión
             session()->forget(['login_attempts', 'login_level', 'lockout_until']);
 
             Auth::login($user);
             $request->session()->regenerate();
+
+            // 4.1. Verificación de cambio de contraseña obligatorio (Secretaría inicial u otros)
+            if (isset($user->must_change_password) && $user->must_change_password) {
+                return redirect()->route('perfil.password.edit')
+                    ->with('warning', 'Por seguridad, debes cambiar tu contraseña predeterminada antes de continuar.');
+            }
+
+            // 4.2. Detección de nuevo dispositivo con bloqueo estricto (Estilo Google)
+            $ip = $request->ip();
+            $userAgent = $request->header('User-Agent');
+
+            $dispositivoRegistrado = DB::table('user_devices')
+                ->where('user_id', $user->getKey())
+                ->where('ip_address', $ip)
+                ->where('user_agent', $userAgent)
+                ->exists();
+
+           if (!$dispositivoRegistrado) {
+                $correoDestino = $user->USU_CORREO ?? $user->email ?? null;
+
+                if ($correoDestino) {
+                    Mail::to($correoDestino)->send(new NuevoDispositivoMail($user, $ip, $userAgent));
+                }
+
+                // Frenamos el acceso y destruimos la sesión temporal de login
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('device.verify.notice');
+            }
 
             // 5. Redireccionar al dashboard según el Rol asignado
             $rolName = strtolower($user->role->name ?? '');
@@ -97,6 +129,80 @@ class AuthController extends Controller
     }
 
     /**
+     * Registra el dispositivo cuando el usuario hace clic en el enlace firmado del correo
+     */
+    public function autorizarDispositivo(Request $request)
+    {
+        $userId = $request->query('user');
+        $ip = $request->query('ip');
+        $userAgent = $request->query('user_agent');
+
+        $existe = DB::table('user_devices')
+            ->where('user_id', $userId)
+            ->where('ip_address', $ip)
+            ->where('user_agent', $userAgent)
+            ->exists();
+
+        if (!$existe) {
+            DB::table('user_devices')->insert([
+                'user_id'    => $userId,
+                'ip_address' => $ip,
+                'user_agent' => $userAgent,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return view('auth.dispositivo-autorizado');
+    }
+
+   /**
+     * Verifica mediante AJAX si el dispositivo actual ya fue autorizado analizando la IP y el User-Agent
+     */
+    public function verificarEstadoDispositivo(Request $request)
+    {
+        $ip = $request->ip();
+        $userAgent = $request->header('User-Agent');
+
+        // Buscamos si ya existe un registro para este dispositivo en la base de datos
+        $dispositivo = DB::table('user_devices')
+            ->where('ip_address', $ip)
+            ->where('user_agent', $userAgent)
+            ->latest('updated_at')
+            ->first();
+
+        if ($dispositivo) {
+            // Encontramos el dispositivo registrado, procedemos a loguear al usuario
+            $user = User::find($dispositivo->user_id);
+            
+            if ($user) {
+                Auth::login($user);
+                request()->session()->regenerate();
+
+                // Determinamos la ruta de redirección según su rol
+                $rolName = strtolower($user->role->name ?? '');
+                $rolSlug = strtolower($user->role->slug ?? '');
+                $redirectUrl = route('dashboard.secretaria');
+
+                if (in_array($rolName, ['rectora', 'rector']) || in_array($rolSlug, ['rectora', 'rector'])) {
+                    $redirectUrl = route('dashboard.rectora');
+                } elseif (in_array($rolName, ['secretaria', 'secretario']) || in_array($rolSlug, ['secretaria', 'secretario'])) {
+                    $redirectUrl = route('dashboard.secretaria');
+                } elseif ($rolName === 'docente' || $rolSlug === 'docente') {
+                    $redirectUrl = route('dashboard.docente');
+                }
+
+                return response()->json([
+                    'autorizado' => true,
+                    'redirect'   => $redirectUrl
+                ]);
+            }
+        }
+
+        return response()->json(['autorizado' => false]);
+    }
+
+    /**
      * Gestiona las rondas e incrementa el tiempo de castigo según el nivel
      */
     private function manejarIntentoFallido()
@@ -104,24 +210,20 @@ class AuthController extends Controller
         $nivel = session('login_level', 1);
         $intentos = session('login_attempts', 0) + 1;
 
-        // Primer nivel pide 5 intentos, los siguientes piden 3 intentos
         $intentosRequeridos = ($nivel === 1) ? 5 : 3;
 
         if ($intentos >= $intentosRequeridos) {
-            $tiempoBloqueoSegundos = 60; // Nivel 1: 1 Minuto
+            $tiempoBloqueoSegundos = 60;
 
             if ($nivel === 2) {
-                $tiempoBloqueoSegundos = 600;   // Nivel 2: 10 Minutos
+                $tiempoBloqueoSegundos = 600;
             } elseif ($nivel === 3) {
-                $tiempoBloqueoSegundos = 3600;  // Nivel 3: 1 Hora
+                $tiempoBloqueoSegundos = 3600;
             } elseif ($nivel >= 4) {
-                $tiempoBloqueoSegundos = 86400; // Nivel 4 en adelante: 1 Día
+                $tiempoBloqueoSegundos = 86400;
             }
 
-            // Guardamos el timestamp exacto de expiración en la sesión
             session(['lockout_until' => now()->timestamp + $tiempoBloqueoSegundos]);
-
-            // Reseteamos los intentos de la ronda y aumentamos el nivel para la próxima
             session(['login_attempts' => 0]);
             session(['login_level' => $nivel + 1]);
         } else {
