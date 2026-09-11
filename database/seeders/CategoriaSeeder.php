@@ -15,17 +15,47 @@ class CategoriaSeeder extends Seeder
     {
         DB::table('categorias')->insert([
             [
-                'cate_nombre' => 'Tecnología y Cómputo',
+                'cate_nombre' => 'Muebles y enseres',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'cate_nombre' => 'Tablets',
+                'cate_nombre' => 'Equipos y maquina de oficina',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'cate_nombre' => 'Equipos Audiovisuales',
+                'cate_nombre' => 'Equipo de computacion',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'cate_nombre' => 'Equipo de comunicacion',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'cate_nombre' => 'Equipo de musica',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'cate_nombre' => 'Equipo de laboratorio',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'cate_nombre' => 'Equipo de enseñanza',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'cate_nombre' => 'Equipo de recreacion y deporte',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'cate_nombre' => 'Equipo de cocina',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
