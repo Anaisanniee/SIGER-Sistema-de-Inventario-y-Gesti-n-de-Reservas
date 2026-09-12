@@ -28,7 +28,13 @@
         <div class="bloque-guia-segura">
             <h3><i class="fas fa-info-circle"></i> Edición de Activos</h3>
             <div class="alerta-informativa-azul">
-                <p>Si el activo sufrió daños estructurales o se encuentra inhabilitado temporalmente, recuerde cambiar su estado a "En Mantenimiento".</p>
+                <p><strong>Indicaciones para la modificación:</strong></p>
+                <ul style="margin-top: 5px; padding-left: 20px;">
+                    <li><strong>Justificación de Precios:</strong> Si modifica el valor comercial, asegúrese de detallar claramente el Motivo del Cambio de Precio (ej. <em>reavalúo, corrección de inventario, mantenimiento mayor</em>) para mantener la trazabilidad financiera.</li>
+                    <li><strong>Control de Estado Físico:</strong> Si el activo sufrió daños estructurales o se encuentra inhabilitado temporalmente, recuerde cambiar su estado a "En Mantenimiento".</li>
+                    <li><strong>Reasignación de Espacios:</strong> Verifique que el cambio de aula o espacio asignado corresponda a la ubicación física actual del equipo en la institución.</li>
+                    <li><strong>Gestión de Fotografías:</strong> Si la imagen del equipo sigue siendo vigente, no es necesario seleccionar un archivo nuevo; la plataforma conservará la fotografía actual de forma automática.</li>
+                </ul>
             </div>
         </div>
     </div>

@@ -17,7 +17,10 @@
         <input type="text" id="act_nombre" name="act_nombre"
                value="{{ old('act_nombre', $activo->act_nombre ?? '') }}"
                class="@error('act_nombre') is-invalid @enderror"
-               placeholder="Ej. Videobeam Epson" required>
+               placeholder="Ej. Videobeam Epson" 
+               pattern=".*\S+.*" 
+               title="El nombre no puede estar vacío ni contener únicamente espacios en blanco." 
+               required>
         @error('act_nombre') 
             <div class="text-danger small">{{ $message }}</div> 
         @enderror
@@ -29,7 +32,10 @@
         <input type="text" id="act_serial" name="act_serial"
                value="{{ old('act_serial', $activo->act_serial ?? '') }}"
                class="@error('act_serial') is-invalid @enderror"
-               placeholder="Ej. SER123456" required>
+               placeholder="Ej. SER123456" 
+               pattern=".*\S+.*" 
+               title="El serial no puede estar vacío ni contener únicamente espacios en blanco." 
+               required>
         @error('act_serial') 
             <div class="text-danger small">{{ $message }}</div> 
         @enderror
@@ -42,7 +48,7 @@
         @if($esEdicion && isset($activo->act_foto))
              <x-alertas.notificacion
                 tipo="info"
-            >Ya se encuentra una foto registrada. Selecciona otra solo si deseas cambiarla.</x-alertas.notificacion>
+             >Ya se encuentra una foto registrada. Selecciona otra solo si deseas cambiarla.</x-alertas.notificacion>
         @endif
     </div>
 
@@ -65,7 +71,8 @@
             name="his_pre_valor" 
             value="{{ old('his_pre_valor', isset($activo) ? optional($activo->historialPrecios->sortByDesc('his_pre_fecha_cambio')->first())->his_pre_valor : '') }}"
             class="@error('his_pre_valor') is-invalid @enderror"
-            placeholder="Ej: 1500000">
+            placeholder="Ej: 1500000"
+            required>
     </div>
 
     {{-- MOTIVO (Solo visible en edición) --}}
@@ -77,7 +84,8 @@
             name="his_pre_motivo" 
             value="{{ old('his_pre_motivo') }}"
             class="@error('his_pre_motivo') is-invalid @enderror"
-            placeholder="Ej: Mantenimiento, reavalúo, error de registro...">
+            placeholder="Ej: Mantenimiento, reavalúo, error de registro..."
+            required>
         @error('his_pre_motivo') 
             <div class="text-danger small">{{ $message }}</div> 
         @enderror
@@ -122,7 +130,10 @@
 
     <div class="col-md-6 post-form">
         <label for="act_fecha_ingreso">Fecha de Ingreso <span class="text-danger">*</span></label>
-        <input type="date" name="act_fecha_ingreso" value="{{ old('act_fecha_ingreso', $activo->act_fecha_ingreso ?? date('Y-m-d')) }}" class="form-control bg-light border-0 py-2 px-3 rounded-pill" required>
+        <input type="date" name="act_fecha_ingreso" 
+               value="{{ old('act_fecha_ingreso', $activo->act_fecha_ingreso ?? date('Y-m-d')) }}" 
+               max="{{ date('Y-m-d') }}"
+               class="form-control bg-light border-0 py-2 px-3 rounded-pill" required>
     </div>
 
     <div class="post-form-switch">

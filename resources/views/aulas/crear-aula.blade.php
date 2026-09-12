@@ -33,7 +33,13 @@
         <div class="bloque-guia-segura">
             <h3><i class="fas fa-shield-alt"></i> Normas del Espacio</h3>
             <div class="alerta-informativa-azul">
-                <p>Asegúrese de registrar la capacidad real para evitar sobrecupos en las reservas.</p>
+                <p><strong>Recomendaciones para el registro de aulas:</strong></p>
+                <ul style="margin-top: 5px; padding-left: 20px;">
+                    <li><strong>Identificación clara:</strong> Use un nombre único y oficial (ej. <em>Aula 102</em>, <em>Laboratorio A</em>).</li>
+                    <li><strong>Capacidad real:</strong> Registre el aforo límite exacto para evitar sobrecupos en las reservas.</li>
+                    <li><strong>Estado físico:</strong> Verifique y reporte las condiciones reales del espacio al darlo de alta.</li>
+                    <li><strong>Disponibilidad:</strong> Mantenga desactivada la opción si el aula está en mantenimiento o uso exclusivo.</li>
+                </ul>
             </div>
         </div>
     </div>

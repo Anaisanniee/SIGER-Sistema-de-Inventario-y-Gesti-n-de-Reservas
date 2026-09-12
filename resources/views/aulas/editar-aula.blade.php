@@ -28,7 +28,14 @@
         <div class="bloque-guia-segura">
             <h3><i class="fas fa-info-circle"></i> Edición de Espacios</h3>
             <div class="alerta-informativa-azul">
-                <p>Si el aula sufrió daños estructurales o se encuentra inhabilitada temporalmente, recuerde cambiar su estado a "En Mantenimiento" o "Dañado".</p>
+                <p><strong>Indicaciones para la modificación:</strong></p>
+                <ul style="margin-top: 5px; padding-left: 20px;">
+                    <li><strong>Actualización de Identificación:</strong> Si modifica el nombre del aula o espacio, asegúrese de que mantenga la nomenclatura oficial institucional para evitar confusiones en el sistema de reservas.</li>
+                    <li><strong>Control de Capacidad:</strong> Ajuste el aforo máximo de personas únicamente si se realizaron cambios estructurales que modifiquen el espacio real disponible.</li>
+                    <li><strong>Estado Físico Actual:</strong> Si el aula sufrió daños estructurales o se encuentra inhabilitada temporalmente, recuerde cambiar su estado a "En Mantenimiento" o "Dañado".</li>
+                    <li><strong>Gestión de Fotografías:</strong> Si la imagen actual del espacio sigue siendo correcta, no necesita seleccionar un archivo nuevo; la plataforma conservará la fotografía registrada previamente.</li>
+                    <li><strong>Disponibilidad para Reservas:</strong> Desactive la disponibilidad si el espacio estará ocupado por labores administrativas internas o fuera de servicio temporalmente.</li>
+                </ul>
             </div>
         </div>
     </div>

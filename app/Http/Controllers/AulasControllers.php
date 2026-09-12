@@ -33,26 +33,23 @@ class AulasControllers extends Controller
     // 3. Guardar nueva aula
     public function store(Request $request)
     {
-    // Validación simplificada
         $request->validate([
-            'aula_nombre'      => 'required|string|max:25',
-            'aula_capacidad'   => 'required|integer|min:1',
-            'aula_estado'      => 'required|in:Buen estado,En Mantenimiento,Dañado',
-            'tip_aula_id'      => 'required',
-            'aula_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'aula_nombre'    => ['required', 'string', 'max:25', 'regex:/.*\S+.*/'],
+            'aula_capacidad' => 'required|integer|min:1',
+            'aula_estado'    => 'required|in:Buen estado,En Mantenimiento,Dañado',
+            'tip_aula_id'    => 'required|exists:tipos_aulas,tip_aula_id',
+            'aula_foto'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'aula_nombre.regex' => 'El nombre del aula no puede estar vacío ni contener únicamente espacios en blanco.',
         ]);
 
         $data = $request->except(['_token', 'aula_foto']);
         $data['aula_reservable'] = $request->has('aula_reservable') ? 1 : 0;
 
-    // Subida de imagen más explícita
         if ($request->hasFile('aula_foto')) {
             $file = $request->file('aula_foto');
-        
-        // Verificación de integridad
             if ($file->isValid()) {
-                $path = $file->store('aulas', 'public');
-                $data['aula_foto'] = $path;
+                $data['aula_foto'] = $file->store('aulas', 'public');
             }
         }
 
@@ -75,29 +72,29 @@ class AulasControllers extends Controller
         // 1. Buscamos el aula
         $aula = AulasModels::findOrFail($id);
 
-        // 2. Validamos campos obligatorios (sin mencionar la foto aquí)
+        // 2. Validamos campos obligatorios y evitamos espacios vacíos
         $request->validate([
-            'aula_nombre'    => 'required',
-            'aula_capacidad' => 'required|numeric',
-            'aula_estado'    => 'required',
-            'tip_aula_id'    => 'required',
+            'aula_nombre'    => ['required', 'string', 'max:25', 'regex:/.*\S+.*/'],
+            'aula_capacidad' => 'required|integer|min:1',
+            'aula_estado'    => 'required|in:Buen estado,En Mantenimiento,Dañado',
+            'tip_aula_id'    => 'required|exists:tipos_aulas,tip_aula_id',
+            'aula_foto'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'aula_nombre.regex' => 'El nombre del aula no puede estar vacío ni contener únicamente espacios en blanco.',
         ]);
 
-        // 3. Asignación directa de campos
-        $aula->aula_nombre    = $request->aula_nombre;
-        $aula->aula_capacidad = $request->aula_capacidad;
-        $aula->aula_estado    = $request->aula_estado;
-        $aula->tip_aula_id    = $request->tip_aula_id;
-        $aula->aula_reservable = $request->input('aula_reservable') ? 1 : 0;
+        // 3. Asignación directa de campos validados
+        $aula->aula_nombre       = $request->aula_nombre;
+        $aula->aula_capacidad    = $request->aula_capacidad;
+        $aula->aula_estado       = $request->aula_estado;
+        $aula->tip_aula_id       = $request->tip_aula_id;
+        $aula->aula_reservable   = $request->input('aula_reservable') ? 1 : 0;
 
-        // 4. Lógica de FOTO (Simplificada al máximo)
+        // 4. Lógica de FOTO
         if ($request->hasFile('aula_foto')) {
-            
-            // Eliminamos el $request->validate() que estaba causando el error.
-            // Verificamos directamente si es un archivo válido antes de guardar.
             if ($request->file('aula_foto')->isValid()) {
                 
-                // Borrar anterior
+                // Borrar foto anterior si existe
                 if ($aula->aula_foto && \Storage::disk('public')->exists($aula->aula_foto)) {
                     \Storage::disk('public')->delete($aula->aula_foto);
                 }
@@ -108,7 +105,7 @@ class AulasControllers extends Controller
             }
         }
 
-        // 5. Guardar
+        // 5. Guardar cambios
         $aula->save();
 
         return redirect()->route('inventario.index')->with('success', 'Aula actualizada con éxito.');

@@ -33,7 +33,13 @@
         <div class="bloque-guia-segura">
             <h3><i class="fas fa-shield-alt"></i> Normas de registro</h3>
             <div class="alerta-informativa-azul">
-                <p>Asegúrese de que el recurso esté correctamente registrado antes de realizar cualquier movimiento.</p>
+                <p><strong>Recomendaciones para el registro de activos:</strong></p>
+                <ul style="margin-top: 5px; padding-left: 20px;">
+                    <li><strong>Nombre y Descripción:</strong> Use un nombre claro indicando el equipo y marca (ej. <em>Videobeam Epson</em>).</li>
+                    <li><strong>Número de Serie:</strong> Ingrese el código físico único del fabricante o placa institucional sin errores.</li>
+                    <li><strong>Valor y Estado:</strong> Registre el precio real y reporte con precisión las condiciones físicas iniciales.</li>
+                    <li><strong>Ubicación y Trazabilidad:</strong> Asigne correctamente el aula correspondiente antes de guardar el recurso en el sistema. Asegúrese de que el recurso esté correctamente registrado antes de realizar cualquier movimiento.</li>
+                </ul>
             </div>
         </div>
     </div>

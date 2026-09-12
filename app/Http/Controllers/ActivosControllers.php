@@ -129,24 +129,27 @@ class ActivosControllers extends Controller
         $activo = ActivosModels::findOrFail($id);
 
         $request->validate([
-            'act_nombre'        => 'required|string|min:3|max:50',
-            'act_serial'        => 'required|string|unique:activos,act_serial,' . $id . ',act_id',
+            'act_nombre'        => ['required', 'string', 'min:3', 'max:50', 'regex:/[^\s]/'],
+            'act_serial'        => ['required', 'string', 'max:50', 'regex:/.*\S+.*/', 'unique:activos,act_serial,' . $id . ',act_id'],
             'act_marca'         => 'nullable|string|max:50',
             'aula_id'           => 'required|exists:aulas,aula_id',
             'cate_id'           => 'required|exists:categorias,cate_id',
             'act_estado_fisico' => 'required|string|max:50',
             'act_reservable'    => 'required|boolean',
-            'act_fecha_ingreso' => 'required|date',
+            'act_fecha_ingreso' => 'required|date|before_or_equal:today', // Evita fechas futuras
             'his_pre_valor'     => 'nullable|numeric|min:0',
             'his_pre_motivo'    => 'nullable|string|max:255',
             'act_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
-            'act_nombre.min'            => 'El nombre debe tener al menos 3 letras.',
-            'act_nombre.required'       => 'Escribe el nombre del activo.',
-            'act_serial.unique'         => 'Este serial ya pertenece a otro activo registrado.',
-            'act_serial.required'       => 'Escribe el serial del activo.',
-            'aula_id.exists'            => 'El aula seleccionada no existe.',
-            'cate_id.exists'            => 'La categoría seleccionada no existe.',
+            'act_nombre.required'               => 'Escribe el nombre del activo.',
+            'act_nombre.min'                    => 'El nombre debe tener al menos 3 caracteres.',
+            'act_nombre.regex'                  => 'El nombre del activo no puede contener únicamente espacios en blanco.',
+            'act_serial.required'               => 'Escribe el serial del activo.',
+            'act_serial.regex'                  => 'El serial no puede contener únicamente espacios en blanco.',
+            'act_serial.unique'                 => 'Este serial ya pertenece a otro activo registrado.',
+            'aula_id.exists'                    => 'El aula seleccionada no existe.',
+            'cate_id.exists'                    => 'La categoría seleccionada no existe.',
+            'act_fecha_ingreso.before_or_equal' => 'La fecha de ingreso no puede ser una fecha futura.',
         ]);
 
         try {
@@ -158,10 +161,10 @@ class ActivosControllers extends Controller
                 $activo->act_foto = $request->file('act_foto')->store('activos', 'public');
             }
 
-            // Asignación de los campos principales del activo
-            $activo->act_nombre         = $request->act_nombre;
-            $activo->act_serial         = $request->act_serial;
-            $activo->act_marca          = $request->act_marca; 
+            // Asignación de los campos principales con limpieza de espacios (trim)
+            $activo->act_nombre         = trim($request->act_nombre);
+            $activo->act_serial         = trim($request->act_serial);
+            $activo->act_marca          = $request->act_marca ? trim($request->act_marca) : null;
             $activo->aula_id            = $request->aula_id;
             $activo->cate_id            = $request->cate_id;
             $activo->act_estado_fisico  = $request->act_estado_fisico;
@@ -174,8 +177,8 @@ class ActivosControllers extends Controller
             if ($request->filled('his_pre_valor')) {
                 
                 $precioActual = \App\Models\HistorialPreciosModels::where('act_id', $activo->act_id)
-                                                        ->orderBy('his_pre_fecha_cambio', 'desc')
-                                                        ->first();
+                                                    ->orderBy('his_pre_fecha_cambio', 'desc')
+                                                    ->first();
 
                 // Si no existe un registro previo o el valor es diferente al último registrado
                 if (!$precioActual || $precioActual->his_pre_valor != $request->his_pre_valor) {
@@ -184,7 +187,7 @@ class ActivosControllers extends Controller
                         'act_id'               => $activo->act_id,
                         'his_pre_valor'        => $request->his_pre_valor,
                         'his_pre_fecha_cambio' => now(),
-                        'his_pre_motivo'       => $request->filled('his_pre_motivo') ? $request->his_pre_motivo : 'Actualización de datos del activo'
+                        'his_pre_motivo'       => $request->filled('his_pre_motivo') ? trim($request->his_pre_motivo) : 'Actualización de datos del activo'
                     ]);
                 }
             }
@@ -199,35 +202,40 @@ class ActivosControllers extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'act_nombre'        => 'required|string|min:3|max:50',
-            'act_serial'        => 'required|string|unique:activos,act_serial', 
+            'act_nombre'        => ['required', 'string', 'min:3', 'max:50', 'regex:/[^\s]/'],
+            'act_serial'        => ['required', 'string', 'max:50', 'regex:/.*\S+.*/', 'unique:activos,act_serial'],
             'act_marca'         => 'nullable|string|max:50',
             'aula_id'           => 'required|exists:aulas,aula_id',        
             'cate_id'           => 'required|exists:categorias,cate_id',   
             'act_estado_fisico' => 'required|string|max:50',
             'act_reservable'    => 'required|boolean',
-            'act_fecha_ingreso' => 'required|date',
-            'his_pre_valor'     => 'nullable|numeric|min:0', // <--- Cambiado a his_pre_valor
+            'act_fecha_ingreso' => 'required|date|before_or_equal:today', // Evita fechas futuras
+            'his_pre_valor'     => 'required|numeric|min:0', // Ahora es obligatorio para el registro inicial
             'act_foto'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
-            'act_nombre.min'            => 'El nombre debe tener al menos 3 letras.',
             'act_nombre.required'       => 'Escribe el nombre del activo.',
+            'act_nombre.min'            => 'El nombre debe tener al menos 3 caracteres.',
+            'act_nombre.regex'          => 'El nombre del activo no puede contener únicamente espacios en blanco.',
+            'act_serial.required'       => 'El número de serial es indispensable.',
             'act_serial.unique'         => 'Este serial ya existe en el sistema.',
-            'aula_id.exists'            => 'El aula seleccionada no existe.',
-            'cate_id.exists'            => 'La categoría seleccionada no existe.',
+            'aula_id.exists'            => 'El aula seleccionada no es válida.',
+            'cate_id.exists'            => 'La categoría seleccionada no es válida.',
             'act_estado_fisico.required'=> 'Seleccione el estado físico del activo.',
+            'act_fecha_ingreso.before_or_equal' => 'La fecha de ingreso no puede ser una fecha futura.',
+            'his_pre_valor.required'    => 'Debe ingresar el precio o valor comercial inicial.',
+            'his_pre_valor.min'         => 'El precio no puede ser negativo.',
         ]);
 
         try {
             $activo = new ActivosModels();
-            $activo->act_nombre        = $request->act_nombre;
-            $activo->act_serial        = $request->act_serial;
-            $activo->act_marca         = $request->act_marca;
-            $activo->aula_id           = $request->aula_id;
-            $activo->cate_id           = $request->cate_id;
-            $activo->act_estado_fisico = $request->act_estado_fisico;
-            $activo->act_reservable    = $request->act_reservable;
-            $activo->act_fecha_ingreso = $request->act_fecha_ingreso;
+            $activo->act_nombre         = trim($request->act_nombre); // Limpiamos espacios sobrantes al inicio y final
+            $activo->act_serial         = trim($request->act_serial);
+            $activo->act_marca          = $request->act_marca ? trim($request->act_marca) : null;
+            $activo->aula_id            = $request->aula_id;
+            $activo->cate_id            = $request->cate_id;
+            $activo->act_estado_fisico  = $request->act_estado_fisico;
+            $activo->act_reservable     = $request->act_reservable;
+            $activo->act_fecha_ingreso  = $request->act_fecha_ingreso;
 
             if ($request->hasFile('act_foto')) {
                 $activo->act_foto = $request->file('act_foto')->store('activos', 'public');
@@ -236,13 +244,11 @@ class ActivosControllers extends Controller
             $activo->save();
 
             // --- REGISTRO DEL PRECIO INICIAL EN EL HISTORIAL ---
-            if ($request->filled('his_pre_valor') && $request->his_pre_valor > 0) {
-                $activo->historialPrecios()->create([
-                    'his_pre_valor'        => $request->his_pre_valor,
-                    'his_pre_motivo'       => 'Precio inicial de registro',
-                    'his_pre_fecha_cambio' => now(),
-                ]);
-            }
+            $activo->historialPrecios()->create([
+                'his_pre_valor'        => $request->his_pre_valor,
+                'his_pre_motivo'       => 'Precio inicial de registro',
+                'his_pre_fecha_cambio' => now(),
+            ]);
 
             return redirect()->route('inventario.index')->with('exito', 'Activo creado con éxito.');
         
