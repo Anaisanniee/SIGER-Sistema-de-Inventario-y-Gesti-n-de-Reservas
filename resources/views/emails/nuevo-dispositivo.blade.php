@@ -31,7 +31,7 @@
         <p>Si fuiste tú, haz clic en el siguiente botón para registrar este equipo como seguro y permitir tus próximos accesos:</p>
         
         <p style="text-align: center; margin: 30px 0;">
-            <a href="{{ $urlautorizacion }}" style="background-color: #28a745; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Sí, soy yo (Confiar en este dispositivo)</a>
+            <a href="{{ $urlAutorizacion }}" style="background-color: #28a745; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Sí, soy yo (Confiar en este dispositivo)</a>
         </p>
 
         <p style="font-size: 13px; color: #666;">Si <strong>no reconoces</strong> esta actividad, ignora este mensaje y cambia tu contraseña de inmediato.</p>

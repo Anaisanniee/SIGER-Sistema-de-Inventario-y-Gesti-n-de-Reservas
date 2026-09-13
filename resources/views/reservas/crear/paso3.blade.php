@@ -161,7 +161,7 @@
 
             <div class="contenedor-botones-paso3">
                 <x-botones.boton type="button" class="btn-siger-accion btn btn-azul" onclick="window.history.back();">
-                    ⬅ Modificar Horario
+                    ⬅ Modificar Solicitud
                 </x-botones.boton>
                 
                 <x-botones.boton type="submit" id="btnGuardarReserva" class="btn-siger-accion btn">

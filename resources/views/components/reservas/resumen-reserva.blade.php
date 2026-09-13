@@ -170,7 +170,7 @@
 
     <div class="p-4">
         <div class="mb-4">
-            <h3 class="fw-bold text-dark mb-1">Resumen de Reserva</h3>
+            <h3 class="fw-bold text-green mb-1" style="color: var(--principal-secundario);">Resumen de Reserva</h3>
             @if($mostrarSubtitulo)
                 <p class="text-muted small mb-0">Por favor, verifique todos los datos antes de confirmar la solicitud del recurso.</p>
             @endif
@@ -179,20 +179,22 @@
         <div class="row g-3 mb-3">
             <div class="col-md-6">
                 <div class="p-3 h-100 border rounded-3 bg-white shadow-sm">
-                    <h6 class="fw-bold text-dark mb-3">Datos del Solicitante</h6>
-                    <p class="mb-2"><strong>Nombre:</strong> <span id="resumen-solicitante">{{ $nombreSolicitante }}</span></p>
-                    <p class="mb-2"><strong>Identificación:</strong> <span id="resumen-identificacion">{{ $identificacionUsuario }}</span></p>
-                    <p class="mb-0"><strong>Correo Electrónico:</strong> <span id="resumen-email">{{ $emailUsuario }}</span></p>
+                    <h6 class="fw-bold mb-3" style="color: var(--principal-secundario);">Datos del Solicitante</h6>
+                    <p class="mb-2"><strong style="color: var(--color-principal);">Nombre:</strong> <span id="resumen-solicitante">{{ $nombreSolicitante }}</span></p>
+                    <p class="mb-2"><strong style="color: var(--color-principal);">Identificación:</strong> <span id="resumen-identificacion">{{ $identificacionUsuario }}</span></p>
+                    <p class="mb-0"><strong style="color: var(--color-principal);">Correo Electrónico:</strong> <span id="resumen-email">{{ $emailUsuario }}</span></p>
                 </div>
             </div>
 
             <div class="col-md-6" id="resumen-bloque-recurso">
                 <div class="p-3 h-100 border rounded-3 bg-white shadow-sm">
-                    <h6 class="fw-bold text-dark mb-3">Recursos Seleccionados ({{ $cantidadRecursos }})</h6>
+                    <h6 class="fw-bold mb-3" style="color: var(--principal-secundario);">Recursos Seleccionados ({{ $cantidadRecursos }})</h6>
                     @if($esMultiple)
                         <div class="dropdown">
-                            <button class="btn bg-white text-dark w-100 text-start d-flex justify-content-between align-items-center dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.6rem 1rem;">
-                                Lista de recursos ({{ $cantidadRecursos }})
+                            <button class="btn bg-white text-dark w-100 text-start d-flex justify-content-between align-items-center dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style=" background: #fff; color: #333; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.6rem 1rem;">
+                                <span class="text-truncate" style="max-width: 80%; color: #333;">Presiona para ver los recursos</span>
+                                <span class="badge bg-success rounded-pill ms-2">{{ $cantidadRecursos }} recursos</span>
+                                <i class="bis bis-chevron-down" style="color: #333;"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-recursos w-100">
                                 @foreach($listaRecursos as $rec)
@@ -225,23 +227,23 @@
         </div>
 
         <div class="p-3 mb-3 border rounded-3 bg-white shadow-sm">
-            <h6 class="fw-bold text-dark mb-2">Motivo de la Solicitud</h6>
+            <h6 class="fw-bold  mb-2"  style="color: var(--principal-secundario);">Motivo de la Solicitud</h6>
             <p class="text-muted mb-0"><span id="resumen-motivo">{{ $motivoReserva }}</span></p>
         </div>
 
         <div class="p-3 mb-3 border rounded-3 bg-white shadow-sm">
-            <h6 class="fw-bold text-dark mb-3">Asignación de Tiempos</h6>
+            <h6 class="fw-bold  mb-3" style="color: var(--principal-secundario);">Asignación de Tiempos</h6>
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="p-3 border rounded bg-light h-100">
-                        <span class="text-dark fw-bold small d-block mb-2">INICIO DE RESERVA</span>
+                        <span class=" fw-bold small d-block mb-2" style="color: var(--color-principal);">INICIO DE RESERVA</span>
                         <p class="mb-1"><strong>Fecha:</strong> <span id="resumen-fecha-inicio">{{ $fechaInicio }}</span></p>
                         <p class="mb-0"><strong>Hora:</strong> <span id="resumen-hora-inicio">{{ $horaInicio }}</span></p>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="p-3 border rounded bg-light h-100">
-                        <span class="text-dark fw-bold small d-block mb-2">FINALIZACIÓN DE RESERVA</span>
+                        <span class=" fw-bold small d-block mb-2" style="color: var(--color-principal);">FINALIZACIÓN DE RESERVA</span>
                         <p class="mb-1"><strong>Fecha:</strong> <span id="resumen-fecha-fin">{{ $fechaFin }}</span></p>
                         <p class="mb-0"><strong>Hora:</strong> <span id="resumen-hora-fin">{{ $horaFin }}</span></p>
                     </div>
