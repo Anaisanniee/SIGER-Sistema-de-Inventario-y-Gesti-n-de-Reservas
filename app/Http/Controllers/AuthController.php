@@ -98,6 +98,9 @@ class AuthController extends Controller
                         Mail::to($correoDestino)->send(new NuevoDispositivoMail($user, $ip, $userAgent));
                     }
 
+                    // 🌟 Guardamos el ID del usuario en sesión temporal para evitar autoconfirmación cruzada
+                    session(['pending_device_user_id' => $user->getKey()]);
+
                     // Frenamos el acceso y destruimos la sesión temporal de login
                     Auth::logout();
                     $request->session()->invalidate();
@@ -166,25 +169,34 @@ class AuthController extends Controller
     }
 
     /**
-     * Verifica mediante AJAX si el dispositivo actual ya fue autorizado analizando la IP y el User-Agent
+     * Verifica mediante AJAX si el dispositivo actual ya fue autorizado para el usuario pendiente
      */
     public function verificarEstadoDispositivo(Request $request)
     {
         $ip = $request->ip();
         $userAgent = $request->header('User-Agent');
 
+        // Obtenemos el ID del usuario pendiente guardado en sesión
+        $userIdPendiente = session('pending_device_user_id');
+
+        if (!$userIdPendiente) {
+            return response()->json(['autorizado' => false]);
+        }
+
+        // Validamos estrictamente si el dispositivo fue autorizado para ESTE usuario específico
         $dispositivo = DB::table('user_devices')
+            ->where('user_id', $userIdPendiente)
             ->where('ip_address', $ip)
             ->where('user_agent', $userAgent)
-            ->latest('updated_at')
-            ->first();
+            ->exists();
 
         if ($dispositivo) {
-            $user = User::find($dispositivo->user_id);
+            $user = User::find($userIdPendiente);
             
             if ($user) {
                 Auth::login($user);
                 request()->session()->regenerate();
+                session()->forget('pending_device_user_id'); // Limpiamos la variable temporal
 
                 // 1. Si debe cambiar contraseña tras autorizar el dispositivo por correo
                 if (isset($user->must_change_password) && $user->must_change_password) {

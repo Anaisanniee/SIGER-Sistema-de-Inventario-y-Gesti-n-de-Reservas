@@ -77,7 +77,9 @@
     </div>
 
     <div class="siger-form-acciones d-flex gap-2 mt-3">
-        <a href="{{ $rutaCancelar }}" class="w-50 text-decoration-none">
+        <a href="{{ auth()->check() && auth()->user()->must_change_password ? '#' : $rutaCancelar }}" 
+           class="w-50 text-decoration-none"
+           @if(auth()->check() && auth()->user()->must_change_password) id="btn-cancelar-obligatorio" @endif>
             <x-botones.boton type="button" clase="btn-siger-accion btn-cancelar-siger w-100">
                 Cancelar
             </x-botones.boton>
@@ -88,6 +90,13 @@
         </x-botones.boton>
     </div>
 </form>
+
+{{-- Formulario oculto de Logout por seguridad si es obligatorio cambiar clave --}}
+@if(auth()->check() && auth()->user()->must_change_password)
+<form id="logout-form-cancelar" action="{{ route('logout') }}" method="POST" class="d-none">
+    @csrf
+</form>
+@endif
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -102,6 +111,15 @@
         const reqSymbol = document.getElementById('req-symbol');
         const strengthBar = document.getElementById('password-strength-bar');
         const strengthText = document.getElementById('strength-text');
+
+        // Interceptar el botón de cancelar obligatorio para hacer POST al logout
+        const btnCancelarObligatorio = document.getElementById('btn-cancelar-obligatorio');
+        if (btnCancelarObligatorio) {
+            btnCancelarObligatorio.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('logout-form-cancelar').submit();
+            });
+        }
 
         function actualizarItem(elemento, cumple) {
             const icono = elemento.querySelector('i');
