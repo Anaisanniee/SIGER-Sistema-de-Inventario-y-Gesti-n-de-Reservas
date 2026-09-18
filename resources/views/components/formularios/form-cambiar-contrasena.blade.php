@@ -31,19 +31,37 @@
         {{-- Nueva Contraseña --}}
         <div class="grupo-formulario mb-3">
             <label for="new_password" class="label-siger">Nueva Contraseña <span class="text-danger">*</span></label>
-            <input type="password" id="new_password" name="password" required
-                   placeholder="Mínimo 8 caracteres, una mayúscula, un número y un símbolo" class="input-siger">
-            
-            {{-- Texto de ayuda visual con los requisitos exigidos --}}
-            <small class="form-text text-muted d-block mt-2" style="font-size: 0.85rem; color: var(--color-azulado); line-height: 1.4;">
-                <strong>Requisitos obligatorios:</strong>
-                <ul class="mb-0 ps-3" style="margin-top: 2px;">
-                    <li>Mínimo 8 caracteres</li>
-                    <li>Al menos una letra mayúscula y una minúscula</li>
-                    <li>Al menos un número</li>
-                    <li>Al menos un símbolo especial (ej. @, $, !, %, *, ?, &)</li>
+            <div class="position-relative">
+                <input type="password" id="new_password" name="password" required
+                       placeholder="Mínimo 8 caracteres, mayúscula, número y símbolo" class="input-siger">
+            </div>
+
+            {{-- Barra de Fortaleza de Contraseña (Efecto Wao) --}}
+            <div class="progress mt-2" style="height: 6px; background-color: #e9ecef; border-radius: 4px; overflow: hidden;">
+                <div id="password-strength-bar" class="progress-bar transition-all" role="progressbar" style="width: 0%; transition: width 0.4s ease, background-color 0.4s ease;"></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-1">
+                <small id="strength-text" class="text-muted fw-bold" style="font-size: 0.75rem;">Seguridad de la contraseña</small>
+            </div>
+
+            {{-- Caja Moderna de Requisitos Interactivos --}}
+            <div class="p-3 mt-2 rounded bg-light border" style="font-size: 0.82rem;">
+                <strong class="d-block mb-1 text-dark">La contraseña debe cumplir con:</strong>
+                <ul class="mb-0 ps-0" style="list-style: none;">
+                    <li id="req-length" class="text-muted mb-1 transition-all">
+                        <i class="fas fa-circle-notch fa-spin me-1 text-secondary"></i> Mínimo 8 caracteres
+                    </li>
+                    <li id="req-capital" class="text-muted mb-1 transition-all">
+                        <i class="fas fa-circle-notch fa-spin me-1 text-secondary"></i> Una letra mayúscula y una minúscula
+                    </li>
+                    <li id="req-number" class="text-muted mb-1 transition-all">
+                        <i class="fas fa-circle-notch fa-spin me-1 text-secondary"></i> Al menos un número
+                    </li>
+                    <li id="req-symbol" class="text-muted transition-all">
+                        <i class="fas fa-circle-notch fa-spin me-1 text-secondary"></i> Un símbolo especial (@$!%*?&)
+                    </li>
                 </ul>
-            </small>
+            </div>
 
             @error('password')
                 <small class="text-danger" style="color: red; margin-top: 5px; display: block;">{{ $message }}</small>
@@ -77,6 +95,73 @@
         const currentPassword = document.getElementById('current_password');
         const newPassword = document.getElementById('new_password');
         const confirmPassword = document.getElementById('new_password_confirmation');
+
+        const reqLength = document.getElementById('req-length');
+        const reqCapital = document.getElementById('req-capital');
+        const reqNumber = document.getElementById('req-number');
+        const reqSymbol = document.getElementById('req-symbol');
+        const strengthBar = document.getElementById('password-strength-bar');
+        const strengthText = document.getElementById('strength-text');
+
+        function actualizarItem(elemento, cumple) {
+            const icono = elemento.querySelector('i');
+            if (cumple) {
+                elemento.className = 'text-success fw-bold mb-1';
+                icono.className = 'fas fa-check-circle me-1 text-success';
+            } else {
+                elemento.className = 'text-muted mb-1';
+                icono.className = 'fas fa-times-circle me-1 text-danger';
+            }
+        }
+
+        if (newPassword) {
+            newPassword.addEventListener('input', function() {
+                const val = newPassword.value;
+                let score = 0;
+
+                // 1. Longitud
+                const lenOk = val.length >= 8;
+                actualizarItem(reqLength, lenOk);
+                if (lenOk) score++;
+
+                // 2. Mayúscula y minúscula
+                const capOk = /[a-z]/.test(val) && /[A-Z]/.test(val);
+                actualizarItem(reqCapital, capOk);
+                if (capOk) score++;
+
+                // 3. Número
+                const numOk = /\d/.test(val);
+                actualizarItem(reqNumber, numOk);
+                if (numOk) score++;
+
+                // 4. Símbolo
+                const symOk = /[$@$!%*?&_.,-]/.test(val);
+                actualizarItem(reqSymbol, symOk);
+                if (symOk) score++;
+
+                // Actualizar barra de progreso con estilo dinámico
+                const porcentaje = (score / 4) * 100;
+                strengthBar.style.width = porcentaje + '%';
+
+                if (score === 0) {
+                    strengthBar.style.backgroundColor = '#e9ecef';
+                    strengthText.textContent = 'Seguridad de la contraseña';
+                    strengthText.className = 'text-muted fw-bold';
+                } else if (score <= 2) {
+                    strengthBar.style.backgroundColor = '#dc3545'; // Rojo (Débil)
+                    strengthText.textContent = '⚠️ Contraseña débil';
+                    strengthText.className = 'text-danger fw-bold';
+                } else if (score === 3) {
+                    strengthBar.style.backgroundColor = '#ffc107'; // Amarillo (Media)
+                    strengthText.textContent = '⚡ Contraseña aceptable';
+                    strengthText.className = 'text-warning fw-bold';
+                } else {
+                    strengthBar.style.backgroundColor = '#28a745'; // Verde (Fuerte / Wao)
+                    strengthText.textContent = '✨ ¡Contraseña segura!';
+                    strengthText.className = 'text-success fw-bold';
+                }
+            });
+        }
 
         if (form) {
             form.addEventListener('submit', function(e) {

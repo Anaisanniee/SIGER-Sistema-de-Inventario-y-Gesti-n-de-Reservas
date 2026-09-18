@@ -101,10 +101,11 @@ Route::get('/logout-dev', [AuthController::class, 'logout']);
 // =========================================================
 // 🛡️ ZONA PROTEGIDA (REQUERIDO LOGIN Y AUTORIZACIÓN)
 // =========================================================
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'password.changed'])->group(function () {
     
     // 👤 PERFIL DE USUARIO (Accesible para cualquier usuario autenticado)
     Route::get('/perfil', [UserController::class, 'perfil'])->name('perfil');
+    Route::put('/perfil/actualizar', [UserController::class, 'updatePerfil'])->name('perfil.actualizar');
     
     // 🛡️ CAPA 2 DE SEGURIDAD: Ruta exclusiva para actualizar datos propios del perfil
     Route::put('/perfil/actualizar', [UserController::class, 'updatePerfil'])->name('perfil.actualizar');

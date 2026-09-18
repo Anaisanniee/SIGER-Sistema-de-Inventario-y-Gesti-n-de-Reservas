@@ -74,13 +74,9 @@ class AuthController extends Controller
             Auth::login($user);
             $request->session()->regenerate();
 
-            // 4.1. Verificación de cambio de contraseña obligatorio (Secretaría inicial u otros)
-            if (isset($user->must_change_password) && $user->must_change_password) {
-                return redirect()->route('perfil.password.edit')
-                    ->with('warning', 'Por seguridad, debes cambiar tu contraseña predeterminada antes de continuar.');
-            }
-
-            // 4.2. Detección de nuevo dispositivo con bloqueo estricto (Omitir para la secretaría)
+            // -------------------------------------------------------------
+            // PASO 1: Verificación estricta de Dispositivo Nuevo vía Correo
+            // -------------------------------------------------------------
             $rolName = strtolower($user->role->name ?? '');
             $rolSlug = strtolower($user->role->slug ?? '');
             $esSecretaria = in_array($rolName, ['secretaria', 'secretario']) || in_array($rolSlug, ['secretaria', 'secretario']) || ($user->USU_CORREO === 'secretaria@siger.edu.co');
@@ -111,7 +107,17 @@ class AuthController extends Controller
                 }
             }
 
-            // 5. Redireccionar al dashboard según el Rol asignado
+            // -------------------------------------------------------------
+            // PASO 2: Obligación de cambiar contraseña por primera vez
+            // -------------------------------------------------------------
+            if (isset($user->must_change_password) && $user->must_change_password) {
+                return redirect()->route('perfil.password.edit')
+                    ->with('warning', 'Por seguridad, debes cambiar tu contraseña predeterminada antes de continuar.');
+            }
+
+            // -------------------------------------------------------------
+            // PASO 3: Redirección al Dashboard según el Rol asignado
+            // -------------------------------------------------------------
             if (in_array($rolName, ['rectora', 'rector']) || in_array($rolSlug, ['rectora', 'rector'])) {
                 return redirect()->intended(route('dashboard.rectora'));
             } elseif (in_array($rolName, ['secretaria', 'secretario']) || in_array($rolSlug, ['secretaria', 'secretario'])) {
@@ -123,7 +129,7 @@ class AuthController extends Controller
             return redirect()->intended('/dashboard/secretaria');
         }
 
-        // 5. Si la contraseña falla, procesamos el fallo y escalamos el nivel
+        // Si la contraseña falla, procesamos el fallo y escalamos el nivel
         $this->manejarIntentoFallido();
 
         return back()->withErrors([
@@ -159,7 +165,7 @@ class AuthController extends Controller
         return view('auth.dispositivo-autorizado');
     }
 
-   /**
+    /**
      * Verifica mediante AJAX si el dispositivo actual ya fue autorizado analizando la IP y el User-Agent
      */
     public function verificarEstadoDispositivo(Request $request)
@@ -167,7 +173,6 @@ class AuthController extends Controller
         $ip = $request->ip();
         $userAgent = $request->header('User-Agent');
 
-        // Buscamos si ya existe un registro para este dispositivo en la base de datos
         $dispositivo = DB::table('user_devices')
             ->where('ip_address', $ip)
             ->where('user_agent', $userAgent)
@@ -175,14 +180,21 @@ class AuthController extends Controller
             ->first();
 
         if ($dispositivo) {
-            // Encontramos el dispositivo registrado, procedemos a loguear al usuario
             $user = User::find($dispositivo->user_id);
             
             if ($user) {
                 Auth::login($user);
                 request()->session()->regenerate();
 
-                // Determinamos la ruta de redirección según su rol
+                // 1. Si debe cambiar contraseña tras autorizar el dispositivo por correo
+                if (isset($user->must_change_password) && $user->must_change_password) {
+                    return response()->json([
+                        'autorizado' => true,
+                        'redirect'   => route('perfil.password.edit')
+                    ]);
+                }
+
+                // 2. Determinamos la ruta de redirección según su rol
                 $rolName = strtolower($user->role->name ?? '');
                 $rolSlug = strtolower($user->role->slug ?? '');
                 $redirectUrl = route('dashboard.secretaria');

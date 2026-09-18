@@ -18,8 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
 
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'role' => \App\Http\Middleware\CheckRole::class,
-    ]);
-
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+            'password.changed' => \App\Http\Middleware\CheckPasswordChanged::class,
+        ]);
     })->create();

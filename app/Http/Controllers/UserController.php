@@ -112,7 +112,7 @@ class UserController extends Controller
        // La contraseña inicial será el mismo documento de identidad (cédula)
        $passwordInicial = $cedula;
 
-       User::create([
+      User::create([
             'USU_CEDULA'          => $cedula,
             'USU_PRIMER_NOMBRE'   => $request->input('name'),
             'USU_SEGUNDO_NOMBRE'  => $request->input('second-name'),
@@ -120,6 +120,7 @@ class UserController extends Controller
             'USU_SEGUNDO_APELLIDO'=> $request->input('second-last-name'),
             'USU_CORREO'          => $request->input('correo'),
             'USU_CONTRASEÑA'      => Hash::make($passwordInicial), 
+            'must_change_password'=> true, // 🌟 Añadir esta línea al crear
             'ROL_ID'              => $request->input('rol'),
             'USU_ESTADO'          => 'Activo',
        ]);
@@ -210,16 +211,30 @@ class UserController extends Controller
             return back()->withErrors(['current_password' => 'La contraseña actual no es correcta.']);
         }
 
+        // 🌟 AQUÍ ESTABA EL DETALLE: APAGAMOS EL INDICADOR A FALSO (0) EN LA BD
         $user->update([
-            'USU_CONTRASEÑA' => Hash::make($request->password)
+            'USU_CONTRASEÑA' => Hash::make($request->password),
+            'must_change_password' => false
         ]);
 
-        return back()->with('success', '¡Contraseña actualizada correctamente con los requisitos de seguridad!');
-    }
+        // Refrescamos la sesión al instante
+        Auth::setUser($user->fresh());
 
-    /**
-     * Edición administrativa de usuario
-     */
+        // Redirección inteligente al dashboard según su rol
+        $rolName = strtolower($user->role->name ?? '');
+        $rolSlug = strtolower($user->role->slug ?? '');
+
+        if (in_array($rolName, ['rectora', 'rector']) || in_array($rolSlug, ['rectora', 'rector'])) {
+            return redirect()->route('dashboard.rectora')->with('success', '¡Contraseña actualizada correctamente!');
+        } elseif (in_array($rolName, ['secretaria', 'secretario']) || in_array($rolSlug, ['secretaria', 'secretario'])) {
+            return redirect()->route('dashboard.secretaria')->with('success', '¡Contraseña actualizada correctamente!');
+        } elseif ($rolName === 'docente' || $rolSlug === 'docente') {
+            return redirect()->route('dashboard.docente')->with('success', '¡Contraseña actualizada correctamente!');
+        }
+
+        return redirect()->route('perfil')->with('success', '¡Contraseña actualizada correctamente!');
+    }
+    
     public function edit($id)
     {
         $usuario = User::findOrFail($id);

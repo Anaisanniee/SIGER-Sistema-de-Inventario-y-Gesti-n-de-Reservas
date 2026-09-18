@@ -2,7 +2,7 @@
 
 @section('mostrarPerfil', 'false')
 @section('mostrarBusqueda', 'false')
-@section('mostrarRegresar', 'true')
+@section('mostrarRegresar', auth()->user()->must_change_password ? 'false' : 'true')
 @section('rutaRegresar', route('perfil'))
 
 @section('content')
@@ -15,17 +15,37 @@
         <x-tarjetas.tarjeta-auth
             icono="fas fa-lock"
             titulo="Actualizar Contraseña"
-            subtitulo="Ingresa tu nueva contraseña y confírmala para recuperar el acceso al sistema SIGER.">
+            subtitulo="{{ auth()->user()->must_change_password ? 'Por seguridad, debes cambiar tu contraseña predeterminada antes de continuar.' : 'Ingresa tu nueva contraseña y confírmala para actualizar tu acceso al sistema SIGER.' }}">
 
             <x-formularios.form-cambiar-contrasena
                 modo="perfil"
                 :action="route('perfil.password.update')"
                 textoBoton="Guardar Cambios"
-                :rutaCancelar="route('perfil')"
+                :rutaCancelar="auth()->user()->must_change_password ? '#' : route('perfil')"
             />
 
         </x-tarjetas.tarjeta-auth>
 
     </div>
 </div>
-@endsection
+
+{{-- Si es por obligación de primer login, cambiamos la acción del formulario de cancelar para que ejecute el POST del logout por seguridad --}}
+@if(auth()->user()->must_change_password)
+<form id="logout-form-cancelar" action="{{ route('logout') }}" method="POST" class="d-none">
+    @csrf
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnCancelar = document.querySelector('.btn-cancelar-siger');
+        if (btnCancelar) {
+            const linkCancelar = btnCancelar.closest('a');
+            if (linkCancelar) {
+                linkCancelar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('logout-form-cancelar').submit();
+                });
+            }
+        }
+    });
+</script>
+@endif

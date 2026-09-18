@@ -17,7 +17,8 @@ use App\Notifications\ResetPasswordNotification;
     'USU_PRIMER_APELLIDO', 
     'USU_SEGUNDO_APELLIDO', 
     'USU_CORREO', 
-    'USU_CONTRASEÑA', 
+    'USU_CONTRASEÑA',
+    'must_change_password', 
     'USU_ESTADO', 
     'ROL_ID'
 ])]
