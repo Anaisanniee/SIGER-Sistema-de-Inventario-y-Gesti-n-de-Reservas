@@ -5,7 +5,8 @@
 <form action="{{ $esEdicion ? route('aulas.update', $aula->aula_id) : route('aulas.store') }}" 
       method="POST" 
       enctype="multipart/form-data" 
-      class="formulario-dinamico">
+      class="formulario-dinamico"
+      id="formAula">
     @csrf
     @if($esEdicion)
         @method('PUT')
@@ -63,7 +64,7 @@
         <label for="aula_foto">Fotografía del Aula / Espacio</label>
         <input type="file" id="aula_foto" name="aula_foto" accept="image/*">
         @error('aula_foto') 
-            <div class="text-danger small">{{ $error }}</div> 
+            <div class="text-danger small">{{ $message }}</div> 
         @enderror
 
         @if($esEdicion && isset($aula->aula_foto))
@@ -108,8 +109,26 @@
             Cancelar
         </x-botones.boton>
 
-        <x-botones.boton type="submit" class="btn-siger-accion btn">
+        <x-botones.boton type="submit" id="btnSubmitAula" class="btn-siger-accion btn">
             {{ $esEdicion ? 'Guardar Cambios' : 'Registrar Aula' }}
         </x-botones.boton>
     </div>
 </form>
+
+<script>
+    document.getElementById('formAula').addEventListener('submit', function(e) {
+        const btn = document.getElementById('btnSubmitAula');
+        
+        // Si el botón ya está deshabilitado, evitamos otro envío
+        if (btn.classList.contains('disabled') || btn.getAttribute('disabled')) {
+            e.preventDefault();
+            return;
+        }
+
+        // Deshabilitamos el botón y cambiamos visualmente el estado
+        btn.disabled = true;
+        btn.style.opacity = '0.65';
+        btn.style.pointerEvents = 'none';
+        btn.innerText = 'Procesando...';
+    });
+</script>
