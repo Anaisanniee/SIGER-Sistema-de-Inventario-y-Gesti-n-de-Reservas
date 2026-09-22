@@ -5,7 +5,8 @@
 <form action="{{ $esEdicion ? route('activos.update', $activo->act_id) : route('activos.store') }}" 
       method="POST" 
       enctype="multipart/form-data" 
-      class="formulario-dinamico">
+      class="formulario-dinamico"
+      id="formActivo">
     @csrf
     @if($esEdicion)
         @method('PUT')
@@ -152,8 +153,26 @@
             Cancelar
         </x-botones.boton>
 
-        <x-botones.boton type="submit" class="btn-siger-accion btn btn-verde">
+        <x-botones.boton type="submit" id="btnSubmitActivo" class="btn-siger-accion btn btn-verde">
             {{ $esEdicion ? 'Guardar Cambios' : 'Registrar Activo' }}
         </x-botones.boton>
     </div>
 </form>
+
+<script>
+    document.getElementById('formActivo').addEventListener('submit', function(e) {
+        const btn = document.getElementById('btnSubmitActivo');
+        
+        // Si el botón ya está deshabilitado, evitamos otro envío
+        if (btn.classList.contains('disabled') || btn.getAttribute('disabled')) {
+            e.preventDefault();
+            return;
+        }
+
+        // Deshabilitamos el botón y cambiamos visualmente el estado
+        btn.disabled = true;
+        btn.style.opacity = '0.65';
+        btn.style.pointerEvents = 'none';
+        btn.innerText = 'Procesando...';
+    });
+</script>
