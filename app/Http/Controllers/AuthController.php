@@ -98,10 +98,10 @@ class AuthController extends Controller
                         Mail::to($correoDestino)->send(new NuevoDispositivoMail($user, $ip, $userAgent));
                     }
 
-                    // 🌟 Guardamos una cookie cifrada temporal por 5 minutos para que el AJAX la lea sin perderse
-                    cookie()->queue('pending_device_user_id', $user->getKey(), 5);
+                    // 🌟 Guardamos el ID del usuario pendiente en la sesión normal sin destruirla
+                    session(['pending_device_user_id' => $user->getKey()]);
 
-                    // Frenamos el acceso haciendo logout seguro
+                    // Cerramos sesión pero dejamos la sesión viva para que el AJAX la consulte
                     Auth::logout();
 
                     return redirect()->route('device.verify.notice');
@@ -167,15 +167,15 @@ class AuthController extends Controller
     }
 
     /**
-     * Verifica mediante AJAX si el dispositivo actual ya fue autorizado leyendo la cookie temporal
+     * Verifica mediante AJAX si el dispositivo actual ya fue autorizado leyendo la sesión
      */
     public function verificarEstadoDispositivo(Request $request)
     {
         $ip = $request->ip();
         $userAgent = $request->header('User-Agent');
 
-        // Leemos el ID del usuario desde la cookie temporal segura
-        $userIdPendiente = $request->cookie('pending_device_user_id');
+        // Leemos el ID del usuario pendiente desde la sesión
+        $userIdPendiente = session('pending_device_user_id');
 
         if (!$userIdPendiente) {
             return response()->json(['autorizado' => false]);
@@ -195,8 +195,8 @@ class AuthController extends Controller
                 Auth::login($user);
                 request()->session()->regenerate();
                 
-                // Borramos la cookie temporal inmediatamente para limpiar el estado
-                cookie()->queue(cookie()->forget('pending_device_user_id'));
+                // Limpiamos la variable de sesión pendiente
+                session()->forget('pending_device_user_id');
 
                 // 1. Si debe cambiar contraseña tras autorizar el dispositivo por correo
                 if (isset($user->must_change_password) && $user->must_change_password) {
