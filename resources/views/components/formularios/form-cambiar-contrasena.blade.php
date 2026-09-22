@@ -167,15 +167,15 @@
                     strengthText.className = 'text-muted fw-bold';
                 } else if (score <= 2) {
                     strengthBar.style.backgroundColor = '#dc3545'; // Rojo (Débil)
-                    strengthText.textContent = '⚠️ Contraseña débil';
+                    strengthText.textContent = 'Contraseña débil';
                     strengthText.className = 'text-danger fw-bold';
                 } else if (score === 3) {
                     strengthBar.style.backgroundColor = '#ffc107'; // Amarillo (Media)
-                    strengthText.textContent = '⚡ Contraseña aceptable';
+                    strengthText.textContent = 'Contraseña aceptable';
                     strengthText.className = 'text-warning fw-bold';
                 } else {
                     strengthBar.style.backgroundColor = '#28a745'; // Verde (Fuerte / Wao)
-                    strengthText.textContent = '✨ ¡Contraseña segura!';
+                    strengthText.textContent = '¡Contraseña segura!';
                     strengthText.className = 'text-success fw-bold';
                 }
             });

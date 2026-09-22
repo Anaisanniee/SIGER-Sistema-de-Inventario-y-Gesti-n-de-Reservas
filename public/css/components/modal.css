@@ -1,6 +1,5 @@
 /* ==========================================================================
-   ESTILOS PREMIUM: MODAL GENERAL SOBRIO (SIGER)
-   Ancho expandido en PC y soporte para componente de botón verde principal
+   ESTILOS PREMIUM: MODAL GENERAL SOBRIO (SIGER) - ACTUALIZADO
    ========================================================================== */
 
 /* Forzar despliegue limpio */
@@ -42,12 +41,6 @@
     gap: 10px;
 }
 
-/* Icono integrado de manera sutil */
-.modal-header .modal-title::before {
-    content: "";
-    font-size: 1.3rem;
-}
-
 /* Subtítulo alineado perfectamente */
 .modal-header .modal-subtitle {
     font-family: var(--fuente-principal);
@@ -83,17 +76,42 @@
     font-family: var(--fuente-principal);
 }
 
-/* Pie del modal: Botones alineados de forma natural a la derecha */
+/* ==========================================================================
+   CORRECCIÓN CLAVE: IMAGEN Y LISTA DE ACTIVOS DENTRO DEL MODAL
+   ========================================================================== */
+#modalgeneral .tarjeta-img-container,
+.modal-body .tarjeta-img-container {
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+    width: 100%;
+}
+
+#modalgeneral .tarjeta-img {
+    object-fit: contain !important; 
+    background-color: var(--color-fondo-secundario, #f8f9fa);
+}
+
+/* Contenedor de la lista de activos asociados al aula con scroll interno */
+#contenedor-activos-dinamicos {
+    max-height: 220px;
+    overflow-y: auto;
+    display: block;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+/* Pie del modal: Botones alineados a la derecha */
 .modal-footer {
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-end !important; /* Descentrado hacia la derecha clásica */
+    justify-content: flex-end !important; 
     padding: 15px 30px !important;
     border-top: 1px solid var(--color-borde) !important;
     background-color: var(--color-fondo) !important; 
 }
 
-/* INTEGRACIÓN CON TU COMPONENTE DE BOTÓN VERDE (btn-perfil-guardar) */
+/* INTEGRACIÓN CON TU COMPONENTE DE BOTÓN VERDE */
 .modal-footer .btn.btn-perfil-guardar {
     display: inline-flex !important;
     align-items: center !important;
@@ -106,7 +124,7 @@
     font-family: var(--fuente-principal);
     border-radius: 4px !important;
     border: none !important;
-    background-color: var(--color-principal) !important; /* Verde corporativo */
+    background-color: var(--color-principal) !important; 
     color: var(--color-fondo) !important;
     cursor: pointer !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
@@ -114,9 +132,8 @@
 }
 
 .modal-footer .btn.btn-perfil-guardar:hover {
-    background-color: var(--principal-secundario) !important; /* Verde más oscuro al pasar el mouse */
+    background-color: var(--principal-secundario) !important; 
 }
-
 
 /* ==========================================================================
    MÓVIL & RESPONSIVO
@@ -144,7 +161,7 @@
     }
 
     .modal-footer .btn.btn-perfil-guardar {
-        width: 100% !important; /* Full width solo en pantallas táctiles */
+        width: 100% !important; 
     }
 }
 
@@ -153,7 +170,7 @@
    ========================================================================== */
 @media (min-width: 769px) {
     .modal-dialog {
-        max-width: 800px; /* Expandido de 600px a 800px para mayor amplitud en PC */
+        max-width: 800px; 
         margin: 3rem auto;
     }
 }

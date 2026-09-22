@@ -283,3 +283,85 @@ label {
         padding: 20px;
     }
 }
+
+/* --- BLOQUEO TOTAL PARA QUE NUNCA SE APILE EN VERTICAL --- */
+#modalgeneral .seccion-activos-asignados li,
+#modalgeneral #contenedor-activos-dinamicos li {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    padding: 10px 12px !important;
+    background-color: #ffffff !important;
+    border: none !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    box-shadow: none !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Forzar que el grupo interno (miniatura y texto) siempre vaya en fila horizontal */
+#modalgeneral .seccion-activos-asignados li > div,
+#modalgeneral #contenedor-activos-dinamicos li > div {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Asegurar el tamaño diminuto y fijo de la miniatura sin importar el dispositivo */
+#modalgeneral .siger-miniatura-container {
+    width: 35px !important;
+    height: 35px !important;
+    min-width: 35px !important;
+    max-width: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+#modalgeneral .siger-miniatura-container img {
+    width: 35px !important;
+    height: 35px !important;
+    min-width: 35px !important;
+    max-width: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+/* --- CORRECCIÓN DEFINITIVA PARA LA IMAGEN SUELTA EN EL INVENTARIO --- */
+#modalgeneral .activo-item img,
+#modalgeneral #contenedor-activos-dinamicos img.img-activo-preview {
+    width: 35px !important;
+    height: 35px !important;
+    min-width: 35px !important;
+    max-width: 35px !important;
+    min-height: 35px !important;
+    max-height: 35px !important;
+    object-fit: cover !important;
+    border-radius: 6px !important;
+    border: 1px solid #dee2e6 !important;
+    flex-shrink: 0 !important;
+}
+
+/* Forzar que la fila del activo siempre mantenga estructura horizontal en cualquier pantalla */
+#modalgeneral #contenedor-activos-dinamicos li,
+#modalgeneral .activo-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 12px !important;
+}
