@@ -98,13 +98,11 @@ class AuthController extends Controller
                         Mail::to($correoDestino)->send(new NuevoDispositivoMail($user, $ip, $userAgent));
                     }
 
-                    // 🌟 Guardamos el ID del usuario en sesión temporal para evitar autoconfirmación cruzada
-                    session(['pending_device_user_id' => $user->getKey()]);
+                    // 🌟 Guardamos una cookie cifrada temporal por 5 minutos para que el AJAX la lea sin perderse
+                    cookie()->queue('pending_device_user_id', $user->getKey(), 5);
 
-                    // Frenamos el acceso y destruimos la sesión temporal de login
+                    // Frenamos el acceso haciendo logout seguro
                     Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
 
                     return redirect()->route('device.verify.notice');
                 }
@@ -169,21 +167,21 @@ class AuthController extends Controller
     }
 
     /**
-     * Verifica mediante AJAX si el dispositivo actual ya fue autorizado para el usuario pendiente
+     * Verifica mediante AJAX si el dispositivo actual ya fue autorizado leyendo la cookie temporal
      */
     public function verificarEstadoDispositivo(Request $request)
     {
         $ip = $request->ip();
         $userAgent = $request->header('User-Agent');
 
-        // Obtenemos el ID del usuario pendiente guardado en sesión
-        $userIdPendiente = session('pending_device_user_id');
+        // Leemos el ID del usuario desde la cookie temporal segura
+        $userIdPendiente = $request->cookie('pending_device_user_id');
 
         if (!$userIdPendiente) {
             return response()->json(['autorizado' => false]);
         }
 
-        // Validamos estrictamente si el dispositivo fue autorizado para ESTE usuario específico
+        // Validamos si el dispositivo ya fue registrado en la base de datos por el enlace del correo
         $dispositivo = DB::table('user_devices')
             ->where('user_id', $userIdPendiente)
             ->where('ip_address', $ip)
@@ -196,7 +194,9 @@ class AuthController extends Controller
             if ($user) {
                 Auth::login($user);
                 request()->session()->regenerate();
-                session()->forget('pending_device_user_id'); // Limpiamos la variable temporal
+                
+                // Borramos la cookie temporal inmediatamente para limpiar el estado
+                cookie()->queue(cookie()->forget('pending_device_user_id'));
 
                 // 1. Si debe cambiar contraseña tras autorizar el dispositivo por correo
                 if (isset($user->must_change_password) && $user->must_change_password) {

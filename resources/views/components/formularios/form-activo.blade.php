@@ -86,7 +86,7 @@
             value="{{ old('his_pre_motivo') }}"
             class="@error('his_pre_motivo') is-invalid @enderror"
             placeholder="Ej: Mantenimiento, reavalúo, error de registro..."
-            required>
+            >
         @error('his_pre_motivo') 
             <div class="text-danger small">{{ $message }}</div> 
         @enderror
