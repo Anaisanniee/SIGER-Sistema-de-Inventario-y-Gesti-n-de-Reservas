@@ -208,7 +208,7 @@ class ReservasControllers extends Controller
             }
         }
 
-        $aulas = AulasModels::all();
+        $aulas = AulasModels::where('aula_estado', 'Buen estado')->get();
 
         // Aseguramos el primer recurso para que el componente no falle en el paso 2
         $primerItem = $recursos->first();
