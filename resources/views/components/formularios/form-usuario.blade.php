@@ -87,12 +87,14 @@
     </div>
 @endif
 
-{{-- CORREO --}}
+{{-- CORREO  se oculta en mdo crear y editar.admin--}}
+@if('perfil' === $modo || 'crear' === $modo )
 <div class="post-form">
     <label for="correo">Correo Electrónico <span class="text-danger">*</span></label>
     <input type="email" id="correo" name="correo" required
            value="{{ old('correo', $usuario->USU_CORREO ?? '') }}">
 </div>
+@endif
 
 {{-- GESTIÓN DINÁMICA DE CONTRASEÑA SEGÚN MODO --}}
 @if('crear' === $modo)
