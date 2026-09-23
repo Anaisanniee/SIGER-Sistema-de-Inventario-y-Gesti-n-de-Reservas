@@ -16,8 +16,15 @@ return new class extends Migration
             $table->string('res_estado_reserva', 25);
             $table->date('res_fecha_creacion');
             $table->string('res_motivo', 255);
+            
             $table->unsignedBigInteger('usu_id');
-            $table->foreign('usu_id')->references('usu_id')->on('users');
+            
+            // Agregamos onDelete('cascade') aquí para que borre las reservas si el usuario se elimina
+            $table->foreign('usu_id')
+                  ->references('usu_id')
+                  ->on('users')
+                  ->onDelete('cascade');
+                  
             $table->timestamps();
         });
     }
