@@ -7,6 +7,7 @@ use App\Models\ReservasModels;
 use App\Models\User;
 use App\Models\DetallesReservasModels;
 use App\Mail\AprobarReservaMail;
+use App\Mail\ReservaRechazadaMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -219,8 +220,11 @@ class ReservasControllers extends Controller
 
     public function guardarPaso2(Request $request)
     {
+        // --- CÁLCULO DE FECHA MÍNIMA SEGÚN HORARIO DE CIERRE (17:00) ---
+        $minFechaRegla = (Carbon::now('America/Bogota')->format('H:i') >= '17:00') ? 'tomorrow' : 'today';
+
         $reglasValidacion = [
-            'res_fecha_inicio' => 'required|date',
+            'res_fecha_inicio' => 'required|date|after_or_equal:' . $minFechaRegla,
             'res_fecha_fin'    => 'required|date|after_or_equal:res_fecha_inicio',
             'res_hora_inicio'  => 'required',
             'res_hora_fin'     => 'required',
@@ -240,10 +244,34 @@ class ReservasControllers extends Controller
         $horaInicio = strlen($horaInicioInput) === 5 ? $horaInicioInput . ':00' : $horaInicioInput;
         $horaFin    = strlen($horaFinInput) === 5 ? $horaFinInput . ':00' : $horaFinInput;
 
-        $fechaHoraInicio = $request->res_fecha_inicio . ' ' . $horaInicio;
-        $fechaHoraFin    = $request->res_fecha_fin . ' ' . $horaFin;
+        // --- 1. VALIDACIÓN DEL HORARIO DE OPERACIÓN (6:00 a.m. a 5:00 p.m.) ---
+        $apertura = Carbon::createFromTime(6, 0, 0);
+        $cierre = Carbon::createFromTime(17, 0, 0);
+        $inicioCarbon = Carbon::createFromFormat('H:i:s', $horaInicio);
+        $finCarbon = Carbon::createFromFormat('H:i:s', $horaFin);
 
-        // --- SOLUCIÓN: Obtener el nombre real del aula usando 'aula_id' ---
+        if ($inicioCarbon->lt($apertura) || $inicioCarbon->gt($cierre) || $finCarbon->lt($apertura) || $finCarbon->gt($cierre)) {
+            return back()->withErrors(['res_hora_inicio' => 'Las reservas solo están permitidas dentro del horario de la institución (6:00 a.m. a 5:00 p.m.).'])->withInput();
+        }
+
+        if ($finCarbon->lte($inicioCarbon)) {
+            return back()->withErrors(['res_hora_fin' => 'La hora de fin debe ser posterior a la hora de inicio.'])->withInput();
+        }
+
+        // --- 2. VALIDACIÓN DE HORA PASADA SI LA RESERVA ES PARA HOY ---
+        $fechaHoraInicio = $request->res_fecha_inicio . ' ' . $horaInicio;
+        $inicioReserva = Carbon::parse($fechaHoraInicio);
+        $ahora = Carbon::now('America/Bogota');
+
+        if ($inicioReserva->isToday() && $inicioReserva->lessThan($ahora)) {
+            return back()
+                ->withErrors(['res_hora_inicio' => 'No puedes seleccionar una hora que ya ha transcurrido el día de hoy.'])
+                ->withInput();
+        }
+
+        $fechaHoraFin = $request->res_fecha_fin . ' ' . $horaFin;
+
+        // --- Obtener el nombre real del aula usando 'aula_id' ---
         $nombreAulaUso = null;
         if ($request->filled('aula_uso')) {
             $aulaInput = $request->aula_uso;
@@ -359,7 +387,7 @@ class ReservasControllers extends Controller
             $fechaFin .= ':00';
         }
 
-        $recursosOcupadosNombres = [];
+        $detallesOcupados = [];
 
         // 1. Revisar conflictos en activos
         if (!empty($idsActivos)) {
@@ -374,7 +402,9 @@ class ReservasControllers extends Controller
 
             foreach ($conflictosActivos as $detalle) {
                 if ($detalle->activo) {
-                    $recursosOcupadosNombres[] = $detalle->activo->act_nombre;
+                    $horaIniConflicto = date('h:i A', strtotime($detalle->det_re_fecha_ini));
+                    $horaFinConflicto = date('h:i A', strtotime($detalle->det_re_fecha_fin));
+                    $detallesOcupados[] = "El activo \"{$detalle->activo->act_nombre}\" estará ocupado desde las {$horaIniConflicto} hasta las {$horaFinConflicto}";
                 }
             }
         }
@@ -397,18 +427,24 @@ class ReservasControllers extends Controller
                 if ($idAulaEncontrada) {
                     $aulaObj = AulasModels::where('aula_id', $idAulaEncontrada)->first();
                     if ($aulaObj) {
-                        $recursosOcupadosNombres[] = $aulaObj->aula_nombre;
+                        $horaIniConflicto = date('h:i A', strtotime($detalle->det_re_fecha_ini));
+                        $horaFinConflicto = date('h:i A', strtotime($detalle->det_re_fecha_fin));
+                        $detallesOcupados[] = "El aula \"{$aulaObj->aula_nombre}\" estará ocupada desde las {$horaIniConflicto} hasta las {$horaFinConflicto}";
                     }
                 }
             }
         }
 
-        if (!empty($recursosOcupadosNombres)) {
-            $listaNombres = implode(', ', array_unique($recursosOcupadosNombres));
+        if (!empty($detallesOcupados)) {
+            // Unimos los elementos únicos separados simplemente por una coma y un espacio
+            $listaItems = implode(', ', array_unique($detallesOcupados));
+            
+            // Armamos el mensaje completo de forma fluida
+            $mensajeCompleto = "⚠️ Conflictos de horario detectados: " . $listaItems;
 
             return redirect()->route('reservas.paso2')
                 ->withErrors([
-                    'res_hora_inicio' => "⚠️ Los siguientes recursos o aulas ya se encuentran reservados en ese horario: {$listaNombres}. Por favor seleccione otra hora."
+                    'res_hora_inicio' => $mensajeCompleto
                 ])
                 ->withInput();
         }
@@ -524,11 +560,23 @@ class ReservasControllers extends Controller
 
     public function rechazar($id)
     {
-        $reserva = ReservasModels::findOrFail($id);
-        $reserva->res_estado_reserva = 'Rechazada'; // Ajusta al texto que uses (ej: 'Rechazada')
+        // 1. Cargamos la reserva con sus relaciones (igual que en aprobar)
+        $reserva = ReservasModels::with(['detalles.activo', 'detalles.aula', 'detalles.aulaDestino', 'usuario'])->findOrFail($id);
+        
+        // 2. Cambiamos el estado a rechazada y guardamos
+        $reserva->res_estado_reserva = 'Rechazada'; // O 'rechazada', según manejes tus estados
         $reserva->save();
 
-        return redirect()->back()->with('success', 'Reserva rechazada.');
+        // 3. --- DISPARAMOS EL CORREO ELECTRÓNICO ---
+        if ($reserva->usuario && !empty($reserva->usuario->USU_CORREO)) {
+            try {
+                Mail::to($reserva->usuario->USU_CORREO)->send(new ReservaRechazadaMail($reserva));
+            } catch (\Exception $e) {
+                \Log::error("Error enviando correo de rechazo: " . $e->getMessage());
+            }
+        }
+
+        return redirect()->back()->with('success', 'Reserva rechazada y notificación enviada correctamente.');
     }
 
     public function revertir($id)

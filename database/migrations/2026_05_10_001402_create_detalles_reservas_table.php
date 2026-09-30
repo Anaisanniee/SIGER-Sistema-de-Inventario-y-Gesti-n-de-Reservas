@@ -19,10 +19,25 @@ return new class extends Migration
             $table->unsignedBigInteger('act_id')->nullable();
             $table->unsignedBigInteger('det_re_aula_destino_act')->nullable();
             $table->unsignedBigInteger('aula_id')->nullable();
-            $table->foreign('res_id')->references('res_id')->on('reservas');
-            $table->foreign('act_id')->references('act_id')->on('activos');
-            $table->foreign('det_re_aula_destino_act')->references('aula_id')->on('aulas');
-            $table->foreign('aula_id')->references('aula_id')->on('aulas');
+            
+            // Agregamos onDelete('cascade') aquí para que si se borra la reserva, sus detalles se eliminen solos
+            $table->foreign('res_id')
+                  ->references('res_id')
+                  ->on('reservas')
+                  ->onDelete('cascade');
+                  
+            $table->foreign('act_id')
+                  ->references('act_id')
+                  ->on('activos');
+                  
+            $table->foreign('det_re_aula_destino_act')
+                  ->references('aula_id')
+                  ->on('aulas');
+                  
+            $table->foreign('aula_id')
+                  ->references('aula_id')
+                  ->on('aulas');
+                  
             $table->timestamps();
         });
     }

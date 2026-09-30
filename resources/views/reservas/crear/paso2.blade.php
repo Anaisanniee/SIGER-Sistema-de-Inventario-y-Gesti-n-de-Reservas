@@ -59,6 +59,14 @@
     
     $userCedula = $user->USU_CEDULA ?? ($user->usu_cedula ?? ($user->id ?? 'Por completar'));
     $userCorreo = $user->USU_CORREO ?? ($user->usu_correo ?? ($user->email ?? 'Por completar'));
+
+    // --- CÁLCULO DE FECHA MÍNIMA SEGÚN EL HORARIO DE PRÉSTAMO (6 AM a 5 PM) ---
+    $horaActual = \Carbon\Carbon::now('America/Bogota')->format('H:i');
+    
+    // Si ya pasaron las 5:00 PM (17:00), el mínimo permitido es mañana. Si no, es hoy.
+    $minFecha = ($horaActual >= '17:00') 
+        ? \Carbon\Carbon::now('America/Bogota')->addDay()->format('Y-m-d') 
+        : \Carbon\Carbon::now('America/Bogota')->format('Y-m-d');
 @endphp
 
 <link rel="stylesheet" href="{{ asset('css/components/stepper.css') }}">
@@ -108,15 +116,15 @@
                             <div class="post-form">
                                 <label for="res_fecha_inicio">Fecha de Inicio <span class="text-danger">*</span></label>
                                 <input type="date" id="res_fecha_inicio" name="res_fecha_inicio" required 
-                                    min="{{ date('Y-m-d') }}"
-                                    value="{{ old('res_fecha_inicio', $valFechaInicio) }}">
+                                    min="{{ $minFecha }}"
+                                    value="{{ old('res_fecha_inicio', $valFechaInicio ?: $minFecha) }}">
                             </div>
 
                             <div class="post-form">
                                 <label for="res_fecha_fin">Fecha de Fin <span class="text-danger">*</span></label>
                                 <input type="date" id="res_fecha_fin" name="res_fecha_fin" required 
-                                    min="{{ date('Y-m-d') }}"
-                                    value="{{ old('res_fecha_fin', $valFechaFin) }}">
+                                    min="{{ $minFecha }}"
+                                    value="{{ old('res_fecha_fin', $valFechaFin ?: $minFecha) }}">
                             </div>
                         </div>
 
