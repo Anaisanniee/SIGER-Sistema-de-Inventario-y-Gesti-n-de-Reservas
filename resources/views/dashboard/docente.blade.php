@@ -1,35 +1,17 @@
 @extends('layouts.app') 
+
 @section('mostrarRegresar', 'false')
 @section('mostrarBusqueda', 'true')
 
 @section('content')
 @php
     $esAdmin = Auth::check() && in_array(Auth::user()->rol, ['admin', 'secretario', 'secretaria']);
-
-    // Lógica para el saludo dinámico según la hora en Colombia
-    $usuario = auth()->user();
-    $primerNombre = trim($usuario->USU_PRIMER_NOMBRE ?? '') ?: 'Docente';
-
-    $hora = (int) now()->format('H');
-    $minuto = (int) now()->format('i');
-    $tiempoEnMinutos = ($hora * 60) + $minuto;
-
-    // Rangos: 
-    // - Buenos Días: 03:01 a 11:59 (181 a 719 min)
-    // - Buenas Tardes: 12:00 a 18:59 (720 a 1139 min)
-    // - Buenas Noches: 19:00 en adelante hasta las 03:00
-    if ($tiempoEnMinutos >= 181 && $tiempoEnMinutos <= 719) {
-        $saludo = 'Buenos Días';
-    } elseif ($tiempoEnMinutos >= 720 && $tiempoEnMinutos <= 1139) {
-        $saludo = 'Buenas Tardes';
-    } else {
-        $saludo = 'Buenas Noches';
-    }
 @endphp
+{{-- Resto del código... --}}
 
 {{--- 1. TARJETA DE BIENVENIDA ---}}
 @include('components.tarjetas.tarjeta-bienvenido', [
-    'titulo' => "{$saludo}, {$primerNombre}",
+    'titulo' => 'Bienvenido Docente',   
     'descripcion' => 'Reserva equipos y aulas de la Institución Educativa Bohórquez.'
 ])
 
@@ -45,6 +27,11 @@
     @endcomponent
 </div>
 
+{{--- 3. FILTRO OVALADO DE RECURSOS ---}}
+<div class="filtro-rapido-contenedor">
+    @include('components.filtros.filtro-rapido', ['opciones' => ['bueno', 'reservable', 'en mantenimiento']])
+</div>
+
 {{--- 4. CONTENEDOR PRINCIPAL DE TARJETAS ---}} 
 <div class="container-tarjetas">
     @foreach($recursos as $recurso)
@@ -52,25 +39,18 @@
         @if(isset($recurso->act_id))
             
             @php
-                // Tag base de tipo
                 $tagsActivo = ['activo'];
-                
-                // Limpieza y normalización de textos para evitar fallos por mayúsculas o espacios extra
                 $estadoActivo = isset($recurso->act_estado_fisico) ? strtolower(trim($recurso->act_estado_fisico)) : '';
                 $reservableActivo = isset($recurso->act_reservable) ? strtolower(trim($recurso->act_reservable)) : '';
 
-                if ($estadoActivo == 'buen estado' || $estadoActivo == 'bueno') {
-                    $tagsActivo[] = 'Disponible'; 
-                } 
-
-                if ($estadoActivo == 'buen estado' || $estadoActivo == 'excelente') {
-                    $tagsActivo[] = 'Disponible'; 
-                } 
-
-                if ($estadoActivo == 'buen estado' || $estadoActivo == 'regular') {
-                    $tagsActivo[] = 'Disponible'; 
+                if (in_array($estadoActivo, ['buen estado', 'bueno', 'excelente', 'regular'])) {
+                    $tagsActivo[] = 'bueno'; 
                 } 
                 
+                if ($estadoActivo == 'malo') {
+                    $tagsActivo[] = 'en-mantenimiento'; 
+                }
+
                 if ($reservableActivo == 'true' || $recurso->act_reservable === true || $recurso->act_reservable == 1) {
                     $tagsActivo[] = 'reservable';
                 }
@@ -95,10 +75,7 @@
         @else
 
             @php
-                // Tag base de tipo
                 $tagsAula = ['aula'];
-                
-                // Limpieza y normalización de textos
                 $estadoAula = isset($recurso->aula_estado) ? strtolower(trim($recurso->aula_estado)) : '';
                 $reservableAula = isset($recurso->aula_reservable) ? strtolower(trim($recurso->aula_reservable)) : '';
 
@@ -143,7 +120,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Funcionalidad del buscador de recursos
     const buscador = document.getElementById('buscador-recursos');
 
     if (buscador) {
@@ -165,7 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 2. Funcionalidad del modal general de activos
     document.querySelectorAll('[data-bs-target="#modalgeneral"]').forEach(button => {
         button.addEventListener('click', function() {
             const contenedor = document.getElementById('contenedor-activos-dinamicos');
@@ -233,18 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // 3. Limpieza profunda y definitiva del carrito en el navegador
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('siger_carrito_') || key.includes('carrito') || key.includes('cart') || key.includes('reserva_temp')) {
-            localStorage.removeItem(key);
-        }
-    });
-
-    localStorage.removeItem('carrito');
-    localStorage.removeItem('cart');
-    localStorage.removeItem('reserva_temp');
-    sessionStorage.clear();
 });
 </script>
 <script src="{{ asset('js/componentes/filtros-inventario.js') }}"></script>
